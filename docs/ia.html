@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager IA 설계</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a0f; color:#e8e8f0; font-family:'Segoe UI', system-ui, sans-serif; padding:2rem; min-width:900px; }
+
+  h1 { font-size:1.3rem; font-weight:800; color:#fff; margin-bottom:0.3rem; }
+  .subtitle { font-size:0.85rem; color:#8888aa; margin-bottom:2.5rem; }
+
+  /* 전체 트리 */
+  .tree { display:flex; flex-direction:column; align-items:center; gap:0; }
+
+  /* 노드 공통 */
+  .node {
+    border-radius:10px; padding:0.6rem 1.2rem;
+    font-size:0.85rem; font-weight:600; text-align:center;
+    position:relative; white-space:nowrap;
+  }
+
+  /* 루트 */
+  .node-root {
+    background:linear-gradient(135deg, #6c63ff, #9b8fff);
+    color:#fff; font-size:1rem; padding:0.8rem 2rem;
+    box-shadow:0 4px 24px rgba(108,99,255,0.4);
+  }
+
+  /* 1depth */
+  .node-1 {
+    background:#1c1c27; border:1px solid #3a3a55;
+    color:#a78bfa;
+  }
+
+  /* 2depth */
+  .node-2 {
+    background:#13131a; border:1px solid #2a2a3a;
+    color:#e8e8f0; font-weight:500; font-size:0.8rem;
+  }
+
+  /* 데모 필수 */
+  .node-demo { border-color: rgba(108,99,255,0.5) !important; }
+  .node-later { border-color: #2a2a3a !important; color:#555577 !important; }
+
+  /* 연결선 - 수직 */
+  .vline {
+    width:2px; background:#2a2a3a; margin:0 auto;
+  }
+  .vline-root { height:32px; background:linear-gradient(to bottom, #6c63ff, #2a2a3a); }
+  .vline-short { height:20px; }
+  .vline-med { height:24px; }
+
+  /* 1depth 행 */
+  .depth1-row {
+    display:flex; align-items:flex-start; gap:0; position:relative;
+  }
+
+  /* 수평선 컨테이너 */
+  .hline-wrap {
+    display:flex; align-items:flex-start; position:relative;
+  }
+
+  /* 각 1depth 컬럼 */
+  .col {
+    display:flex; flex-direction:column; align-items:center;
+    min-width:140px; padding:0 8px;
+  }
+
+  /* 수평 연결선 */
+  .hline {
+    position:absolute; top:0; height:2px; background:#2a2a3a;
+  }
+
+  /* 2depth 그룹 */
+  .children { display:flex; flex-direction:column; align-items:center; gap:0; width:100%; }
+
+  /* 범례 */
+  .legend { display:flex; gap:1.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:0.5rem; font-size:0.78rem; color:#8888aa; }
+  .legend-dot { width:12px; height:12px; border-radius:3px; border:1px solid; }
+
+  /* 설정 노드 (회색) */
+  .node-settings { background:#13131a; border:1px solid #222233; color:#444466; }
+
+  .tag-small {
+    font-size:0.6rem; padding:0.1rem 0.4rem; border-radius:8px;
+    margin-top:0.3rem; display:inline-block; font-weight:700;
+  }
+  .tag-demo-s { background:rgba(108,99,255,0.15); color:#a78bfa; }
+  .tag-later-s { background:rgba(136,136,170,0.05); color:#555577; }
+</style>
+</head>
+<body>
+
+<h1>🗂 Scope Manager IA 설계</h1>
+<p class="subtitle">PM 화면 기준 · 정보 구조도 (Information Architecture)</p>
+
+<!-- 범례 -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:rgba(108,99,255,0.3);border-color:#6c63ff;"></div>
+    루트 (메인 대시보드)
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#1c1c27;border-color:#3a3a55;"></div>
+    1depth 메뉴
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#13131a;border-color:rgba(108,99,255,0.5);"></div>
+    2depth (데모 필수)
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#13131a;border-color:#2a2a3a;"></div>
+    2depth (나중에)
+  </div>
+</div>
+
+<div class="tree">
+
+  <!-- 루트 -->
+  <div class="node node-root">🏠 메인 대시보드</div>
+  <div class="vline vline-root" style="height:28px;"></div>
+
+  <!-- 수평선 + 1depth 5개 -->
+  <div style="position:relative; width:100%;">
+
+    <!-- 수평선 -->
+    <div style="position:absolute; top:0; left:calc(9% + 70px); right:calc(9% + 70px); height:2px; background:#2a2a3a;"></div>
+
+    <!-- 1depth 행 -->
+    <div style="display:flex; justify-content:space-between; padding:0 9%;">
+
+      <!-- 프로젝트 관리 -->
+      <div class="col">
+        <div class="vline vline-short"></div>
+        <div class="node node-1">📋 프로젝트 관리</div>
+        <div class="vline vline-short"></div>
+        <div class="children">
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            프로젝트 목록
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            프로젝트 상세
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            프로젝트 등록
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-later" style="width:100%;">
+            스코프 설정
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 추가 요청 관리 -->
+      <div class="col">
+        <div class="vline vline-short"></div>
+        <div class="node node-1">⚡ 추가 요청 관리</div>
+        <div class="vline vline-short"></div>
+        <div class="children">
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            추가 요청 목록
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            요청 등록
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            영향도 분석
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-later" style="width:100%;">
+            요청 상태 변경
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 수익성 현황 -->
+      <div class="col">
+        <div class="vline vline-short"></div>
+        <div class="node node-1">💰 수익성 현황</div>
+        <div class="vline vline-short"></div>
+        <div class="children">
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            전체 수익성 요약
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            프로젝트별 마진율
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-later" style="width:100%;">
+            월별 추이
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 견적서 관리 -->
+      <div class="col">
+        <div class="vline vline-short"></div>
+        <div class="node node-1">📄 견적서 관리</div>
+        <div class="vline vline-short"></div>
+        <div class="children">
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            견적서 목록
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            견적서 생성
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-demo" style="width:100%;margin-bottom:10px;">
+            클라이언트 공유 뷰
+            <div><span class="tag-small tag-demo-s">데모 필수</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-later" style="width:100%;">
+            승인 관리
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 설정 -->
+      <div class="col">
+        <div class="vline vline-short"></div>
+        <div class="node node-1 node-settings">⚙️ 설정</div>
+        <div class="vline vline-short"></div>
+        <div class="children">
+          <div class="node node-2 node-later" style="width:100%;margin-bottom:10px;">
+            공수 단가 설정
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-later" style="width:100%;margin-bottom:10px;">
+            알림 설정
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+          <div class="vline vline-short"></div>
+          <div class="node node-2 node-later" style="width:100%;">
+            계정 정보
+            <div><span class="tag-small tag-later-s">나중에</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
