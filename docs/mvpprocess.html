@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP 기획 프로세스</title>
+<style>
+  :root {
+    --p1: #6C63FF;
+    --p2: #00BFA5;
+    --p3: #FF7043;
+    --bg: #0F0F1A;
+    --card: #1A1A2E;
+    --border: #2A2A45;
+    --text: #E8E8F0;
+    --sub: #9090B0;
+    --new: #FFD600;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; min-height:100vh; }
+
+  header {
+    text-align:center; padding:60px 20px 40px;
+    background: linear-gradient(135deg, #1a1a3e 0%, #0f0f1a 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size:2.2rem; font-weight:800; letter-spacing:-0.5px; }
+  header h1 span { background:linear-gradient(90deg,#6C63FF,#00BFA5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  header p { color:var(--sub); margin-top:10px; font-size:1rem; }
+
+  .legend {
+    display:flex; justify-content:center; gap:24px; padding:20px;
+    flex-wrap:wrap;
+  }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--sub); }
+  .legend-dot { width:10px; height:10px; border-radius:50%; }
+
+  .timeline { max-width:860px; margin:0 auto; padding:20px 20px 60px; }
+
+  .phase-block { margin-bottom:48px; }
+  .phase-label {
+    display:inline-flex; align-items:center; gap:10px;
+    padding:8px 20px; border-radius:24px; font-weight:700; font-size:.9rem;
+    margin-bottom:24px; letter-spacing:.5px;
+  }
+  .phase-1 .phase-label { background:rgba(108,99,255,.15); color:#a09bff; border:1px solid rgba(108,99,255,.3); }
+  .phase-2 .phase-label { background:rgba(0,191,165,.15); color:#4dffd8; border:1px solid rgba(0,191,165,.3); }
+  .phase-3 .phase-label { background:rgba(255,112,67,.15); color:#ffaa88; border:1px solid rgba(255,112,67,.3); }
+
+  .steps { display:flex; flex-direction:column; gap:0; }
+
+  .step-row { display:flex; gap:0; align-items:stretch; }
+  .step-connector { display:flex; flex-direction:column; align-items:center; width:40px; flex-shrink:0; }
+  .step-dot {
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:.8rem; flex-shrink:0; position:relative; z-index:1;
+  }
+  .phase-1 .step-dot { background:#6C63FF; color:#fff; box-shadow:0 0 0 4px rgba(108,99,255,.2); }
+  .phase-2 .step-dot { background:#00BFA5; color:#fff; box-shadow:0 0 0 4px rgba(0,191,165,.2); }
+  .phase-3 .step-dot { background:#FF7043; color:#fff; box-shadow:0 0 0 4px rgba(255,112,67,.2); }
+  .step-dot.new-step { animation: pulse 2s infinite; }
+  .step-line {
+    width:2px; flex:1; min-height:20px;
+    background: linear-gradient(180deg, rgba(108,99,255,.4) 0%, transparent 100%);
+  }
+  .phase-2 .step-line { background: linear-gradient(180deg, rgba(0,191,165,.4) 0%, transparent 100%); }
+  .phase-3 .step-line { background: linear-gradient(180deg, rgba(255,112,67,.4) 0%, transparent 100%); }
+  .step-line.hidden { background:transparent; }
+
+  .step-card {
+    flex:1; margin-left:16px; margin-bottom:20px;
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:18px 20px; cursor:pointer; transition:all .25s;
+    position:relative; overflow:hidden;
+  }
+  .step-card:hover { border-color:rgba(108,99,255,.5); transform:translateX(4px); box-shadow:0 4px 20px rgba(0,0,0,.3); }
+  .phase-2 .step-card:hover { border-color:rgba(0,191,165,.5); }
+  .phase-3 .step-card:hover { border-color:rgba(255,112,67,.5); }
+  .step-card.open { border-color:rgba(108,99,255,.5); }
+  .phase-2 .step-card.open { border-color:rgba(0,191,165,.5); }
+  .phase-3 .step-card.open { border-color:rgba(255,112,67,.5); }
+
+  .step-card::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--p1); border-radius:3px 0 0 3px;
+  }
+  .phase-2 .step-card::before { background:var(--p2); }
+  .phase-3 .step-card::before { background:var(--p3); }
+
+  .step-header { display:flex; align-items:center; gap:10px; }
+  .step-title { font-weight:700; font-size:1rem; flex:1; }
+  .step-subtitle { font-size:.78rem; color:var(--sub); }
+  .new-badge {
+    background:var(--new); color:#000; font-size:.65rem; font-weight:800;
+    padding:2px 7px; border-radius:10px; letter-spacing:.5px;
+  }
+  .chevron { color:var(--sub); font-size:1rem; transition:transform .25s; }
+  .open .chevron { transform:rotate(180deg); }
+
+  .step-body { display:none; margin-top:14px; border-top:1px solid var(--border); padding-top:14px; }
+  .open .step-body { display:block; }
+  .purpose { color:var(--sub); font-size:.85rem; margin-bottom:10px; line-height:1.6; }
+  .purpose strong { color:#a09bff; }
+  .phase-2 .purpose strong { color:#4dffd8; }
+  .phase-3 .purpose strong { color:#ffaa88; }
+  .output-label { font-size:.75rem; font-weight:700; color:var(--sub); letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px; }
+  .output-tag {
+    display:inline-block; background:rgba(255,255,255,.06); border:1px solid var(--border);
+    border-radius:6px; padding:4px 10px; font-size:.78rem; margin:3px 3px 3px 0;
+    color:var(--text);
+  }
+  .example-box {
+    margin-top:12px; background:rgba(255,255,255,.03); border-left:3px solid var(--p1);
+    border-radius:0 8px 8px 0; padding:10px 14px; font-size:.82rem; line-height:1.7; color:#ccc;
+  }
+  .phase-2 .example-box { border-color:var(--p2); }
+  .phase-3 .example-box { border-color:var(--p3); }
+
+  @keyframes pulse {
+    0%,100% { box-shadow:0 0 0 4px rgba(255,214,0,.2); }
+    50% { box-shadow:0 0 0 8px rgba(255,214,0,.1); }
+  }
+
+  .summary-bar {
+    max-width:860px; margin:0 auto 40px; padding:0 20px;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+  }
+  .stat-card {
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:20px; text-align:center;
+  }
+  .stat-num { font-size:2rem; font-weight:800; }
+  .stat-p1 { color:#6C63FF; }
+  .stat-p2 { color:#00BFA5; }
+  .stat-p3 { color:#FF7043; }
+  .stat-label { font-size:.8rem; color:var(--sub); margin-top:4px; }
+
+  footer { text-align:center; padding:24px; color:var(--sub); font-size:.8rem; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MVP 기획 <span>프로세스 가이드</span></h1>
+  <p>화면을 그리기 전, "무엇을 만들고 무엇을 뺄지" 결정하는 10단계 프레임워크</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#6C63FF"></div>Phase 1 · 문제 검증 및 범위 확정</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00BFA5"></div>Phase 2 · 구조 및 화면 설계</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FF7043"></div>Phase 3 · 실행 지침 및 테스트</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FFD600"></div>NEW · 보완된 단계</div>
+</div>
+
+<div class="summary-bar">
+  <div class="stat-card"><div class="stat-num stat-p1">5</div><div class="stat-label">Phase 1 단계</div></div>
+  <div class="stat-card"><div class="stat-num stat-p2">3</div><div class="stat-label">Phase 2 단계</div></div>
+  <div class="stat-card"><div class="stat-num stat-p3">2</div><div class="stat-label">Phase 3 단계</div></div>
+</div>
+
+<div class="timeline">
+
+  <!-- PHASE 1 -->
+  <div class="phase-block phase-1">
+    <div class="phase-label">⚡ PHASE 1 &nbsp;·&nbsp; 문제 검증 및 범위 확정</div>
+    <div class="steps" id="phase1"></div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-block phase-2">
+    <div class="phase-label">🎨 PHASE 2 &nbsp;·&nbsp; 구조 및 화면 설계</div>
+    <div class="steps" id="phase2"></div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-block phase-3">
+    <div class="phase-label">🚀 PHASE 3 &nbsp;·&nbsp; 실행 지침 및 테스트</div>
+    <div class="steps" id="phase3"></div>
+  </div>
+
+</div>
+
+<footer>MVP 기획 프로세스 가이드 · Scope Manager Project</footer>
+
+<script>
+const data = {
+  phase1: [
+    {
+      num:1, title:"가설 및 성공 지표 설정", sub:"Hypothesis & Metrics", isNew:false,
+      purpose:"풀고자 하는 <strong>문제와 검증할 가설</strong>을 명확히 합니다. 이 제품으로 무엇을 검증할 것인지 정의합니다.",
+      outputs:["문제 정의 문서","타겟 유저 페르소나","정량적 성공 지표"],
+      example:"「에이전시 실무자들은 엑셀 대신 이 웹 툴에 M/M을 입력해 수익성을 확인할 것이다. 목표: 초기 가입자의 30%가 1개 이상 프로젝트 생성」"
+    },
+    {
+      num:2, title:"사용자 리서치 및 문제 검증", sub:"User Research & Validation", isNew:true,
+      purpose:"책상 위에서 세운 가설이 <strong>실제 고객의 문제와 일치하는지</strong> 현장에서 확인합니다. B2B SaaS에서 특히 중요한 단계입니다.",
+      outputs:["고객 인터뷰 결과 문서","기존 대안(엑셀 등) 페인 포인트 분석","검증된 문제 우선순위"],
+      example:"에이전시 PM 5인 인터뷰 결과: 수익성 계산 미스로 인한 프로젝트 적자 경험 100% / 현재 도구 만족도 2.1/5"
+    },
+    {
+      num:3, title:"기술 타당성 검토", sub:"Tech Feasibility Check", isNew:true,
+      purpose:"기획이 <strong>기술적 제약과 리소스 내에서 구현 가능한지</strong> 사전 검증합니다. 이 단계 생략 시 Phase 3에서 기획이 통째로 뒤집힐 수 있습니다.",
+      outputs:["개발 리드 킥오프 회의록","기능별 구현 난이도 평가 (H/M/L)","대안 로직 합의안"],
+      example:"수익성 계산 로직: 구현 가능 (Low) / 실시간 팀원 협업: 이번 MVP 제외 (High) / PDF 내보내기: 다음 버전 (Med)"
+    },
+    {
+      num:4, title:"기능 정의서 및 백로그 작성", sub:"Feature Definition", isNew:false,
+      purpose:"리서치와 기술 검토 결과를 바탕으로 <strong>MVP에 들어갈 핵심 기능만 추려냅니다.</strong> In-Scope / Out-of-Scope를 칼같이 나눕니다.",
+      outputs:["In-Scope 기능 리스트","Out-of-Scope 기능 리스트","기능별 우선순위 (P0/P1/P2)"],
+      example:"포함(O): 직급별 단가 세팅, 마진율 계산 / 제외(X): PDF 다운로드, 팀원 초대, 실시간 협업"
+    },
+    {
+      num:5, title:"핵심 데이터 정책 및 로직 설계", sub:"Core Logic & Policy", isNew:false,
+      purpose:"시스템 백엔드에서 돌아갈 <strong>수식과 데이터 처리 규칙</strong>을 화면 설계 전에 확정합니다.",
+      outputs:["수익성 계산 공식 문서","필수 입력값 정의","예외 및 오류 처리 정책"],
+      example:"수익성 = (예산 - 인건비 합산) / 예산 × 100 / 인건비 단가가 0원일 경우 오류 메시지 노출"
+    }
+  ],
+  phase2: [
+    {
+      num:6, title:"정보 구조도 (IA) 및 메뉴 구조도", sub:"Information Architecture", isNew:false,
+      purpose:"확정된 기능 범위(4번) 내에서만 <strong>사용자가 경험할 공간의 뼈대</strong>를 잡습니다.",
+      outputs:["MVP 핵심 메뉴 트리","불필요 기능 가지치기(Pruning) 결과"],
+      example:"대시보드 → 프로젝트 → [생성/수정/결과] / 설정 → [단가 관리] — 팀원 관리는 다음 버전으로 이동"
+    },
+    {
+      num:7, title:"핵심 유저 플로우", sub:"Core User Flow", isNew:false,
+      purpose:"목적 달성을 위한 <strong>최단 경로(Happy Path)</strong>를 시각화합니다. 곁가지 흐름은 최소화합니다.",
+      outputs:["메인 플로우 흐름도 (노드+화살표)","예외 플로우 간략 정의"],
+      example:"로그인 → 새 프로젝트 생성 → 예산/공수 입력 → 수익성 결과 확인 (4단계 최단 경로)"
+    },
+    {
+      num:8, title:"와이어프레임 / 화면 설계서", sub:"Wireframe / Storyboard", isNew:false,
+      purpose:"각 화면에 <strong>어떤 정보와 입력창이 들어갈지</strong> 레이아웃을 잡습니다. 꾸밈 요소는 최소화합니다.",
+      outputs:["핵심 유저 플로우 화면 스케치","MVP 제외 영역 블라인드 처리"],
+      example:"프로젝트 입력 화면: 예산 입력 + 직급별 M/M 테이블 + 예상 수익성 실시간 계산 표시"
+    }
+  ],
+  phase3: [
+    {
+      num:9, title:"요구사항 정의서 (PRD)", sub:"Product Requirements Document", isNew:false,
+      purpose:"디자이너와 개발자가 <strong>화면과 로직을 결합해 작업</strong>할 수 있는 최종 지침서를 작성합니다.",
+      outputs:["와이어프레임 + 로직 매핑 문서","UI 디스크립션","MVP 제외 영역 명시"],
+      example:"「이 버튼 클릭 시 A 공식에 따라 B 결과 출력」 / 「이 영역은 MVP 범위 외」를 화면별로 명시"
+    },
+    {
+      num:10, title:"인수 조건(AC) 및 QA 시나리오", sub:"Acceptance Criteria & QA", isNew:true,
+      purpose:"<strong>\"이 기능이 완성되었다\"</strong>고 동의할 수 있는 명확한 테스트 기준을 세웁니다. Given-When-Then 형식으로 작성합니다.",
+      outputs:["기능별 인수 조건 목록","QA 테스트 케이스","오류 시나리오 검증 목록"],
+      example:"Given: 인건비 단가를 0원으로 입력했을 때 / When: 계산 버튼 클릭 / Then: 오류 메시지 노출되어야 함"
+    }
+  ]
+};
+
+function buildSteps(phaseId, items) {
+  const container = document.getElementById(phaseId);
+  items.forEach((item, i) => {
+    const isLast = i === items.length - 1;
+    const row = document.createElement('div');
+    row.className = 'step-row';
+    row.innerHTML = `
+      <div class="step-connector">
+        <div class="step-dot${item.isNew?' new-step':''}">${item.num}</div>
+        <div class="step-line${isLast?' hidden':''}"></div>
+      </div>
+      <div class="step-card" onclick="toggle(this)">
+        <div class="step-header">
+          <div>
+            <div class="step-title">${item.title} ${item.isNew?'<span class="new-badge">NEW</span>':''}</div>
+            <div class="step-subtitle">${item.sub}</div>
+          </div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="step-body">
+          <p class="purpose">${item.purpose}</p>
+          <div class="output-label">📋 산출물</div>
+          <div>${item.outputs.map(o=>`<span class="output-tag">${o}</span>`).join('')}</div>
+          <div class="example-box">💡 ${item.example}</div>
+        </div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function toggle(card) {
+  card.classList.toggle('open');
+}
+
+buildSteps('phase1', data.phase1);
+buildSteps('phase2', data.phase2);
+buildSteps('phase3', data.phase3);
+</script>
+</body>
+</html>
