@@ -1,181 +1,198 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyROI — IA 구조도</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f172a; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; min-height: 100vh; padding: 32px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-const data = {
-  name: "MyROI",
-  desc: "앱 진입점",
-  color: "#6366f1",
-  children: [
-    {
-      name: "온보딩",
-      desc: "최초 진입",
-      color: "#8b5cf6",
-      children: [
-        { name: "스플래시 / 랜딩", desc: "가치 제안 전달" },
-        { name: "회원가입 / 로그인", desc: "소셜 or 이메일" },
-        { name: "직군 · 연차 설정", desc: "프로필 기본 정보" },
-      ],
-    },
-    {
-      name: "핵심 기능",
-      desc: "MVP 핵심 플로우",
-      color: "#0ea5e9",
+  <script type="text/babel">
+    const { useState } = React;
+
+    const data = {
+      name: "MyROI",
+      desc: "앱 진입점",
+      color: "#6366f1",
       children: [
         {
-          name: "성과 입력",
-          desc: "자유 텍스트 AI 환산기",
-          color: "#0284c7",
+          name: "온보딩",
+          desc: "최초 진입",
+          color: "#8b5cf6",
           children: [
-            { name: "이슈 텍스트 입력", desc: "과거 이슈 최대 3건 작성" },
-            { name: "AI 구조화 처리", desc: "카테고리 · 임팩트 자동 분류" },
-            { name: "예상 방어 금액 산출", desc: "M/M 단위 초안 생성" },
+            { name: "스플래시 / 랜딩", desc: "가치 제안 전달" },
+            { name: "회원가입 / 로그인", desc: "소셜 or 이메일" },
+            { name: "직군 · 연차 설정", desc: "프로필 기본 정보" },
           ],
         },
         {
-          name: "Human-in-the-loop 검토",
-          desc: "실무자 최종 확정",
-          color: "#0284c7",
+          name: "핵심 기능",
+          desc: "MVP 핵심 플로우",
+          color: "#0ea5e9",
           children: [
-            { name: "금액 수동 조정", desc: "슬라이더 · 직접 입력" },
-            { name: "증빙 캡처 첨부", desc: "이미지 업로드" },
-            { name: "검토 완료 저장", desc: "항목 확정" },
+            {
+              name: "성과 입력",
+              desc: "자유 텍스트 AI 환산기",
+              color: "#0284c7",
+              children: [
+                { name: "이슈 텍스트 입력", desc: "과거 이슈 최대 3건 작성" },
+                { name: "AI 구조화 처리", desc: "카테고리 · 임팩트 자동 분류" },
+                { name: "예상 방어 금액 산출", desc: "M/M 단위 초안 생성" },
+              ],
+            },
+            {
+              name: "Human-in-the-loop 검토",
+              desc: "실무자 최종 확정",
+              color: "#0284c7",
+              children: [
+                { name: "금액 수동 조정", desc: "슬라이더 · 직접 입력" },
+                { name: "증빙 캡처 첨부", desc: "이미지 업로드" },
+                { name: "검토 완료 저장", desc: "항목 확정" },
+              ],
+            },
+            {
+              name: "피치덱 생성",
+              desc: "연봉 협상 무기 산출",
+              color: "#0284c7",
+              children: [
+                { name: "PDF 원클릭 생성", desc: "요약 + 항목 상세 포함" },
+                { name: "공유 링크 발행", desc: "읽기 전용 URL" },
+                { name: "다운로드", desc: "로컬 저장" },
+              ],
+            },
           ],
         },
         {
-          name: "피치덱 생성",
-          desc: "연봉 협상 무기 산출",
-          color: "#0284c7",
+          name: "대시보드",
+          desc: "성과 현황 관리",
+          color: "#10b981",
           children: [
-            { name: "PDF 원클릭 생성", desc: "요약 + 항목 상세 포함" },
-            { name: "공유 링크 발행", desc: "읽기 전용 URL" },
-            { name: "다운로드", desc: "로컬 저장" },
+            { name: "총 방어 금액 요약", desc: "누적 ROI 카드" },
+            { name: "이슈 목록 · 히스토리", desc: "타임라인 뷰" },
+            { name: "카테고리별 분석", desc: "차트 · 태그 필터" },
+          ],
+        },
+        {
+          name: "설정 · 마이페이지",
+          desc: "계정 · 환경 관리",
+          color: "#f59e0b",
+          children: [
+            { name: "프로필 수정", desc: "직군 · 연차 · 이름" },
+            { name: "플랜 · 결제", desc: "Freemium → 유료 전환" },
+            { name: "알림 설정", desc: "WAU 리마인더" },
+            { name: "로그아웃 · 탈퇴", desc: "" },
           ],
         },
       ],
-    },
-    {
-      name: "대시보드",
-      desc: "성과 현황 관리",
-      color: "#10b981",
-      children: [
-        { name: "총 방어 금액 요약", desc: "누적 ROI 카드" },
-        { name: "이슈 목록 · 히스토리", desc: "타임라인 뷰" },
-        { name: "카테고리별 분석", desc: "차트 · 태그 필터" },
-      ],
-    },
-    {
-      name: "설정 · 마이페이지",
-      desc: "계정 · 환경 관리",
-      color: "#f59e0b",
-      children: [
-        { name: "프로필 수정", desc: "직군 · 연차 · 이름" },
-        { name: "플랜 · 결제", desc: "Freemium → 유료 전환" },
-        { name: "알림 설정", desc: "WAU 리마인더" },
-        { name: "로그아웃 · 탈퇴", desc: "" },
-      ],
-    },
-  ],
-};
+    };
 
-const COLORS = ["#6366f1","#8b5cf6","#0ea5e9","#10b981","#f59e0b","#0284c7","#ef4444"];
+    function Node({ node, depth = 0 }) {
+      const [open, setOpen] = useState(depth < 2);
+      const hasChildren = node.children && node.children.length > 0;
+      const color = node.color || "#94a3b8";
 
-function Node({ node, depth = 0, isLast = false }) {
-  const [open, setOpen] = useState(depth < 2);
-  const hasChildren = node.children && node.children.length > 0;
-  const color = node.color || "#94a3b8";
-
-  return (
-    <div className="flex flex-col items-start" style={{ marginLeft: depth === 0 ? 0 : 32 }}>
-      <div className="flex items-start gap-2 mb-1">
-        {depth > 0 && (
-          <div className="flex flex-col items-center" style={{ width: 20 }}>
-            <div style={{ width: 2, height: 12, background: "#334155" }} />
-            <div style={{ width: 16, height: 2, background: "#334155" }} />
-          </div>
-        )}
-        <div
-          onClick={() => hasChildren && setOpen(o => !o)}
-          style={{
-            background: depth === 0 ? color : depth === 1 ? color : "#1e293b",
-            border: `2px solid ${color}`,
-            borderRadius: 10,
-            padding: "8px 14px",
-            cursor: hasChildren ? "pointer" : "default",
-            minWidth: 160,
-            maxWidth: 220,
-            userSelect: "none",
-            boxShadow: depth <= 1 ? `0 0 12px ${color}55` : "none",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            {hasChildren && (
-              <span style={{ fontSize: 10, color: "#94a3b8", lineHeight: 1 }}>
-                {open ? "▼" : "▶"}
-              </span>
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", marginLeft: depth === 0 ? 0 : 32 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 4 }}>
+            {depth > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 20 }}>
+                <div style={{ width: 2, height: 12, background: "#334155" }} />
+                <div style={{ width: 16, height: 2, background: "#334155" }} />
+              </div>
             )}
-            <span style={{
-              fontWeight: depth <= 1 ? 700 : 500,
-              fontSize: depth === 0 ? 15 : depth === 1 ? 13 : 12,
-              color: depth <= 1 ? "#fff" : "#e2e8f0",
-            }}>
-              {node.name}
-            </span>
+            <div
+              onClick={() => hasChildren && setOpen(o => !o)}
+              style={{
+                background: depth <= 1 ? color : "#1e293b",
+                border: `2px solid ${color}`,
+                borderRadius: 10,
+                padding: "8px 14px",
+                cursor: hasChildren ? "pointer" : "default",
+                minWidth: 160,
+                maxWidth: 220,
+                userSelect: "none",
+                boxShadow: depth <= 1 ? `0 0 12px ${color}55` : "none",
+                transition: "opacity 0.15s",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                {hasChildren && (
+                  <span style={{ fontSize: 10, color: "#94a3b8" }}>{open ? "▼" : "▶"}</span>
+                )}
+                <span style={{
+                  fontWeight: depth <= 1 ? 700 : 500,
+                  fontSize: depth === 0 ? 15 : depth === 1 ? 13 : 12,
+                  color: depth <= 1 ? "#fff" : "#e2e8f0",
+                }}>
+                  {node.name}
+                </span>
+              </div>
+              {node.desc && (
+                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, marginLeft: hasChildren ? 16 : 0 }}>
+                  {node.desc}
+                </div>
+              )}
+            </div>
           </div>
-          {node.desc && (
-            <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, marginLeft: hasChildren ? 16 : 0 }}>
-              {node.desc}
+
+          {hasChildren && open && (
+            <div style={{ marginLeft: depth === 0 ? 0 : 20 }}>
+              <div style={{ display: "flex", marginLeft: depth === 0 ? 0 : 16 }}>
+                <div style={{ width: 2, background: "#334155", marginLeft: 8, borderRadius: 2 }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {node.children.map((child, i) => (
+                    <Node key={i} node={{ ...child, color: child.color || color }} depth={depth + 1} />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
-      </div>
+      );
+    }
 
-      {hasChildren && open && (
-        <div style={{ marginLeft: depth === 0 ? 0 : 20 }}>
-          <div style={{ display: "flex", marginLeft: depth === 0 ? 0 : 16 }}>
-            <div style={{ width: 2, background: "#334155", marginLeft: 8, borderRadius: 2 }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 2, marginLeft: 0 }}>
-              {node.children.map((child, i) => (
-                <Node
-                  key={i}
-                  node={{ ...child, color: child.color || color }}
-                  depth={depth + 1}
-                  isLast={i === node.children.length - 1}
-                />
+    function App() {
+      const legend = [
+        { label: "앱 루트", color: "#6366f1" },
+        { label: "온보딩", color: "#8b5cf6" },
+        { label: "핵심 기능 (MVP)", color: "#0ea5e9" },
+        { label: "대시보드", color: "#10b981" },
+        { label: "설정", color: "#f59e0b" },
+      ];
+
+      return (
+        <div style={{ color: "#f1f5f9" }}>
+          <div style={{ marginBottom: 28 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 800 }}>MyROI — IA 구조도</h1>
+            <p style={{ color: "#64748b", fontSize: 12, marginTop: 6 }}>노드를 클릭하면 하위 항목을 펼치거나 접을 수 있습니다.</p>
+            <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
+              {legend.map(b => (
+                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 3, background: b.color }} />
+                  <span style={{ fontSize: 11, color: "#94a3b8" }}>{b.label}</span>
+                </div>
               ))}
             </div>
           </div>
+          <div style={{ overflowX: "auto", paddingBottom: 24 }}>
+            <Node node={data} depth={0} />
+          </div>
         </div>
-      )}
-    </div>
-  );
-}
+      );
+    }
 
-export default function App() {
-  return (
-    <div style={{ background: "#0f172a", minHeight: "100vh", padding: 32, fontFamily: "'Pretendard', 'Apple SD Gothic Neo', sans-serif" }}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ color: "#f1f5f9", fontSize: 22, fontWeight: 800, margin: 0 }}>MyROI — IA 구조도</h1>
-        <p style={{ color: "#64748b", fontSize: 12, marginTop: 6 }}>
-          노드를 클릭하면 하위 항목을 펼치거나 접을 수 있습니다.
-        </p>
-        <div style={{ display: "flex", gap: 16, marginTop: 10, flexWrap: "wrap" }}>
-          {[
-            { label: "앱 루트", color: "#6366f1" },
-            { label: "온보딩", color: "#8b5cf6" },
-            { label: "핵심 기능 (MVP)", color: "#0ea5e9" },
-            { label: "대시보드", color: "#10b981" },
-            { label: "설정", color: "#f59e0b" },
-          ].map(b => (
-            <div key={b.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 10, height: 10, borderRadius: 3, background: b.color }} />
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>{b.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ overflowX: "auto", paddingBottom: 24 }}>
-        <Node node={data} depth={0} />
-      </div>
-    </div>
-  );
-}
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
