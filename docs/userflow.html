@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MyROI — 화면 플로우</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b1120;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:36px 32px 56px;color:#f1f5f9;min-width:900px}
+
+  h1{font-size:20px;font-weight:800}
+  .sub{font-size:11px;color:#475569;margin-top:5px}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
+  .leg{display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8}
+  .leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+  /* lanes */
+  .lanes{display:flex;flex-direction:column;gap:0;margin-top:32px}
+  .lane{display:flex;align-items:stretch;min-height:130px}
+  .lane-label{
+    width:110px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:flex-end;
+    padding-right:14px;
+    font-size:11px;font-weight:700;letter-spacing:0.3px;
+    border-right:2px solid #1e293b;
+  }
+  .lane-body{
+    flex:1;
+    display:flex;align-items:center;
+    padding:18px 0 18px 24px;
+    gap:0;
+    border-bottom:1px dashed #1e2940;
+  }
+  .lane:last-child .lane-body{border-bottom:none}
+
+  /* node */
+  .node{
+    display:flex;flex-direction:column;justify-content:center;
+    min-width:120px;max-width:140px;
+    border-radius:10px;
+    padding:9px 12px;
+    border:1.5px solid;
+    position:relative;
+    flex-shrink:0;
+  }
+  .node-name{font-size:11px;font-weight:700;line-height:1.3}
+  .node-desc{font-size:9px;color:#64748b;margin-top:3px;line-height:1.4}
+
+  /* decision diamond */
+  .diamond-wrap{
+    display:flex;flex-direction:column;align-items:center;
+    flex-shrink:0;
+    position:relative;
+  }
+  .diamond{
+    width:72px;height:72px;
+    transform:rotate(45deg);
+    border-radius:6px;
+    border:1.5px solid;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .diamond-text{
+    transform:rotate(-45deg);
+    font-size:9px;font-weight:700;
+    text-align:center;line-height:1.3;
+    padding:4px;
+  }
+
+  /* arrow */
+  .arrow{
+    display:flex;align-items:center;
+    flex-shrink:0;
+    padding:0 4px;
+  }
+  .arrow svg{display:block}
+
+  /* branch label */
+  .branch-label{
+    font-size:9px;color:#64748b;
+    position:absolute;
+    white-space:nowrap;
+  }
+
+  /* vertical connector */
+  .v-connector{
+    display:flex;flex-direction:column;align-items:center;
+    width:110px;flex-shrink:0;
+    padding-right:14px;
+    justify-content:center;
+  }
+
+  /* colors */
+  .c-purple{border-color:#8b5cf6;background:#1a0f40}
+  .c-purple .node-name{color:#c4b5fd}
+  .c-blue{border-color:#0ea5e9;background:#0c1f33}
+  .c-blue .node-name{color:#7dd3fc}
+  .c-green{border-color:#10b981;background:#0b1f1a}
+  .c-green .node-name{color:#6ee7b7}
+  .c-amber{border-color:#f59e0b;background:#1f1608}
+  .c-amber .node-name{color:#fcd34d}
+  .c-slate{border-color:#475569;background:#131e2e}
+  .c-slate .node-name{color:#94a3b8}
+  .c-red{border-color:#ef4444;background:#1f0d0d}
+  .c-red .node-name{color:#fca5a5}
+
+  .d-purple{border-color:#8b5cf6;background:#1a0f40}
+  .d-blue{border-color:#0ea5e9;background:#0c1f33}
+
+  /* step number badge */
+  .badge{
+    position:absolute;top:-8px;left:-8px;
+    width:18px;height:18px;border-radius:50%;
+    font-size:9px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* section divider */
+  .divider{
+    display:flex;align-items:center;gap:12px;
+    margin:4px 0 0 124px;
+    font-size:10px;font-weight:700;letter-spacing:1px;
+    text-transform:uppercase;
+    color:#334155;
+  }
+  .divider::after{content:'';flex:1;height:1px;background:#1e293b}
+
+  /* note box */
+  .note{
+    margin-top:28px;margin-left:124px;
+    display:flex;gap:10px;flex-wrap:wrap;
+  }
+  .note-item{
+    background:#131e2e;border:1px solid #1e293b;border-radius:8px;
+    padding:8px 12px;font-size:10px;color:#64748b;line-height:1.6;
+  }
+  .note-item b{color:#94a3b8}
+</style>
+</head>
+<body>
+
+<h1>MyROI — 화면 플로우</h1>
+<p class="sub">전체 사용자 흐름 · 분기 · 화면 전환 구조</p>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#8b5cf6"></div>온보딩</div>
+  <div class="leg"><div class="leg-dot" style="background:#0ea5e9"></div>핵심 기능 (MVP)</div>
+  <div class="leg"><div class="leg-dot" style="background:#10b981"></div>대시보드</div>
+  <div class="leg"><div class="leg-dot" style="background:#f59e0b"></div>설정</div>
+  <div class="leg"><div class="leg-dot" style="background:#ef4444; border-radius:50%"></div>분기 / 조건</div>
+</div>
+
+<!-- ════════════════ FLOW ════════════════ -->
+<div class="lanes">
+
+  <!-- ── SECTION: 온보딩 ── -->
+  <div class="divider" style="color:#8b5cf6">① 온보딩</div>
+
+  <div class="lane">
+    <div class="lane-label" style="color:#8b5cf6">앱 진입</div>
+    <div class="lane-body">
+      <!-- START -->
+      <div class="node c-slate" style="min-width:80px;max-width:90px;align-items:center;border-radius:999px">
+        <span class="node-name" style="font-size:10px;text-align:center">START</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 스플래시 -->
+      <div class="node c-purple" style="position:relative">
+        <div class="badge" style="background:#8b5cf6;color:#fff">1</div>
+        <span class="node-name">스플래시 / 랜딩</span>
+        <span class="node-desc">가치 제안 · CTA</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 분기: 신규/기존 -->
+      <div class="diamond-wrap">
+        <div class="diamond d-purple" style="position:relative">
+          <span class="diamond-text" style="color:#c4b5fd">신규?</span>
+        </div>
+        <span class="branch-label" style="top:28px;left:80px;color:#8b5cf6">기존 사용자</span>
+        <span class="branch-label" style="bottom:-16px;left:50%;transform:translateX(-50%);color:#8b5cf6">신규</span>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 회원가입 -->
+      <div class="node c-purple" style="position:relative">
+        <div class="badge" style="background:#8b5cf6;color:#fff">2</div>
+        <span class="node-name">회원가입</span>
+        <span class="node-desc">소셜 / 이메일</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 프로필 설정 -->
+      <div class="node c-purple" style="position:relative">
+        <div class="badge" style="background:#8b5cf6;color:#fff">3</div>
+        <span class="node-name">프로필 설정</span>
+        <span class="node-desc">직군 · 연차 · 규모</span>
+      </div>
+      <div class="arrow">
+        <svg width="48" height="16"><line x1="0" y1="8" x2="40" y2="8" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="40,4 48,8 40,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 로그인 (기존) -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div class="node c-purple" style="position:relative">
+          <div class="badge" style="background:#8b5cf6;color:#fff">2'</div>
+          <span class="node-name">로그인</span>
+          <span class="node-desc">기존 계정 진입</span>
+        </div>
+        <span style="font-size:9px;color:#475569">← 기존 사용자</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION: 핵심기능 ── -->
+  <div class="divider" style="color:#0ea5e9;margin-top:8px">② 핵심 기능 (MVP)</div>
+
+  <!-- 성과 입력 -->
+  <div class="lane">
+    <div class="lane-label" style="color:#0ea5e9">성과 입력</div>
+    <div class="lane-body">
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">4</div>
+        <span class="node-name">이슈 텍스트 입력</span>
+        <span class="node-desc">최대 3건 자유 작성</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">5</div>
+        <span class="node-name">AI 구조화 처리</span>
+        <span class="node-desc">카테고리 · 임팩트 분류</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">6</div>
+        <span class="node-name">방어 금액 산출</span>
+        <span class="node-desc">M/M 단위 초안 생성</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 분기: 금액 수용? -->
+      <div class="diamond-wrap">
+        <div class="diamond d-blue">
+          <span class="diamond-text" style="color:#7dd3fc">금액<br/>수용?</span>
+        </div>
+        <span class="branch-label" style="top:26px;left:78px;color:#0ea5e9">수정 필요</span>
+        <span class="branch-label" style="bottom:-16px;left:50%;transform:translateX(-50%);color:#0ea5e9">수용</span>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">7</div>
+        <span class="node-name">금액 수동 조정</span>
+        <span class="node-desc">슬라이더 · 직접 입력</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 검토 · 저장 -->
+  <div class="lane">
+    <div class="lane-label" style="color:#0ea5e9">검토 · 저장</div>
+    <div class="lane-body">
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">8</div>
+        <span class="node-name">증빙 캡처 첨부</span>
+        <span class="node-desc">이미지 업로드 (선택)</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">9</div>
+        <span class="node-name">검토 완료 저장</span>
+        <span class="node-desc">항목 확정</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 분기: 추가 입력? -->
+      <div class="diamond-wrap">
+        <div class="diamond d-blue">
+          <span class="diamond-text" style="color:#7dd3fc">추가<br/>이슈?</span>
+        </div>
+        <span class="branch-label" style="top:26px;left:78px;color:#0ea5e9">→ Step 4로</span>
+        <span class="branch-label" style="bottom:-16px;left:50%;transform:translateX(-50%);color:#0ea5e9">완료</span>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-blue" style="position:relative">
+        <div class="badge" style="background:#0ea5e9;color:#fff">10</div>
+        <span class="node-name">PDF 원클릭 생성</span>
+        <span class="node-desc">요약 + 상세 포함</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 분기: 공유 or 다운로드 -->
+      <div class="diamond-wrap">
+        <div class="diamond d-blue">
+          <span class="diamond-text" style="color:#7dd3fc">공유?</span>
+        </div>
+        <span class="branch-label" style="top:26px;left:78px;color:#0ea5e9">공유 링크</span>
+        <span class="branch-label" style="bottom:-16px;left:50%;transform:translateX(-50%);color:#0ea5e9">다운로드</span>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="node c-blue" style="position:relative;min-width:110px;max-width:120px">
+          <div class="badge" style="background:#0ea5e9;color:#fff">11a</div>
+          <span class="node-name">공유 링크 발행</span>
+          <span class="node-desc">읽기 전용 URL</span>
+        </div>
+        <div class="node c-blue" style="position:relative;min-width:110px;max-width:120px">
+          <div class="badge" style="background:#0ea5e9;color:#fff">11b</div>
+          <span class="node-name">로컬 다운로드</span>
+          <span class="node-desc">PDF 저장</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION: 대시보드 ── -->
+  <div class="divider" style="color:#10b981;margin-top:8px">③ 대시보드</div>
+
+  <div class="lane">
+    <div class="lane-label" style="color:#10b981">대시보드</div>
+    <div class="lane-body">
+      <div class="node c-green" style="position:relative">
+        <div class="badge" style="background:#10b981;color:#fff">12</div>
+        <span class="node-name">홈 대시보드</span>
+        <span class="node-desc">ROI 요약 카드</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="node c-green" style="position:relative;min-width:110px;max-width:130px">
+          <div class="badge" style="background:#10b981;color:#fff">13a</div>
+          <span class="node-name">이슈 히스토리</span>
+          <span class="node-desc">타임라인 · 검색</span>
+        </div>
+        <div class="node c-green" style="position:relative;min-width:110px;max-width:130px">
+          <div class="badge" style="background:#10b981;color:#fff">13b</div>
+          <span class="node-name">카테고리 분석</span>
+          <span class="node-desc">차트 · 태그 필터</span>
+        </div>
+        <div class="node c-green" style="position:relative;min-width:110px;max-width:130px">
+          <div class="badge" style="background:#10b981;color:#fff">13c</div>
+          <span class="node-name">피치덱 히스토리</span>
+          <span class="node-desc">생성 이력 · 재다운로드</span>
+        </div>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-green" style="position:relative">
+        <div class="badge" style="background:#10b981;color:#fff">14</div>
+        <span class="node-name">이슈 상세 보기</span>
+        <span class="node-desc">수정 · 삭제</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="40,4 32,8 40,12" fill="#334155" transform="translate(-8,0)"/></svg>
+      </div>
+      <div class="node c-blue" style="position:relative;opacity:0.7">
+        <span class="node-name" style="font-size:10px">→ Step 6 재처리</span>
+        <span class="node-desc">수정 시 재산출</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION: 설정 ── -->
+  <div class="divider" style="color:#f59e0b;margin-top:8px">④ 설정 · 마이페이지</div>
+
+  <div class="lane">
+    <div class="lane-label" style="color:#f59e0b">설정</div>
+    <div class="lane-body">
+      <div class="node c-amber" style="position:relative">
+        <div class="badge" style="background:#f59e0b;color:#000">15</div>
+        <span class="node-name">설정 홈</span>
+        <span class="node-desc">메뉴 진입점</span>
+      </div>
+      <div class="arrow">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="node c-amber" style="min-width:110px;max-width:130px">
+          <span class="node-name">프로필 수정</span>
+          <span class="node-desc">직군 · 연차 · 이름</span>
+        </div>
+        <div class="node c-amber" style="min-width:110px;max-width:130px">
+          <span class="node-name">플랜 · 결제</span>
+          <span class="node-desc">Freemium → 유료</span>
+        </div>
+        <div class="node c-amber" style="min-width:110px;max-width:130px">
+          <span class="node-name">알림 설정</span>
+          <span class="node-desc">WAU 리마인더</span>
+        </div>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <!-- 분기: 플랜 업그레이드 -->
+      <div class="diamond-wrap">
+        <div class="diamond" style="border-color:#f59e0b;background:#1f1608">
+          <span class="diamond-text" style="color:#fcd34d">업그레이드<br/>결제?</span>
+        </div>
+        <span class="branch-label" style="top:26px;left:78px;color:#f59e0b">결제 완료</span>
+        <span class="branch-label" style="bottom:-16px;left:50%;transform:translateX(-50%);color:#f59e0b">취소</span>
+      </div>
+      <div class="arrow" style="margin-left:8px">
+        <svg width="32" height="16"><line x1="0" y1="8" x2="24" y2="8" stroke="#334155" stroke-width="1.5"/><polygon points="24,4 32,8 24,12" fill="#334155"/></svg>
+      </div>
+
+      <div class="node c-amber" style="position:relative">
+        <span class="node-name">프리미엄 활성화</span>
+        <span class="node-desc">전체 기능 잠금 해제</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /lanes -->
+
+<!-- Notes -->
+<div class="note">
+  <div class="note-item"><b>실선 →</b> 기본 흐름</div>
+  <div class="note-item"><b>점선 - -></b> 조건부 / 선택적 흐름</div>
+  <div class="note-item"><b>◇ 다이아몬드</b> 분기 / 조건 판단</div>
+  <div class="note-item"><b>숫자 배지</b> 화면 순서 (Step)</div>
+  <div class="note-item"><b>2' (프라임)</b> 대체 경로 (기존 사용자)</div>
+</div>
+
+</body>
+</html>
