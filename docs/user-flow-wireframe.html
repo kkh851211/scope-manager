@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager — User Flow & Wireframe</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2438;--s3:#222840;--s4:#252c40;
+  --bd:#232b3e;--bd2:#2e3748;
+  --blue:#4f80ff;--purple:#a855f7;--green:#10b981;
+  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--yellow:#f59e0b;
+  --t1:#e8eaf0;--t2:#c5cbd8;--t3:#8c95aa;--t4:#5a6478;
+}
+body{background:var(--bg);color:var(--t1);font-family:'Apple SD Gothic Neo','Pretendard','Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+
+header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;gap:12px;flex-wrap:wrap}
+.logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
+.hbadge{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
+.b-cyan{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
+
+nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
+.tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--t2)}.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+
+.page{display:none;padding:24px 28px 80px}.page.on{display:block}
+.sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
+.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb28{margin-bottom:28px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:800px){.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.g2,.g3{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:16px 16px 80px}}
+
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
+.card-sm{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
+.tag-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.tag-yellow{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+.tag-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.tag-blue{background:rgba(79,128,255,.12);color:var(--blue)}
+.tag-purple{background:rgba(168,85,247,.12);color:var(--purple)}
+.tag-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
+.tag-orange{background:rgba(249,115,22,.12);color:var(--orange)}
+.tag-gray{background:rgba(90,100,120,.15);color:var(--t3)}
+
+/* ── USER FLOW DIAGRAM ── */
+.flow-diagram{overflow-x:auto;margin-bottom:28px}
+.flow-canvas{min-width:700px;display:flex;flex-direction:column;gap:0}
+
+.flow-row{display:flex;align-items:center;gap:0;min-height:60px}
+.flow-row-label{width:90px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t4);flex-shrink:0;text-align:right;padding-right:14px}
+
+.fn{border-radius:8px;padding:8px 13px;font-size:11px;font-weight:700;flex-shrink:0;display:flex;align-items:center;gap:5px;text-align:center;min-width:90px;justify-content:center;line-height:1.3}
+.fn-start{background:rgba(16,185,129,.15);color:var(--green);border:2px solid rgba(16,185,129,.35);border-radius:24px}
+.fn-end{background:rgba(239,68,68,.12);color:var(--red);border:2px solid rgba(239,68,68,.25);border-radius:24px}
+.fn-screen{background:var(--s2);color:var(--t2);border:1px solid var(--bd2)}
+.fn-action{background:rgba(79,128,255,.12);color:var(--blue);border:1px solid rgba(79,128,255,.25)}
+.fn-ai{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+.fn-decision{background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.2);border-radius:4px;transform:rotate(0deg)}
+.fn-success{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.fn-warn{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
+
+.arr{color:var(--t4);font-size:16px;margin:0 4px;flex-shrink:0}
+.arr-v{display:flex;align-items:center;justify-content:center;color:var(--t4);font-size:16px;height:20px}
+.arr-branch{color:var(--purple);font-size:11px;font-weight:700;margin:0 2px}
+
+/* ── WIREFRAME ── */
+.wf-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px}
+.wf-screen{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:.15s}
+.wf-screen:hover{border-color:var(--blue);transform:translateY(-2px)}
+.wf-screen.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(79,128,255,.2)}
+.wf-header{padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.wf-dots{display:flex;gap:4px}
+.wf-dot{width:7px;height:7px;border-radius:50%}
+.wf-title{font-size:11px;font-weight:700;color:var(--t2);flex:1}
+.wf-screen-id{font-size:10px;color:var(--t4)}
+.wf-body{padding:12px}
+
+/* Wireframe elements */
+.wf-nav{height:28px;background:var(--s3);border-radius:4px;margin-bottom:8px;display:flex;align-items:center;padding:0 8px;gap:6px}
+.wf-nav-logo{width:50px;height:8px;background:var(--bd2);border-radius:2px}
+.wf-nav-items{display:flex;gap:5px;margin-left:auto}
+.wf-nav-item{width:28px;height:6px;background:var(--bd2);border-radius:2px}
+.wf-nav-cta{width:40px;height:14px;background:rgba(16,185,129,.3);border-radius:3px}
+
+.wf-hero{background:var(--s3);border-radius:6px;padding:12px;margin-bottom:6px;text-align:center}
+.wf-h1{height:10px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 5px;max-width:180px}
+.wf-h2{height:7px;background:rgba(255,255,255,.08);border-radius:2px;margin:0 auto 10px;max-width:220px}
+.wf-cta-btn{height:22px;background:rgba(16,185,129,.4);border-radius:4px;max-width:100px;margin:0 auto}
+.wf-img-placeholder{height:60px;background:rgba(79,128,255,.08);border:1px dashed rgba(79,128,255,.2);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t4);margin-top:8px}
+
+.wf-block{background:var(--s3);border-radius:4px;padding:8px;margin-bottom:5px}
+.wf-block-title{height:7px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:5px;max-width:60%}
+.wf-block-line{height:5px;background:rgba(255,255,255,.07);border-radius:2px;margin-bottom:3px}
+.wf-block-line.short{max-width:70%}
+.wf-block-line.xshort{max-width:45%}
+
+.wf-input{height:24px;background:var(--s4);border:1px solid var(--bd2);border-radius:4px;margin-bottom:5px;display:flex;align-items:center;padding:0 8px}
+.wf-input-label{height:5px;background:rgba(255,255,255,.08);border-radius:2px;width:60%}
+.wf-input-placeholder{font-size:9px;color:var(--t4);width:100%}
+
+.wf-btn{height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-bottom:5px}
+.wf-btn-primary{background:rgba(79,128,255,.4);color:rgba(255,255,255,.7)}
+.wf-btn-green{background:rgba(16,185,129,.4);color:rgba(255,255,255,.7)}
+.wf-btn-ghost{background:transparent;border:1px solid var(--bd2);color:var(--t4)}
+
+.wf-badge{display:inline-block;height:16px;border-radius:3px;font-size:9px;font-weight:700;padding:0 5px;line-height:16px;margin-right:3px}
+.wf-badge-green{background:rgba(16,185,129,.2);color:var(--green)}
+.wf-badge-red{background:rgba(239,68,68,.15);color:var(--red)}
+.wf-badge-yellow{background:rgba(245,158,11,.15);color:var(--yellow)}
+
+.wf-chart{height:50px;background:var(--s4);border-radius:4px;margin-bottom:5px;display:flex;align-items:flex-end;padding:6px;gap:4px;overflow:hidden}
+.wf-bar{border-radius:2px 2px 0 0;flex:1}
+
+.wf-list-item{display:flex;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid var(--bd)}
+.wf-list-item:last-child{border-bottom:none}
+.wf-avatar{width:18px;height:18px;border-radius:4px;background:var(--bd2);flex-shrink:0}
+
+.wf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+.wf-kpi-mini{background:var(--s4);border-radius:4px;padding:5px 7px}
+.wf-kpi-l{height:4px;background:rgba(255,255,255,.07);border-radius:1px;margin-bottom:4px}
+.wf-kpi-v{height:8px;border-radius:2px;max-width:50%}
+
+.wf-tag-row{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px}
+.wf-tag-chip{height:14px;border-radius:10px;padding:0 6px;font-size:9px;line-height:14px;font-weight:700}
+
+.wf-textarea{height:40px;background:var(--s4);border:1px solid var(--bd2);border-radius:4px;margin-bottom:5px;padding:5px 8px}
+.wf-textarea-text{font-size:9px;color:var(--t4);line-height:1.5}
+
+.wf-result-card{border-radius:6px;padding:8px;margin-bottom:5px}
+.wf-result-card.out{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+.wf-result-card.in{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2)}
+.wf-result-card.unc{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
+
+.wf-progress{height:4px;background:var(--bd2);border-radius:2px;margin-bottom:5px;overflow:hidden}
+.wf-progress-fill{height:100%;border-radius:2px}
+
+.wf-footer-note{font-size:10px;color:var(--t4);padding-top:6px;border-top:1px solid var(--bd);text-align:center}
+
+/* ── SCREEN DETAIL ── */
+.screen-detail{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:20px;display:none}
+.screen-detail.open{display:block}
+.sd-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sd-id{width:30px;height:30px;border-radius:8px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.sd-title{font-size:15px;font-weight:800;color:#fff}
+.sd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:700px){.sd-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:450px){.sd-grid{grid-template-columns:1fr}}
+.sd-section{background:var(--s2);border-radius:8px;padding:12px}
+.sd-sl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);margin-bottom:7px}
+.sd-item{font-size:11px;color:var(--t2);line-height:1.7;display:flex;gap:6px}
+.sd-item::before{content:'·';color:var(--blue);flex-shrink:0}
+
+/* ── TASK FLOW ── */
+.tf-step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--bd)}
+.tf-step:last-child{border-bottom:none}
+.tf-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.tf-body{flex:1}
+.tf-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
+.tf-desc{font-size:11px;color:var(--t3);line-height:1.6}
+.tf-screen{font-size:10px;color:var(--t4);margin-top:4px}
+.tf-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+
+/* ── INTERACTION SPEC ── */
+.int-table{width:100%;border-collapse:collapse;margin-bottom:28px}
+.int-table th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1)}
+.int-table td{padding:10px 14px;border-bottom:1px solid var(--bd);font-size:11px;vertical-align:top}
+.int-table tr:last-child td{border-bottom:none}
+.int-table tr:hover td{background:rgba(79,128,255,.02)}
+.int-trigger{font-weight:700;color:var(--t2)}
+.int-action{color:var(--t3)}
+.int-feedback{color:var(--cyan);font-size:10px;margin-top:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">User Flow & Wireframe</span></div>
+  <div class="hbadge">
+    <span class="badge b-cyan">UX 설계</span>
+    <span class="badge b-blue">v1.0</span>
+    <span style="font-size:11px;color:var(--t4)">2026.02</span>
+  </div>
+</header>
+
+<nav>
+  <div class="tab on" onclick="go('flow',this)">🗺 유저 플로우</div>
+  <div class="tab" onclick="go('wireframe',this)">📱 와이어프레임</div>
+  <div class="tab" onclick="go('taskflow',this)">🎯 핵심 태스크 플로우</div>
+  <div class="tab" onclick="go('interaction',this)">⚡ 인터랙션 명세</div>
+</nav>
+
+
+<!-- ═══════════ 유저 플로우 ═══════════ -->
+<div class="page on" id="page-flow">
+
+  <div class="sec mb16">전체 유저 플로우 — 신규 사용자 온보딩</div>
+  <div class="flow-diagram mb28">
+    <div class="flow-canvas">
+
+      <!-- Row 1: Entry -->
+      <div class="flow-row">
+        <div class="flow-row-label" style="color:var(--t4)">진입</div>
+        <div class="fn fn-start">🌐 랜딩 페이지</div>
+        <div class="arr">→</div>
+        <div class="fn fn-action">CTA 클릭</div>
+        <div class="arr">→</div>
+        <div class="fn fn-screen">회원가입 화면</div>
+        <div class="arr">→</div>
+        <div class="fn fn-action">이메일 인증</div>
+        <div class="arr">→</div>
+        <div class="fn fn-success">✓ 로그인 완료</div>
+      </div>
+
+      <div class="arr-v">↓</div>
+
+      <!-- Row 2: Onboarding -->
+      <div class="flow-row">
+        <div class="flow-row-label" style="color:var(--purple)">온보딩</div>
+        <div class="fn fn-screen">온보딩 Step 1<br><span style="font-size:9px;font-weight:400">에이전시명·시급</span></div>
+        <div class="arr">→</div>
+        <div class="fn fn-screen">온보딩 Step 2<br><span style="font-size:9px;font-weight:400">첫 프로젝트 생성</span></div>
+        <div class="arr">→</div>
+        <div class="fn fn-ai">AI 계약서 요약</div>
+        <div class="arr">→</div>
+        <div class="fn fn-success">✓ 대시보드 진입</div>
+      </div>
+
+      <div class="arr-v">↓</div>
+
+      <!-- Row 3: Daily Use -->
+      <div class="flow-row">
+        <div class="flow-row-label" style="color:var(--blue)">일상 사용</div>
+        <div class="fn fn-screen">대시보드</div>
+        <div class="arr">→</div>
+        <div class="fn fn-action">요청 입력</div>
+        <div class="arr">→</div>
+        <div class="fn fn-ai">⚖️ AI 판정</div>
+        <div class="arr">→</div>
+        <div class="fn fn-decision">판정 결과?</div>
+      </div>
+
+      <!-- Branch: Decision -->
+      <div style="display:flex;min-height:36px;padding-left:90px;gap:0;align-items:flex-start;padding-top:4px">
+        <div style="width:40px;flex-shrink:0"></div><!-- spacer -->
+        <div style="display:flex;flex:1;gap:8px;align-items:flex-start;padding-left:40px">
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="font-size:10px;color:var(--green);font-weight:700">범위 내</div>
+            <div class="arr-v">↓</div>
+            <div class="fn fn-success" style="font-size:10px">히스토리 기록</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="font-size:10px;color:var(--red);font-weight:700">범위 외</div>
+            <div class="arr-v">↓</div>
+            <div class="fn fn-warn" style="font-size:10px">리포트 추가 →</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+            <div style="font-size:10px;color:var(--yellow);font-weight:700">불명확</div>
+            <div class="arr-v">↓</div>
+            <div class="fn fn-screen" style="font-size:10px">PM 직접 판단</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arr-v" style="padding-left:180px">↓</div>
+
+      <!-- Row 4: Report -->
+      <div class="flow-row">
+        <div class="flow-row-label" style="color:var(--orange)">리포트</div>
+        <div class="fn fn-screen">리포트 작성</div>
+        <div class="arr">→</div>
+        <div class="fn fn-action">항목 선택·비용 확인</div>
+        <div class="arr">→</div>
+        <div class="fn fn-action">공유 링크 발급</div>
+        <div class="arr">→</div>
+        <div class="fn fn-success">✓ 내부 공유</div>
+      </div>
+
+      <div class="arr-v">↓</div>
+
+      <!-- Row 5: Billing -->
+      <div class="flow-row">
+        <div class="flow-row-label" style="color:var(--cyan)">청구</div>
+        <div class="fn fn-screen">청구 기록 입력</div>
+        <div class="arr">→</div>
+        <div class="fn fn-decision">청구 결과?</div>
+        <div class="arr">→</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div class="fn fn-success" style="font-size:10px">✓ 성공 → 손익 반영</div>
+          <div class="fn fn-warn" style="font-size:10px">✗ 거부 → 기록 보존</div>
+        </div>
+        <div class="arr">→</div>
+        <div class="fn fn-screen">손익 대시보드 갱신</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="sec mb16">플로우별 화면 연결 맵</div>
+  <div class="g3 mb28">
+    <div class="card-sm" style="border-top:3px solid var(--purple)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">🟣 온보딩 플로우</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t3)">
+        <div>S-00 랜딩 페이지</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-01 회원가입</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-02 온보딩 Step 1</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-03 온보딩 Step 2</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-04 대시보드 (첫 진입)</div>
+      </div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--blue)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">🔵 판정 플로우</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t3)">
+        <div>S-04 대시보드</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-05 요청 입력</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-06 판정 결과 (범위 내)</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-07 판정 결과 (범위 외)</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-04 대시보드 (복귀)</div>
+      </div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--orange)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">🟠 리포트 플로우</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t3)">
+        <div>S-07 판정 결과 (범위 외)</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-08 히스토리 목록</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-09 리포트 작성</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-10 공유 링크 발급</div>
+        <div style="padding-left:10px;color:var(--t4)">→ S-11 공개 리포트 (뷰어)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec mb16">화면 목록 & 우선순위</div>
+  <div style="overflow-x:auto;margin-bottom:28px">
+    <table class="int-table">
+      <thead><tr>
+        <th style="width:60px">ID</th>
+        <th style="width:140px">화면명</th>
+        <th>핵심 기능</th>
+        <th style="width:80px">우선순위</th>
+        <th style="width:80px">MVP 포함</th>
+      </tr></thead>
+      <tbody>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-01</span></td><td style="font-weight:700;color:#fff">회원가입 / 로그인</td><td style="color:var(--t3)">이메일 가입, 구글 OAuth, 이메일 인증</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-02</span></td><td style="font-weight:700;color:#fff">온보딩 Step 1</td><td style="color:var(--t3)">에이전시명, 시급 설정</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-03</span></td><td style="font-weight:700;color:#fff">온보딩 Step 2</td><td style="color:var(--t3)">첫 프로젝트 생성, 계약서 입력, AI 요약</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-04</span></td><td style="font-weight:700;color:#fff">메인 대시보드</td><td style="color:var(--t3)">프로젝트 목록, 손익 요약, 판정 입력 진입</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-05</span></td><td style="font-weight:700;color:#fff">요청 입력</td><td style="color:var(--t3)">텍스트 입력, 입력 타입 선택, 제출</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-06</span></td><td style="font-weight:700;color:#fff">판정 결과 (범위 내)</td><td style="color:var(--t3)">in_scope 결과, 근거 표시, 피드백</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-07</span></td><td style="font-weight:700;color:#fff">판정 결과 (범위 외)</td><td style="color:var(--t3)">out_of_scope 결과, 비용 추정, 리포트 추가</td><td><span class="tag tag-red">필수</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-08</span></td><td style="font-weight:700;color:#fff">히스토리 목록</td><td style="color:var(--t3)">요청 이력, 필터, 정렬, 리포트 선택</td><td><span class="tag tag-yellow">중요</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-09</span></td><td style="font-weight:700;color:#fff">리포트 작성</td><td style="color:var(--t3)">항목 선택, 비용 합산, 제목 작성</td><td><span class="tag tag-yellow">중요</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-10</span></td><td style="font-weight:700;color:#fff">리포트 공유 설정</td><td style="color:var(--t3)">공유 링크 발급, 만료일 설정</td><td><span class="tag tag-yellow">중요</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-11</span></td><td style="font-weight:700;color:#fff">공개 리포트 (뷰어)</td><td style="color:var(--t3)">인증 없는 공개 뷰, 항목 목록, 합계</td><td><span class="tag tag-yellow">중요</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-12</span></td><td style="font-weight:700;color:#fff">손익 상세</td><td style="color:var(--t3)">프로젝트별 손익 차트, 청구 기록</td><td><span class="tag tag-gray">선택</span></td><td><span class="tag tag-orange">Phase 2</span></td></tr>
+      <tr><td><span style="font-family:monospace;color:var(--cyan)">S-13</span></td><td style="font-weight:700;color:#fff">설정</td><td style="color:var(--t3)">시급 변경, 알림 설정, 계정 관리</td><td><span class="tag tag-gray">선택</span></td><td><span class="tag tag-green">✓ 포함</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════ 와이어프레임 ═══════════ -->
+<div class="page" id="page-wireframe">
+
+  <div class="sec mb16">화면 와이어프레임 — 클릭하면 상세 명세 확인</div>
+
+  <div class="wf-wrap mb20">
+
+    <!-- S-01 로그인 -->
+    <div class="wf-screen" onclick="showDetail('s01')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">회원가입 / 로그인</div>
+        <div class="wf-screen-id">S-01</div>
+      </div>
+      <div class="wf-body">
+        <div style="text-align:center;padding:8px 0 12px">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(79,128,255,.2);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:18px">🔷</div>
+          <div style="height:8px;background:rgba(255,255,255,.15);border-radius:2px;max-width:100px;margin:0 auto 4px"></div>
+          <div style="height:5px;background:rgba(255,255,255,.07);border-radius:2px;max-width:150px;margin:0 auto"></div>
+        </div>
+        <div class="wf-input"><div class="wf-input-placeholder">이메일 주소</div></div>
+        <div class="wf-input"><div class="wf-input-placeholder">비밀번호</div></div>
+        <div class="wf-btn wf-btn-primary" style="margin-bottom:8px">시작하기</div>
+        <div style="text-align:center;font-size:9px;color:var(--t4);margin-bottom:6px">또는</div>
+        <div class="wf-btn wf-btn-ghost">🔍 Google로 계속하기</div>
+        <div class="wf-footer-note">계정이 없으신가요? 회원가입</div>
+      </div>
+    </div>
+
+    <!-- S-02 온보딩1 -->
+    <div class="wf-screen" onclick="showDetail('s02')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">온보딩 Step 1</div>
+        <div class="wf-screen-id">S-02</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-progress"><div class="wf-progress-fill" style="background:var(--blue);width:50%"></div></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:8px">1 / 2 단계</div>
+        <div style="height:8px;background:rgba(255,255,255,.15);border-radius:2px;max-width:160px;margin-bottom:4px"></div>
+        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:2px;max-width:200px;margin-bottom:12px"></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:3px">에이전시 / 회사명</div>
+        <div class="wf-input"><div class="wf-input-placeholder">예: 크리에이티브 에이전시</div></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:3px">시간당 인건비 (원)</div>
+        <div class="wf-input"><div class="wf-input-placeholder">예: 50,000원</div></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:6px;margin-top:2px;font-style:italic">* 나중에 변경 가능합니다</div>
+        <div class="wf-btn wf-btn-primary">다음 단계 →</div>
+      </div>
+    </div>
+
+    <!-- S-03 온보딩2 -->
+    <div class="wf-screen" onclick="showDetail('s03')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">온보딩 Step 2 — 첫 프로젝트</div>
+        <div class="wf-screen-id">S-03</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-progress"><div class="wf-progress-fill" style="background:var(--blue);width:100%"></div></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:8px">2 / 2 단계</div>
+        <div class="wf-input"><div class="wf-input-placeholder">프로젝트명</div></div>
+        <div class="wf-input"><div class="wf-input-placeholder">클라이언트명</div></div>
+        <div class="wf-input"><div class="wf-input-placeholder">계약 금액 (원)</div></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:3px">계약서 내용 (선택)</div>
+        <div class="wf-textarea"><div class="wf-textarea-text">계약 범위를 붙여넣으세요.<br>예: 메인페이지, 상품 목록, 상세페이지...</div></div>
+        <div class="wf-btn wf-btn-green">🤖 AI 분석 시작</div>
+      </div>
+    </div>
+
+    <!-- S-04 대시보드 -->
+    <div class="wf-screen" onclick="showDetail('s04')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">메인 대시보드</div>
+        <div class="wf-screen-id">S-04</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-nav" style="margin-bottom:6px">
+          <div class="wf-nav-logo"></div>
+          <div class="wf-nav-items"><div class="wf-nav-item"></div><div class="wf-nav-item"></div></div>
+          <div class="wf-nav-cta" style="font-size:8px;color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center">+ 요청 입력</div>
+        </div>
+        <div class="wf-grid2">
+          <div class="wf-kpi-mini"><div class="wf-kpi-l"></div><div class="wf-kpi-v" style="background:rgba(16,185,129,.4)"></div></div>
+          <div class="wf-kpi-mini"><div class="wf-kpi-l"></div><div class="wf-kpi-v" style="background:rgba(239,68,68,.4)"></div></div>
+          <div class="wf-kpi-mini"><div class="wf-kpi-l"></div><div class="wf-kpi-v" style="background:rgba(79,128,255,.4)"></div></div>
+          <div class="wf-kpi-mini"><div class="wf-kpi-l"></div><div class="wf-kpi-v" style="background:rgba(245,158,11,.4)"></div></div>
+        </div>
+        <div class="wf-block" style="margin-top:4px">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:5px">최근 판정 내역</div>
+          <div class="wf-list-item">
+            <div class="wf-avatar"></div>
+            <div style="flex:1"><div class="wf-block-line"></div></div>
+            <div class="wf-badge wf-badge-red">범위 외</div>
+          </div>
+          <div class="wf-list-item">
+            <div class="wf-avatar"></div>
+            <div style="flex:1"><div class="wf-block-line"></div></div>
+            <div class="wf-badge wf-badge-green">범위 내</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S-05 요청 입력 -->
+    <div class="wf-screen" onclick="showDetail('s05')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">요청 입력</div>
+        <div class="wf-screen-id">S-05</div>
+      </div>
+      <div class="wf-body">
+        <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:8px">ABC 쇼핑몰 리뉴얼 · 요청 입력</div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:5px">입력 유형 선택</div>
+        <div class="wf-tag-row" style="margin-bottom:8px">
+          <div class="wf-tag-chip" style="background:rgba(79,128,255,.3);color:var(--blue)">클라이언트 요청</div>
+          <div class="wf-tag-chip" style="background:var(--s4);color:var(--t4)">당일 없음</div>
+          <div class="wf-tag-chip" style="background:var(--s4);color:var(--t4)">보류 중</div>
+        </div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:3px">요청 내용</div>
+        <div class="wf-textarea" style="height:52px"><div class="wf-textarea-text">클라이언트가 요청한 내용을<br>그대로 입력하세요...</div></div>
+        <div style="font-size:9px;color:var(--t4);text-align:right;margin-bottom:6px">0 / 1,000자</div>
+        <div class="wf-btn wf-btn-green">⚖️ AI 판정 요청</div>
+        <div style="text-align:center;font-size:9px;color:var(--t4);margin-top:4px">판정까지 약 1~3초</div>
+      </div>
+    </div>
+
+    <!-- S-06 판정 결과 (범위 내) -->
+    <div class="wf-screen" onclick="showDetail('s06')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">판정 결과 — 범위 내</div>
+        <div class="wf-screen-id">S-06</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-result-card in">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <div class="wf-badge wf-badge-green">✅ 계약 범위 내</div>
+            <div style="font-size:9px;color:var(--t4)">신뢰도 94%</div>
+          </div>
+          <div class="wf-block-line"></div>
+          <div class="wf-block-line short"></div>
+        </div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:4px">AI 판정 근거</div>
+        <div class="wf-block">
+          <div class="wf-block-line"></div>
+          <div class="wf-block-line short"></div>
+          <div class="wf-block-line xshort"></div>
+        </div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:4px">이 판정이 정확한가요?</div>
+        <div style="display:flex;gap:5px;margin-bottom:6px">
+          <div class="wf-btn wf-btn-ghost" style="flex:1;height:20px;font-size:9px">👍 맞음</div>
+          <div class="wf-btn wf-btn-ghost" style="flex:1;height:20px;font-size:9px">👎 틀림</div>
+        </div>
+        <div class="wf-btn wf-btn-ghost">← 대시보드로</div>
+      </div>
+    </div>
+
+    <!-- S-07 판정 결과 (범위 외) -->
+    <div class="wf-screen" onclick="showDetail('s07')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">판정 결과 — 범위 외</div>
+        <div class="wf-screen-id">S-07</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-result-card out">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+            <div class="wf-badge wf-badge-red">🚫 계약 범위 외</div>
+            <div style="font-size:9px;color:var(--t4)">신뢰도 91%</div>
+          </div>
+          <div style="font-size:9px;color:var(--t4);margin-bottom:3px">예상 추가 비용</div>
+          <div style="font-size:13px;font-weight:800;color:var(--red)">600,000원</div>
+        </div>
+        <div class="wf-block">
+          <div style="font-size:9px;color:var(--t4);margin-bottom:3px">AI 판정 근거</div>
+          <div class="wf-block-line"></div>
+          <div class="wf-block-line short"></div>
+        </div>
+        <div class="wf-btn" style="background:rgba(239,68,68,.2);color:var(--red);border:1px solid rgba(239,68,68,.3);margin-bottom:4px;height:24px;font-size:10px;font-weight:700;border-radius:4px;display:flex;align-items:center;justify-content:center">+ 리포트에 추가</div>
+        <div style="display:flex;gap:4px">
+          <div class="wf-btn wf-btn-ghost" style="flex:1;height:18px;font-size:9px">👍 맞음</div>
+          <div class="wf-btn wf-btn-ghost" style="flex:1;height:18px;font-size:9px">👎 틀림</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S-08 히스토리 -->
+    <div class="wf-screen" onclick="showDetail('s08')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">히스토리 목록</div>
+        <div class="wf-screen-id">S-08</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-tag-row">
+          <div class="wf-tag-chip" style="background:rgba(90,100,120,.2);color:var(--t3)">전체</div>
+          <div class="wf-tag-chip" style="background:rgba(239,68,68,.15);color:var(--red)">범위 외</div>
+          <div class="wf-tag-chip" style="background:rgba(16,185,129,.12);color:var(--green)">범위 내</div>
+          <div class="wf-tag-chip" style="background:rgba(245,158,11,.12);color:var(--yellow)">불명확</div>
+        </div>
+        <div class="wf-block" style="margin-top:6px">
+          <div class="wf-list-item">
+            <div style="flex:1"><div class="wf-block-line" style="margin-bottom:2px"></div><div class="wf-block-line short" style="max-width:40%"></div></div>
+            <div class="wf-badge wf-badge-red">범위 외</div>
+          </div>
+          <div class="wf-list-item">
+            <div style="flex:1"><div class="wf-block-line" style="margin-bottom:2px"></div><div class="wf-block-line short" style="max-width:40%"></div></div>
+            <div class="wf-badge wf-badge-green">범위 내</div>
+          </div>
+          <div class="wf-list-item">
+            <div style="flex:1"><div class="wf-block-line" style="margin-bottom:2px"></div><div class="wf-block-line short" style="max-width:40%"></div></div>
+            <div class="wf-badge wf-badge-red">범위 외</div>
+          </div>
+        </div>
+        <div class="wf-btn" style="background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.25);height:22px;font-size:9px;font-weight:700;border-radius:4px;display:flex;align-items:center;justify-content:center;margin-top:6px">리포트 생성 →</div>
+      </div>
+    </div>
+
+    <!-- S-09 리포트 작성 -->
+    <div class="wf-screen" onclick="showDetail('s09')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">리포트 작성</div>
+        <div class="wf-screen-id">S-09</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-input"><div class="wf-input-placeholder">리포트 제목</div></div>
+        <div style="font-size:9px;color:var(--t4);margin-bottom:4px">포함할 항목 선택</div>
+        <div class="wf-block">
+          <div class="wf-list-item" style="align-items:flex-start">
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(239,68,68,.3);flex-shrink:0;margin-top:2px"></div>
+            <div style="flex:1;padding-left:6px"><div class="wf-block-line short"></div></div>
+            <div style="font-size:9px;color:var(--red);font-weight:700;flex-shrink:0">600,000원</div>
+          </div>
+          <div class="wf-list-item" style="align-items:flex-start">
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(239,68,68,.3);flex-shrink:0;margin-top:2px"></div>
+            <div style="flex:1;padding-left:6px"><div class="wf-block-line short"></div></div>
+            <div style="font-size:9px;color:var(--red);font-weight:700;flex-shrink:0">400,000원</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:10px">
+          <span style="color:var(--t4)">합계</span>
+          <span style="color:var(--red);font-weight:700">1,000,000원</span>
+        </div>
+        <div class="wf-btn wf-btn-primary">공유 링크 생성 →</div>
+      </div>
+    </div>
+
+    <!-- S-10 공유 설정 -->
+    <div class="wf-screen" onclick="showDetail('s10')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">공유 링크 설정</div>
+        <div class="wf-screen-id">S-10</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-block" style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2)">
+          <div style="font-size:9px;color:var(--green);font-weight:700;margin-bottom:4px">✓ 공유 링크 생성됨</div>
+          <div style="background:var(--s4);border-radius:3px;padding:5px 7px;font-size:9px;color:var(--cyan);font-family:monospace;word-break:break-all">scopemanager.io/r/abc123xyz</div>
+        </div>
+        <div style="font-size:9px;color:var(--t4);margin:8px 0 3px">링크 만료일</div>
+        <div class="wf-tag-row" style="margin-bottom:8px">
+          <div class="wf-tag-chip" style="background:rgba(79,128,255,.25);color:var(--blue)">7일</div>
+          <div class="wf-tag-chip" style="background:var(--s4);color:var(--t4)">30일</div>
+          <div class="wf-tag-chip" style="background:var(--s4);color:var(--t4)">만료 없음</div>
+        </div>
+        <div class="wf-btn wf-btn-ghost" style="margin-bottom:4px">📋 링크 복사</div>
+        <div class="wf-btn wf-btn-ghost">← 대시보드로</div>
+      </div>
+    </div>
+
+    <!-- S-11 공개 리포트 -->
+    <div class="wf-screen" onclick="showDetail('s11')">
+      <div class="wf-header">
+        <div class="wf-dots"><div class="wf-dot" style="background:#ef4444"></div><div class="wf-dot" style="background:#f59e0b"></div><div class="wf-dot" style="background:#10b981"></div></div>
+        <div class="wf-title">공개 리포트 (뷰어)</div>
+        <div class="wf-screen-id">S-11</div>
+      </div>
+      <div class="wf-body">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <div style="width:20px;height:20px;border-radius:5px;background:rgba(79,128,255,.2)"></div>
+          <div>
+            <div style="height:6px;background:rgba(255,255,255,.15);border-radius:2px;max-width:80px;margin-bottom:3px"></div>
+            <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;max-width:100px"></div>
+          </div>
+        </div>
+        <div class="wf-block">
+          <div class="wf-list-item">
+            <div style="flex:1"><div class="wf-block-line short"></div></div>
+            <div style="font-size:9px;color:var(--red);font-weight:700">600,000원</div>
+          </div>
+          <div class="wf-list-item">
+            <div style="flex:1"><div class="wf-block-line short"></div></div>
+            <div style="font-size:9px;color:var(--red);font-weight:700">400,000원</div>
+          </div>
+        </div>
+        <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:6px;padding:8px;margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:9px;color:var(--t4)">추가 비용 합계</span>
+          <span style="font-size:13px;font-weight:800;color:var(--red)">1,000,000원</span>
+        </div>
+        <div style="font-size:8px;color:var(--t4);margin-top:5px;text-align:center">* AI 추정값 · 실제 금액과 다를 수 있음</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Screen Detail Panel -->
+  <div id="detail-panel" class="screen-detail">
+    <div class="sd-header">
+      <div class="sd-id" id="detail-id" style="background:rgba(79,128,255,.2);color:var(--blue)">S</div>
+      <div>
+        <div class="sd-title" id="detail-title">화면 상세</div>
+        <div style="font-size:11px;color:var(--t4)" id="detail-sub"></div>
+      </div>
+      <button onclick="closeDetail()" style="margin-left:auto;background:var(--s3);border:1px solid var(--bd2);color:var(--t3);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px">닫기 ✕</button>
+    </div>
+    <div class="sd-grid" id="detail-content"></div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════ 핵심 태스크 플로우 ═══════════ -->
+<div class="page" id="page-taskflow">
+
+  <div class="sec mb16">Task Flow 1 — 첫 판정 받기 (신규 사용자)</div>
+  <div class="card mb20">
+    <div style="font-size:12px;color:var(--t4);margin-bottom:12px">🎯 목표: 가입 후 처음으로 AI 범위 판정을 받기까지의 최단 경로</div>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(79,128,255,.2);color:var(--blue)">1</div>
+        <div class="tf-body">
+          <div class="tf-title">랜딩 → 가입</div>
+          <div class="tf-desc">CTA 클릭 → 이메일 입력 → 비밀번호 설정 → 이메일 인증 클릭</div>
+          <div class="tf-screen">S-00 → S-01</div>
+          <div class="tf-tags"><span class="tag tag-gray">소요 시간: ~2분</span></div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(168,85,247,.2);color:var(--purple)">2</div>
+        <div class="tf-body">
+          <div class="tf-title">온보딩 완료</div>
+          <div class="tf-desc">에이전시명·시급 입력 → 첫 프로젝트 생성 → 계약서 붙여넣기 → AI 범위 요약 대기 (약 5초)</div>
+          <div class="tf-screen">S-02 → S-03</div>
+          <div class="tf-tags"><span class="tag tag-gray">소요 시간: ~3분</span><span class="tag tag-yellow">계약서 없으면 스킵 가능</span></div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(16,185,129,.2);color:var(--green)">3</div>
+        <div class="tf-body">
+          <div class="tf-title">대시보드 진입 + 요청 입력</div>
+          <div class="tf-desc">대시보드 상단 "+ 요청 입력" 버튼 클릭 → 입력 유형 선택 → 요청 내용 작성 → 제출</div>
+          <div class="tf-screen">S-04 → S-05</div>
+          <div class="tf-tags"><span class="tag tag-gray">소요 시간: ~30초</span></div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">4</div>
+        <div class="tf-body">
+          <div class="tf-title">🎉 첫 AI 판정 수신</div>
+          <div class="tf-desc">로딩 애니메이션 (~2초) → 판정 결과 + 근거 + 신뢰도 표시</div>
+          <div class="tf-screen">S-06 또는 S-07</div>
+          <div class="tf-tags"><span class="tag tag-green">Wow Moment</span><span class="tag tag-gray">총 소요 시간: 5~6분</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec mb16">Task Flow 2 — 일상 판정 루틴 (기존 사용자)</div>
+  <div class="card mb20">
+    <div style="font-size:12px;color:var(--t4);margin-bottom:12px">🎯 목표: 이미 프로젝트가 있는 사용자가 당일 요청을 판정받는 최단 경로</div>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(79,128,255,.2);color:var(--blue)">1</div>
+        <div class="tf-body">
+          <div class="tf-title">앱 접속 → 대시보드</div>
+          <div class="tf-desc">로그인 유지 → 바로 대시보드. 오늘의 판정 건수·손익 현황 한눈에 확인.</div>
+          <div class="tf-screen">S-04</div>
+          <div class="tf-tags"><span class="tag tag-gray">소요 시간: ~5초</span></div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">2</div>
+        <div class="tf-body">
+          <div class="tf-title">요청 입력</div>
+          <div class="tf-desc">상단 "+ 요청 입력" 탭 클릭 → 입력 유형 선택 (클라이언트 요청 / 없음 / 보류) → 내용 입력 → AI 판정 요청</div>
+          <div class="tf-screen">S-05</div>
+          <div class="tf-tags"><span class="tag tag-gray">소요 시간: ~20초</span></div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(16,185,129,.2);color:var(--green)">3</div>
+        <div class="tf-body">
+          <div class="tf-title">판정 결과 확인</div>
+          <div class="tf-desc">범위 내 → 피드백 후 대시보드 복귀. 범위 외 → 비용 확인 → 리포트 추가 여부 결정.</div>
+          <div class="tf-screen">S-06 또는 S-07</div>
+          <div class="tf-tags"><span class="tag tag-gray">소요 시간: ~10초</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:10px;background:rgba(16,185,129,.06);border-radius:8px;font-size:11px;color:var(--green)">⚡ 총 소요 시간: 35초 이내 — 일 1회 루틴으로 정착 가능</div>
+  </div>
+
+  <div class="sec mb16">Task Flow 3 — 리포트 생성 & 공유</div>
+  <div class="card mb20">
+    <div style="font-size:12px;color:var(--t4);margin-bottom:12px">🎯 목표: 누적된 범위 외 요청들을 리포트로 묶어 내부에 공유하기</div>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(249,115,22,.2);color:var(--orange)">1</div>
+        <div class="tf-body">
+          <div class="tf-title">히스토리에서 범위 외 항목 선택</div>
+          <div class="tf-desc">히스토리 목록 → "범위 외" 필터 → 리포트에 포함할 항목 체크 선택</div>
+          <div class="tf-screen">S-08</div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(249,115,22,.2);color:var(--orange)">2</div>
+        <div class="tf-body">
+          <div class="tf-title">리포트 작성</div>
+          <div class="tf-desc">제목 입력 → 선택 항목별 비용 확인 → 합계 자동 계산 → "공유 링크 생성" 클릭</div>
+          <div class="tf-screen">S-09</div>
+          <div class="tf-tags"><span class="tag tag-gray">비용 수동 조정 가능</span></div>
+        </div>
+      </div>
+      <div class="tf-step">
+        <div class="tf-num" style="background:rgba(6,182,212,.2);color:var(--cyan)">3</div>
+        <div class="tf-body">
+          <div class="tf-title">공유 링크 설정 & 복사</div>
+          <div class="tf-desc">만료일 선택 (7일/30일/없음) → 링크 복사 → Slack/카카오톡 등 내부 채널에 공유</div>
+          <div class="tf-screen">S-10</div>
+          <div class="tf-tags"><span class="tag tag-cyan">클라이언트 공유 아님</span><span class="tag tag-gray">내부 의사결정용</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ 인터랙션 명세 ═══════════ -->
+<div class="page" id="page-interaction">
+
+  <div class="sec mb16">핵심 인터랙션 명세 — 화면별</div>
+  <div style="overflow-x:auto;margin-bottom:28px">
+    <table class="int-table">
+      <thead><tr>
+        <th style="width:70px">화면</th>
+        <th style="width:160px">트리거 (사용자 행동)</th>
+        <th>시스템 반응</th>
+        <th style="width:120px">피드백 유형</th>
+      </tr></thead>
+      <tbody>
+
+      <tr>
+        <td><span class="tag tag-blue">S-01</span></td>
+        <td><div class="int-trigger">이메일 형식 오류 입력</div></td>
+        <td><div class="int-action">버튼 비활성화 유지 + 인라인 에러 메시지 표시</div><div class="int-feedback">빨간 테두리 + "올바른 이메일을 입력하세요"</div></td>
+        <td><span class="tag tag-red">인라인 에러</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">S-01</span></td>
+        <td><div class="int-trigger">Google로 계속하기 클릭</div></td>
+        <td><div class="int-action">구글 OAuth 팝업 → 인증 완료 시 S-02로 자동 이동</div><div class="int-feedback">로딩 스피너 → 화면 전환</div></td>
+        <td><span class="tag tag-cyan">자동 전환</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">S-03</span></td>
+        <td><div class="int-trigger">계약서 텍스트 붙여넣기</div></td>
+        <td><div class="int-action">글자 수 실시간 카운트 표시 (최대 3,000자). 초과 시 경고 색상 변경.</div><div class="int-feedback">우측 하단 카운터 실시간 업데이트</div></td>
+        <td><span class="tag tag-gray">실시간 피드백</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">S-03</span></td>
+        <td><div class="int-trigger">AI 분석 시작 클릭</div></td>
+        <td><div class="int-action">버튼 비활성화 → 로딩 스피너 → "계약서를 분석 중입니다..." → 완료 시 범위 요약 팝업</div><div class="int-feedback">Progress bar (0→100%) + 단계별 텍스트</div></td>
+        <td><span class="tag tag-yellow">진행 상태</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">S-05</span></td>
+        <td><div class="int-trigger">입력 유형 탭 전환</div></td>
+        <td><div class="int-action">"당일 없음" / "보류 중" 선택 시 텍스트 영역 숨김. "클라이언트 요청" 선택 시 표시.</div><div class="int-feedback">슬라이드 애니메이션 (150ms)</div></td>
+        <td><span class="tag tag-cyan">조건부 UI</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">S-05</span></td>
+        <td><div class="int-trigger">AI 판정 요청 클릭</div></td>
+        <td><div class="int-action">버튼 비활성화 → "AI가 판정 중..." 상태 → 결과 화면 전환 (S-06 또는 S-07)</div><div class="int-feedback">점 세 개 로딩 애니메이션 + 1~3초 대기</div></td>
+        <td><span class="tag tag-yellow">로딩 상태</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">S-05</span></td>
+        <td><div class="int-trigger">800자 이상 입력</div></td>
+        <td><div class="int-action">카운터 색상 주황으로 변경 + "요청을 나눠서 입력하면 판정 정확도가 높아집니다" 툴팁</div><div class="int-feedback">소프트 경고 (제출은 가능)</div></td>
+        <td><span class="tag tag-orange">소프트 경고</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">S-06/07</span></td>
+        <td><div class="int-trigger">👍 맞음 / 👎 틀림 클릭</div></td>
+        <td><div class="int-action">선택된 버튼 강조 표시. "틀림" 선택 시 이유 입력 텍스트 필드 슬라이드 다운.</div><div class="int-feedback">버튼 색상 변경 + 즉시 저장 (백그라운드)</div></td>
+        <td><span class="tag tag-gray">인라인 피드백</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">S-07</span></td>
+        <td><div class="int-trigger">+ 리포트에 추가 클릭</div></td>
+        <td><div class="int-action">체크 아이콘으로 버튼 변경 ("✓ 리포트에 추가됨"). 상단에 토스트: "히스토리에서 리포트를 생성할 수 있습니다."</div><div class="int-feedback">토스트 메시지 (3초) + 버튼 상태 변경</div></td>
+        <td><span class="tag tag-green">즉각 확인</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">S-08</span></td>
+        <td><div class="int-trigger">필터 탭 클릭</div></td>
+        <td><div class="int-action">해당 판정 유형만 필터링. 애니메이션 없이 즉시 리스트 갱신.</div><div class="int-feedback">선택된 탭 배경 색상 강조</div></td>
+        <td><span class="tag tag-cyan">즉시 필터</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-cyan">S-10</span></td>
+        <td><div class="int-trigger">링크 복사 버튼 클릭</div></td>
+        <td><div class="int-action">클립보드에 URL 복사 → 버튼 텍스트 "✓ 복사됨"으로 2초간 변경 후 원복</div><div class="int-feedback">버튼 텍스트 임시 변경</div></td>
+        <td><span class="tag tag-green">즉각 확인</span></td>
+      </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec mb16">빈 상태 (Empty State) 설계</div>
+  <div class="g3 mb28">
+    <div class="card-sm" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">📋</div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:5px">첫 프로젝트를 만들어보세요</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6;margin-bottom:10px">계약서를 등록하면 AI가 범위를 분석합니다.</div>
+      <div style="padding:6px 12px;background:rgba(79,128,255,.2);color:var(--blue);border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">+ 프로젝트 생성</div>
+    </div>
+    <div class="card-sm" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">⚖️</div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:5px">아직 판정 내역이 없습니다</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6;margin-bottom:10px">오늘 클라이언트 요청이 있었나요?</div>
+      <div style="padding:6px 12px;background:rgba(16,185,129,.2);color:var(--green);border-radius:5px;font-size:11px;font-weight:700;cursor:pointer">요청 입력하기</div>
+    </div>
+    <div class="card-sm" style="text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">📄</div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:5px">리포트가 없습니다</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6;margin-bottom:10px">범위 외 요청이 쌓이면 리포트를 생성할 수 있습니다.</div>
+      <div style="padding:6px 12px;background:var(--s3);color:var(--t4);border-radius:5px;font-size:11px;cursor:pointer;border:1px solid var(--bd2)">히스토리 보기</div>
+    </div>
+  </div>
+
+  <div class="sec mb16">로딩 & 에러 상태 정의</div>
+  <div class="g2">
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">⏳ 로딩 상태 3종</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:11px">
+        <div style="padding:8px;background:var(--s2);border-radius:6px">
+          <div style="color:var(--yellow);font-weight:700;margin-bottom:3px">AI 판정 중 (1~3초)</div>
+          <div style="color:var(--t3)">점 세 개 애니메이션 + "AI가 판정 중입니다..." 텍스트. 버튼 비활성화.</div>
+        </div>
+        <div style="padding:8px;background:var(--s2);border-radius:6px">
+          <div style="color:var(--blue);font-weight:700;margin-bottom:3px">계약서 분석 중 (3~8초)</div>
+          <div style="color:var(--t3)">Progress bar + 단계 텍스트 변경. "범위 추출 중..." → "정리 중..." → "완료"</div>
+        </div>
+        <div style="padding:8px;background:var(--s2);border-radius:6px">
+          <div style="color:var(--t3);font-weight:700;margin-bottom:3px">페이지 전환 (즉시)</div>
+          <div style="color:var(--t3)">스켈레톤 UI. 실제 데이터 로딩되면 fade-in 전환.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">⚠️ 에러 상태 3종</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:11px">
+        <div style="padding:8px;background:var(--s2);border-radius:6px">
+          <div style="color:var(--red);font-weight:700;margin-bottom:3px">AI 판정 실패</div>
+          <div style="color:var(--t3)">토스트: "판정 중 오류가 발생했습니다. 다시 시도해주세요." + 재시도 버튼. unclear로 자동 저장.</div>
+        </div>
+        <div style="padding:8px;background:var(--s2);border-radius:6px">
+          <div style="color:var(--orange);font-weight:700;margin-bottom:3px">네트워크 오류</div>
+          <div style="color:var(--t3)">상단 배너: "연결이 불안정합니다." + 자동 재시도 3회. 실패 시 오프라인 모드 안내.</div>
+        </div>
+        <div style="padding:8px;background:var(--s2);border-radius:6px">
+          <div style="color:var(--yellow);font-weight:700;margin-bottom:3px">공유 링크 만료</div>
+          <div style="color:var(--t3)">전용 404 페이지: "이 링크는 만료되었습니다. 담당자에게 문의하세요."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+function go(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('page-' + id).classList.add('on');
+  el.classList.add('on');
+  closeDetail();
+}
+
+const screenDetails = {
+  s01: {
+    id: 'S-01', title: '회원가입 / 로그인', sub: '진입점 · 인증',
+    color: 'rgba(79,128,255,.2)', textColor: '#4f80ff',
+    sections: [
+      { label: '핵심 목적', items: ['신뢰감 있는 첫인상 제공', '가입 장벽 최소화 (이메일 1개)', '구글 OAuth로 즉시 시작 옵션'] },
+      { label: '필수 입력 필드', items: ['이메일 주소', '비밀번호 (최소 8자)', '이메일 인증 (자동 발송)'] },
+      { label: '에러 처리', items: ['이메일 형식 오류 → 인라인 경고', '중복 이메일 → "이미 가입된 계정" 안내', '비밀번호 불일치 → 실시간 표시'] }
+    ]
+  },
+  s02: {
+    id: 'S-02', title: '온보딩 Step 1', sub: '초기 설정 · 에이전시·시급',
+    color: 'rgba(168,85,247,.2)', textColor: '#a855f7',
+    sections: [
+      { label: '핵심 목적', items: ['에이전시 정보 최소 수집', '시급 설정 (손익 계산 기준)', '가볍게 시작할 수 있다는 느낌'] },
+      { label: '입력 필드', items: ['에이전시명 (선택)', '1인 시급 (기본값 50,000원)', '팀 규모 (선택·추후)'] },
+      { label: 'UX 포인트', items: ['모든 필드 선택 사항으로 처리', '"나중에 설정" 링크 제공', '스킵해도 S-03으로 진행 가능'] }
+    ]
+  },
+  s03: {
+    id: 'S-03', title: '온보딩 Step 2', sub: '첫 프로젝트 생성 · AI 계약서 분석',
+    color: 'rgba(168,85,247,.2)', textColor: '#a855f7',
+    sections: [
+      { label: '핵심 목적', items: ['첫 번째 프로젝트 즉시 생성', '계약서 AI 요약으로 Wow Moment 제공', '판정 기준 데이터 확보'] },
+      { label: '필수 입력', items: ['프로젝트명', '클라이언트명', '계약 금액', '시작일/종료일'] },
+      { label: '선택 입력', items: ['계약서 텍스트 (AI 요약 트리거)', '없으면 수동으로 범위 입력 가능', '나중에 추가해도 무방'] }
+    ]
+  },
+  s04: {
+    id: 'S-04', title: '메인 대시보드', sub: '일상 진입점 · 손익 요약',
+    color: 'rgba(79,128,255,.2)', textColor: '#4f80ff',
+    sections: [
+      { label: '상단 KPI 4개', items: ['예상 이익 (계약액 - 인건비)', '범위 외 누적 건수', '이번 달 판정 건수', '청구 성공률'] },
+      { label: '중단: 최근 판정', items: ['최근 5건 판정 내역 리스트', '판정 결과 뱃지 (색상 구분)', '클릭 시 상세 화면 이동'] },
+      { label: '우측: 빠른 진입', items: ['+ 요청 입력 버튼 (항상 노출)', '오늘의 기록 현황', '미완료 unclear 건수 알림'] }
+    ]
+  },
+  s05: {
+    id: 'S-05', title: '요청 입력', sub: '핵심 입력 화면 · AI 판정 트리거',
+    color: 'rgba(16,185,129,.2)', textColor: '#10b981',
+    sections: [
+      { label: '입력 유형 탭', items: ['클라이언트 요청 (AI 판정 대상)', '당일 없음 (기록만, AI 미호출)', '보류 중 (나중에 판정)'] },
+      { label: '텍스트 영역', items: ['최대 1,000자', '800자 초과 시 소프트 경고', '실시간 글자 수 카운터'] },
+      { label: '제출 후 동작', items: ['로딩 상태 (~2초)', 'S-06 (범위 내) 또는 S-07 (범위 외) 전환', '실패 시 unclear 저장 + 토스트'] }
+    ]
+  },
+  s06: {
+    id: 'S-06', title: '판정 결과 — 범위 내', sub: '✅ in_scope 결과 화면',
+    color: 'rgba(16,185,129,.2)', textColor: '#10b981',
+    sections: [
+      { label: '표시 정보', items: ['✅ 계약 범위 내 뱃지 (녹색)', 'AI 신뢰도 점수 (예: 94%)', '판정 근거 텍스트 (1~3문장)'] },
+      { label: '피드백 버튼', items: ['👍 맞음 / 👎 틀림', '틀림 선택 시 이유 텍스트필드 노출', '피드백 → 백그라운드 저장'] },
+      { label: '다음 액션', items: ['← 대시보드로 돌아가기', '다른 요청 바로 입력하기', '히스토리에서 확인'] }
+    ]
+  },
+  s07: {
+    id: 'S-07', title: '판정 결과 — 범위 외', sub: '🚫 out_of_scope 결과 화면',
+    color: 'rgba(239,68,68,.2)', textColor: '#ef4444',
+    sections: [
+      { label: '표시 정보', items: ['🚫 계약 범위 외 뱃지 (빨간)', '예상 추가 비용 (원)', 'AI 신뢰도 + 판정 근거'] },
+      { label: '핵심 액션', items: ['+ 리포트에 추가 버튼 (강조)', '클릭 시 "추가됨" 상태로 전환', '대시보드 복귀 후 히스토리 기록'] },
+      { label: 'PM 오버라이드', items: ['판정이 틀렸을 경우 "틀림" 선택', '올바른 판정 수동 입력', 'AI 원본 판정은 별도 보존'] }
+    ]
+  },
+  s08: {
+    id: 'S-08', title: '히스토리 목록', sub: '전체 판정 이력 · 리포트 생성 진입',
+    color: 'rgba(249,115,22,.2)', textColor: '#f97316',
+    sections: [
+      { label: '필터 옵션', items: ['전체 / 범위 내 / 범위 외 / 불명확', '날짜 범위 필터', '프로젝트 별 필터'] },
+      { label: '리스트 항목', items: ['요청 내용 한 줄 요약', '판정 결과 뱃지', '날짜 + 예상 비용 (범위 외만)'] },
+      { label: '리포트 생성', items: ['다중 선택 후 "리포트 생성" 클릭', '또는 판정 결과 화면에서 추가된 항목 자동 포함', 'S-09로 이동'] }
+    ]
+  },
+  s09: {
+    id: 'S-09', title: '리포트 작성', sub: '범위 외 항목 묶음 · 비용 합산',
+    color: 'rgba(249,115,22,.2)', textColor: '#f97316',
+    sections: [
+      { label: '입력 필드', items: ['리포트 제목 (예: 2월 추가 요청)', '포함 항목 체크리스트', '개별 비용 수동 조정 가능'] },
+      { label: '자동 계산', items: ['선택 항목 비용 합산', '항목 수 표시', '공유용 면책 문구 자동 포함'] },
+      { label: '저장 옵션', items: ['임시 저장 (draft)', '"공유 링크 생성" → S-10 이동', '"나중에" → 리포트 목록에 draft 저장'] }
+    ]
+  },
+  s10: {
+    id: 'S-10', title: '공유 링크 설정', sub: '내부 공유 링크 발급',
+    color: 'rgba(6,182,212,.2)', textColor: '#06b6d4',
+    sections: [
+      { label: '링크 설정', items: ['만료일: 7일 / 30일 / 무기한', '링크 클립보드 복사', '링크 철회 (즉시 접근 차단)'] },
+      { label: '공유 대상', items: ['내부 팀원 (Slack, 카카오톡)', '링크 소유자 이외 인증 불필요', '클라이언트 직접 공유 비권장 안내'] },
+      { label: '공개 정보', items: ['요청 내용, 판정 근거, 비용', '시급·실제 청구 기록은 숨김', '프로젝트명 마스킹 선택 가능'] }
+    ]
+  },
+  s11: {
+    id: 'S-11', title: '공개 리포트 (뷰어)', sub: '인증 없이 접근 가능한 공유 뷰',
+    color: 'rgba(6,182,212,.2)', textColor: '#06b6d4',
+    sections: [
+      { label: '표시 정보', items: ['리포트 제목 + 생성일', '항목별 요청 내용 + 판정 근거', '예상 추가 비용 합계'] },
+      { label: 'UX 포인트', items: ['로고 + "Powered by Scope Manager" 표시', 'AI 추정값 면책 문구 필수', '만료 시 404 전환'] },
+      { label: '제한 사항', items: ['수정 불가 (읽기 전용)', '에이전시 내부 정보 미표시', '인쇄 모드 지원'] }
+    ]
+  }
+};
+
+function showDetail(key) {
+  const d = screenDetails[key];
+  if (!d) return;
+  document.getElementById('detail-id').textContent = d.id;
+  document.getElementById('detail-id').style.background = d.color;
+  document.getElementById('detail-id').style.color = d.textColor;
+  document.getElementById('detail-title').textContent = d.title;
+  document.getElementById('detail-sub').textContent = d.sub;
+  let html = '';
+  d.sections.forEach(s => {
+    html += `<div class="sd-section"><div class="sd-sl">${s.label}</div>`;
+    s.items.forEach(item => { html += `<div class="sd-item">${item}</div>`; });
+    html += `</div>`;
+  });
+  document.getElementById('detail-content').innerHTML = html;
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.querySelectorAll('.wf-screen').forEach(s => s.classList.remove('active'));
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+}
+</script>
+</body>
+</html>
