@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Scope Manager — Wireframe</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Apple SD Gothic Neo',sans-serif;background:#1a1a2e;color:#333;font-size:13px;overflow:hidden;height:100vh;}
+
+/* ── Shell ── */
+.shell{display:flex;flex-direction:column;height:100vh;}
+
+/* top toolbar */
+.toolbar{background:#0d0d1a;border-bottom:1px solid #2a2a4a;padding:0 16px;height:44px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.tb-logo{font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.3px;white-space:nowrap;}
+.tb-logo b{color:#6b8cff;}
+.tb-badge{background:#1e2a5e;color:#6b8cff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.5px;}
+.tb-sep{width:1px;height:20px;background:#2a2a4a;}
+.tb-pages{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none;}
+.tb-pages::-webkit-scrollbar{display:none;}
+.tb-page{padding:5px 10px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;color:#666;white-space:nowrap;border:1px solid transparent;transition:.15s;flex-shrink:0;}
+.tb-page:hover{color:#aaa;background:#1a1a2e;}
+.tb-page.active{background:#1e2a5e;color:#6b8cff;border-color:#2a3a7e;}
+.tb-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.tb-btn{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid #2a2a4a;background:none;color:#888;transition:.15s;}
+.tb-btn:hover{color:#fff;border-color:#6b8cff;}
+.tb-btn.primary{background:#6b8cff;border-color:#6b8cff;color:#fff;}
+.flow-label{font-size:9px;color:#444;font-weight:600;letter-spacing:.5px;}
+
+/* main area */
+.main{display:flex;flex:1;overflow:hidden;}
+
+/* screen list sidebar */
+.screen-list{width:140px;background:#111122;border-right:1px solid #1e1e3a;overflow-y:auto;flex-shrink:0;padding:8px 6px;}
+.screen-list::-webkit-scrollbar{width:3px;}
+.screen-list::-webkit-scrollbar-thumb{background:#2a2a4a;}
+.sl-group{margin-bottom:10px;}
+.sl-group-label{font-size:9px;font-weight:700;color:#333;letter-spacing:1px;text-transform:uppercase;padding:0 6px 4px;}
+.sl-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:.15s;border:1px solid transparent;margin-bottom:2px;}
+.sl-item:hover{background:#1a1a2e;}
+.sl-item.active{background:#1e2a5e;border-color:#2a3a7e;}
+.sl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.sl-name{font-size:10px;color:#666;font-weight:500;line-height:1.3;}
+.sl-item.active .sl-name{color:#6b8cff;font-weight:700;}
+.sl-num{font-size:9px;color:#333;margin-left:auto;}
+
+/* canvas */
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;background:#111122;padding:24px;}
+.canvas-area::-webkit-scrollbar{width:4px;height:4px;}
+.canvas-area::-webkit-scrollbar-thumb{background:#2a2a4a;}
+
+/* wireframe frame */
+.wf-frame{background:#f5f5f0;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.6);position:relative;flex-shrink:0;}
+.wf-frame.desktop{width:960px;min-height:600px;}
+
+/* annotation panel */
+.anno-panel{width:220px;background:#111122;border-left:1px solid #1e1e3a;overflow-y:auto;flex-shrink:0;padding:14px 12px;}
+.anno-panel::-webkit-scrollbar{width:3px;}
+.anno-panel::-webkit-scrollbar-thumb{background:#2a2a4a;}
+.ap-title{font-size:10px;font-weight:700;color:#6b8cff;letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase;}
+.ap-screen-name{font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.3;}
+.ap-screen-desc{font-size:11px;color:#555;line-height:1.6;margin-bottom:14px;}
+.ap-section{margin-bottom:14px;}
+.ap-label{font-size:9px;font-weight:700;color:#444;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.ap-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;}
+.ap-num{width:16px;height:16px;border-radius:50%;background:#1e2a5e;color:#6b8cff;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ap-text{font-size:11px;color:#666;line-height:1.5;}
+.ap-flow{display:flex;flex-direction:column;gap:4px;}
+.ap-flow-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#1a1a2e;border-radius:5px;cursor:pointer;transition:.15s;border:1px solid transparent;}
+.ap-flow-item:hover{border-color:#2a3a7e;}
+.ap-flow-item.next{border-color:#6b8cff30;}
+.ap-flow-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.ap-flow-text{font-size:10px;color:#666;}
+.ap-flow-item.next .ap-flow-text{color:#6b8cff;}
+.ap-flow-arrow{margin-left:auto;color:#333;font-size:10px;}
+
+/* ── Wireframe Components ── */
+
+/* WF Sidebar */
+.wf-sidebar{position:absolute;top:0;left:0;bottom:0;width:180px;background:#2c2c3e;display:flex;flex-direction:column;}
+.wf-logo{padding:14px 16px;border-bottom:1px solid #3a3a52;}
+.wf-logo-txt{font-size:11px;font-weight:700;color:#fff;letter-spacing:-0.3px;}
+.wf-logo-txt span{color:#6b8cff;}
+.wf-nav{flex:1;padding:8px 0;}
+.wf-nav-group{margin-bottom:4px;}
+.wf-nav-label{font-size:8px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;padding:6px 14px 3px;}
+.wf-nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;color:#888;font-size:10px;cursor:pointer;}
+.wf-nav-item.active{background:#3a3a52;color:#fff;border-left:2px solid #6b8cff;}
+.wf-nav-item .ni-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.wf-nav-item .ni-badge{margin-left:auto;background:#e53e3e;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px;}
+.wf-user{padding:10px 14px;border-top:1px solid #3a3a52;display:flex;align-items:center;gap:8px;}
+.wf-avatar{width:24px;height:24px;border-radius:50%;background:#6b8cff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;}
+.wf-uname{font-size:9px;color:#aaa;}
+
+/* WF Topbar */
+.wf-topbar{position:absolute;top:0;left:180px;right:0;height:44px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 20px;gap:12px;}
+.wf-page-title{font-size:13px;font-weight:700;color:#111;}
+.wf-breadcrumb{font-size:10px;color:#aaa;}
+.wf-breadcrumb span{color:#6b8cff;}
+.wf-topbar-right{margin-left:auto;display:flex;gap:8px;}
+.wf-btn{padding:5px 12px;border-radius:5px;font-size:10px;font-weight:600;border:1px solid #ddd;background:#fff;color:#666;cursor:pointer;}
+.wf-btn.primary{background:#6b8cff;border-color:#6b8cff;color:#fff;}
+.wf-btn.danger{background:#e53e3e;border-color:#e53e3e;color:#fff;}
+.wf-btn.green{background:#38a169;border-color:#38a169;color:#fff;}
+
+/* WF Content area */
+.wf-content{position:absolute;top:44px;left:180px;right:0;bottom:0;background:#f7f7f9;overflow:auto;padding:20px;}
+
+/* cards */
+.wf-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.wf-stat{background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:12px;border-top:3px solid;}
+.wf-stat .s-num{font-size:18px;font-weight:800;margin-bottom:2px;}
+.wf-stat .s-label{font-size:9px;color:#aaa;}
+.wf-stat .s-change{font-size:9px;margin-top:3px;}
+.wf-card{background:#fff;border:1px solid #e8e8e8;border-radius:6px;}
+.wf-card-header{padding:10px 14px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
+.wf-card-title{font-size:11px;font-weight:700;color:#111;}
+.wf-card-body{padding:12px 14px;}
+
+/* table */
+.wf-table{width:100%;border-collapse:collapse;}
+.wf-table th{background:#f7f7f9;padding:7px 10px;text-align:left;font-size:9px;font-weight:700;color:#888;border-bottom:1px solid #e8e8e8;}
+.wf-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5;font-size:10px;color:#444;vertical-align:middle;}
+.wf-table tr:last-child td{border-bottom:none;}
+.wf-table tr:hover td{background:#fafafa;}
+.wf-badge{display:inline-flex;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;}
+.wf-badge.blue{background:#ebf4ff;color:#3182ce;}
+.wf-badge.green{background:#f0fff4;color:#38a169;}
+.wf-badge.red{background:#fff5f5;color:#e53e3e;}
+.wf-badge.yellow{background:#fffff0;color:#d69e2e;}
+.wf-badge.gray{background:#f7f7f9;color:#718096;}
+.wf-badge.purple{background:#faf5ff;color:#805ad5;}
+
+/* chart placeholder */
+.wf-chart{background:#f7f7f9;border:1px dashed #ddd;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:10px;}
+
+/* form */
+.wf-form-grid{display:grid;gap:10px;}
+.wf-form-grid.cols2{grid-template-columns:1fr 1fr;}
+.wf-form-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+.wf-field{display:flex;flex-direction:column;gap:4px;}
+.wf-label{font-size:9px;font-weight:700;color:#888;}
+.wf-label .req{color:#e53e3e;margin-left:2px;}
+.wf-input{padding:6px 8px;border:1px solid #e0e0e0;border-radius:4px;font-size:10px;color:#444;background:#fff;}
+.wf-input.filled{border-color:#ddd;color:#222;}
+.wf-select{padding:6px 8px;border:1px solid #e0e0e0;border-radius:4px;font-size:10px;color:#444;background:#fff;}
+.wf-textarea{padding:6px 8px;border:1px solid #e0e0e0;border-radius:4px;font-size:10px;color:#444;background:#fff;height:60px;resize:none;}
+
+/* annotation numbers on wireframe */
+.ann{position:absolute;width:18px;height:18px;border-radius:50%;background:#6b8cff;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(107,140,255,.5);cursor:pointer;z-index:10;pointer-events:none;}
+
+/* section label */
+.wf-section-label{font-size:9px;font-weight:700;color:#bbb;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+
+/* progress / flow step */
+.wf-flow-steps{display:flex;align-items:center;gap:0;margin-bottom:16px;}
+.wf-step{display:flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;font-size:10px;color:#aaa;}
+.wf-step.done{background:#f0fff4;border-color:#c6f6d5;color:#38a169;}
+.wf-step.active{background:#ebf4ff;border-color:#bee3f8;color:#3182ce;font-weight:700;}
+.wf-step-sep{width:24px;height:1px;background:#e0e0e0;}
+
+/* impact result */
+.wf-impact-box{background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.wf-impact-title{font-size:10px;font-weight:700;color:#111;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.wf-impact-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:10px;}
+.wf-impact-row:last-child{border-bottom:none;}
+.wf-impact-key{color:#888;}
+.wf-impact-val{font-weight:700;}
+.wf-impact-val.red{color:#e53e3e;}
+.wf-impact-val.blue{color:#3182ce;}
+.wf-impact-val.green{color:#38a169;}
+
+/* grid util */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.mt8{margin-top:8px;}
+.mt12{margin-top:12px;}
+.mb10{margin-bottom:10px;}
+.full{grid-column:1/-1;}
+
+/* footer bar */
+.wf-footer-bar{position:absolute;bottom:0;left:180px;right:0;height:44px;background:#fff;border-top:1px solid #e8e8e8;display:flex;align-items:center;padding:0 20px;gap:10px;}
+.wf-footer-status{font-size:10px;color:#aaa;display:flex;align-items:center;gap:5px;}
+.wf-footer-status .saved-dot{width:6px;height:6px;border-radius:50%;background:#38a169;}
+
+/* quote summary */
+.wf-quote-summary{background:#f7f7f9;border-radius:6px;padding:12px;border:1px solid #e8e8e8;}
+.qs-row{display:flex;justify-content:space-between;font-size:10px;color:#666;padding:3px 0;}
+.qs-row.total{border-top:1px solid #ddd;margin-top:6px;padding-top:8px;}
+.qs-row.total .qs-label{font-size:11px;font-weight:700;color:#111;}
+.qs-row.total .qs-val{font-size:14px;font-weight:800;color:#6b8cff;}
+
+/* revenue chart bars */
+.rev-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.rev-bar-label{font-size:9px;color:#888;width:80px;flex-shrink:0;text-align:right;}
+.rev-bar-wrap{flex:1;height:14px;background:#f0f0f0;border-radius:3px;overflow:hidden;}
+.rev-bar-fill{height:100%;border-radius:3px;}
+.rev-bar-val{font-size:9px;font-weight:700;width:50px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="tb-logo"><b>Scope</b>Manager</div>
+  <div class="tb-badge">WIREFRAME</div>
+  <div class="tb-sep"></div>
+  <div class="flow-label">USER FLOW</div>
+  <div class="tb-pages" id="tbPages">
+    <div class="tb-page active" onclick="go(0)">① 대시보드</div>
+    <div class="tb-page" onclick="go(1)">② 프로젝트 목록</div>
+    <div class="tb-page" onclick="go(2)">③ 프로젝트 상세</div>
+    <div class="tb-page" onclick="go(3)">④ 변경요청 목록</div>
+    <div class="tb-page" onclick="go(4)">⑤ 변경요청 등록</div>
+    <div class="tb-page" onclick="go(5)">⑥ AI 영향도 분석</div>
+    <div class="tb-page" onclick="go(6)">⑦ 견적서 목록</div>
+    <div class="tb-page" onclick="go(7)">⑧ 견적서 작성</div>
+    <div class="tb-page" onclick="go(8)">⑨ 클라이언트 뷰</div>
+    <div class="tb-page" onclick="go(9)">⑩ 수익 요약</div>
+    <div class="tb-page" onclick="go(10)">⑪ 마진 분석</div>
+    <div class="tb-page" onclick="go(11)">⑫ 프로젝트 생성</div>
+  </div>
+  <div class="tb-right">
+    <button class="tb-btn" onclick="prev()">◀</button>
+    <button class="tb-btn" onclick="next()">▶</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- Screen list -->
+<div class="screen-list">
+  <div class="sl-group">
+    <div class="sl-group-label">메인</div>
+    <div class="sl-item active" onclick="go(0)"><div class="sl-dot" style="background:#6b8cff;"></div><div class="sl-name">대시보드</div><div class="sl-num">01</div></div>
+  </div>
+  <div class="sl-group">
+    <div class="sl-group-label">프로젝트</div>
+    <div class="sl-item" onclick="go(1)"><div class="sl-dot" style="background:#38b2ac;"></div><div class="sl-name">프로젝트 목록</div><div class="sl-num">02</div></div>
+    <div class="sl-item" onclick="go(2)"><div class="sl-dot" style="background:#38b2ac;"></div><div class="sl-name">프로젝트 상세</div><div class="sl-num">03</div></div>
+    <div class="sl-item" onclick="go(11)"><div class="sl-dot" style="background:#38b2ac;"></div><div class="sl-name">프로젝트 생성</div><div class="sl-num">12</div></div>
+  </div>
+  <div class="sl-group">
+    <div class="sl-group-label">변경 요청</div>
+    <div class="sl-item" onclick="go(3)"><div class="sl-dot" style="background:#e53e3e;"></div><div class="sl-name">변경요청 목록</div><div class="sl-num">04</div></div>
+    <div class="sl-item" onclick="go(4)"><div class="sl-dot" style="background:#e53e3e;"></div><div class="sl-name">변경요청 등록</div><div class="sl-num">05</div></div>
+    <div class="sl-item" onclick="go(5)"><div class="sl-dot" style="background:#e53e3e;"></div><div class="sl-name">AI 영향도 분석</div><div class="sl-num">06</div></div>
+  </div>
+  <div class="sl-group">
+    <div class="sl-group-label">견적서</div>
+    <div class="sl-item" onclick="go(6)"><div class="sl-dot" style="background:#805ad5;"></div><div class="sl-name">견적서 목록</div><div class="sl-num">07</div></div>
+    <div class="sl-item" onclick="go(7)"><div class="sl-dot" style="background:#805ad5;"></div><div class="sl-name">견적서 작성</div><div class="sl-num">08</div></div>
+    <div class="sl-item" onclick="go(8)"><div class="sl-dot" style="background:#805ad5;"></div><div class="sl-name">클라이언트 뷰</div><div class="sl-num">09</div></div>
+  </div>
+  <div class="sl-group">
+    <div class="sl-group-label">수익 관리</div>
+    <div class="sl-item" onclick="go(9)"><div class="sl-dot" style="background:#d69e2e;"></div><div class="sl-name">수익 요약</div><div class="sl-num">10</div></div>
+    <div class="sl-item" onclick="go(10)"><div class="sl-dot" style="background:#d69e2e;"></div><div class="sl-name">마진 분석</div><div class="sl-num">11</div></div>
+  </div>
+</div>
+
+<!-- Canvas -->
+<div class="canvas-area">
+<div class="wf-frame desktop" id="wfFrame"></div>
+</div>
+
+<!-- Annotation panel -->
+<div class="anno-panel">
+  <div class="ap-title">📋 화면 설명</div>
+  <div id="annoContent"></div>
+</div>
+
+</div><!-- /main -->
+</div>
+
+<script>
+const screens = [
+/* 0 Dashboard */
+{
+  name:'대시보드',
+  desc:'에이전시 전체 수익성과 진행 중인 프로젝트 현황을 한눈에 파악하는 메인 화면.',
+  components:['4개 핵심 KPI 통계 카드','진행중 프로젝트 목록 (마진율 포함)','최근 변경요청 알림','월별 수익 추이 차트'],
+  flow:[{label:'프로젝트 목록',to:1,next:true},{label:'변경요청 목록',to:3},{label:'수익 요약',to:9}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">메인</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>대시보드</div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>프로젝트 목록</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>변경 요청 <span class="ni-badge">3</span></div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">수익 관리</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>수익 요약</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>마진 분석</div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">견적서</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>견적서 목록</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">대시보드</div><div class="wf-breadcrumb">2026년 2월</div></div>
+      <div class="wf-topbar-right">
+        <div class="wf-btn primary" onclick="go(11)">+ 새 프로젝트</div>
+      </div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-stat-row">
+        <div class="wf-stat" style="border-top-color:#6b8cff;"><div class="s-num" style="color:#6b8cff;">6</div><div class="s-label">진행중 프로젝트</div><div class="s-change" style="color:#aaa;">전월 대비 +1</div></div>
+        <div class="wf-stat" style="border-top-color:#e53e3e;"><div class="s-num" style="color:#e53e3e;">3</div><div class="s-label">미처리 변경요청</div><div class="s-change" style="color:#e53e3e;">즉시 검토 필요</div></div>
+        <div class="wf-stat" style="border-top-color:#38a169;"><div class="s-num" style="color:#38a169;">4,200<span style="font-size:11px;">만</span></div><div class="s-label">이번 달 예상 수익</div><div class="s-change" style="color:#38a169;">목표 대비 87%</div></div>
+        <div class="wf-stat" style="border-top-color:#d69e2e;"><div class="s-num" style="color:#d69e2e;">28<span style="font-size:11px;">%</span></div><div class="s-label">평균 마진율</div><div class="s-change" style="color:#e53e3e;">목표 35% 미달</div></div>
+      </div>
+      <div class="g2">
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">진행중 프로젝트</div><div class="wf-btn" onclick="go(1)">전체보기</div></div>
+          <div class="wf-card-body" style="padding:0;">
+            <table class="wf-table">
+              <thead><tr><th>프로젝트명</th><th>마진율</th><th>변경요청</th><th>상태</th></tr></thead>
+              <tbody>
+                <tr onclick="go(2)" style="cursor:pointer;"><td>Fashion&Style 리뉴얼</td><td style="color:#e53e3e;font-weight:700;">12%</td><td><span class="wf-badge red">3건</span></td><td><span class="wf-badge blue">개발중</span></td></tr>
+                <tr><td>네이버 자동입찰 v2</td><td style="color:#38a169;font-weight:700;">38%</td><td><span class="wf-badge gray">0건</span></td><td><span class="wf-badge green">검수중</span></td></tr>
+                <tr><td>DB 암호화 솔루션</td><td style="color:#d69e2e;font-weight:700;">24%</td><td><span class="wf-badge yellow">1건</span></td><td><span class="wf-badge blue">개발중</span></td></tr>
+                <tr><td>중소기업 ERP 구축</td><td style="color:#38a169;font-weight:700;">41%</td><td><span class="wf-badge gray">0건</span></td><td><span class="wf-badge purple">기획중</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">미처리 변경요청</div><div class="wf-btn" style="color:#e53e3e;border-color:#e53e3e;" onclick="go(3)">3건 처리</div></div>
+            <div class="wf-card-body" style="padding:0;">
+              <table class="wf-table">
+                <tbody>
+                  <tr onclick="go(5)" style="cursor:pointer;"><td>Fashion&Style — AI 챗봇 추가</td><td><span class="wf-badge red">범위초과</span></td></tr>
+                  <tr><td>Fashion&Style — 결제 모듈 변경</td><td><span class="wf-badge yellow">검토중</span></td></tr>
+                  <tr><td>DB 암호화 — 리포트 추가</td><td><span class="wf-badge yellow">검토중</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">월별 수익 추이</div></div>
+            <div class="wf-card-body"><div class="wf-chart" style="height:80px;">📊 Bar Chart — 월별 수익 vs 비용</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:88px;left:370px;">1</div>
+    <div class="ann" style="top:88px;left:550px;">2</div>
+    <div class="ann" style="top:230px;left:730px;">3</div>
+  `
+},
+/* 1 Project List */
+{
+  name:'프로젝트 목록',
+  desc:'전체 프로젝트를 상태·기간·마진율 기준으로 필터링하고 탐색하는 화면.',
+  components:['상태별 필터 탭 (전체/진행중/완료/보류)','검색 + 정렬','프로젝트 카드 (마진율 진행바 포함)','+ 새 프로젝트 버튼'],
+  flow:[{label:'프로젝트 상세',to:2,next:true},{label:'프로젝트 생성',to:11},{label:'대시보드',to:0}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">메인</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>대시보드</div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>프로젝트 목록</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>변경 요청 <span class="ni-badge">3</span></div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">수익 관리</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>수익 요약</div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">견적서</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>견적서 목록</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">프로젝트 목록</div><div class="wf-breadcrumb">전체 8개 프로젝트</div></div>
+      <div class="wf-topbar-right">
+        <div class="wf-btn">필터</div>
+        <div class="wf-btn primary" onclick="go(11)">+ 새 프로젝트</div>
+      </div>
+    </div>
+    <div class="wf-content">
+      <!-- filter tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #e8e8e8;align-items:center;">
+        <div class="wf-input" style="width:220px;flex-shrink:0;">🔍 프로젝트 검색...</div>
+        <div style="display:flex;gap:4px;margin-left:8px;">
+          <span style="padding:4px 10px;background:#6b8cff;color:#fff;border-radius:12px;font-size:9px;font-weight:700;">전체 8</span>
+          <span style="padding:4px 10px;background:#f0f0f0;color:#888;border-radius:12px;font-size:9px;font-weight:700;">진행중 6</span>
+          <span style="padding:4px 10px;background:#f0f0f0;color:#888;border-radius:12px;font-size:9px;font-weight:700;">완료 2</span>
+        </div>
+        <div style="margin-left:auto;font-size:9px;color:#aaa;">정렬: 마진율 낮은순 ▼</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        ${[
+          {name:'Fashion&Style 이커머스 리뉴얼',client:'(주)패션앤스타일',margin:12,status:'개발중',cr:3,color:'#e53e3e',period:'2026.01~04'},
+          {name:'DB 암호화 솔루션 구축',client:'한국금융데이터',margin:24,status:'개발중',cr:1,color:'#d69e2e',period:'2025.11~03'},
+          {name:'중소기업 ERP 시스템',client:'(주)스마트팩토리',margin:31,status:'기획중',cr:0,color:'#d69e2e',period:'2026.02~08'},
+          {name:'네이버 검색광고 자동입찰 v2',client:'광고테크솔루션',margin:38,status:'검수중',cr:0,color:'#38a169',period:'2025.12~03'},
+        ].map(p=>`
+          <div class="wf-card" style="cursor:pointer;border-left:3px solid ${p.color};" onclick="go(2)">
+            <div class="wf-card-header">
+              <div>
+                <div class="wf-card-title">${p.name}</div>
+                <div style="font-size:9px;color:#aaa;margin-top:2px;">${p.client} · ${p.period}</div>
+              </div>
+              <span class="wf-badge ${p.status==='개발중'?'blue':p.status==='검수중'?'green':p.status==='기획중'?'purple':'gray'}">${p.status}</span>
+            </div>
+            <div class="wf-card-body">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <div style="font-size:9px;color:#888;">마진율</div>
+                <div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;"><div style="width:${p.margin}%;height:100%;background:${p.color};border-radius:3px;"></div></div>
+                <div style="font-size:10px;font-weight:700;color:${p.color};">${p.margin}%</div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                ${p.cr>0?`<span class="wf-badge red">변경요청 ${p.cr}건</span>`:'<span class="wf-badge gray">변경요청 없음</span>'}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="ann" style="top:78px;left:730px;">1</div>
+    <div class="ann" style="top:126px;left:380px;">2</div>
+    <div class="ann" style="top:200px;left:590px;">3</div>
+  `
+},
+/* 2 Project Detail */
+{
+  name:'프로젝트 상세',
+  desc:'개별 프로젝트의 계약 정보, 비용 현황, 변경요청 이력을 통합 조회하는 화면.',
+  components:['계약금액 vs 현재 원가 비교','변경요청 이력 타임라인','수익성 요약 카드','변경요청 등록 버튼 (CTA)'],
+  flow:[{label:'변경요청 등록',to:4,next:true},{label:'변경요청 목록',to:3},{label:'프로젝트 목록',to:1}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>프로젝트 목록</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>변경 요청 <span class="ni-badge">3</span></div></div>
+        <div class="wf-nav-group"><div class="wf-nav-label">수익 관리</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>수익 요약</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">Fashion&Style 이커머스 리뉴얼</div><div class="wf-breadcrumb">프로젝트 목록 › <span>상세</span></div></div>
+      <div class="wf-topbar-right">
+        <div class="wf-btn">편집</div>
+        <div class="wf-btn danger" onclick="go(4)">+ 변경요청 등록</div>
+      </div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-stat-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="wf-stat" style="border-top-color:#6b8cff;"><div class="s-num" style="color:#6b8cff;">3,500<span style="font-size:10px;">만</span></div><div class="s-label">계약 금액</div></div>
+        <div class="wf-stat" style="border-top-color:#e53e3e;"><div class="s-num" style="color:#e53e3e;">3,080<span style="font-size:10px;">만</span></div><div class="s-label">현재 발생 원가</div></div>
+        <div class="wf-stat" style="border-top-color:#e53e3e;"><div class="s-num" style="color:#e53e3e;">12<span style="font-size:10px;">%</span></div><div class="s-label">현재 마진율</div><div class="s-change" style="color:#e53e3e;">⚠ 목표(30%) 미달</div></div>
+        <div class="wf-stat" style="border-top-color:#d69e2e;"><div class="s-num" style="color:#d69e2e;">3</div><div class="s-label">미처리 변경요청</div></div>
+      </div>
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">계약 정보</div></div>
+            <div class="wf-card-body">
+              <div class="wf-impact-row"><span class="wf-impact-key">고객사</span><span class="wf-impact-val">(주)패션앤스타일</span></div>
+              <div class="wf-impact-row"><span class="wf-impact-key">계약 기간</span><span class="wf-impact-val">2026.01.15 ~ 2026.04.30</span></div>
+              <div class="wf-impact-row"><span class="wf-impact-key">계약 금액</span><span class="wf-impact-val blue">35,000,000원</span></div>
+              <div class="wf-impact-row"><span class="wf-impact-key">담당 PM</span><span class="wf-impact-val">Jey</span></div>
+            </div>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">수익성 현황</div></div>
+            <div class="wf-card-body">
+              <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:9px;color:#aaa;margin-bottom:3px;"><span>원가율</span><span style="color:#e53e3e;font-weight:700;">88%</span></div>
+                <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;"><div style="width:88%;height:100%;background:#e53e3e;border-radius:4px;"></div></div>
+              </div>
+              <div class="wf-impact-row"><span class="wf-impact-key">미청구 변경 추정액</span><span class="wf-impact-val red">+850만원</span></div>
+              <div class="wf-impact-row"><span class="wf-impact-key">청구 시 예상 마진율</span><span class="wf-impact-val green">+24%p</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">변경요청 이력</div><div class="wf-btn danger" onclick="go(4)">+ 등록</div></div>
+          <div class="wf-card-body" style="padding:0;">
+            <table class="wf-table">
+              <thead><tr><th>요청 내용</th><th>판정</th><th>추가비용</th><th>상태</th></tr></thead>
+              <tbody>
+                <tr onclick="go(5)" style="cursor:pointer;"><td>AI 챗봇 상담 기능 추가</td><td><span class="wf-badge red">범위초과</span></td><td style="color:#e53e3e;font-weight:700;">+450만</td><td><span class="wf-badge yellow">검토중</span></td></tr>
+                <tr><td>결제 모듈 PG사 변경</td><td><span class="wf-badge yellow">부분초과</span></td><td style="color:#d69e2e;font-weight:700;">+220만</td><td><span class="wf-badge yellow">검토중</span></td></tr>
+                <tr><td>모바일 앱 연동 API</td><td><span class="wf-badge red">범위초과</span></td><td style="color:#e53e3e;font-weight:700;">+180만</td><td><span class="wf-badge yellow">검토중</span></td></tr>
+                <tr><td>관리자 엑셀 다운로드</td><td><span class="wf-badge green">범위내</span></td><td style="color:#aaa;">-</td><td><span class="wf-badge green">완료</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:100px;left:590px;">1</div>
+    <div class="ann" style="top:230px;left:385px;">2</div>
+  `
+},
+/* 3 Request List */
+{
+  name:'변경요청 목록',
+  desc:'전체 프로젝트의 변경요청을 통합 조회하고 우선순위를 관리하는 화면.',
+  components:['전체/범위초과/검토중/완료 탭 필터','요청별 AI 판정 결과 배지','추가 비용 합계 요약','건별 AI 분석 바로가기'],
+  flow:[{label:'AI 영향도 분석',to:5,next:true},{label:'변경요청 등록',to:4},{label:'프로젝트 상세',to:2}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>프로젝트 목록</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>변경 요청 <span class="ni-badge">3</span></div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">변경요청 목록</div><div class="wf-breadcrumb">전체 7건 · 미처리 3건</div></div>
+      <div class="wf-topbar-right"><div class="wf-btn primary" onclick="go(4)">+ 신규 등록</div></div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-stat-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px;">
+        <div class="wf-stat" style="border-top-color:#e53e3e;"><div class="s-num" style="color:#e53e3e;">3</div><div class="s-label">미처리 요청</div></div>
+        <div class="wf-stat" style="border-top-color:#d69e2e;"><div class="s-num" style="color:#d69e2e;">850<span style="font-size:10px;">만원</span></div><div class="s-label">미청구 추정액</div></div>
+        <div class="wf-stat" style="border-top-color:#38a169;"><div class="s-num" style="color:#38a169;">4</div><div class="s-label">범위초과 판정</div></div>
+        <div class="wf-stat" style="border-top-color:#6b8cff;"><div class="s-num" style="color:#6b8cff;">7</div><div class="s-label">이번 달 총 요청</div></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;">
+        <span style="padding:5px 12px;background:#e53e3e;color:#fff;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;">전체 7</span>
+        <span style="padding:5px 12px;background:#f0f0f0;color:#888;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;">미처리 3</span>
+        <span style="padding:5px 12px;background:#f0f0f0;color:#888;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;">범위초과 4</span>
+        <span style="padding:5px 12px;background:#f0f0f0;color:#888;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer;">완료 3</span>
+      </div>
+      <div class="wf-card">
+        <div class="wf-card-body" style="padding:0;">
+          <table class="wf-table">
+            <thead><tr><th>프로젝트</th><th>요청 내용</th><th>AI 판정</th><th>추가 비용</th><th>등록일</th><th>상태</th><th></th></tr></thead>
+            <tbody>
+              <tr onclick="go(5)" style="cursor:pointer;background:#fff8f8;">
+                <td>Fashion&Style</td><td><b>AI 챗봇 상담 기능 추가</b></td>
+                <td><span class="wf-badge red">범위초과</span></td>
+                <td style="color:#e53e3e;font-weight:700;">+450만</td>
+                <td>02.20</td><td><span class="wf-badge yellow">검토중</span></td>
+                <td><div class="wf-btn" style="font-size:9px;padding:3px 8px;" onclick="go(5)">AI분석</div></td>
+              </tr>
+              <tr>
+                <td>Fashion&Style</td><td>결제 모듈 PG사 변경</td>
+                <td><span class="wf-badge yellow">부분초과</span></td>
+                <td style="color:#d69e2e;font-weight:700;">+220만</td>
+                <td>02.18</td><td><span class="wf-badge yellow">검토중</span></td>
+                <td><div class="wf-btn" style="font-size:9px;padding:3px 8px;">AI분석</div></td>
+              </tr>
+              <tr>
+                <td>DB 암호화</td><td>월간 리포트 기능 추가</td>
+                <td><span class="wf-badge red">범위초과</span></td>
+                <td style="color:#e53e3e;font-weight:700;">+180만</td>
+                <td>02.15</td><td><span class="wf-badge yellow">검토중</span></td>
+                <td><div class="wf-btn" style="font-size:9px;padding:3px 8px;">AI분석</div></td>
+              </tr>
+              <tr style="opacity:.6;">
+                <td>Fashion&Style</td><td>관리자 엑셀 다운로드</td>
+                <td><span class="wf-badge green">범위내</span></td><td>-</td>
+                <td>02.10</td><td><span class="wf-badge green">완료</span></td><td></td>
+              </tr>
+              <tr style="opacity:.6;">
+                <td>네이버 자동입찰</td><td>대시보드 UI 개선</td>
+                <td><span class="wf-badge green">범위내</span></td><td>-</td>
+                <td>02.08</td><td><span class="wf-badge green">완료</span></td><td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:88px;left:520px;">1</div>
+    <div class="ann" style="top:230px;left:760px;">2</div>
+  `
+},
+/* 4 Request Create */
+{
+  name:'변경요청 등록',
+  desc:'클라이언트의 새로운 요청 내용을 입력하고 AI 분석을 요청하는 폼 화면.',
+  components:['프로젝트 선택','요청 내용 상세 입력 (자유 텍스트)','요청 유형 선택 (기능추가/수정/삭제)','AI 분석 요청 버튼 (핵심 CTA)'],
+  flow:[{label:'AI 영향도 분석',to:5,next:true},{label:'변경요청 목록',to:3}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>프로젝트 목록</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>변경 요청</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">변경요청 등록</div><div class="wf-breadcrumb">변경 요청 › <span>새 요청</span></div></div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-flow-steps">
+        <div class="wf-step active">① 요청 내용 입력</div>
+        <div class="wf-step-sep"></div>
+        <div class="wf-step">② AI 영향도 분석</div>
+        <div class="wf-step-sep"></div>
+        <div class="wf-step">③ 견적서 생성</div>
+      </div>
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">기본 정보</div></div>
+            <div class="wf-card-body">
+              <div class="wf-form-grid" style="gap:10px;">
+                <div class="wf-field full"><div class="wf-label">연결 프로젝트<span class="req">*</span></div>
+                  <select class="wf-select"><option>Fashion&Style 이커머스 리뉴얼</option></select></div>
+                <div class="wf-field full"><div class="wf-label">요청 제목<span class="req">*</span></div>
+                  <div class="wf-input filled">AI 챗봇 상담 기능 추가</div></div>
+                <div class="wf-field"><div class="wf-label">요청 유형<span class="req">*</span></div>
+                  <select class="wf-select"><option selected>기능 추가</option><option>기능 수정</option><option>기능 삭제</option><option>디자인 변경</option></select></div>
+                <div class="wf-field"><div class="wf-label">요청 접수일</div>
+                  <div class="wf-input">2026-02-20</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">클라이언트 요청 내용</div></div>
+            <div class="wf-card-body">
+              <div class="wf-label mb" style="margin-bottom:5px;">요청 상세 설명<span class="req">*</span></div>
+              <div class="wf-textarea" style="height:80px;">고객 문의 응대를 위한 AI 챗봇을 메인 페이지 및 상품 상세 페이지에 추가해 주세요. 카카오톡 채널 연동도 함께 요청드립니다.</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-card" style="border:1px solid #6b8cff;background:#f8f9ff;">
+            <div class="wf-card-header" style="background:#f0f4ff;border-bottom-color:#e0e8ff;">
+              <div class="wf-card-title" style="color:#3151a8;">🤖 AI 분석 준비 완료</div>
+            </div>
+            <div class="wf-card-body">
+              <div style="font-size:10px;color:#555;line-height:1.7;margin-bottom:10px;">요청 내용이 입력되면 AI가 자동으로:<br>• 계약서 대비 범위 초과 여부 판정<br>• 예상 추가 공수·비용 산정<br>• 일정 영향 분석<br>• 협상용 리포트 초안 생성</div>
+              <div class="wf-btn primary" style="width:100%;text-align:center;padding:9px;" onclick="go(5)">🚀 AI 영향도 분석 시작</div>
+            </div>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">첨부 파일</div></div>
+            <div class="wf-card-body">
+              <div style="border:1.5px dashed #ddd;border-radius:6px;padding:16px;text-align:center;font-size:10px;color:#bbb;">
+                📎 파일을 드래그하거나 클릭하여 첨부<br>
+                <span style="font-size:9px;">카카오톡 스크린샷, 이메일 첨부 가능</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer-bar">
+      <div class="wf-footer-status"><div class="saved-dot"></div>자동 저장됨</div>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <div class="wf-btn" onclick="go(3)">취소</div>
+        <div class="wf-btn">임시저장</div>
+        <div class="wf-btn primary" onclick="go(5)">AI 분석 시작 →</div>
+      </div>
+    </div>
+    <div class="ann" style="top:80px;left:590px;">1</div>
+    <div class="ann" style="top:290px;left:740px;">2</div>
+  `
+},
+/* 5 AI Impact */
+{
+  name:'AI 영향도 분석',
+  desc:'Scope Manager의 핵심 화면. AI가 변경 요청을 계약서와 비교해 범위 초과 여부와 비용 영향을 자동 판정.',
+  components:['범위 초과 판정 결과 (범위초과/부분초과/범위내)','추가 공수·비용 자동 산정','일정 영향 분석','견적서 생성 CTA'],
+  flow:[{label:'견적서 작성',to:7,next:true},{label:'변경요청 목록',to:3},{label:'프로젝트 상세',to:2}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>프로젝트 목록</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>변경 요청</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">AI 영향도 분석</div><div class="wf-breadcrumb">AI 챗봇 상담 기능 추가 · Fashion&Style</div></div>
+      <div class="wf-topbar-right">
+        <div class="wf-btn">리포트 다운로드</div>
+        <div class="wf-btn primary" onclick="go(7)">견적서 생성 →</div>
+      </div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-flow-steps">
+        <div class="wf-step done">① 요청 내용 입력 ✓</div>
+        <div class="wf-step-sep"></div>
+        <div class="wf-step active">② AI 영향도 분석</div>
+        <div class="wf-step-sep"></div>
+        <div class="wf-step">③ 견적서 생성</div>
+      </div>
+      <!-- 판정 결과 배너 -->
+      <div style="background:#fff5f5;border:1.5px solid #fed7d7;border-radius:8px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:24px;">⚠️</div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:800;color:#c53030;margin-bottom:2px;">범위 초과 (Out of Scope)</div>
+          <div style="font-size:10px;color:#822727;line-height:1.6;">계약서 2.3항 "채팅·메신저 연동 기능은 별도 계약 대상"에 의거, 본 요청은 계약 범위를 벗어납니다.<br>AI 판정 신뢰도: <b>94%</b></div>
+        </div>
+        <span class="wf-badge red" style="font-size:11px;padding:5px 12px;">범위초과</span>
+      </div>
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-impact-box">
+            <div class="wf-impact-title">📊 비용 영향 분석</div>
+            <div class="wf-impact-row"><span class="wf-impact-key">추가 공수 (M/D)</span><span class="wf-impact-val red">+9 M/D</span></div>
+            <div class="wf-impact-row"><span class="wf-impact-key">추가 개발 비용</span><span class="wf-impact-val red">+3,600,000원</span></div>
+            <div class="wf-impact-row"><span class="wf-impact-key">외부 API 비용 (월)</span><span class="wf-impact-val red">+450,000원/월</span></div>
+            <div class="wf-impact-row" style="border-top:1px solid #f0f0f0;padding-top:6px;margin-top:4px;"><span class="wf-impact-key" style="font-weight:700;">총 추가 청구 권장액</span><span class="wf-impact-val red" style="font-size:14px;">4,500,000원</span></div>
+          </div>
+          <div class="wf-impact-box">
+            <div class="wf-impact-title">📅 일정 영향 분석</div>
+            <div class="wf-impact-row"><span class="wf-impact-key">추가 소요 일수</span><span class="wf-impact-val red">+12일</span></div>
+            <div class="wf-impact-row"><span class="wf-impact-key">현재 납기</span><span class="wf-impact-val">2026.04.30</span></div>
+            <div class="wf-impact-row"><span class="wf-impact-key">변경 시 납기</span><span class="wf-impact-val red">2026.05.12 (+12일)</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-impact-box">
+            <div class="wf-impact-title">📝 AI 판정 근거</div>
+            <div style="font-size:10px;color:#555;line-height:1.8;background:#f7f7f9;border-radius:5px;padding:10px;">
+              <b>계약서 조항 대비:</b><br>
+              ✗ 2.3항: "채팅 연동 기능 = 별도 계약 대상"<br>
+              ✗ 1.1항: 계약 범위에 'AI 기능' 미포함<br><br>
+              <b>유사 사례 (내부 데이터):</b><br>
+              챗봇 기능 추가 평균 비용: 380~520만원<br>
+              평균 추가 소요: 8~14일
+            </div>
+          </div>
+          <div class="wf-card" style="border:1px solid #6b8cff;background:#f8f9ff;">
+            <div class="wf-card-header" style="background:#f0f4ff;">
+              <div class="wf-card-title" style="color:#3151a8;">💬 협상 스크립트 초안</div>
+            </div>
+            <div class="wf-card-body">
+              <div style="font-size:10px;color:#444;line-height:1.7;background:#fff;border-radius:5px;padding:8px;border-left:3px solid #6b8cff;font-style:italic;">
+                "시스템 분석 결과, 이번 AI 챗봇 요청은 계약서 2.3항에 의거 별도 과업으로 분류됩니다. 추가 공수 9M/D, 비용 450만원으로 산정되었으며, 변경계약서 작성 후 진행 가능합니다."
+              </div>
+              <div class="wf-btn primary" style="width:100%;text-align:center;margin-top:8px;padding:8px;" onclick="go(7)">이 내용으로 견적서 생성 →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:106px;left:700px;">1</div>
+    <div class="ann" style="top:200px;left:400px;">2</div>
+    <div class="ann" style="top:340px;left:740px;">3</div>
+  `
+},
+/* 6 Quote List */
+{
+  name:'견적서 목록',
+  desc:'발행된 모든 견적서를 상태별로 조회하고 클라이언트 발송 현황을 추적하는 화면.',
+  components:['상태 필터 (초안/발송/수락/거절)','견적서별 열람 횟수·만료일 표시','클라이언트 뷰 링크 복사','새 견적서 작성 버튼'],
+  flow:[{label:'견적서 작성',to:7,next:true},{label:'클라이언트 뷰',to:8},{label:'AI 영향도 분석',to:5}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">견적서</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>견적서 목록</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>견적서 작성</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>클라이언트 뷰</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">견적서 목록</div><div class="wf-breadcrumb">전체 12건</div></div>
+      <div class="wf-topbar-right"><div class="wf-btn primary" onclick="go(7)">+ 새 견적서</div></div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-stat-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px;">
+        <div class="wf-stat" style="border-top-color:#d69e2e;"><div class="s-num" style="color:#d69e2e;">3</div><div class="s-label">초안</div></div>
+        <div class="wf-stat" style="border-top-color:#6b8cff;"><div class="s-num" style="color:#6b8cff;">5</div><div class="s-label">발송됨</div></div>
+        <div class="wf-stat" style="border-top-color:#38a169;"><div class="s-num" style="color:#38a169;">3</div><div class="s-label">수락</div></div>
+        <div class="wf-stat" style="border-top-color:#e53e3e;"><div class="s-num" style="color:#e53e3e;">1</div><div class="s-label">거절</div></div>
+      </div>
+      <div class="wf-card">
+        <div class="wf-card-body" style="padding:0;">
+          <table class="wf-table">
+            <thead><tr><th>문서번호</th><th>프로젝트</th><th>금액</th><th>만료일</th><th>열람</th><th>상태</th><th></th></tr></thead>
+            <tbody>
+              <tr style="background:#fffbf0;">
+                <td style="font-weight:700;color:#6b8cff;cursor:pointer;" onclick="go(8)">QT-2026-0023</td>
+                <td>Fashion&Style</td><td style="font-weight:700;">35,750,000</td>
+                <td style="color:#d69e2e;font-weight:600;">D-15</td>
+                <td>3회</td>
+                <td><span class="wf-badge yellow">발송됨</span></td>
+                <td style="display:flex;gap:4px;"><div class="wf-btn" style="font-size:9px;padding:3px 8px;" onclick="go(8)">뷰</div><div class="wf-btn" style="font-size:9px;padding:3px 8px;">링크</div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#6b8cff;cursor:pointer;">QT-2026-0022</td>
+                <td>DB 암호화</td><td style="font-weight:700;">18,200,000</td>
+                <td style="color:#aaa;">D-8</td>
+                <td>1회</td>
+                <td><span class="wf-badge yellow">발송됨</span></td>
+                <td style="display:flex;gap:4px;"><div class="wf-btn" style="font-size:9px;padding:3px 8px;">뷰</div><div class="wf-btn" style="font-size:9px;padding:3px 8px;">링크</div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#888;">QT-2026-0021</td>
+                <td>네이버 자동입찰</td><td style="font-weight:700;">52,000,000</td>
+                <td>-</td><td>12회</td>
+                <td><span class="wf-badge green">수락</span></td>
+                <td><div class="wf-btn" style="font-size:9px;padding:3px 8px;">뷰</div></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;color:#888;">QT-2026-0020</td>
+                <td>ERP 구축</td><td style="font-weight:700;">88,000,000</td>
+                <td>-</td><td>7회</td>
+                <td><span class="wf-badge green">수락</span></td>
+                <td><div class="wf-btn" style="font-size:9px;padding:3px 8px;">뷰</div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:210px;left:760px;">1</div>
+  `
+},
+/* 7 Quote Create */
+{
+  name:'견적서 작성',
+  desc:'AI 분석 결과를 바탕으로 공수×단가 자동 계산, 범위 조건 입력, PDF 생성까지 한 화면에서 처리.',
+  components:['AI 분석 결과 자동 연동','공수(M/D) × 단가 자동 계산','범위 포함/제외 조건 입력','클라이언트 발송 버튼'],
+  flow:[{label:'클라이언트 뷰',to:8,next:true},{label:'견적서 목록',to:6}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">견적서</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>견적서 목록</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>견적서 작성</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">견적서 작성</div><div class="wf-breadcrumb">견적서 › <span>QT-2026-0023</span></div></div>
+      <div class="wf-topbar-right">
+        <div class="wf-btn">미리보기</div>
+        <div class="wf-btn">PDF</div>
+        <div class="wf-btn primary" onclick="go(8)">발송 →</div>
+      </div>
+    </div>
+    <div class="wf-content">
+      <div class="g2" style="margin-bottom:10px;">
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">① 기본 정보</div></div>
+          <div class="wf-card-body">
+            <div class="wf-form-grid cols2" style="gap:8px;">
+              <div class="wf-field"><div class="wf-label">문서번호</div><div class="wf-input filled">QT-2026-0023</div></div>
+              <div class="wf-field"><div class="wf-label">견적일자</div><div class="wf-input">2026-02-22</div></div>
+              <div class="wf-field full"><div class="wf-label">연결 프로젝트</div><select class="wf-select"><option>Fashion&Style 이커머스 리뉴얼</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">② 고객사 정보</div></div>
+          <div class="wf-card-body">
+            <div class="wf-form-grid cols2" style="gap:8px;">
+              <div class="wf-field"><div class="wf-label">고객사명</div><div class="wf-input filled">(주)패션앤스타일</div></div>
+              <div class="wf-field"><div class="wf-label">담당자</div><div class="wf-input filled">김지영 이사</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wf-card" style="margin-bottom:10px;">
+        <div class="wf-card-header"><div class="wf-card-title">③ 견적 내역 (필수 항목)</div><span class="wf-badge blue">AI 자동 채움</span></div>
+        <div class="wf-card-body" style="padding:0;">
+          <table class="wf-table">
+            <thead><tr><th>구분</th><th>항목명</th><th>투입 인력</th><th>공수(M/D)</th><th>단가(원)</th><th>금액(원)</th></tr></thead>
+            <tbody>
+              <tr><td><span class="wf-badge blue">기획</span></td><td>IA 설계</td><td>고급 기획자</td><td style="text-align:right;">2</td><td style="text-align:right;">500,000</td><td style="text-align:right;font-weight:700;">1,000,000</td></tr>
+              <tr><td><span class="wf-badge purple">디자인</span></td><td>메인 시안</td><td>고급 디자이너</td><td style="text-align:right;">5</td><td style="text-align:right;">450,000</td><td style="text-align:right;font-weight:700;">2,250,000</td></tr>
+              <tr><td><span class="wf-badge blue">개발</span></td><td>프론트엔드</td><td>고급 개발자</td><td style="text-align:right;">15</td><td style="text-align:right;">500,000</td><td style="text-align:right;font-weight:700;">7,500,000</td></tr>
+              <tr><td><span class="wf-badge green">PM</span></td><td>프로젝트 관리</td><td>PM</td><td style="text-align:right;">10</td><td style="text-align:right;">450,000</td><td style="text-align:right;font-weight:700;">4,500,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">④ 범위 조건</div></div>
+          <div class="wf-card-body" style="font-size:10px;">
+            <div style="color:#38a169;font-weight:700;margin-bottom:5px;">✅ 포함</div>
+            <div style="color:#555;line-height:1.8;margin-bottom:8px;">· Chrome·Safari·Edge 크로스브라우징<br>· 반응형 (iOS/Android)<br>· 디자인 수정 2회 포함</div>
+            <div style="color:#e53e3e;font-weight:700;margin-bottom:5px;">🚫 제외</div>
+            <div style="color:#555;line-height:1.8;">· 콘텐츠 제작 (고객사 제공)<br>· 착수 후 기능 변경 → CR 별도 산정</div>
+          </div>
+        </div>
+        <div class="wf-quote-summary">
+          <div class="qs-row"><span>공급가액</span><span>32,500,000원</span></div>
+          <div class="qs-row"><span>부가세 (10%)</span><span>3,250,000원</span></div>
+          <div class="qs-row total"><span class="qs-label">최종 합계</span><span class="qs-val">35,750,000원</span></div>
+          <div style="margin-top:10px;">
+            <div class="wf-btn primary" style="width:100%;text-align:center;padding:9px;" onclick="go(8)">클라이언트 뷰 확인 →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer-bar">
+      <div class="wf-footer-status"><div class="saved-dot"></div>자동 저장됨 · 2분 전</div>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <div class="wf-btn" onclick="go(6)">목록으로</div>
+        <div class="wf-btn">초안 저장</div>
+        <div class="wf-btn primary" onclick="go(8)">발송 →</div>
+      </div>
+    </div>
+    <div class="ann" style="top:160px;left:700px;">1</div>
+    <div class="ann" style="top:350px;left:750px;">2</div>
+  `
+},
+/* 8 Quote Client */
+{
+  name:'클라이언트 뷰',
+  desc:'클라이언트에게 공유되는 견적서 출력 화면. 내부 메모 없이 공식 문서 형태로 표시.',
+  components:['에이전시·고객사 헤더','견적 내역 + 선택 옵션','범위 조건 (포함/제외)','결제 단계 타임라인','수락/거절 처리 버튼'],
+  flow:[{label:'수익 요약 확인',to:9,next:true},{label:'견적서 목록',to:6},{label:'견적서 수정',to:7}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">견적서</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>견적서 목록</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>견적서 작성</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>클라이언트 뷰</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">클라이언트 뷰</div><div class="wf-breadcrumb">견적서 목록 › <span>QT-2026-0023</span></div></div>
+      <div class="wf-topbar-right">
+        <div class="wf-btn" onclick="go(7)">수정</div>
+        <div class="wf-btn">인쇄/PDF</div>
+        <div class="wf-btn primary">링크 복사</div>
+      </div>
+    </div>
+    <div class="wf-content">
+      <!-- status bar -->
+      <div style="background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:16px;">
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;">문서번호</div><div style="font-size:11px;font-weight:700;">QT-2026-0023</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;">상태</div><span class="wf-badge yellow">발송됨</span></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;">만료</div><div style="font-size:11px;font-weight:700;color:#d69e2e;">D-15</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;">열람</div><div style="font-size:11px;">3회</div></div>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <div class="wf-btn" style="color:#e53e3e;border-color:#fed7d7;">거절로 처리</div>
+          <div class="wf-btn green">수락으로 처리</div>
+        </div>
+      </div>
+      <!-- document -->
+      <div style="background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+        <!-- doc header -->
+        <div style="padding:16px 20px;border-bottom:3px solid #6b8cff;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:4px;"><span style="color:#6b8cff;">Code</span>Idea</div>
+            <div style="font-size:9px;color:#aaa;line-height:1.6;">서울특별시 강남구 테헤란로 123 · contact@codeidea.kr</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;letter-spacing:-1px;color:#111;">견 적 서</div>
+            <div style="font-size:9px;color:#aaa;">No. QT-2026-0023</div>
+          </div>
+        </div>
+        <!-- recipient row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e8e8e8;">
+          <div style="padding:10px 16px;border-right:1px solid #e8e8e8;">
+            <div style="font-size:8px;font-weight:700;color:#aaa;margin-bottom:6px;">수신</div>
+            <div class="wf-impact-row"><span class="wf-impact-key">고객사</span><span class="wf-impact-val">(주)패션앤스타일</span></div>
+            <div class="wf-impact-row"><span class="wf-impact-key">담당자</span><span class="wf-impact-val">김지영 이사</span></div>
+          </div>
+          <div style="padding:10px 16px;">
+            <div style="font-size:8px;font-weight:700;color:#aaa;margin-bottom:6px;">발신</div>
+            <div class="wf-impact-row"><span class="wf-impact-key">견적일</span><span class="wf-impact-val">2026.02.22</span></div>
+            <div class="wf-impact-row"><span class="wf-impact-key">유효기간</span><span class="wf-impact-val">15일</span></div>
+          </div>
+        </div>
+        <!-- table -->
+        <div style="padding:12px 16px;">
+          <div style="font-size:10px;font-weight:700;color:#111;margin-bottom:8px;">견적 내역</div>
+          <table class="wf-table" style="font-size:9px;">
+            <thead><tr><th>구분</th><th>항목명</th><th>공수(M/D)</th><th>단가</th><th>금액</th></tr></thead>
+            <tbody>
+              <tr><td><span class="wf-badge blue" style="font-size:8px;">기획</span></td><td>IA 설계 · 와이어프레임</td><td style="text-align:right;">5</td><td style="text-align:right;">500,000</td><td style="text-align:right;font-weight:700;">2,500,000</td></tr>
+              <tr><td><span class="wf-badge purple" style="font-size:8px;">디자인</span></td><td>메인·서브 페이지 디자인</td><td style="text-align:right;">15</td><td style="text-align:right;">430,000</td><td style="text-align:right;font-weight:700;">6,450,000</td></tr>
+              <tr><td><span class="wf-badge blue" style="font-size:8px;">개발</span></td><td>프론트엔드·백엔드·API</td><td style="text-align:right;">27</td><td style="text-align:right;">500,000</td><td style="text-align:right;font-weight:700;">13,500,000</td></tr>
+              <tr><td><span class="wf-badge green" style="font-size:8px;">PM</span></td><td>프로젝트 관리·QA</td><td style="text-align:right;">15</td><td style="text-align:right;">420,000</td><td style="text-align:right;font-weight:700;">6,300,000</td></tr>
+              <tr style="background:#f7f7f9;"><td colspan="4" style="text-align:right;font-weight:700;">공급가 / VAT / 합계</td><td style="text-align:right;font-weight:800;color:#6b8cff;">35,750,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- payment -->
+        <div style="padding:10px 16px 14px;border-top:1px solid #e8e8e8;">
+          <div style="font-size:10px;font-weight:700;color:#111;margin-bottom:8px;">결제 조건</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+            ${['계약금 30%','중도금1 30%','중도금2 20%','잔금 20%'].map((s,i)=>`
+              <div style="background:#f7f7f9;border-radius:5px;padding:8px;text-align:center;">
+                <div style="width:22px;height:22px;border-radius:50%;background:#6b8cff;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;">${i+1}</div>
+                <div style="font-size:10px;font-weight:700;color:#6b8cff;">${s.split(' ')[1]}</div>
+                <div style="font-size:9px;color:#888;">${s.split(' ')[0]}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:86px;left:700px;">1</div>
+    <div class="ann" style="top:200px;left:760px;">2</div>
+  `
+},
+/* 9 Revenue Summary */
+{
+  name:'수익 요약',
+  desc:'전체 프로젝트의 월별 수익·비용·마진을 한눈에 파악하는 수익성 대시보드.',
+  components:['월별 수익 추이 차트','프로젝트별 마진율 현황','미청구 추정액 합계','마진 분석 상세 링크'],
+  flow:[{label:'마진 분석',to:10,next:true},{label:'대시보드',to:0}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">수익 관리</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>수익 요약</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>마진 분석</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">수익 요약</div><div class="wf-breadcrumb">2026년 2월 기준</div></div>
+      <div class="wf-topbar-right"><div class="wf-btn">CSV 내보내기</div><div class="wf-btn primary" onclick="go(10)">마진 분석 →</div></div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-stat-row">
+        <div class="wf-stat" style="border-top-color:#6b8cff;"><div class="s-num" style="color:#6b8cff;">4,200<span style="font-size:10px;">만</span></div><div class="s-label">이번 달 수익</div><div class="s-change" style="color:#aaa;">전월 3,800만</div></div>
+        <div class="wf-stat" style="border-top-color:#e53e3e;"><div class="s-num" style="color:#e53e3e;">3,024<span style="font-size:10px;">만</span></div><div class="s-label">이번 달 원가</div></div>
+        <div class="wf-stat" style="border-top-color:#38a169;"><div class="s-num" style="color:#38a169;">1,176<span style="font-size:10px;">만</span></div><div class="s-label">이번 달 마진</div><div class="s-change" style="color:#38a169;">마진율 28%</div></div>
+        <div class="wf-stat" style="border-top-color:#d69e2e;"><div class="s-num" style="color:#d69e2e;">850<span style="font-size:10px;">만</span></div><div class="s-label">미청구 추정액</div><div class="s-change" style="color:#d69e2e;">⚠ 청구 필요</div></div>
+      </div>
+      <div class="g2">
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">월별 수익 추이 (2025.09~2026.02)</div></div>
+          <div class="wf-card-body"><div class="wf-chart" style="height:120px;">📊 Grouped Bar Chart<br>수익(파랑) vs 원가(빨강) vs 마진(초록)</div></div>
+        </div>
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">프로젝트별 마진율</div><div class="wf-btn" onclick="go(10)">상세 →</div></div>
+          <div class="wf-card-body">
+            ${[
+              {name:'ERP 구축',pct:41,color:'#38a169'},
+              {name:'네이버 자동입찰',pct:38,color:'#38a169'},
+              {name:'ERP 운영',pct:31,color:'#d69e2e'},
+              {name:'DB 암호화',pct:24,color:'#d69e2e'},
+              {name:'Fashion&Style',pct:12,color:'#e53e3e'},
+            ].map(p=>`
+              <div class="rev-bar-row">
+                <div class="rev-bar-label">${p.name}</div>
+                <div class="rev-bar-wrap"><div class="rev-bar-fill" style="width:${p.pct*2}%;background:${p.color};"></div></div>
+                <div class="rev-bar-val" style="color:${p.color};">${p.pct}%</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:88px;left:660px;">1</div>
+    <div class="ann" style="top:280px;left:760px;">2</div>
+  `
+},
+/* 10 Revenue Margin */
+{
+  name:'마진 분석',
+  desc:'프로젝트별 계약금액·원가·마진을 상세 분석하고 미청구 기회를 찾아내는 화면.',
+  components:['프로젝트별 계약금 vs 원가 비교','마진율 위험 신호 (30% 미만 경고)','미청구 변경요청 금액 별도 표시','변경요청 등록 바로가기'],
+  flow:[{label:'변경요청 등록',to:4,next:true},{label:'수익 요약',to:9},{label:'대시보드',to:0}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">수익 관리</div>
+          <div class="wf-nav-item"><div class="ni-dot"></div>수익 요약</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>마진 분석</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">마진 분석</div><div class="wf-breadcrumb">프로젝트별 상세</div></div>
+    </div>
+    <div class="wf-content">
+      <div class="wf-card">
+        <div class="wf-card-header"><div class="wf-card-title">프로젝트별 손익 분석</div></div>
+        <div class="wf-card-body" style="padding:0;">
+          <table class="wf-table">
+            <thead><tr><th>프로젝트</th><th style="text-align:right;">계약금</th><th style="text-align:right;">발생 원가</th><th style="text-align:right;">미청구액</th><th style="text-align:right;">현재 마진율</th><th style="text-align:right;">청구 시</th><th>상태</th></tr></thead>
+            <tbody>
+              <tr style="background:#fff5f5;" onclick="go(4)" style="cursor:pointer;">
+                <td style="font-weight:700;">Fashion&Style<br><span style="font-size:9px;color:#aaa;">이커머스 리뉴얼</span></td>
+                <td style="text-align:right;">35,000,000</td>
+                <td style="text-align:right;color:#e53e3e;">30,800,000</td>
+                <td style="text-align:right;color:#d69e2e;font-weight:700;">+8,500,000</td>
+                <td style="text-align:right;color:#e53e3e;font-weight:800;">12%</td>
+                <td style="text-align:right;color:#38a169;font-weight:700;">+24%p</td>
+                <td><span class="wf-badge red">⚠ 위험</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">DB 암호화 솔루션</td>
+                <td style="text-align:right;">22,000,000</td>
+                <td style="text-align:right;">16,720,000</td>
+                <td style="text-align:right;color:#d69e2e;font-weight:700;">+1,800,000</td>
+                <td style="text-align:right;color:#d69e2e;font-weight:800;">24%</td>
+                <td style="text-align:right;color:#38a169;font-weight:700;">+8%p</td>
+                <td><span class="wf-badge yellow">주의</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">네이버 자동입찰 v2</td>
+                <td style="text-align:right;">52,000,000</td>
+                <td style="text-align:right;">32,240,000</td>
+                <td style="text-align:right;color:#aaa;">-</td>
+                <td style="text-align:right;color:#38a169;font-weight:800;">38%</td>
+                <td style="text-align:right;color:#aaa;">-</td>
+                <td><span class="wf-badge green">양호</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">중소기업 ERP 구축</td>
+                <td style="text-align:right;">88,000,000</td>
+                <td style="text-align:right;">51,920,000</td>
+                <td style="text-align:right;color:#aaa;">-</td>
+                <td style="text-align:right;color:#38a169;font-weight:800;">41%</td>
+                <td style="text-align:right;color:#aaa;">-</td>
+                <td><span class="wf-badge green">양호</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="g2 mt12">
+        <div class="wf-card" style="border:1.5px solid #fed7d7;background:#fff5f5;">
+          <div class="wf-card-header"><div class="wf-card-title" style="color:#c53030;">⚠ 즉시 조치 필요</div></div>
+          <div class="wf-card-body">
+            <div style="font-size:11px;color:#822727;line-height:1.8;">Fashion&Style 프로젝트 마진율 12% — 목표(30%) 대비 심각 미달.<br>미청구 변경요청 850만원 청구 시 마진율 36%로 회복 가능.</div>
+            <div class="wf-btn danger" style="margin-top:10px;width:100%;text-align:center;" onclick="go(4)">변경요청 등록 →</div>
+          </div>
+        </div>
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">원가 구조 분석</div></div>
+          <div class="wf-card-body"><div class="wf-chart" style="height:80px;">🍩 Donut Chart — 인건비 / 외주비 / 기타</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="top:200px;left:760px;">1</div>
+    <div class="ann" style="top:390px;left:390px;">2</div>
+  `
+},
+/* 11 Project Create */
+{
+  name:'프로젝트 생성',
+  desc:'새 프로젝트를 등록하고 계약 조건, 범위 정의, 마진 목표를 설정하는 화면.',
+  components:['계약 금액·기간 입력','마진 목표율 설정','과업 범위 텍스트 입력 (계약서 기반)','저장 → 프로젝트 상세로 이동'],
+  flow:[{label:'프로젝트 상세',to:2,next:true},{label:'프로젝트 목록',to:1}],
+  render:()=>`
+    <div class="wf-sidebar">
+      <div class="wf-logo"><div class="wf-logo-txt"><span>Scope</span>Manager</div></div>
+      <div class="wf-nav">
+        <div class="wf-nav-group"><div class="wf-nav-label">프로젝트</div>
+          <div class="wf-nav-item active"><div class="ni-dot"></div>프로젝트 목록</div></div>
+      </div>
+      <div class="wf-user"><div class="wf-avatar">J</div><div class="wf-uname">Jey · PM</div></div>
+    </div>
+    <div class="wf-topbar">
+      <div><div class="wf-page-title">새 프로젝트 생성</div><div class="wf-breadcrumb">프로젝트 목록 › <span>새 프로젝트</span></div></div>
+    </div>
+    <div class="wf-content">
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">① 기본 정보</div></div>
+            <div class="wf-card-body">
+              <div class="wf-form-grid" style="gap:9px;">
+                <div class="wf-field full"><div class="wf-label">프로젝트명<span class="req">*</span></div><div class="wf-input">예: 기업 홈페이지 리뉴얼</div></div>
+                <div class="wf-field full"><div class="wf-label">고객사명<span class="req">*</span></div><div class="wf-input">(주) 회사명</div></div>
+                <div class="wf-field"><div class="wf-label">시작일<span class="req">*</span></div><div class="wf-input">2026-03-01</div></div>
+                <div class="wf-field"><div class="wf-label">종료일<span class="req">*</span></div><div class="wf-input">2026-06-30</div></div>
+                <div class="wf-field"><div class="wf-label">계약 금액<span class="req">*</span></div><div class="wf-input">0 원</div></div>
+                <div class="wf-field"><div class="wf-label">마진 목표율</div><div class="wf-input">30 %</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-header"><div class="wf-card-title">② 담당 정보</div></div>
+            <div class="wf-card-body">
+              <div class="wf-form-grid cols2" style="gap:9px;">
+                <div class="wf-field"><div class="wf-label">담당 PM</div><select class="wf-select"><option>Jey</option></select></div>
+                <div class="wf-field"><div class="wf-label">프로젝트 상태</div><select class="wf-select"><option>기획중</option><option>개발중</option></select></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wf-card">
+          <div class="wf-card-header"><div class="wf-card-title">③ 과업 범위 정의 (계약서 기반)</div></div>
+          <div class="wf-card-body">
+            <div style="background:#f0f4ff;border:1px solid #c6d4ff;border-radius:5px;padding:9px;margin-bottom:10px;font-size:10px;color:#3151a8;line-height:1.6;">
+              💡 계약서의 과업 범위를 입력하면 AI가 변경요청 발생 시 자동으로 범위 초과 여부를 판정합니다.
+            </div>
+            <div class="wf-label" style="margin-bottom:5px;">포함 범위<span class="req">*</span></div>
+            <div class="wf-textarea" style="height:70px;margin-bottom:8px;">예: 반응형 웹사이트 구축, 관리자 CMS 개발, Chrome/Safari/Edge 지원...</div>
+            <div class="wf-label" style="margin-bottom:5px;">제외 범위</div>
+            <div class="wf-textarea" style="height:60px;">예: 콘텐츠 제작, 서버 운영, 별도 앱 개발...</div>
+            <div style="margin-top:10px;padding:8px;background:#fffff0;border:1px solid #fefcbf;border-radius:5px;font-size:9px;color:#744210;">
+              ⭐ 범위를 구체적으로 입력할수록 AI 판정 정확도가 높아집니다
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-footer-bar">
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <div class="wf-btn" onclick="go(1)">취소</div>
+        <div class="wf-btn primary" onclick="go(2)">프로젝트 생성 →</div>
+      </div>
+    </div>
+    <div class="ann" style="top:120px;left:385px;">1</div>
+    <div class="ann" style="top:200px;left:740px;">2</div>
+  `
+},
+];
+
+let cur = 0;
+
+const annoData = [
+  {items:['KPI 통계 카드 — 위험 프로젝트 즉시 식별','진행 프로젝트 마진율 한눈 파악','미처리 변경요청 3건 알림 배지']},
+  {items:['마진율 낮은 순 정렬 (위험 우선 노출)','마진율 컬러 프로그레스바','변경요청 건수 배지']},
+  {items:['계약금 vs 발생원가 실시간 비교','미청구 변경요청 → 청구 시 마진 회복 예측','변경요청 등록 CTA 강조']},
+  {items:['AI 판정 결과 배지 (범위초과/부분초과/범위내)','미처리 3건 즉시 확인','추가비용 합계 요약']},
+  {items:['AI 분석 CTA — 버튼 1번으로 분석 시작','3단계 플로우 스텝 표시','파일 첨부 (카카오톡 스크린샷 등)']},
+  {items:['범위초과 판정 결과 배너 (신뢰도 94%)','추가비용·공수·일정 자동 산정','협상 스크립트 초안 자동 생성','견적서 생성 CTA']},
+  {items:['상태별 견적서 현황 (발송/수락/거절)','열람 횟수 추적','링크 복사 → 클라이언트 공유']},
+  {items:['AI 분석 결과 자동 연동 (공수·금액 채워짐)','공수 × 단가 실시간 계산','범위 조건 입력']},
+  {items:['내부 메모 없이 공식 문서 형태 표시','수락/거절 처리 버튼','결제 단계 타임라인']},
+  {items:['월별 수익 Bar Chart','프로젝트별 마진율 가로바','미청구 추정액 경고']},
+  {items:['마진율 위험 프로젝트 즉시 식별 (빨강)','청구 시 예상 마진율 회복 시뮬레이션','즉시 조치 CTA → 변경요청 등록']},
+  {items:['과업 범위 텍스트 입력 (AI 판정 기반)','마진 목표율 사전 설정','범위 구체적 입력 → AI 정확도 향상']},
+];
+
+const flowData = [
+  [{label:'프로젝트 목록',to:1,next:true},{label:'변경요청 목록',to:3},{label:'수익 요약',to:9}],
+  [{label:'프로젝트 상세',to:2,next:true},{label:'프로젝트 생성',to:11},{label:'대시보드',to:0}],
+  [{label:'변경요청 등록',to:4,next:true},{label:'변경요청 목록',to:3},{label:'프로젝트 목록',to:1}],
+  [{label:'AI 영향도 분석',to:5,next:true},{label:'변경요청 등록',to:4},{label:'프로젝트 상세',to:2}],
+  [{label:'AI 영향도 분석',to:5,next:true},{label:'변경요청 목록',to:3}],
+  [{label:'견적서 작성',to:7,next:true},{label:'변경요청 목록',to:3},{label:'프로젝트 상세',to:2}],
+  [{label:'견적서 작성',to:7,next:true},{label:'클라이언트 뷰',to:8},{label:'AI 영향도 분석',to:5}],
+  [{label:'클라이언트 뷰',to:8,next:true},{label:'견적서 목록',to:6}],
+  [{label:'수익 요약 확인',to:9,next:true},{label:'견적서 목록',to:6},{label:'견적서 수정',to:7}],
+  [{label:'마진 분석',to:10,next:true},{label:'대시보드',to:0}],
+  [{label:'변경요청 등록',to:4,next:true},{label:'수익 요약',to:9},{label:'대시보드',to:0}],
+  [{label:'프로젝트 상세',to:2,next:true},{label:'프로젝트 목록',to:1}],
+];
+
+function render(){
+  const s = screens[cur];
+  document.getElementById('wfFrame').innerHTML = s.render();
+  // update toolbar
+  document.querySelectorAll('.tb-page').forEach((el,i)=>el.classList.toggle('active',i===cur));
+  // update sidebar list
+  document.querySelectorAll('.sl-item').forEach((el,i)=>{
+    const order = [0,1,2,11,3,4,5,6,7,8,9,10];
+    el.classList.toggle('active', order[i]===cur);
+  });
+  // annotation panel
+  const ann = annoData[cur];
+  const flow = flowData[cur];
+  document.getElementById('annoContent').innerHTML = `
+    <div class="ap-screen-name">${s.name}</div>
+    <div class="ap-screen-desc">${s.desc}</div>
+    <div class="ap-section">
+      <div class="ap-label">주요 컴포넌트</div>
+      ${ann.items.map((t,i)=>`<div class="ap-item"><div class="ap-num">${i+1}</div><div class="ap-text">${t}</div></div>`).join('')}
+    </div>
+    <div class="ap-section">
+      <div class="ap-label">이동 흐름</div>
+      <div class="ap-flow">
+        ${flow.map(f=>`<div class="ap-flow-item ${f.next?'next':''}" onclick="go(${f.to})">
+          <div class="ap-flow-dot" style="background:${f.next?'#6b8cff':'#444'};"></div>
+          <div class="ap-flow-text">${f.label}</div>
+          <div class="ap-flow-arrow">${f.next?'→':'↗'}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="ap-section">
+      <div class="ap-label">화면 번호</div>
+      <div style="font-size:20px;font-weight:900;color:#6b8cff;padding:4px 0;">${String(cur+1).padStart(2,'0')} / 12</div>
+    </div>
+  `;
+}
+
+function go(n){ cur=n; render(); }
+function next(){ cur=(cur+1)%12; render(); }
+function prev(){ cur=(cur-1+12)%12; render(); }
+
+render();
+</script>
+</body>
+</html>
