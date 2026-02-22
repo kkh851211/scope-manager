@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager 메뉴 구조</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a0f; color:#e8e8f0; font-family:'Segoe UI', system-ui, sans-serif; padding:2rem; }
+  h1 { font-size:1.3rem; font-weight:800; color:#fff; margin-bottom:0.3rem; }
+  .subtitle { font-size:0.85rem; color:#8888aa; margin-bottom:2rem; }
+
+  .layout { display:grid; grid-template-columns:220px 1fr; gap:2rem; align-items:start; }
+
+  /* 사이드바 */
+  .sidebar {
+    background:#13131a; border:1px solid #2a2a3a;
+    border-radius:14px; padding:1.2rem; position:sticky; top:2rem;
+  }
+  .sidebar-logo { font-size:1rem; font-weight:800; color:#fff; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid #2a2a3a; }
+  .sidebar-logo span { color:#a78bfa; }
+  .nav-section { margin-bottom:1.2rem; }
+  .nav-label { font-size:0.65rem; font-weight:700; color:#555577; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:0.5rem; padding-left:0.5rem; }
+  .nav-item {
+    display:flex; align-items:center; gap:0.6rem;
+    padding:0.55rem 0.8rem; border-radius:8px; font-size:0.85rem;
+    cursor:pointer; transition:background 0.2s; margin-bottom:0.2rem;
+    color:#8888aa;
+  }
+  .nav-item:hover { background:#1c1c27; color:#e8e8f0; }
+  .nav-item.active { background:rgba(108,99,255,0.15); color:#a78bfa; font-weight:600; }
+  .nav-icon { font-size:1rem; width:20px; text-align:center; }
+  .nav-badge {
+    margin-left:auto; background:rgba(255,107,107,0.2); color:#ff6b6b;
+    font-size:0.65rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:10px;
+  }
+
+  /* 메인 콘텐츠 */
+  .content { display:flex; flex-direction:column; gap:1.5rem; }
+
+  .section-card {
+    background:#13131a; border:1px solid #2a2a3a; border-radius:14px; overflow:hidden;
+  }
+  .section-header {
+    padding:1rem 1.5rem; border-bottom:1px solid #2a2a3a;
+    display:flex; align-items:center; gap:0.8rem;
+  }
+  .section-icon { font-size:1.2rem; }
+  .section-title { font-size:1rem; font-weight:700; color:#fff; }
+  .section-desc { font-size:0.8rem; color:#8888aa; margin-left:auto; }
+
+  .menu-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:0; }
+  .menu-item {
+    padding:1rem 1.5rem; border-right:1px solid #2a2a3a; border-bottom:1px solid #2a2a3a;
+  }
+  .menu-item:last-child { border-right:none; }
+  .menu-depth { font-size:0.65rem; color:#555577; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:0.3rem; }
+  .menu-name { font-size:0.9rem; font-weight:600; color:#e8e8f0; margin-bottom:0.4rem; }
+  .menu-desc { font-size:0.78rem; color:#8888aa; line-height:1.5; }
+  .menu-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.5rem; }
+  .tag {
+    font-size:0.65rem; padding:0.15rem 0.5rem; border-radius:10px; font-weight:600;
+  }
+  .tag-core { background:rgba(108,99,255,0.15); color:#a78bfa; border:1px solid rgba(108,99,255,0.3); }
+  .tag-demo { background:rgba(74,222,128,0.1); color:#4ade80; border:1px solid rgba(74,222,128,0.3); }
+  .tag-later { background:rgba(136,136,170,0.1); color:#8888aa; border:1px solid rgba(136,136,170,0.2); }
+
+  /* 범례 */
+  .legend { display:flex; gap:1.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; color:#8888aa; }
+
+  /* 흐름도 */
+  .flow-card {
+    background:#13131a; border:1px solid #2a2a3a; border-radius:14px; padding:1.5rem;
+  }
+  .flow-title { font-size:0.85rem; font-weight:700; color:#fff; margin-bottom:1rem; }
+  .flow { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+  .flow-step {
+    background:#1c1c27; border:1px solid #2a2a3a; border-radius:8px;
+    padding:0.5rem 1rem; font-size:0.8rem; color:#e8e8f0;
+  }
+  .flow-step.highlight { background:rgba(108,99,255,0.15); border-color:rgba(108,99,255,0.4); color:#a78bfa; }
+  .flow-arrow { color:#555577; font-size:1rem; }
+
+  .demo-notice {
+    background:rgba(108,99,255,0.08); border:1px solid rgba(108,99,255,0.25);
+    border-radius:10px; padding:1rem 1.5rem; font-size:0.82rem; color:#a78bfa; margin-top:1.5rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>📐 Scope Manager 메뉴 구조</h1>
+<p class="subtitle">PM 화면 기준 · 피그마 데모용</p>
+
+<div class="layout">
+
+  <!-- 사이드바 (실제 앱 네비게이션 미리보기) -->
+  <div class="sidebar">
+    <div class="sidebar-logo">Scope<span>Manager</span></div>
+
+    <div class="nav-section">
+      <div class="nav-label">메인</div>
+      <div class="nav-item active"><span class="nav-icon">🏠</span> 대시보드</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">프로젝트</div>
+      <div class="nav-item"><span class="nav-icon">📋</span> 프로젝트 관리</div>
+      <div class="nav-item"><span class="nav-icon">⚡</span> 추가 요청 관리 <span class="nav-badge">3</span></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">분석</div>
+      <div class="nav-item"><span class="nav-icon">💰</span> 수익성 현황</div>
+      <div class="nav-item"><span class="nav-icon">📄</span> 견적서 관리</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">기타</div>
+      <div class="nav-item"><span class="nav-icon">⚙️</span> 설정</div>
+    </div>
+  </div>
+
+  <!-- 메뉴 상세 -->
+  <div class="content">
+
+    <!-- 범례 -->
+    <div class="legend">
+      <div class="legend-item"><span class="tag tag-demo">데모 필수</span> 피그마 데모에 포함</div>
+      <div class="legend-item"><span class="tag tag-core">핵심 기능</span> 서비스 핵심 페이지</div>
+      <div class="legend-item"><span class="tag tag-later">나중에</span> 개발 단계에서 추가</div>
+    </div>
+
+    <!-- 1. 대시보드 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-icon">🏠</span>
+        <span class="section-title">대시보드</span>
+        <span class="section-desc">진입 후 첫 화면</span>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">전체 현황 요약</div>
+          <div class="menu-desc">진행 프로젝트 수, 이탈 요청 수, 이번 달 손실 예상액</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">위험 프로젝트 알림</div>
+          <div class="menu-desc">범위 초과 또는 마진 위험 프로젝트 강조 표시</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">최근 추가 요청</div>
+          <div class="menu-desc">최근 등록된 추가 요청 3~5건 미리보기</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 프로젝트 관리 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-icon">📋</span>
+        <span class="section-title">프로젝트 관리</span>
+        <span class="section-desc">계약 범위 및 공수 관리</span>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">프로젝트 목록</div>
+          <div class="menu-desc">전체 프로젝트 카드형 목록. 상태/마진율 한눈에 표시</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">프로젝트 상세</div>
+          <div class="menu-desc">스코프 현황, 공수 사용률, 추가 요청 목록 통합 뷰</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">프로젝트 등록</div>
+          <div class="menu-desc">계약 금액, 계약 공수, 시작일/종료일, 담당 PM 입력</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">스코프 설정</div>
+          <div class="menu-desc">계약 범위 항목을 텍스트로 등록. 추가 요청 비교 기준이 됨</div>
+          <div class="menu-tags"><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 추가 요청 관리 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-icon">⚡</span>
+        <span class="section-title">추가 요청 관리</span>
+        <span class="section-desc">스코프 매니저 핵심 기능</span>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">추가 요청 목록</div>
+          <div class="menu-desc">전체 추가 요청 현황. 이탈/정상/검토중 필터 제공</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">요청 등록</div>
+          <div class="menu-desc">요청 내용 입력 시 공수·비용·범위 이탈 여부 자동 계산</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">영향도 분석</div>
+          <div class="menu-desc">해당 요청이 전체 공수·마진·일정에 미치는 영향 시각화</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">요청 상태 변경</div>
+          <div class="menu-desc">검토중 → 승인/거절/보류 상태 관리</div>
+          <div class="menu-tags"><span class="tag tag-later">나중에</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 수익성 현황 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <span class="section-title">수익성 현황</span>
+        <span class="section-desc">마진 및 손실 분석</span>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">전체 수익성 요약</div>
+          <div class="menu-desc">총 계약 금액, 투입 비용, 예상 마진 한눈에 표시</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">프로젝트별 마진율</div>
+          <div class="menu-desc">프로젝트별 마진율 비교. 위험 프로젝트 강조 표시</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">월별 추이</div>
+          <div class="menu-desc">월별 마진율 변화와 초과 요청 건수 추이 그래프</div>
+          <div class="menu-tags"><span class="tag tag-later">나중에</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 견적서 관리 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-icon">📄</span>
+        <span class="section-title">견적서 관리</span>
+        <span class="section-desc">추가 견적 생성 및 공유</span>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <div class="menu-depth">1depth</div>
+          <div class="menu-name">견적서 목록</div>
+          <div class="menu-desc">발행된 견적서 전체 목록. 승인 상태별 필터 제공</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">견적서 생성</div>
+          <div class="menu-desc">추가 요청에서 자동으로 공수·금액 불러와 견적서 생성</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">클라이언트 공유 뷰</div>
+          <div class="menu-desc">로그인 없이 링크로 접근 가능한 클라이언트 전용 화면</div>
+          <div class="menu-tags"><span class="tag tag-demo">데모 필수</span><span class="tag tag-core">핵심 기능</span></div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-depth">2depth</div>
+          <div class="menu-name">승인 관리</div>
+          <div class="menu-desc">클라이언트 승인/거절 상태 추적 및 히스토리</div>
+          <div class="menu-tags"><span class="tag tag-later">나중에</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 핵심 흐름 -->
+    <div class="flow-card">
+      <div class="flow-title">🎯 데모 핵심 흐름 (피그마에서 이 순서로 연결)</div>
+      <div class="flow">
+        <div class="flow-step highlight">대시보드</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">프로젝트 상세</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step highlight">추가 요청 등록</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step highlight">영향도 분석</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step highlight">견적서 생성</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">클라이언트 공유</div>
+      </div>
+    </div>
+
+    <div class="demo-notice">
+      💡 피그마 데모에서 <strong>"나중에"</strong> 태그 항목은 만들지 않아도 돼요. 핵심 흐름에 집중하는 게 더 설득력 있어요.
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
