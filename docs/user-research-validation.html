@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager — User Research & Validation</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2438;--s3:#222840;
+  --bd:#232b3e;--bd2:#2e3748;
+  --blue:#4f80ff;--purple:#a855f7;--green:#10b981;
+  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--yellow:#f59e0b;
+  --t1:#e8eaf0;--t2:#c5cbd8;--t3:#8c95aa;--t4:#5a6478;
+}
+body{background:var(--bg);color:var(--t1);font-family:'Apple SD Gothic Neo','Pretendard',sans-serif;font-size:13px}
+
+/* HEADER */
+header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;gap:12px;flex-wrap:wrap}
+.logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
+.hbadge{display:flex;gap:8px;align-items:center}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
+.b-orange{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+.b-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.dot-anim{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite;display:inline-block}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* NAV */
+nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
+.tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--t2)}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* PAGE */
+.page{display:none;padding:24px 28px 64px;max-width:1100px}
+.page.on{display:block}
+
+/* SECTION */
+.sec-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bd)}
+.mb24{margin-bottom:24px}.mb32{margin-bottom:32px}
+
+/* GRID UTILS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:800px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:16px 16px 64px}}
+
+/* CARD BASE */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
+.card-sm{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+@media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px 18px}
+.kpi-lbl{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t4);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:900;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--t4)}
+
+/* PAIN POINT MATRIX */
+.matrix-wrap{overflow-x:auto;margin-bottom:28px}
+.matrix{width:100%;border-collapse:collapse;min-width:600px}
+.matrix th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
+.matrix td{padding:12px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.matrix tr:last-child td{border-bottom:none}
+.matrix tr:hover td{background:rgba(79,128,255,.03)}
+.pain-name{font-weight:700;color:#fff;font-size:13px;margin-bottom:3px}
+.pain-desc{font-size:11px;color:var(--t3);line-height:1.5}
+.sev-bar{display:flex;align-items:center;gap:8px}
+.sev-track{width:80px;height:6px;background:var(--bd2);border-radius:3px;overflow:hidden}
+.sev-fill{height:100%;border-radius:3px}
+.sev-num{font-size:11px;font-weight:700;color:var(--t3);min-width:20px}
+.tag{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
+.tag-h{background:rgba(239,68,68,.15);color:var(--red)}
+.tag-m{background:rgba(245,158,11,.15);color:var(--yellow)}
+.tag-l{background:rgba(16,185,129,.15);color:var(--green)}
+.tag-blue{background:rgba(79,128,255,.15);color:var(--blue)}
+.tag-purple{background:rgba(168,85,247,.15);color:var(--purple)}
+.tag-cyan{background:rgba(6,182,212,.15);color:var(--cyan)}
+
+/* INTERVIEW PLAN */
+.int-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:10px;display:grid;grid-template-columns:140px 1fr auto;gap:16px;align-items:start;transition:.15s}
+.int-card:hover{border-color:rgba(79,128,255,.25)}
+@media(max-width:650px){.int-card{grid-template-columns:1fr}}
+.int-persona{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.int-role{font-size:11px;color:var(--t3)}
+.int-co{font-size:10px;color:var(--t4);margin-top:2px}
+.int-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px}
+.int-purpose{font-size:11px;color:var(--t3);line-height:1.6;margin-bottom:8px}
+.int-qs{display:flex;flex-direction:column;gap:4px}
+.int-q{font-size:11px;color:var(--t2);display:flex;gap:7px;line-height:1.5}
+.int-q::before{content:'Q.';color:var(--blue);font-weight:700;flex-shrink:0}
+.int-meta{text-align:right}
+.int-cnt{font-size:20px;font-weight:800;color:var(--blue);line-height:1}
+.int-cnt-lbl{font-size:10px;color:var(--t4);margin-top:3px}
+.int-status{margin-top:8px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;display:inline-block}
+.st-plan{background:rgba(90,100,120,.2);color:var(--t3)}
+.st-now{background:rgba(249,115,22,.15);color:var(--orange)}
+.st-done{background:rgba(16,185,129,.12);color:var(--green)}
+
+/* SCRIPT */
+.script-block{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.script-head{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.script-head:hover{background:rgba(79,128,255,.04)}
+.script-htitle{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.script-body{padding:18px;display:none}
+.script-body.open{display:block}
+.script-phase{margin-bottom:18px}
+.sp-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.sp-item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.sp-num{width:20px;height:20px;border-radius:50%;background:var(--s3);font-size:10px;font-weight:700;color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sp-q{font-size:12px;color:var(--t2);line-height:1.6;flex:1}
+.sp-q b{color:#fff}
+.sp-q .tip{font-size:11px;color:var(--t4);display:block;margin-top:3px}
+.chevron{font-size:14px;color:var(--t4);transition:.2s}
+.chevron.open{transform:rotate(180deg)}
+
+/* INSIGHT CARDS */
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:28px}
+.insight-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.insight-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ic-red::before{background:var(--red)}
+.ic-blue::before{background:var(--blue)}
+.ic-yellow::before{background:var(--yellow)}
+.ic-green::before{background:var(--green)}
+.ic-purple::before{background:var(--purple)}
+.ic-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px}
+.ic-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t4)}
+.ic-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.4}
+.ic-quote{font-size:12px;color:var(--t3);line-height:1.7;border-left:2px solid var(--bd2);padding-left:10px;margin-bottom:10px;font-style:italic}
+.ic-quote b{color:var(--t2);font-style:normal}
+.ic-implication{font-size:11px;color:var(--t3);line-height:1.6;padding:8px 10px;background:var(--s2);border-radius:6px}
+.ic-implication b{color:var(--t2)}
+.ic-empty{font-size:12px;color:var(--t4);text-align:center;padding:20px 0}
+
+/* VALIDATION TRACKER */
+.val-table{width:100%;border-collapse:collapse}
+.val-table th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1)}
+.val-table td{padding:12px 14px;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:middle}
+.val-table tr:last-child td{border-bottom:none}
+.val-table tr:hover td{background:rgba(79,128,255,.03)}
+.hypo-ref{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700}
+.progress-pill{display:flex;align-items:center;gap:7px}
+.pp-track{width:70px;height:5px;background:var(--bd2);border-radius:3px;overflow:hidden}
+.pp-fill{height:100%;border-radius:3px}
+.pp-val{font-size:11px;font-weight:700;color:var(--t3);min-width:28px}
+.result-cell{font-size:12px;color:var(--t3);font-style:italic}
+.result-cell.filled{color:var(--t2);font-style:normal}
+
+/* PERSONA CARDS */
+.persona-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+@media(max-width:650px){.persona-grid{grid-template-columns:1fr}}
+.persona-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.persona-card::after{content:attr(data-emoji);position:absolute;right:16px;top:14px;font-size:36px;opacity:.12}
+.pc-role{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);margin-bottom:6px}
+.pc-name{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
+.pc-desc{font-size:12px;color:var(--t3);line-height:1.6;margin-bottom:14px}
+.pc-attr{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.pc-row{display:flex;gap:8px;align-items:flex-start}
+.pc-key{font-size:10px;font-weight:700;color:var(--t4);width:60px;flex-shrink:0;padding-top:1px}
+.pc-v{font-size:11px;color:var(--t2);line-height:1.5}
+.pc-pains{display:flex;flex-wrap:wrap;gap:5px}
+.pc-pain{padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.pc-goals{display:flex;flex-wrap:wrap;gap:5px}
+.pc-goal{padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+
+/* OVERVIEW SPECIFIC */
+.overview-hero{background:linear-gradient(135deg,rgba(79,128,255,.08),rgba(168,85,247,.06));border:1px solid rgba(79,128,255,.2);border-radius:14px;padding:24px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.oh-left{flex:1;min-width:240px}
+.oh-title{font-size:18px;font-weight:900;color:#fff;margin-bottom:6px;line-height:1.3}
+.oh-sub{font-size:13px;color:var(--t3);line-height:1.7}
+.oh-right{display:flex;gap:10px;flex-wrap:wrap}
+.oh-stat{text-align:center;background:rgba(0,0,0,.25);border-radius:10px;padding:12px 18px}
+.oh-num{font-size:22px;font-weight:900;line-height:1;margin-bottom:3px}
+.oh-lbl{font-size:10px;color:var(--t4)}
+
+/* SCHEDULE */
+.schedule{display:flex;flex-direction:column;gap:0;margin-bottom:28px;position:relative}
+.schedule::before{content:'';position:absolute;left:18px;top:24px;bottom:24px;width:1px;background:var(--bd2)}
+.sch-item{display:flex;gap:14px;align-items:flex-start;padding:12px 0}
+.sch-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;position:relative;z-index:1}
+.sch-dot.done{background:rgba(16,185,129,.2);border:2px solid var(--green)}
+.sch-dot.now{background:rgba(249,115,22,.15);border:2px solid var(--orange);animation:ring 2s infinite}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.4)}50%{box-shadow:0 0 0 5px rgba(249,115,22,0)}}
+.sch-dot.plan{background:rgba(90,100,120,.15);border:2px solid var(--bd2)}
+.sch-content{flex:1;padding-top:7px}
+.sch-week{font-size:10px;font-weight:700;color:var(--t4);margin-bottom:3px}
+.sch-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+.sch-desc{font-size:11px;color:var(--t3);line-height:1.6}
+
+/* QUOTE WALL */
+.quote-wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:28px}
+.qw-item{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.qw-quote{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:8px;font-style:italic}
+.qw-quote::before{content:'"';color:var(--blue);font-size:18px;font-weight:900;line-height:0;vertical-align:-4px;margin-right:2px}
+.qw-src{font-size:10px;color:var(--t4);display:flex;align-items:center;gap:5px}
+.qw-dot{width:5px;height:5px;border-radius:50%;background:var(--blue)}
+.qw-empty{font-size:12px;color:var(--t4);text-align:center;padding:24px;font-style:italic}
+
+/* EMPTY STATE */
+.empty-box{text-align:center;padding:32px;background:var(--s1);border:1px dashed var(--bd2);border-radius:12px;color:var(--t4);font-size:12px;line-height:1.8}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:.4}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">User Research & Validation</span></div>
+  <div class="hbadge">
+    <span class="badge b-orange"><span class="dot-anim"></span> 검증 진행 중</span>
+    <span class="badge b-blue">Phase 1</span>
+    <span style="font-size:11px;color:var(--t4)">2026.02</span>
+  </div>
+</header>
+
+<nav>
+  <div class="tab on" onclick="go('overview',this)">📊 Overview</div>
+  <div class="tab" onclick="go('persona',this)">🧑 타겟 페르소나</div>
+  <div class="tab" onclick="go('painpoint',this)">⚡ 페인포인트 정의</div>
+  <div class="tab" onclick="go('plan',this)">📋 인터뷰 계획</div>
+  <div class="tab" onclick="go('script',this)">🗣 인터뷰 스크립트</div>
+  <div class="tab" onclick="go('insight',this)">💡 인사이트 & 발견</div>
+  <div class="tab" onclick="go('validation',this)">✅ 검증 트래커</div>
+</nav>
+
+<!-- ════════════════ OVERVIEW ════════════════ -->
+<div class="page on" id="page-overview">
+
+  <div class="overview-hero">
+    <div class="oh-left">
+      <div class="oh-title">왜 PM은 청구를 못 하는가</div>
+      <div class="oh-sub">H1 가설 — "증거가 없어서가 아니라, 심리적 장벽 때문이다"를 검증하기 위한<br>사용자 리서치 & 문제 검증 계획입니다.</div>
+    </div>
+    <div class="oh-right">
+      <div class="oh-stat"><div class="oh-num" style="color:var(--orange)">0<span style="font-size:14px">/20</span></div><div class="oh-lbl">인터뷰 완료</div></div>
+      <div class="oh-stat"><div class="oh-num" style="color:var(--purple)">5</div><div class="oh-lbl">핵심 가설</div></div>
+      <div class="oh-stat"><div class="oh-num" style="color:var(--green)">–</div><div class="oh-lbl">문제 공감률</div></div>
+    </div>
+  </div>
+
+  <div class="sec-title mb24">리서치 목표 3가지</div>
+  <div class="g3 mb32">
+    <div class="card" style="border-top:3px solid var(--red)">
+      <div style="font-size:22px;margin-bottom:10px">🎯</div>
+      <div style="font-weight:800;color:#fff;margin-bottom:6px;font-size:14px">문제 실재 검증</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7">추가 청구 포기 경험이 실제로 존재하는지, 그리고 그 원인이 증거 부족인지 심리적 장벽인지 확인한다.</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--blue)">
+      <div style="font-size:22px;margin-bottom:10px">🔍</div>
+      <div style="font-weight:800;color:#fff;margin-bottom:6px;font-size:14px">솔루션 방향 확인</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7">"시스템이 판정해준다"는 구조가 PM의 행동 변화를 만들 수 있는지, 프로토타입 반응을 통해 검증한다.</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green)">
+      <div style="font-size:22px;margin-bottom:10px">💰</div>
+      <div style="font-weight:800;color:#fff;margin-bottom:6px;font-size:14px">지불 의향 탐색</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7">월 5만원 구독 모델의 수용 가능성을 ROI 프레임("연 1건 성공 = 구독료 회수")과 함께 검증한다.</div>
+    </div>
+  </div>
+
+  <div class="sec-title mb24">리서치 일정 개요</div>
+  <div class="schedule">
+    <div class="sch-item">
+      <div class="sch-dot now">📋</div>
+      <div class="sch-content">
+        <div class="sch-week">W1 — 현재</div>
+        <div class="sch-title">리서치 준비 · 인터뷰이 모집</div>
+        <div class="sch-desc">스크립트 확정, PM 오픈채팅방 및 링크드인 통해 인터뷰 참가자 모집 시작. Anti-Gaslighting Sheet 리드 마그넷 제작.</div>
+      </div>
+    </div>
+    <div class="sch-item">
+      <div class="sch-dot plan">🗣</div>
+      <div class="sch-content">
+        <div class="sch-week">W2–W3</div>
+        <div class="sch-title">심층 인터뷰 20명 진행</div>
+        <div class="sch-desc">웹 에이전시 PM / 대표 대상 1:1 인터뷰 (30~45분). Jobs-to-be-Done 프레임 기반 구조화 인터뷰. 카카오톡 or Zoom 진행.</div>
+      </div>
+    </div>
+    <div class="sch-item">
+      <div class="sch-dot plan">🎨</div>
+      <div class="sch-content">
+        <div class="sch-week">W4–W5</div>
+        <div class="sch-title">프로토타입 데모 · H2 검증</div>
+        <div class="sch-desc">인터뷰 참가자 중 관심 표명자에게 HTML 프로토타입 시연. 시스템 판정 리포트 반응 측정. Before/After 청구 의향 비교.</div>
+      </div>
+    </div>
+    <div class="sch-item">
+      <div class="sch-dot plan">📊</div>
+      <div class="sch-content">
+        <div class="sch-week">W6</div>
+        <div class="sch-title">인사이트 합산 · 방향 결정</div>
+        <div class="sch-desc">인터뷰 결과 종합 분석. 가설 채택/기각 판정. 피봇 여부 결정 후 MVP 스펙 확정.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title mb24">주요 가설 검증 현황</div>
+  <div style="overflow-x:auto">
+  <table class="val-table">
+    <thead><tr>
+      <th>가설</th><th>검증 방법</th><th>목표</th><th>진행률</th><th>현재 결과</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-h" style="margin-bottom:4px;display:inline-block">H1</span><div style="font-size:12px;font-weight:600;color:#fff;margin-top:4px">심리적 장벽 = 청구 포기 원인</div></td>
+        <td style="color:var(--t3)">1:1 인터뷰 20명</td>
+        <td><span style="font-weight:700;color:#fff">≥ 70%</span><div style="font-size:10px;color:var(--t4)">공감 응답</div></td>
+        <td><div class="progress-pill"><div class="pp-track"><div class="pp-fill" style="background:var(--blue);width:0%"></div></div><span class="pp-val">0%</span></div></td>
+        <td><span class="result-cell">인터뷰 시작 전</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue" style="margin-bottom:4px;display:inline-block">H2</span><div style="font-size:12px;font-weight:600;color:#fff;margin-top:4px">시스템 판정 → 청구 시도 증가</div></td>
+        <td style="color:var(--t3)">프로토타입 데모</td>
+        <td><span style="font-weight:700;color:#fff">의향 ↑ 2배</span><div style="font-size:10px;color:var(--t4)">Before/After</div></td>
+        <td><div class="progress-pill"><div class="pp-track"><div class="pp-fill" style="background:var(--purple);width:0%"></div></div><span class="pp-val">0%</span></div></td>
+        <td><span class="result-cell">데모 준비 중</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-cyan" style="margin-bottom:4px;display:inline-block">H4</span><div style="font-size:12px;font-weight:600;color:#fff;margin-top:4px">손익 가시화 → 경영 가치 인식</div></td>
+        <td style="color:var(--t3)">인터뷰 중 질의</td>
+        <td><span style="font-weight:700;color:#fff">≥ 60%</span><div style="font-size:10px;color:var(--t4)">정기 조회 의향</div></td>
+        <td><div class="progress-pill"><div class="pp-track"><div class="pp-fill" style="background:var(--cyan);width:0%"></div></div><span class="pp-val">0%</span></div></td>
+        <td><span class="result-cell">인터뷰 시작 전</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-m" style="margin-bottom:4px;display:inline-block">H5</span><div style="font-size:12px;font-weight:600;color:#fff;margin-top:4px">ROI 프레임 → 지불 의향</div></td>
+        <td style="color:var(--t3)">Van Westendorp PSM</td>
+        <td><span style="font-weight:700;color:#fff">≥ 30%</span><div style="font-size:10px;color:var(--t4)">지불 의향</div></td>
+        <td><div class="progress-pill"><div class="pp-track"><div class="pp-fill" style="background:var(--yellow);width:0%"></div></div><span class="pp-val">0%</span></div></td>
+        <td><span class="result-cell">인터뷰 시작 전</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ════════════════ PERSONA ════════════════ -->
+<div class="page" id="page-persona">
+
+  <div class="sec-title mb24">인터뷰 타겟 페르소나</div>
+  <div class="persona-grid">
+
+    <div class="persona-card" data-emoji="🧑‍💻">
+      <div class="pc-role">Primary Target</div>
+      <div class="pc-name">실무 PM 지현</div>
+      <div class="pc-desc">직원 5~20인 웹 에이전시에서 다수 프로젝트를 동시에 관리하는 실무 PM. 클라이언트 소통부터 일정 관리까지 전방위 담당.</div>
+      <div class="pc-attr">
+        <div class="pc-row"><div class="pc-key">연령</div><div class="pc-v">28~38세</div></div>
+        <div class="pc-row"><div class="pc-key">경력</div><div class="pc-v">PM 경력 3~8년, 현 에이전시 2년 이상</div></div>
+        <div class="pc-row"><div class="pc-key">도구</div><div class="pc-v">카카오톡, 엑셀, 노션, Jira 혼용</div></div>
+        <div class="pc-row"><div class="pc-key">관리 수</div><div class="pc-v">동시 3~6개 프로젝트</div></div>
+      </div>
+      <div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--t4);margin-bottom:5px">페인포인트</div>
+        <div class="pc-pains">
+          <span class="pc-pain">청구 심리적 부담</span>
+          <span class="pc-pain">범위 기준 모호</span>
+          <span class="pc-pain">카톡 요청 추적 불가</span>
+          <span class="pc-pain">야근·감정 소진</span>
+        </div>
+      </div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--t4);margin-bottom:5px">목표</div>
+        <div class="pc-goals">
+          <span class="pc-goal">정당한 클레임 근거</span>
+          <span class="pc-goal">감정 소모 없이 일하기</span>
+          <span class="pc-goal">커리어 성장</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona-card" data-emoji="👔">
+      <div class="pc-role">Secondary Target</div>
+      <div class="pc-name">PM 겸 대표 민준</div>
+      <div class="pc-desc">소규모 웹 에이전시를 직접 운영하며 PM 역할도 겸하는 대표. 매출은 나는데 통장 잔고가 줄어드는 구조적 문제를 직면 중.</div>
+      <div class="pc-attr">
+        <div class="pc-row"><div class="pc-key">연령</div><div class="pc-v">33~45세</div></div>
+        <div class="pc-row"><div class="pc-key">경력</div><div class="pc-v">창업 3~10년, 이전 에이전시 PM 경험</div></div>
+        <div class="pc-row"><div class="pc-key">규모</div><div class="pc-v">직원 3~10인, 연 매출 3~15억</div></div>
+        <div class="pc-row"><div class="pc-key">고민</div><div class="pc-v">수익성 관리, 인력 유지, 재계약</div></div>
+      </div>
+      <div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--t4);margin-bottom:5px">페인포인트</div>
+        <div class="pc-pains">
+          <span class="pc-pain">어느 프로젝트가 적자인지 모름</span>
+          <span class="pc-pain">PM 보호 근거 없음</span>
+          <span class="pc-pain">추가 청구 팀원 눈치</span>
+          <span class="pc-pain">원가 데이터 부재</span>
+        </div>
+      </div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--t4);margin-bottom:5px">목표</div>
+        <div class="pc-goals">
+          <span class="pc-goal">프로젝트 손익 파악</span>
+          <span class="pc-goal">팀 보호 데이터 확보</span>
+          <span class="pc-goal">건강한 수익 구조</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sec-title mb24">얼리어답터 기준</div>
+  <div class="g2">
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">✅ 이 사람이면 이상적</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">→</span>추가 청구를 시도했다가 거절당하거나 포기한 경험이 1건 이상</div>
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">→</span>카카오톡이나 엑셀로 과업 변경 이력을 관리하다가 불편함을 느낀 적 있음</div>
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">→</span>PM 커뮤니티 활동 중이거나 업무 개선 도구에 관심 있음</div>
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--green);font-weight:700;flex-shrink:0">→</span>반복 프로젝트(리뉴얼, 유지보수)를 연 5건 이상 운영 중</div>
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">❌ 리서치 범위 외</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">→</span>클라이언트 사이드 PM (인하우스 / 브랜드사 담당자)</div>
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">→</span>프리랜서 단독 운영 (팀 구조가 없는 1인)</div>
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">→</span>개발사 / SI 하청 구조 (계약 구조 다름)</div>
+        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700;flex-shrink:0">→</span>규모 50인 이상 (체계화된 PM 프로세스 보유)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ PAIN POINT ════════════════ -->
+<div class="page" id="page-painpoint">
+
+  <div class="sec-title mb24">페인포인트 정의 매트릭스</div>
+  <div class="matrix-wrap mb32">
+    <table class="matrix">
+      <thead><tr>
+        <th>페인포인트</th>
+        <th>심각도</th>
+        <th>빈도</th>
+        <th>현재 대응</th>
+        <th>분류</th>
+        <th>인터뷰 검증 여부</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="pain-name">추가 청구의 심리적 장벽</div>
+            <div class="pain-desc">PM이 클라이언트에게 추가 비용을 요청하는 것 자체에 감정적 부담을 느껴 청구를 포기함. "돈 달라는 아쉬운 소리"로 인식.</div>
+          </td>
+          <td><div class="sev-bar"><div class="sev-track"><div class="sev-fill" style="background:var(--red);width:90%"></div></div><span class="sev-num">9</span></div></td>
+          <td><span class="tag tag-h">매우 빈번</span></td>
+          <td style="font-size:11px;color:var(--t3)">그냥 넘어감<br>(포기)</td>
+          <td><span class="tag tag-blue">핵심 문제</span></td>
+          <td><span class="tag tag-m">검증 예정</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="pain-name">범위 기준 불명확</div>
+            <div class="pain-desc">계약서에 범위가 명확히 정의되지 않아, 추가 요청이 "계약 범위 내"인지 "외"인지 판단하는 기준이 없음.</div>
+          </td>
+          <td><div class="sev-bar"><div class="sev-track"><div class="sev-fill" style="background:var(--red);width:85%"></div></div><span class="sev-num">8.5</span></div></td>
+          <td><span class="tag tag-h">매우 빈번</span></td>
+          <td style="font-size:11px;color:var(--t3)">PM 개인 판단<br>케이스 바이 케이스</td>
+          <td><span class="tag tag-blue">핵심 문제</span></td>
+          <td><span class="tag tag-m">검증 예정</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="pain-name">과업 변경 이력 추적 불가</div>
+            <div class="pain-desc">카카오톡·구두 요청으로 변경된 과업이 기록되지 않아, 나중에 "그런 말 한 적 없다"는 상황이 발생함.</div>
+          </td>
+          <td><div class="sev-bar"><div class="sev-track"><div class="sev-fill" style="background:var(--orange);width:80%"></div></div><span class="sev-num">8</span></div></td>
+          <td><span class="tag tag-h">빈번</span></td>
+          <td style="font-size:11px;color:var(--t3)">카카오톡 스크롤<br>엑셀 수동 정리</td>
+          <td><span class="tag tag-purple">구조 문제</span></td>
+          <td><span class="tag tag-m">검증 예정</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="pain-name">프로젝트별 실제 손익 미파악</div>
+            <div class="pain-desc">매출이 있는데 통장이 줄어드는 현상의 원인을 모름. 어느 프로젝트가 적자인지 알 수 없어 의사결정 불가.</div>
+          </td>
+          <td><div class="sev-bar"><div class="sev-track"><div class="sev-fill" style="background:var(--yellow);width:75%"></div></div><span class="sev-num">7.5</span></div></td>
+          <td><span class="tag tag-m">간헐적</span></td>
+          <td style="font-size:11px;color:var(--t3)">분기별 회계<br>(후행 데이터)</td>
+          <td><span class="tag tag-cyan">경영 문제</span></td>
+          <td><span class="tag tag-m">검증 예정</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="pain-name">AI 도입 후 기대치 역전</div>
+            <div class="pain-desc">클라이언트는 AI로 모든 게 빨라졌다고 생각하며 기대치가 상승했지만, 실제 전문가 투입 시간과 비용은 오히려 증가.</div>
+          </td>
+          <td><div class="sev-bar"><div class="sev-track"><div class="sev-fill" style="background:var(--yellow);width:70%"></div></div><span class="sev-num">7</span></div></td>
+          <td><span class="tag tag-m">증가 중</span></td>
+          <td style="font-size:11px;color:var(--t3)">설명하고 설득<br>(소진)</td>
+          <td><span class="tag tag-h">시장 변화</span></td>
+          <td><span class="tag tag-m">검증 예정</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="pain-name">변경 관리 단가 표준 없음</div>
+            <div class="pain-desc">업계 전반에 추가 과업에 대한 표준 단가나 청구 기준이 없어, 청구 시 근거를 대기 어려움.</div>
+          </td>
+          <td><div class="sev-bar"><div class="sev-track"><div class="sev-fill" style="background:var(--yellow);width:65%"></div></div><span class="sev-num">6.5</span></div></td>
+          <td><span class="tag tag-l">간헐적</span></td>
+          <td style="font-size:11px;color:var(--t3)">주먹구구식<br>개인 경험에 의존</td>
+          <td><span class="tag tag-purple">구조 문제</span></td>
+          <td><span class="tag tag-m">검증 예정</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec-title mb24">기존 대안의 한계</div>
+  <div class="g3">
+    <div class="card-sm" style="border-left:3px solid var(--bd2)">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px">📱 카카오톡 + 엑셀 + 기억</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:8px">현재 대부분의 에이전시 PM이 사용하는 방법. 변경 이력이 대화 속에 묻히고, 엑셀은 업데이트가 안 되며, 기억은 신뢰받지 못함.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="tag tag-h">추적 불가</span>
+        <span class="tag tag-h">증거 약함</span>
+        <span class="tag tag-m">시간 소모</span>
+      </div>
+    </div>
+    <div class="card-sm" style="border-left:3px solid var(--bd2)">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px">🗂 Jira / Notion</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:8px">작업 관리 도구로는 활용 가능하지만, "이 요청이 범위 초과인가"를 판정하거나 청구 근거를 생성하는 기능이 없음. 입력 부담도 높음.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="tag tag-h">청구 근거 생성 불가</span>
+        <span class="tag tag-m">입력 부담</span>
+      </div>
+    </div>
+    <div class="card-sm" style="border-left:3px solid var(--bd2)">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px">📄 계약서 재검토</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:8px">범위 초과 발생 시 계약서를 꺼내 확인하지만, 계약서 자체가 모호하거나 구두 합의를 포괄하지 못함. 결국 클라이언트와의 감정적 마찰로 이어짐.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="tag tag-h">계약서 모호</span>
+        <span class="tag tag-m">감정 마찰</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ INTERVIEW PLAN ════════════════ -->
+<div class="page" id="page-plan">
+
+  <div class="sec-title mb24">인터뷰 계획</div>
+
+  <div class="int-card">
+    <div>
+      <div class="int-persona">실무 PM</div>
+      <div class="int-role">직원 5~20인 에이전시</div>
+      <div class="int-co">채용: PM 오픈채팅방, 링크드인</div>
+    </div>
+    <div>
+      <div class="int-title">인터뷰 A — 문제 실재 & 심리 구조 파악</div>
+      <div class="int-purpose">추가 청구를 포기한 경험이 실제로 있는지, 그 원인이 증거 부족인지 심리적 장벽인지 확인. H1 핵심 가설 직접 검증.</div>
+      <div class="int-qs">
+        <div class="int-q">최근 6개월 내 범위 외 요청을 클라이언트에게 청구하지 못하고 그냥 해준 적 있나요?</div>
+        <div class="int-q">그때 청구하지 못한 가장 큰 이유가 무엇이었나요? (증거 없음 vs 관계 때문 vs 기준 없음)</div>
+        <div class="int-q">만약 "시스템이 범위 초과라고 판정했습니다"라는 리포트가 있었다면 청구를 시도했을까요?</div>
+      </div>
+    </div>
+    <div class="int-meta">
+      <div class="int-cnt">12<span style="font-size:12px;color:var(--t4)">명</span></div>
+      <div class="int-cnt-lbl">목표 인터뷰 수</div>
+      <div class="int-status st-plan">📋 모집 전</div>
+    </div>
+  </div>
+
+  <div class="int-card">
+    <div>
+      <div class="int-persona">에이전시 대표</div>
+      <div class="int-role">PM 겸 대표 / 5~15인</div>
+      <div class="int-co">채용: 에이전시 협회, 지인 네트워크</div>
+    </div>
+    <div>
+      <div class="int-title">인터뷰 B — 경영 관점 손익 & 지불 의향</div>
+      <div class="int-purpose">대표 관점에서 프로젝트별 손익 미파악 문제의 심각성을 확인. ROI 프레임을 통한 월 5만원 지불 의향 탐색 (H5 사전 검증).</div>
+      <div class="int-qs">
+        <div class="int-q">현재 어떤 프로젝트에서 적자가 나고 있는지 실시간으로 알 수 있나요?</div>
+        <div class="int-q">만약 연 1건 추가 청구 성공으로 구독료가 전부 회수된다면, 월 5만원짜리 도구를 쓸 의향이 있나요?</div>
+        <div class="int-q">PM이 추가 청구를 포기하는 상황을 알고 계신가요? 그게 얼마나 자주 일어나는 것 같나요?</div>
+      </div>
+    </div>
+    <div class="int-meta">
+      <div class="int-cnt">8<span style="font-size:12px;color:var(--t4)">명</span></div>
+      <div class="int-cnt-lbl">목표 인터뷰 수</div>
+      <div class="int-status st-plan">📋 모집 전</div>
+    </div>
+  </div>
+
+  <div class="sec-title mb24" style="margin-top:24px">모집 채널 & 접근 방법</div>
+  <div class="g2">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">📢 온라인 채널</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="background:rgba(79,128,255,.15);color:var(--blue);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;white-space:nowrap">링크드인</span>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">"웹 에이전시 PM이시라면" 타겟 게시글 + DM. 인터뷰 참여 시 Anti-Gaslighting Sheet 증정.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="background:rgba(16,185,129,.12);color:var(--green);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;white-space:nowrap">오픈채팅</span>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">PM / 기획자 오픈채팅방 직접 접근. "범위 협의 어떻게 하세요?" 질문으로 자연스러운 대화 시작.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="background:rgba(245,158,11,.12);color:var(--yellow);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;white-space:nowrap">Brunch</span>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">"스코프 크리프 실태" 아티클 발행 후 댓글 / 공감으로 접근. 인터뷰 요청 CTA 삽입.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">🤝 오프라인 & 네트워크</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="background:rgba(168,85,247,.12);color:var(--purple);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;white-space:nowrap">지인 네트워크</span>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">1.5년 에이전시 PM 경험에서 쌓인 업계 네트워크 직접 활용. 소개 요청으로 2차 연결 확장.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="background:rgba(6,182,212,.12);color:var(--cyan);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;white-space:nowrap">협회·행사</span>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">에이전시 관련 네트워킹 행사·세미나 참석. 명함 교환 후 인터뷰 요청 이메일 후속 발송.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="background:rgba(239,68,68,.12);color:var(--red);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;white-space:nowrap">인센티브</span>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">30분 인터뷰 참여 시 'Anti-Gaslighting Sheet' + 베타 무료 이용권 (3개월) 제공.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ SCRIPT ════════════════ -->
+<div class="page" id="page-script">
+
+  <div class="sec-title mb24">인터뷰 스크립트</div>
+
+  <div class="script-block">
+    <div class="script-head" onclick="toggleScript(this)">
+      <div class="script-htitle"><span>🧊</span> 오프닝 — 라포 형성 (5분)</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="script-body">
+      <div class="script-phase">
+        <div class="sp-label">진행 방법</div>
+        <div class="sp-item"><div class="sp-num">1</div><div class="sp-q">안녕하세요, 오늘 시간 내주셔서 정말 감사해요. 저는 웹 에이전시 PM으로 일했던 경험을 바탕으로 PM 분들이 겪는 어려움을 연구하고 있어요. <b>오늘은 제가 뭔가를 팔거나 설득하려는 게 아니라, 솔직한 경험을 듣고 싶어요.</b><span class="tip">→ 상업적 목적이 아님을 먼저 명확히. 방어심 제거.</span></div></div>
+        <div class="sp-item"><div class="sp-num">2</div><div class="sp-q">혹시 지금 어떤 에이전시에서 어떤 일을 하고 계신지 간략히 소개해주실 수 있을까요?<span class="tip">→ 페르소나 확인. 규모, 역할, 경력 파악.</span></div></div>
+        <div class="sp-item"><div class="sp-num">3</div><div class="sp-q">보통 한 번에 몇 개 프로젝트를 담당하시나요? 주로 어떤 종류의 프로젝트인가요?<span class="tip">→ 업무 맥락 파악. 웹 리뉴얼, 유지보수, 신규 구축 등.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="script-block">
+    <div class="script-head" onclick="toggleScript(this)">
+      <div class="script-htitle"><span>🔍</span> 문제 탐색 — H1 핵심 검증 (15분)</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="script-body">
+      <div class="script-phase">
+        <div class="sp-label">현재 상황 파악</div>
+        <div class="sp-item"><div class="sp-num">1</div><div class="sp-q">프로젝트를 진행하다 보면 처음 계약할 때 없었던 요청이 생기는 경우가 있잖아요. 보통 그런 상황이 얼마나 자주 발생하나요?<span class="tip">→ 범위 변경의 빈도 파악. 수치화 유도.</span></div></div>
+        <div class="sp-item"><div class="sp-num">2</div><div class="sp-q">가장 최근에 그런 상황이 있었다면, 어떻게 대응하셨나요?<span class="tip">→ 구체적 행동 패턴 파악. "그냥 해줬다" vs "협의했다" 등.</span></div></div>
+      </div>
+      <div class="script-phase">
+        <div class="sp-label">청구 포기 경험 — H1 핵심</div>
+        <div class="sp-item"><div class="sp-num">3</div><div class="sp-q"><b>범위 밖 요청이라고 생각했는데, 추가 비용 청구를 하지 않고 그냥 해준 적이 있나요?</b><span class="tip">→ 포기 경험 존재 여부 직접 확인. YES/NO 판정.</span></div></div>
+        <div class="sp-item"><div class="sp-num">4</div><div class="sp-q">그때 왜 청구를 안 하셨나요? 어떤 생각이 드셨는지 솔직하게 말씀해주세요.<span class="tip">→ 원인 귀인 파악. "증거 없어서" vs "말하기 껄끄러워서" vs "기준 없어서". 절대로 선택지 먼저 제시하지 말 것.</span></div></div>
+        <div class="sp-item"><div class="sp-num">5</div><div class="sp-q">그 결정을 내리면서 어떤 감정이 들었나요? (후회, 당연함, 억울함 등)<span class="tip">→ 감정 노동의 실재 확인. 정성적 데이터 수집.</span></div></div>
+        <div class="sp-item"><div class="sp-num">6</div><div class="sp-q">만약 "이 요청은 계약 범위를 초과합니다"라는 문서가 자동으로 만들어져 있었다면, 그 상황에서 어떻게 행동했을 것 같으세요?<span class="tip">→ H2 사전 탐색. 솔루션 방향성 검증.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="script-block">
+    <div class="script-head" onclick="toggleScript(this)">
+      <div class="script-htitle"><span>🛠</span> 현재 도구 & 대안 (10분)</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="script-body">
+      <div class="script-phase">
+        <div class="sp-label">현재 도구 사용 패턴</div>
+        <div class="sp-item"><div class="sp-num">1</div><div class="sp-q">지금 과업 변경 요청이 오면 어떤 방식으로 기록하거나 관리하시나요?<span class="tip">→ 카카오톡, 엑셀, Jira 등 실제 사용 방법 파악.</span></div></div>
+        <div class="sp-item"><div class="sp-num">2</div><div class="sp-q">나중에 "그런 요청 없었다"는 상황이 생긴 적 있나요? 어떻게 대처하셨나요?<span class="tip">→ 추적 불가 문제의 실제 영향 파악.</span></div></div>
+        <div class="sp-item"><div class="sp-num">3</div><div class="sp-q">지금 사용하는 방법에서 가장 불편한 점이 뭔가요?<span class="tip">→ 기존 대안의 한계 직접 확인.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="script-block">
+    <div class="script-head" onclick="toggleScript(this)">
+      <div class="script-htitle"><span>💰</span> 가치 & 지불 의향 탐색 (5분)</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="script-body">
+      <div class="script-phase">
+        <div class="sp-label">손익 인식</div>
+        <div class="sp-item"><div class="sp-num">1</div><div class="sp-q">지금 담당하고 있는 프로젝트 중에서 어떤 게 이익이고 어떤 게 손해인지 알 수 있나요?<span class="tip">→ H4 손익 가시화 필요성 탐색.</span></div></div>
+      </div>
+      <div class="script-phase">
+        <div class="sp-label">지불 의향 — H5</div>
+        <div class="sp-item"><div class="sp-num">2</div><div class="sp-q">만약 이런 도구가 있다고 가정해볼게요. 월 5만원인데, 연 1건만 추가 청구에 성공하면 구독료가 전부 회수되는 구조라면 어떻게 생각하세요?<span class="tip">→ 가격 제시 전에 반드시 가치 먼저 설명. 저항 반응 vs 수용 반응 기록.</span></div></div>
+        <div class="sp-item"><div class="sp-num">3</div><div class="sp-q">어느 정도 가격이면 "한 번 써볼 만하다"는 생각이 드실까요?<span class="tip">→ Van Westendorp 간소화 버전. 수용 가능 가격 범위 파악.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="script-block">
+    <div class="script-head" onclick="toggleScript(this)">
+      <div class="script-htitle"><span>🎤</span> 클로징 — 후속 연결 (5분)</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="script-body">
+      <div class="script-phase">
+        <div class="sp-label">마무리</div>
+        <div class="sp-item"><div class="sp-num">1</div><div class="sp-q">오늘 말씀 중에 제가 미처 물어보지 못한 부분이 있다면 추가로 말씀해주실 것이 있나요?<span class="tip">→ 인터뷰이가 하고 싶었던 말 끌어내기.</span></div></div>
+        <div class="sp-item"><div class="sp-num">2</div><div class="sp-q">비슷한 어려움을 겪고 계실 PM 분들을 소개해주실 수 있을까요?<span class="tip">→ 스노우볼 샘플링. 2차 인터뷰이 확보.</span></div></div>
+        <div class="sp-item"><div class="sp-num">3</div><div class="sp-q">제가 프로토타입을 만들면 먼저 써봐 주실 의향이 있으신가요? 이메일이나 연락처를 남겨주시면 감사하겠습니다.<span class="tip">→ 베타 대기 리스트 구축. 관심도 확인.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ INSIGHT ════════════════ -->
+<div class="page" id="page-insight">
+
+  <div class="sec-title mb24">핵심 인사이트 — 인터뷰 후 기록</div>
+  <div class="insight-grid">
+    <div style="background:var(--s1);border:1px dashed var(--bd2);border-radius:12px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:160px">
+      <div style="font-size:28px;margin-bottom:10px;opacity:.3">🔍</div>
+      <div style="font-size:12px;color:var(--t4);line-height:1.8">인터뷰 완료 후<br>인사이트가 여기 채워집니다.<br><span style="font-size:11px">W2–W3 진행 예정</span></div>
+    </div>
+  </div>
+
+  <div class="sec-title mb24">인용문 모음 — 직접 발언 기록</div>
+  <div class="quote-wall">
+    <div style="background:var(--s1);border:1px dashed var(--bd2);border-radius:10px;padding:20px;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px;opacity:.25">💬</div>
+      <div style="font-size:11px;color:var(--t4);line-height:1.8">인터뷰 진행 후<br>실제 발언이 여기 기록됩니다</div>
+    </div>
+  </div>
+
+  <div class="sec-title mb24">가설별 증거 수집 현황</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="card-sm" style="border-left:3px solid var(--red)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:700;color:#fff;font-size:13px">H1 · 심리적 장벽 = 청구 포기 원인</div>
+        <span class="tag tag-m">수집 전</span>
+      </div>
+      <div style="font-size:11px;color:var(--t4);font-style:italic">인터뷰 완료 후 공감 비율 및 대표 인용문이 기록됩니다.</div>
+    </div>
+    <div class="card-sm" style="border-left:3px solid var(--blue)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:700;color:#fff;font-size:13px">H2 · 시스템 판정 → 청구 시도 증가</div>
+        <span class="tag tag-m">수집 전</span>
+      </div>
+      <div style="font-size:11px;color:var(--t4);font-style:italic">프로토타입 데모 후 Before/After 청구 의향 변화가 기록됩니다.</div>
+    </div>
+    <div class="card-sm" style="border-left:3px solid var(--yellow)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:700;color:#fff;font-size:13px">H4 · 손익 가시화 → 경영 가치 인식</div>
+        <span class="tag tag-m">수집 전</span>
+      </div>
+      <div style="font-size:11px;color:var(--t4);font-style:italic">대표 인터뷰 후 손익 대시보드 관심도 반응이 기록됩니다.</div>
+    </div>
+    <div class="card-sm" style="border-left:3px solid var(--green)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:700;color:#fff;font-size:13px">H5 · ROI 프레임 → 지불 의향</div>
+        <span class="tag tag-m">수집 전</span>
+      </div>
+      <div style="font-size:11px;color:var(--t4);font-style:italic">월 5만원 수용 반응 및 적정 가격 응답이 기록됩니다.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ VALIDATION ════════════════ -->
+<div class="page" id="page-validation">
+
+  <div class="sec-title mb24">검증 트래커 — 가설 판정 현황</div>
+  <div style="overflow-x:auto;margin-bottom:28px">
+  <table class="val-table">
+    <thead><tr>
+      <th style="width:80px">가설</th>
+      <th>핵심 질문</th>
+      <th style="width:100px">목표값</th>
+      <th style="width:130px">현재 수치</th>
+      <th style="width:100px">상태</th>
+      <th>판정 기준</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-h">H1</span></td>
+        <td style="font-size:12px;color:var(--t2)">PM의 추가 청구 포기 원인이 심리적 장벽인가?</td>
+        <td><div style="font-weight:700;color:#fff">≥ 70%</div><div style="font-size:10px;color:var(--t4)">공감 응답</div></td>
+        <td><div style="font-size:20px;font-weight:900;color:var(--t4)">–</div><div style="font-size:10px;color:var(--t4)">인터뷰 전</div></td>
+        <td><span class="tag" style="background:rgba(90,100,120,.2);color:var(--t4)">⏳ 대기</span></td>
+        <td style="font-size:11px;color:var(--t3)">70% 이상 → 채택<br>50~69% → 재검토<br>50% 미만 → 기각·피봇</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">H2</span></td>
+        <td style="font-size:12px;color:var(--t2)">시스템 판정 리포트가 청구 시도 의향을 높이는가?</td>
+        <td><div style="font-weight:700;color:#fff">의향 ↑ 2배</div><div style="font-size:10px;color:var(--t4)">Before/After</div></td>
+        <td><div style="font-size:20px;font-weight:900;color:var(--t4)">–</div><div style="font-size:10px;color:var(--t4)">데모 전</div></td>
+        <td><span class="tag" style="background:rgba(90,100,120,.2);color:var(--t4)">⏳ 대기</span></td>
+        <td style="font-size:11px;color:var(--t3)">2배 이상 → 채택<br>1.5배 이상 → 부분 채택<br>미달 → 메커니즘 재설계</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-cyan">H4</span></td>
+        <td style="font-size:12px;color:var(--t2)">손익 대시보드가 대표에게 경영 가치를 주는가?</td>
+        <td><div style="font-weight:700;color:#fff">≥ 60%</div><div style="font-size:10px;color:var(--t4)">정기 조회 의향</div></td>
+        <td><div style="font-size:20px;font-weight:900;color:var(--t4)">–</div><div style="font-size:10px;color:var(--t4)">인터뷰 전</div></td>
+        <td><span class="tag" style="background:rgba(90,100,120,.2);color:var(--t4)">⏳ 대기</span></td>
+        <td style="font-size:11px;color:var(--t3)">60% 이상 → 채택<br>40~59% → 기능 축소 검토<br>40% 미만 → 부가 기능으로 강등</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-m">H5</span></td>
+        <td style="font-size:12px;color:var(--t2)">월 5만원 구독료를 ROI로 납득하는가?</td>
+        <td><div style="font-weight:700;color:#fff">≥ 30%</div><div style="font-size:10px;color:var(--t4)">지불 의향</div></td>
+        <td><div style="font-size:20px;font-weight:900;color:var(--t4)">–</div><div style="font-size:10px;color:var(--t4)">인터뷰 전</div></td>
+        <td><span class="tag" style="background:rgba(90,100,120,.2);color:var(--t4)">⏳ 대기</span></td>
+        <td style="font-size:11px;color:var(--t3)">30% 이상 → 채택<br>20~29% → 가격 조정 검토<br>20% 미만 → 모델 재검토</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="sec-title mb24">피봇 의사결정 트리</div>
+  <div class="g2">
+    <div class="card" style="border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.04)">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px">🚨 H1 기각 시 — 문제 재정의</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:10px">심리적 장벽이 핵심 원인이 아닌 경우, 전체 솔루션 방향을 바꿔야 합니다.</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--red);font-weight:700">→</span>증거 부족이 원인이라면: 과업 변경 기록 도구로 리포지셔닝</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--red);font-weight:700">→</span>인식 자체가 없다면: 문제 교육 콘텐츠 마케팅 먼저 진행</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--red);font-weight:700">→</span>대표 세그먼트가 더 강하다면: 타겟을 PM → 대표로 전환</div>
+      </div>
+    </div>
+    <div class="card" style="border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.04)">
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px">🚨 H2 기각 시 — 메커니즘 재설계</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:10px">시스템 판정이 행동 변화를 만들지 못한다면 제품의 핵심 가치가 증명되지 않은 것입니다.</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--red);font-weight:700">→</span>리포트 형식 문제라면: 클라이언트 발송용 포맷으로 변경</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--red);font-weight:700">→</span>판정 신뢰도 문제라면: 계약서 기반 AI 매핑 강화</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--red);font-weight:700">→</span>대화 자체가 어렵다면: 클라이언트 공유 리포트 기능 추가</div>
+      </div>
+    </div>
+    <div class="card" style="border:1px solid rgba(245,158,11,.2);background:rgba(245,158,11,.03)">
+      <div style="font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:12px">⚠️ H5 기각 시 — 가격 모델 재검토</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--yellow);font-weight:700">→</span>가격 저항이 크다면: 무료 플랜 + 프리미엄 구조로 전환</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--yellow);font-weight:700">→</span>ROI 납득 안 된다면: 청구 성공 사례 먼저 만들기</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--yellow);font-weight:700">→</span>월 단위 부담이라면: 연간 결제 할인 구조 도입</div>
+      </div>
+    </div>
+    <div class="card" style="border:1px solid rgba(16,185,129,.2);background:rgba(16,185,129,.03)">
+      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:12px">✅ 전 가설 채택 시 — MVP 진입</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span>인터뷰 참가자 중 베타 신청자 10팀 확보 후 MVP 클로즈드 베타 진입</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span>핵심 기능: 과업 입력 → 범위 판정 → 리포트 생성 3단계 구현</div>
+        <div style="font-size:11px;color:var(--t2);display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span>주간 피드백 콜로 H3 행동 가설 실측 시작</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function go(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('page-' + id).classList.add('on');
+  el.classList.add('on');
+}
+function toggleScript(el) {
+  const body = el.nextElementSibling;
+  const chev = el.querySelector('.chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+</script>
+</body>
+</html>
