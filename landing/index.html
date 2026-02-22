@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager – 웹에이전시 수익성 지킴이</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --danger: #ff6b6b;
+    --success: #4ade80;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height:1.6; }
+
+  /* NAV */
+  nav {
+    position: fixed; top:0; width:100%; z-index:100;
+    background: rgba(10,10,15,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 1rem 5%;
+  }
+  .logo { font-size:1.2rem; font-weight:700; color:#fff; letter-spacing:-0.5px; }
+  .logo span { color: var(--accent2); }
+  .nav-cta {
+    background: var(--accent); color:#fff; border:none;
+    padding: 0.5rem 1.2rem; border-radius:8px; font-size:0.9rem;
+    cursor:pointer; font-weight:600; transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity:0.85; }
+
+  /* HERO */
+  .hero {
+    min-height:100vh; display:flex; flex-direction:column;
+    justify-content:center; align-items:center; text-align:center;
+    padding: 6rem 5% 4rem;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(108,99,255,0.15) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display:inline-block; background: rgba(108,99,255,0.15);
+    border:1px solid rgba(108,99,255,0.4); color: var(--accent2);
+    padding:0.3rem 1rem; border-radius:20px; font-size:0.8rem;
+    font-weight:600; letter-spacing:0.5px; margin-bottom:1.5rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight:800;
+    line-height:1.15; letter-spacing:-1px; margin-bottom:1.2rem; max-width:800px;
+  }
+  .hero h1 em { font-style:normal; color: var(--accent2); }
+  .hero p {
+    font-size:1.15rem; color: var(--muted); max-width:560px;
+    margin-bottom:2.5rem; line-height:1.8;
+  }
+  .hero-btns { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #9b8fff);
+    color:#fff; padding:0.85rem 2rem; border-radius:10px;
+    font-size:1rem; font-weight:700; border:none; cursor:pointer;
+    box-shadow: 0 4px 24px rgba(108,99,255,0.4); transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow: 0 8px 32px rgba(108,99,255,0.55); }
+  .btn-secondary {
+    background:transparent; color: var(--text);
+    border:1px solid var(--border); padding:0.85rem 2rem;
+    border-radius:10px; font-size:1rem; cursor:pointer; transition: border-color 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent2); }
+
+  .hero-stats {
+    display:flex; gap:3rem; margin-top:4rem; flex-wrap:wrap; justify-content:center;
+  }
+  .stat { text-align:center; }
+  .stat-num { font-size:2rem; font-weight:800; color:#fff; }
+  .stat-num span { color: var(--accent2); }
+  .stat-label { font-size:0.8rem; color: var(--muted); margin-top:0.2rem; }
+
+  /* SECTION COMMON */
+  section { padding: 6rem 5%; }
+  .section-tag {
+    display:inline-block; font-size:0.75rem; font-weight:700;
+    color: var(--accent2); letter-spacing:1.5px; text-transform:uppercase;
+    margin-bottom:0.8rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight:800;
+    letter-spacing:-0.5px; max-width:700px; margin-bottom:1rem;
+  }
+  .section-sub { color: var(--muted); font-size:1.05rem; max-width:560px; line-height:1.8; }
+  .center { text-align:center; margin:0 auto; }
+
+  /* PAIN POINT */
+  .pain { background: var(--surface); }
+  .pain-grid {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    gap:1.5rem; margin-top:3rem;
+  }
+  .pain-card {
+    background: var(--bg); border:1px solid var(--border);
+    border-radius:14px; padding:1.8rem;
+    transition: border-color 0.3s;
+  }
+  .pain-card:hover { border-color: rgba(255,107,107,0.5); }
+  .pain-icon { font-size:2rem; margin-bottom:1rem; }
+  .pain-card h3 { font-size:1rem; font-weight:700; margin-bottom:0.6rem; color:#fff; }
+  .pain-card p { font-size:0.88rem; color: var(--muted); line-height:1.7; }
+  .pain-badge {
+    display:inline-block; margin-top:0.8rem;
+    background:rgba(255,107,107,0.1); color:var(--danger);
+    border:1px solid rgba(255,107,107,0.3);
+    padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:600;
+  }
+
+  /* ARROW */
+  .divider-arrow {
+    text-align:center; padding:2rem 0; font-size:2rem; color: var(--accent2);
+  }
+
+  /* SOLUTION */
+  .solution-grid {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    gap:1.5rem; margin-top:3rem;
+  }
+  .sol-card {
+    background: var(--surface2); border:1px solid var(--border);
+    border-radius:14px; padding:1.8rem;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .sol-card:hover { border-color: rgba(108,99,255,0.5); transform:translateY(-4px); }
+  .sol-icon { font-size:2rem; margin-bottom:1rem; }
+  .sol-card h3 { font-size:1rem; font-weight:700; margin-bottom:0.6rem; color:#fff; }
+  .sol-card p { font-size:0.88rem; color: var(--muted); line-height:1.7; }
+  .sol-badge {
+    display:inline-block; margin-top:0.8rem;
+    background:rgba(74,222,128,0.1); color:var(--success);
+    border:1px solid rgba(74,222,128,0.3);
+    padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:600;
+  }
+
+  /* FEATURES */
+  .features { background: var(--surface); }
+  .features-list { display:flex; flex-direction:column; gap:4rem; margin-top:4rem; }
+  .feature-row {
+    display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center;
+  }
+  .feature-row.reverse { direction:rtl; }
+  .feature-row.reverse > * { direction:ltr; }
+  .feature-text h3 { font-size:1.5rem; font-weight:800; margin-bottom:1rem; }
+  .feature-text p { color: var(--muted); line-height:1.8; margin-bottom:1.5rem; }
+  .feature-points { list-style:none; display:flex; flex-direction:column; gap:0.6rem; }
+  .feature-points li { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; color: var(--text); }
+  .feature-points li::before { content:"✓"; color: var(--accent2); font-weight:700; flex-shrink:0; }
+  .feature-mockup {
+    background: var(--surface2); border:1px solid var(--border);
+    border-radius:16px; padding:1.5rem; min-height:220px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .mock-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:1.2rem; }
+  .mock-dot { width:10px; height:10px; border-radius:50%; }
+  .mock-bar {
+    height:10px; border-radius:6px; margin-bottom:0.6rem;
+  }
+  .mock-bar.full { width:100%; background: rgba(108,99,255,0.25); }
+  .mock-bar.pct { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .mock-label { font-size:0.75rem; color: var(--muted); margin-bottom:0.3rem; }
+  .alert-box {
+    background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3);
+    border-radius:8px; padding:0.8rem 1rem; font-size:0.8rem; color:var(--danger);
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .tag-list { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.6rem; }
+  .tag {
+    background:rgba(108,99,255,0.15); border:1px solid rgba(108,99,255,0.3);
+    color: var(--accent2); padding:0.25rem 0.7rem; border-radius:20px; font-size:0.75rem;
+  }
+  .tag.over { background:rgba(255,107,107,0.1); border-color:rgba(255,107,107,0.3); color:var(--danger); }
+
+  /* CTA */
+  .cta-section {
+    text-align:center;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(108,99,255,0.12) 0%, transparent 70%);
+  }
+  .cta-box {
+    background: var(--surface); border:1px solid var(--border);
+    border-radius:24px; padding:4rem 3rem; max-width:640px; margin:0 auto;
+  }
+  .cta-box h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight:800; margin-bottom:1rem; }
+  .cta-box p { color:var(--muted); margin-bottom:2rem; line-height:1.8; }
+  .form-row { display:flex; gap:0.8rem; max-width:420px; margin:0 auto; }
+  .form-row input {
+    flex:1; background:var(--bg); border:1px solid var(--border);
+    border-radius:10px; padding:0.85rem 1rem; color:var(--text);
+    font-size:0.95rem; outline:none; transition:border-color 0.2s;
+  }
+  .form-row input:focus { border-color: var(--accent); }
+  .form-row input::placeholder { color: var(--muted); }
+  .form-note { font-size:0.78rem; color:var(--muted); margin-top:0.8rem; }
+
+  /* FOOTER */
+  footer {
+    border-top:1px solid var(--border); padding:2rem 5%;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
+    color: var(--muted); font-size:0.85rem;
+  }
+
+  @media(max-width:768px) {
+    .feature-row { grid-template-columns:1fr; gap:2rem; }
+    .feature-row.reverse { direction:ltr; }
+    .form-row { flex-direction:column; }
+    .hero-stats { gap:2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Scope<span>Manager</span></div>
+  <button class="nav-cta" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdpybnPUjGqam5usaIsfeU1blgOX39YHcr-4eIlISBzCh6pyw/viewform?usp=header','_blank')">데모 신청하기</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🚀 에이전시 전용 SaaS</div>
+  <h1>AI 시대의 프로젝트 초과 범위<br><em>더 크게 증가한다</em></h1>
+  <p>클라이언트는 더 많은 걸 원하고, 팀은 지쳐가고, 수익은 줄어듭니다.<br>스코프 매니저가 범위 이탈을 실시간으로 확인합니다.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdpybnPUjGqam5usaIsfeU1blgOX39YHcr-4eIlISBzCh6pyw/viewform?usp=header','_blank')">무료 데모 신청 →</button>
+    <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">기능 살펴보기</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">68<span>%</span></div><div class="stat-label">국내 웹에이전시 범위 이탈 경험률</div></div>
+    <div class="stat"><div class="stat-num">2.4<span>x</span></div><div class="stat-label">AI 도입 후 추가 요청 증가 배수</div></div>
+    <div class="stat"><div class="stat-num">31<span>%</span></div><div class="stat-label">초과 공수로 날아가는 수익</div></div>
+  </div>
+</section>
+
+<!-- PAIN POINT -->
+<section class="pain">
+  <div class="section-tag">Problem</div>
+  <h2 class="section-title">익숙한 장면이 있으신가요?</h2>
+  <p class="section-sub">AI로 생산성은 올랐는데, 클라이언트 요청은 그 이상으로 늘어납니다.</p>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="pain-icon">📋</div>
+      <h3>"이거 하나만 더 추가해주세요"</h3>
+      <p>계약서엔 없던 기능이 회의마다 하나씩 쌓입니다. 거절하자니 관계가 걱정되고, 들어주자니 공수가 계속 증가합니다.</p>
+      <span class="pain-badge">무한 추가 요청</span>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">💸</div>
+      <h3>열심히 했는데 수익은 마이너스</h3>
+      <p>프로젝트가 끝나고 나서야 실제 공수를 계산해보면 손해입니다. 사후 청구는 이미 늦었습니다.</p>
+      <span class="pain-badge">수익성 악화</span>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">🤖</div>
+      <h3>AI 도입이 오히려 독이 됐다</h3>
+      <p>AI로 빨라졌더니 클라이언트는 "그럼 이것도 되겠네요"라고 합니다. 생산성 향상이 기대치 인플레이션이 됩니다.</p>
+      <span class="pain-badge">AI 역설적 스코프 크리프</span>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">📉</div>
+      <h3>근거 없이 "괜찮겠지" 판단</h3>
+      <p>PM의 직관에 의존한 의사결정. 실제 공수 데이터 없이 추가 작업을 수락하다가 팀이 번아웃됩니다.</p>
+      <span class="pain-badge">데이터 없는 의사결정</span>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="divider-arrow">↓</div>
+
+<!-- SOLUTION -->
+<section style="padding: 2rem 5% 5rem;">
+  <div class="section-tag">Solution</div>
+  <h2 class="section-title">스코프 매니저가 이렇게 해결합니다</h2>
+  <div class="solution-grid">
+    <div class="sol-card">
+      <div class="sol-icon">🎯</div>
+      <h3>계약 범위를 디지털로 정의</h3>
+      <p>계약서 기반으로 초기 스코프를 설정하면, 이후 모든 요청이 계약 기준으로 자동 비교됩니다.</p>
+      <span class="sol-badge">범위 기준선 확립</span>
+    </div>
+    <div class="sol-card">
+      <div class="sol-icon">⚡</div>
+      <h3>추가 요청 즉시 영향도 산출</h3>
+      <p>새 요청이 들어오는 순간 공수·비용·일정 영향이 자동 계산됩니다. 즉각적인 데이터 기반 대화가 가능합니다.</p>
+      <span class="sol-badge">실시간 분석</span>
+    </div>
+    <div class="sol-card">
+      <div class="sol-icon">📊</div>
+      <h3>수익성 대시보드</h3>
+      <p>프로젝트별 예상 마진, 누적 초과 공수, 클라이언트별 요청 패턴을 한눈에 파악합니다.</p>
+      <span class="sol-badge">수익 가시화</span>
+    </div>
+    <div class="sol-card">
+      <div class="sol-icon">🤝</div>
+      <h3>클라이언트 공유 리포트</h3>
+      <p>추가 요청에 대한 견적서를 전문적인 리포트로 자동 생성. 감정 없이 데이터로 협상합니다.</p>
+      <span class="sol-badge">협상력 강화</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-tag center">Features</div>
+  <h2 class="section-title center" style="margin:0 auto 1rem;">핵심 기능</h2>
+  <p class="section-sub center">실제로 활용하는 기능만 담았습니다.</p>
+
+  <div class="features-list">
+    <!-- Feature 1 -->
+    <div class="feature-row">
+      <div class="feature-text">
+        <h3>업무 범위 이탈 실시간 알림</h3>
+        <p>추가 요청이 계약 범위를 벗어나는 순간 알림을 받습니다. 사후 처리가 아닌 사전 대응이 가능합니다.</p>
+        <ul class="feature-points">
+          <li>요청 등록 즉시 범위 이탈 여부 판단</li>
+          <li>공수 임계치 설정 및 자동 경고</li>
+          <li>Slack / 이메일 연동 알림</li>
+        </ul>
+      </div>
+      <div class="feature-mockup">
+        <div>
+          <div class="mock-header">
+            <div class="mock-dot" style="background:#ff6b6b;"></div>
+            <div class="mock-dot" style="background:#fbbf24;"></div>
+            <div class="mock-dot" style="background:#4ade80;"></div>
+            <span style="font-size:0.8rem;color:var(--muted);margin-left:0.5rem;">스코프 현황</span>
+          </div>
+          <div class="mock-label">계약 공수 사용률</div>
+          <div style="position:relative;overflow:hidden;border-radius:6px;margin-bottom:0.6rem;">
+            <div class="mock-bar full" style="margin-bottom:0;"></div>
+            <div class="mock-bar pct" style="width:112%;margin-bottom:0;position:absolute;top:0;left:0;"></div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--danger);margin-top:0.3rem;">⚠ 계약 범위 112% 초과</div>
+        </div>
+        <div class="alert-box">⚡ "메인 배너 애니메이션 추가" — 예상 +8h / +₩320,000</div>
+        <div class="tag-list">
+          <span class="tag">계약 내</span>
+          <span class="tag over">범위 초과 ×3</span>
+          <span class="tag">보류 중 ×1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 2 -->
+    <div class="feature-row reverse">
+      <div class="feature-text">
+        <h3>추가 견적 자동 생성</h3>
+        <p>추가 요청을 등록하면 공수 기준으로 견적서가 자동으로 만들어집니다. 클라이언트에게 즉시 공유 가능한 PDF 형태로 제공됩니다.</p>
+        <ul class="feature-points">
+          <li>공수 단가 기반 자동 계산</li>
+          <li>클라이언트 공유용 브랜드 리포트</li>
+          <li>승인/거절 상태 추적</li>
+        </ul>
+      </div>
+      <div class="feature-mockup">
+        <div class="mock-header">
+          <div class="mock-dot" style="background:#ff6b6b;"></div>
+          <div class="mock-dot" style="background:#fbbf24;"></div>
+          <div class="mock-dot" style="background:#4ade80;"></div>
+          <span style="font-size:0.8rem;color:var(--muted);margin-left:0.5rem;">추가 견적서</span>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:0.8rem;">
+          <div style="color:var(--accent2);font-weight:700;margin-bottom:0.6rem;">📄 Change Order #003</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;color:var(--muted);">
+            <span>항목</span><span style="text-align:right;color:var(--text);">메인 배너 애니메이션</span>
+            <span>예상 공수</span><span style="text-align:right;color:var(--text);">8h</span>
+            <span>단가</span><span style="text-align:right;color:var(--text);">₩40,000/h</span>
+            <span style="font-weight:700;color:var(--text);">합계</span><span style="text-align:right;font-weight:700;color:var(--accent2);">₩320,000</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <button style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:0.4rem;font-size:0.75rem;cursor:pointer;">승인 요청 전송</button>
+          <button style="flex:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:0.4rem;font-size:0.75rem;cursor:pointer;">PDF 다운로드</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 3 -->
+    <div class="feature-row">
+      <div class="feature-text">
+        <h3>프로젝트 수익성 대시보드</h3>
+        <p>진행 중인 모든 프로젝트의 수익성을 한 화면에서 확인합니다. 어느 프로젝트가 적자인지, 어느 클라이언트가 범위 이탈을 반복하는지 데이터로 파악하세요.</p>
+        <ul class="feature-points">
+          <li>프로젝트별 예상 마진 실시간 표시</li>
+          <li>클라이언트별 요청 패턴 분석</li>
+          <li>월별 수익성 추이 리포트</li>
+        </ul>
+      </div>
+      <div class="feature-mockup">
+        <div class="mock-header">
+          <div class="mock-dot" style="background:#ff6b6b;"></div>
+          <div class="mock-dot" style="background:#fbbf24;"></div>
+          <div class="mock-dot" style="background:#4ade80;"></div>
+          <span style="font-size:0.8rem;color:var(--muted);margin-left:0.5rem;">수익성 현황</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.7rem;font-size:0.8rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span>패션 앱 리뉴얼</span>
+            <span style="color:var(--success);">마진 38%</span>
+          </div>
+          <div class="mock-bar full" style="height:6px;background:rgba(74,222,128,0.15);"></div>
+          <div class="mock-bar pct" style="height:6px;width:38%;background:var(--success);margin-top:-0.9rem;"></div>
+          
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem;">
+            <span>ERP 고도화</span>
+            <span style="color:var(--danger);">마진 -12% ⚠</span>
+          </div>
+          <div class="mock-bar full" style="height:6px;background:rgba(255,107,107,0.15);"></div>
+          <div class="mock-bar pct" style="height:6px;width:12%;background:var(--danger);margin-top:-0.9rem;"></div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem;">
+            <span>쇼핑몰 구축</span>
+            <span style="color:var(--accent2);">마진 21%</span>
+          </div>
+          <div class="mock-bar full" style="height:6px;background:rgba(108,99,255,0.15);"></div>
+          <div class="mock-bar pct" style="height:6px;width:21%;margin-top:-0.9rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="demo">
+  <div class="cta-box">
+    <div class="hero-badge" style="margin-bottom:1.2rem;">🎯 무료 데모 제공</div>
+    <h2>지금 바로 범위 이탈을<br>멈춰보세요</h2>
+    <p>30분 데모에서 실제 프로젝트 데이터로 스코프 매니저가 어떻게 작동하는지 직접 확인하세요. 비용 없이, 부담 없이.</p>
+    <button class="btn-primary" style="padding: 0.85rem 2rem;" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdpybnPUjGqam5usaIsfeU1blgOX39YHcr-4eIlISBzCh6pyw/viewform?usp=header','_blank')">데모 신청</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Scope<span>Manager</span></div>
+  <span>© 2026 ScopeManager. All rights reserved.</span>
+  <span style="color:var(--muted);">에이전시를 위해 만들었습니다.</span>
+</footer>
+
+</body>
+</html>
