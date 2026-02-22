@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager — Landing Page Architecture</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2438;--s3:#222840;
+  --bd:#232b3e;--bd2:#2e3748;
+  --blue:#4f80ff;--purple:#a855f7;--green:#10b981;
+  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--yellow:#f59e0b;
+  --t1:#e8eaf0;--t2:#c5cbd8;--t3:#8c95aa;--t4:#5a6478;
+}
+body{background:var(--bg);color:var(--t1);font-family:'Apple SD Gothic Neo','Pretendard','Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+
+header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;gap:12px;flex-wrap:wrap}
+.logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
+.hbadge{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
+.b-purple{background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.25)}
+
+nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
+.tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--t2)}.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+
+.page{display:none;padding:24px 28px 72px}.page.on{display:block}
+.sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
+.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb28{margin-bottom:28px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:16px 16px 72px}}
+
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
+.card-sm{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
+.tag-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.tag-yellow{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+.tag-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.tag-blue{background:rgba(79,128,255,.12);color:var(--blue)}
+.tag-purple{background:rgba(168,85,247,.12);color:var(--purple)}
+.tag-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
+.tag-orange{background:rgba(249,115,22,.12);color:var(--orange)}
+.tag-gray{background:rgba(90,100,120,.15);color:var(--t3)}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+@media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.kpi-l{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t4);margin-bottom:5px}
+.kpi-v{font-size:22px;font-weight:900;line-height:1;margin-bottom:3px}
+.kpi-s{font-size:11px;color:var(--t4)}
+
+/* ── SECTION WIREFRAME ── */
+.lp-sections{display:flex;flex-direction:column;gap:3px;margin-bottom:28px}
+
+.lp-sec{border-radius:10px;overflow:hidden;border:1px solid var(--bd);cursor:pointer;transition:.15s}
+.lp-sec:hover{border-color:var(--bd2)}
+.lp-sec.active{border-color:var(--blue)}
+
+.lp-sec-head{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--s1);user-select:none}
+.lp-sec-head:hover{background:var(--s2)}
+.lp-sec-num{width:22px;height:22px;border-radius:6px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lp-sec-name{font-size:13px;font-weight:700;color:#fff;flex:1}
+.lp-sec-role{font-size:10px;color:var(--t4);font-weight:600;letter-spacing:.5px}
+.lp-sec-goal{font-size:11px;color:var(--t3);margin-left:auto;padding-left:12px;text-align:right;max-width:240px}
+
+.lp-body{display:none;padding:16px;background:var(--s2);border-top:1px solid var(--bd)}
+.lp-body.open{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:700px){.lp-body.open{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.lp-body.open{grid-template-columns:1fr}}
+
+.lp-detail-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);margin-bottom:7px}
+.lp-detail-val{font-size:12px;color:var(--t2);line-height:1.7}
+.lp-cta-chip{display:inline-block;margin:3px 3px 0 0;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+
+/* ── VISUAL MAP ── */
+.vmap{display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:28px}
+.vm-row{display:flex;min-height:56px;border-bottom:1px solid var(--bd);position:relative}
+.vm-row:last-child{border-bottom:none}
+.vm-label-col{width:110px;display:flex;align-items:center;justify-content:flex-end;padding:10px 14px;flex-shrink:0;border-right:1px solid var(--bd);background:var(--s2)}
+.vm-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;text-align:right}
+.vm-content{flex:1;display:flex;align-items:center;padding:10px 14px;gap:10px;flex-wrap:wrap}
+.vm-block{border-radius:7px;padding:7px 12px;font-size:11px;font-weight:700;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.vm-arrow{color:var(--t4);font-size:14px;flex-shrink:0}
+.vm-note{font-size:10px;color:var(--t4);font-style:italic}
+
+/* ── COPY TABLE ── */
+.ctable{width:100%;border-collapse:collapse;margin-bottom:28px}
+.ctable th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
+.ctable td{padding:11px 14px;border-bottom:1px solid var(--bd);vertical-align:top;font-size:12px}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:hover td{background:rgba(79,128,255,.025)}
+.copy-h{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.copy-sub{font-size:11px;color:var(--t3);line-height:1.6}
+.copy-note{font-size:10px;color:var(--t4);margin-top:4px;font-style:italic}
+
+/* ── FUNNEL ── */
+.funnel{display:flex;flex-direction:column;gap:0;margin-bottom:28px}
+.fn-row{display:flex;align-items:stretch;gap:0}
+.fn-bar-wrap{flex:1;display:flex;align-items:center;padding:0 14px}
+.fn-bar{height:38px;border-radius:6px;display:flex;align-items:center;padding:0 14px;font-size:11px;font-weight:700;color:#fff;position:relative;transition:.5s}
+.fn-label{width:140px;font-size:11px;color:var(--t3);display:flex;align-items:center;flex-shrink:0;padding-right:10px;text-align:right;justify-content:flex-end}
+.fn-rate{width:60px;font-size:11px;font-weight:700;text-align:left;padding-left:12px;display:flex;align-items:center;flex-shrink:0}
+.fn-desc{font-size:10px;color:var(--t4);padding:4px 0 10px 154px}
+
+/* ── CTA MATRIX ── */
+.cta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px}
+@media(max-width:700px){.cta-grid{grid-template-columns:1fr 1fr}}
+.cta-cell{background:var(--s1);padding:14px}
+.cta-cell-head{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.cta-cell-name{font-size:12px;font-weight:700;color:#fff;margin-bottom:5px}
+.cta-cell-desc{font-size:11px;color:var(--t3);line-height:1.6}
+
+/* ── SEO TABLE ── */
+.seo-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--s1)}
+.seo-row:first-child{border-radius:10px 10px 0 0}
+.seo-row:last-child{border-bottom:none;border-radius:0 0 10px 10px}
+.seo-row:hover{background:var(--s2)}
+.seo-key{width:200px;font-size:11px;color:var(--t2);font-weight:600;flex-shrink:0}
+.seo-vol{width:60px;font-size:10px;font-weight:700;text-align:center;flex-shrink:0}
+.seo-intent{width:80px;flex-shrink:0}
+.seo-section{font-size:11px;color:var(--t4)}
+
+/* AB TEST */
+.ab-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.ab-card{border-radius:12px;padding:18px;border:2px solid}
+.ab-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+.ab-head{font-size:15px;font-weight:800;margin-bottom:6px}
+.ab-desc{font-size:12px;line-height:1.7;margin-bottom:12px}
+.ab-metric{font-size:11px;margin-top:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">Landing Page Architecture</span></div>
+  <div class="hbadge">
+    <span class="badge b-purple">랜딩 페이지 설계</span>
+    <span class="badge b-blue">v1.0</span>
+    <span style="font-size:11px;color:var(--t4)">2026.02</span>
+  </div>
+</header>
+
+<nav>
+  <div class="tab on" onclick="go('overview',this)">🗺 전체 구조</div>
+  <div class="tab" onclick="go('sections',this)">📐 섹션 설계</div>
+  <div class="tab" onclick="go('copy',this)">✍️ 핵심 카피</div>
+  <div class="tab" onclick="go('funnel',this)">🎯 전환 퍼널</div>
+  <div class="tab" onclick="go('seo',this)">🔍 SEO & 키워드</div>
+  <div class="tab" onclick="go('ab',this)">🧪 A/B 테스트</div>
+</nav>
+
+
+<!-- ═══════════ 전체 구조 ═══════════ -->
+<div class="page on" id="page-overview">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-l">총 섹션 수</div>
+      <div class="kpi-v" style="color:var(--blue)">8<span style="font-size:15px">개</span></div>
+      <div class="kpi-s">Hero → CTA 순서</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-l">목표 전환율</div>
+      <div class="kpi-v" style="color:var(--green)">5<span style="font-size:14px">%</span></div>
+      <div class="kpi-s">방문자 → 무료 가입</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-l">주요 CTA</div>
+      <div class="kpi-v" style="color:var(--yellow)">3<span style="font-size:15px">개</span></div>
+      <div class="kpi-s">Hero · 중간 · 최하단</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-l">목표 방문자</div>
+      <div class="kpi-v" style="color:var(--purple)">1<span style="font-size:14px">k</span></div>
+      <div class="kpi-s">첫 달 · LinkedIn 유입</div>
+    </div>
+  </div>
+
+  <div class="sec mb16">랜딩 페이지 전체 레이아웃 맵</div>
+  <div class="vmap mb28">
+
+    <div class="vm-row">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--t3)">Nav</div></div>
+      <div class="vm-content">
+        <div class="vm-block" style="background:rgba(79,128,255,.1);color:var(--blue);border:1px solid rgba(79,128,255,.2)">🔷 로고</div>
+        <div class="vm-arrow">·····</div>
+        <div class="vm-block" style="background:rgba(90,100,120,.12);color:var(--t2);border:1px solid var(--bd2)">기능</div>
+        <div class="vm-block" style="background:rgba(90,100,120,.12);color:var(--t2);border:1px solid var(--bd2)">가격</div>
+        <div class="vm-block" style="background:rgba(90,100,120,.12);color:var(--t2);border:1px solid var(--bd2)">FAQ</div>
+        <div class="vm-arrow">→</div>
+        <div class="vm-block" style="background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)">무료로 시작하기 →</div>
+        <div class="vm-note">고정 상단 · 스크롤 시 배경 blur</div>
+      </div>
+    </div>
+
+    <div class="vm-row" style="min-height:100px;background:rgba(79,128,255,.03)">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--blue)">S1<br>Hero</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="font-size:13px;font-weight:700;color:#fff">🎯 "에이전시 손실의 시작은 측정 못 한 요청입니다"</div>
+        <div style="font-size:11px;color:var(--t3)">서브헤드 + CTA 버튼 (Primary) + 사회적 증거 한 줄</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="tag tag-blue">메인 CTA #1</span>
+          <span class="tag tag-gray">hero 영상/GIF 또는 제품 스크린샷</span>
+          <span class="tag tag-green">전환 포인트 ①</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vm-row">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--t3)">S2<br>Pain</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="font-size:12px;font-weight:700;color:#fff">😤 고통 공감 — 3가지 핵심 문제</div>
+        <div style="font-size:11px;color:var(--t3)">매출은 있는데 통장이 비는 이유 / 클라이언트 요청, 막을 수가 없다 / 나만 손해보는 건지 알 수가 없다</div>
+      </div>
+    </div>
+
+    <div class="vm-row" style="background:rgba(16,185,129,.02)">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--green)">S3<br>How</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="font-size:12px;font-weight:700;color:#fff">⚙️ 작동 방식 — 3단계</div>
+        <div style="font-size:11px;color:var(--t3)">① 계약서 등록 → ② 요청 입력 → ③ AI 즉시 판정. 제품 실제 화면 GIF/영상 포함.</div>
+      </div>
+    </div>
+
+    <div class="vm-row">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--purple)">S4<br>Features</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="font-size:12px;font-weight:700;color:#fff">✨ 핵심 기능 4가지</div>
+        <div style="font-size:11px;color:var(--t3)">AI 범위 판정 / 손익 대시보드 / 초과 비용 리포트 / 공유 링크</div>
+      </div>
+    </div>
+
+    <div class="vm-row" style="background:rgba(245,158,11,.02)">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--yellow)">S5<br>Social</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="font-size:12px;font-weight:700;color:#fff">💬 사회적 증거 — 숫자 + 후기</div>
+        <div style="font-size:11px;color:var(--t3)">베타 사용자 수 / 판정 건수 / PM 후기 2~3개 카드</div>
+        <div style="display:flex;gap:5px"><span class="tag tag-yellow">신뢰 구축</span><span class="tag tag-gray">베타 지표 활용</span></div>
+      </div>
+    </div>
+
+    <div class="vm-row" style="background:rgba(79,128,255,.03)">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--cyan)">S6<br>Pricing</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="font-size:12px;font-weight:700;color:#fff">💳 가격 — 베타 무료 강조</div>
+        <div style="font-size:11px;color:var(--t3)">베타 기간 무료 / 이후 월 5만원 예정 / 지금 가입하면 첫 3개월 무료</div>
+        <div style="display:flex;gap:5px"><span class="tag tag-blue">메인 CTA #2</span><span class="tag tag-green">전환 포인트 ②</span></div>
+      </div>
+    </div>
+
+    <div class="vm-row">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--t3)">S7<br>FAQ</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="font-size:12px;font-weight:700;color:#fff">❓ 자주 묻는 질문 5~6개</div>
+        <div style="font-size:11px;color:var(--t3)">정확도는? / 계약서 필수? / 클라이언트에게 노출? / 한국어 지원? 등</div>
+      </div>
+    </div>
+
+    <div class="vm-row" style="background:rgba(16,185,129,.03);min-height:80px">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--green)">S8<br>Final CTA</div></div>
+      <div class="vm-content" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="font-size:13px;font-weight:700;color:#fff">🚀 "지금 무료로 시작해서 첫 번째 손실을 막아보세요"</div>
+        <div style="font-size:11px;color:var(--t3)">이메일 입력 + 가입 버튼 · 신용카드 불필요 문구</div>
+        <div style="display:flex;gap:5px"><span class="tag tag-green">메인 CTA #3</span><span class="tag tag-green">전환 포인트 ③</span></div>
+      </div>
+    </div>
+
+    <div class="vm-row">
+      <div class="vm-label-col"><div class="vm-label" style="color:var(--t4)">Footer</div></div>
+      <div class="vm-content">
+        <div class="vm-block" style="background:rgba(90,100,120,.1);color:var(--t3);border:1px solid var(--bd)">로고</div>
+        <div class="vm-block" style="background:rgba(90,100,120,.1);color:var(--t3);border:1px solid var(--bd)">개인정보처리방침</div>
+        <div class="vm-block" style="background:rgba(90,100,120,.1);color:var(--t3);border:1px solid var(--bd)">이용약관</div>
+        <div class="vm-block" style="background:rgba(90,100,120,.1);color:var(--t3);border:1px solid var(--bd)">문의하기</div>
+        <div class="vm-note">저작권 · 사업자 정보</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sec mb16">유입 채널 → 랜딩 매핑</div>
+  <div class="g3">
+    <div class="card-sm" style="border-top:3px solid var(--blue)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">💼 LinkedIn 유입</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:8px">에이전시 대표·PM 대상 콘텐츠 → 랜딩 링크 클릭. 가장 큰 초기 유입 채널 예상.</div>
+      <div style="font-size:11px;color:var(--t2)">→ S1 Hero 직접 도달<br>→ 고통 공감(S2) 즉시 확인</div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--orange)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📝 Brunch 유입</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:8px">에이전시 경험 스토리 글 → 공감 독자 → 랜딩 클릭. 신뢰 기반 따뜻한 유입.</div>
+      <div style="font-size:11px;color:var(--t2)">→ S2 Pain 섹션 공감<br>→ S5 Social Proof 확인</div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--purple)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">🚀 Product Hunt</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:8px">글로벌 얼리어답터 + 한국 스타트업 커뮤니티. 기술적 호기심 기반 유입.</div>
+      <div style="font-size:11px;color:var(--t2)">→ S3 How It Works 집중<br>→ S4 Features 상세 확인</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════ 섹션 설계 ═══════════ -->
+<div class="page" id="page-sections">
+
+  <div class="sec mb16">섹션별 상세 설계 — 클릭해서 펼치기</div>
+  <div class="lp-sections mb28">
+
+    <!-- S1 Hero -->
+    <div class="lp-sec active">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(79,128,255,.2);color:var(--blue)">S1</div>
+        <div class="lp-sec-name">Hero</div>
+        <span class="tag tag-blue">최우선</span>
+        <div class="lp-sec-goal">3초 내 "이거 내 문제다" 반응 유도</div>
+      </div>
+      <div class="lp-body open">
+        <div>
+          <div class="lp-detail-label">헤드라인 방향</div>
+          <div class="lp-detail-val">문제 중심 서술. "매출은 있는데 왜 남는 게 없을까?" 형태. 솔루션보다 고통 먼저.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">서브헤드라인</div>
+          <div class="lp-detail-val">Scope Manager는 클라이언트 요청이 계약 범위 안인지 밖인지, AI가 3초 만에 판정합니다.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">CTA 버튼</div>
+          <div class="lp-detail-val">
+            <div class="lp-cta-chip" style="background:rgba(16,185,129,.2);color:var(--green)">무료로 시작하기 →</div>
+            <div style="margin-top:6px;font-size:10px;color:var(--t4)">신용카드 불필요 · 30초 가입</div>
+          </div>
+        </div>
+        <div>
+          <div class="lp-detail-label">비주얼 요소</div>
+          <div class="lp-detail-val">제품 대시보드 스크린샷 or 판정 화면 GIF. 실제 숫자(예: 월 320만원 손실 회복) 포함한 UI 강조.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">사회적 증거 (한 줄)</div>
+          <div class="lp-detail-val">"이미 ○○명의 PM이 사용 중" 또는 "베타 사용자 평균 월 ○○만원 추가 청구 성공"</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">디자인 참고</div>
+          <div class="lp-detail-val">배경: 다크. 헤드라인: 흰색 대형 볼드. CTA: 녹색 강조. 좌측 텍스트 / 우측 제품 스크린샷 2단 구조.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 Pain -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(239,68,68,.2);color:var(--red)">S2</div>
+        <div class="lp-sec-name">고통 공감 (Pain Points)</div>
+        <span class="tag tag-red">공감 유도</span>
+        <div class="lp-sec-goal">"맞아, 이게 내 상황이야" 감정 연결</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">구성 방식</div>
+          <div class="lp-detail-val">3개 카드. 아이콘 + 공감 헤드라인 + 1~2줄 설명. 에이전시 PM의 실제 경험담 톤.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Pain #1</div>
+          <div class="lp-detail-val">💸 "매출은 있는데 통장은 비어있다"<br><span style="color:var(--t4)">어디서 손해보는지 모른 채 프로젝트가 끝나고 나서야 적자인 걸 알게 됩니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Pain #2</div>
+          <div class="lp-detail-val">😰 "클라이언트 요청, 거절할 근거가 없다"<br><span style="color:var(--t4)">계약서를 봐도 애매하고, 팀을 보호하고 싶어도 데이터가 없습니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Pain #3</div>
+          <div class="lp-detail-val">📊 "이 프로젝트, 남긴 게 있는지 없는지 모른다"<br><span style="color:var(--t4)">시간 = 돈인데, 어디에 얼마나 썼는지 집계할 수가 없습니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">전환 장치</div>
+          <div class="lp-detail-val">섹션 하단에 조용한 링크: "Scope Manager가 이 문제를 어떻게 해결하나요 →"</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">카피 톤</div>
+          <div class="lp-detail-val">공감 → 공감 → 공감. 제품 언급 없음. 고통만 공명.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 How -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(16,185,129,.2);color:var(--green)">S3</div>
+        <div class="lp-sec-name">작동 방식 (How It Works)</div>
+        <span class="tag tag-green">이해 구축</span>
+        <div class="lp-sec-goal">3단계로 "쉽다"는 인식 심기</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">구성</div>
+          <div class="lp-detail-val">가로 3단계 스텝. 번호 + 아이콘 + 짧은 설명 + 실제 UI 스크린샷.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Step 1</div>
+          <div class="lp-detail-val">📋 계약서 등록<br><span style="color:var(--t4)">계약서 텍스트를 붙여넣으면 AI가 범위를 자동 요약합니다. (30초)</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Step 2</div>
+          <div class="lp-detail-val">💬 요청 입력<br><span style="color:var(--t4)">클라이언트가 요청한 내용을 그대로 입력합니다. 긴 설명도 OK.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Step 3</div>
+          <div class="lp-detail-val">⚖️ AI 즉시 판정<br><span style="color:var(--t4)">3초 안에 "범위 내 / 범위 외 / 검토 필요" 판정과 근거를 받습니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">섹션 헤드</div>
+          <div class="lp-detail-val">"3단계로 끝납니다. 교육 불필요."</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">비주얼 강조</div>
+          <div class="lp-detail-val">각 스텝에 실제 앱 스크린샷 소형 삽입. Step 3에서 판정 결과 UI가 핵심 "wow moment".</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 Features -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(168,85,247,.2);color:var(--purple)">S4</div>
+        <div class="lp-sec-name">핵심 기능 (Features)</div>
+        <span class="tag tag-purple">가치 증명</span>
+        <div class="lp-sec-goal">기능이 아닌 결과(outcome)로 설명</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">기능 #1</div>
+          <div class="lp-detail-val">⚖️ AI 범위 판정<br><span style="color:var(--t4)">계약서를 기억하는 AI가 모든 요청을 즉시 판정. 더 이상 혼자 고민하지 마세요.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">기능 #2</div>
+          <div class="lp-detail-val">📊 실시간 손익 대시보드<br><span style="color:var(--t4)">프로젝트가 지금 흑자인지 적자인지, 숫자로 바로 확인합니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">기능 #3</div>
+          <div class="lp-detail-val">📄 초과 비용 리포트<br><span style="color:var(--t4)">범위 초과 요청들을 모아 청구 근거 문서를 자동 생성합니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">기능 #4</div>
+          <div class="lp-detail-val">🔗 공유 링크 (내부용)<br><span style="color:var(--t4)">팀 내부에서 "왜 추가 비용인지" 근거를 공유할 때 사용합니다.</span></div>
+        </div>
+        <div>
+          <div class="lp-detail-label">레이아웃</div>
+          <div class="lp-detail-val">2×2 그리드 또는 좌우 교차 배치. 각 기능 우측에 스크린샷 1장씩.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">카피 원칙</div>
+          <div class="lp-detail-val">기능 설명 (what) → 얻는 결과 (so what). 예: "AI 판정" → "더 이상 혼자 고민하지 않아도 됩니다."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 Social -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">S5</div>
+        <div class="lp-sec-name">사회적 증거 (Social Proof)</div>
+        <span class="tag tag-yellow">신뢰 구축</span>
+        <div class="lp-sec-goal">숫자 + 후기로 "나만 모르는 거 아냐?" 유발</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">숫자 배너</div>
+          <div class="lp-detail-val">베타 사용자 수 / 누적 판정 건수 / 평균 추가 청구 성공액. 실제 데이터로 채우고, 초기엔 베타 숫자로 시작.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">후기 카드 포맷</div>
+          <div class="lp-detail-val">프로필 이미지 + 이름/직책(익명 가능) + 후기 2~3줄. "○○ 에이전시 PM" 형태로 신뢰 강화.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">후기 수집 시점</div>
+          <div class="lp-detail-val">베타 사용자 온보딩 2주 후 이메일로 후기 요청. 인터뷰 대상자에게 먼저 수집.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">초기 대안</div>
+          <div class="lp-detail-val">후기 부족 시 → "○○명의 에이전시 PM 인터뷰로 만들었습니다" 형태의 리서치 기반 신뢰 문구 사용.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">미디어 로고</div>
+          <div class="lp-detail-val">Product Hunt 배지, 관련 미디어 언급 있으면 "~에 소개된" 로고 배너 추가.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 Pricing -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(6,182,212,.2);color:var(--cyan)">S6</div>
+        <div class="lp-sec-name">가격 (Pricing)</div>
+        <span class="tag tag-cyan">결정 유도</span>
+        <div class="lp-sec-goal">"지금 가입하면 이득" 희소성 자극</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">플랜 구조</div>
+          <div class="lp-detail-val">2개 플랜: 베타 무료 (현재) / 정식 출시 후 월 5만원. 베타 강조 강조 강조.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">긴급성 장치</div>
+          <div class="lp-detail-val">"베타 마감 XX자리 남음" 카운터. 또는 "정식 출시 후 월 5만원, 지금 가입 시 첫 3개월 무료."</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">포함 기능 목록</div>
+          <div class="lp-detail-val">✓ AI 범위 판정 무제한<br>✓ 프로젝트 3개<br>✓ 손익 대시보드<br>✓ 리포트 공유 링크</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">CTA</div>
+          <div class="lp-detail-val">
+            <div class="lp-cta-chip" style="background:rgba(16,185,129,.2);color:var(--green)">무료 베타 시작하기 →</div>
+            <div style="margin-top:5px;font-size:10px;color:var(--t4)">신용카드 불필요 · 언제든 해지 가능</div>
+          </div>
+        </div>
+        <div>
+          <div class="lp-detail-label">ROI 계산기 (선택)</div>
+          <div class="lp-detail-val">월 프로젝트 수 입력 → "예상 추가 청구 가능액 ○○만원" 실시간 계산. Phase 2 고려.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 FAQ -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(90,100,120,.2);color:var(--t2)">S7</div>
+        <div class="lp-sec-name">자주 묻는 질문 (FAQ)</div>
+        <span class="tag tag-gray">이탈 방지</span>
+        <div class="lp-sec-goal">마지막 의심 제거</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">Q1 — 정확도</div>
+          <div class="lp-detail-val">"AI 판정이 틀릴 수도 있나요?" → 80%+ 정확도 목표, 틀렸을 때 PM이 직접 조정 가능, 피드백으로 지속 개선.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Q2 — 계약서</div>
+          <div class="lp-detail-val">"계약서가 없어도 쓸 수 있나요?" → 가능합니다. 프로젝트 범위를 텍스트로 직접 입력하면 됩니다.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Q3 — 보안</div>
+          <div class="lp-detail-val">"계약서가 외부에 노출되나요?" → 절대 아닙니다. 내부 데이터는 공유 설정 전까지 외부에 노출되지 않습니다.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Q4 — 클라이언트</div>
+          <div class="lp-detail-val">"클라이언트에게 직접 보내는 도구인가요?" → 아닙니다. 에이전시 내부용 도구입니다.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Q5 — 언어</div>
+          <div class="lp-detail-val">"한국어 계약서가 잘 인식되나요?" → 한국어 최적화 프롬프트를 사용합니다. 국문 계약서 중심으로 설계했습니다.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">Q6 — 팀</div>
+          <div class="lp-detail-val">"팀 전체가 쓸 수 있나요?" → 베타는 1인 기준, 팀 기능은 정식 출시에서 추가 예정입니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8 Final CTA -->
+    <div class="lp-sec">
+      <div class="lp-sec-head" onclick="toggleSec(this)">
+        <div class="lp-sec-num" style="background:rgba(16,185,129,.2);color:var(--green)">S8</div>
+        <div class="lp-sec-name">최종 CTA (Final Call to Action)</div>
+        <span class="tag tag-green">전환 결정</span>
+        <div class="lp-sec-goal">페이지 끝에서 마지막 결심 유도</div>
+      </div>
+      <div class="lp-body">
+        <div>
+          <div class="lp-detail-label">헤드라인</div>
+          <div class="lp-detail-val">"지금 이 순간에도 측정 못 한 요청이 쌓이고 있습니다."</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">서브</div>
+          <div class="lp-detail-val">오늘 가입하면 내일 첫 번째 판정을 받을 수 있습니다. 무료입니다.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">CTA 형태</div>
+          <div class="lp-detail-val">이메일 입력 필드 + "시작하기" 버튼 인라인 배치. 모바일에서도 손가락 하나로 완료 가능.</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">마이크로카피</div>
+          <div class="lp-detail-val">신용카드 불필요 · 30초 가입 · 언제든 탈퇴</div>
+        </div>
+        <div>
+          <div class="lp-detail-label">배경</div>
+          <div class="lp-detail-val">어두운 그라디언트 또는 단색 강조 배경. 섹션 자체가 CTA임을 시각적으로 명확히.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════ 핵심 카피 ═══════════ -->
+<div class="page" id="page-copy">
+
+  <div class="sec mb16">헤드라인 후보 — Hero 섹션</div>
+  <div class="ab-wrap mb28">
+    <div class="ab-card" style="background:rgba(79,128,255,.06);border-color:rgba(79,128,255,.3)">
+      <div class="ab-label" style="color:var(--blue)">안 A — 고통 중심</div>
+      <div class="ab-head" style="color:#fff">에이전시 손실의 시작은 측정 못 한 요청입니다</div>
+      <div class="ab-desc" style="color:var(--t3)">클라이언트 요청이 계약 범위 안인지 밖인지, AI가 3초 만에 판정합니다.</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <span class="tag tag-green">공감도 높음</span>
+        <span class="tag tag-gray">직접적</span>
+      </div>
+    </div>
+    <div class="ab-card" style="background:rgba(16,185,129,.04);border-color:rgba(16,185,129,.25)">
+      <div class="ab-label" style="color:var(--green)">안 B — 결과 중심</div>
+      <div class="ab-head" style="color:#fff">매출은 있는데 왜 남는 게 없을까요?</div>
+      <div class="ab-desc" style="color:var(--t3)">에이전시 PM의 95%는 실제 프로젝트 원가를 모릅니다. Scope Manager가 측정을 시작합니다.</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <span class="tag tag-yellow">호기심 유발</span>
+        <span class="tag tag-gray">데이터 기반</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec mb16">섹션별 핵심 카피 레퍼런스</div>
+  <div style="overflow-x:auto">
+  <table class="ctable mb28">
+    <thead><tr>
+      <th style="width:80px">섹션</th>
+      <th style="width:200px">헤드라인</th>
+      <th>서브카피 / 본문</th>
+      <th style="width:100px">CTA 버튼</th>
+    </tr></thead>
+    <tbody>
+    <tr>
+      <td><span class="tag tag-blue">S1 Hero</span></td>
+      <td>
+        <div class="copy-h">에이전시 손실의 시작은<br>측정 못 한 요청입니다</div>
+      </td>
+      <td>
+        <div class="copy-sub">클라이언트 요청이 계약 범위 안인지 밖인지, AI가 3초 만에 판정합니다. 더 이상 혼자 고민하지 마세요.</div>
+        <div class="copy-note">이미 ○○명의 PM이 사용 중</div>
+      </td>
+      <td><div class="lp-cta-chip" style="background:rgba(16,185,129,.2);color:var(--green)">무료로 시작하기 →</div></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-red">S2 Pain</span></td>
+      <td>
+        <div class="copy-h">알고 보면 당연한 이야기인데, 아무도 말 안 해줬습니다</div>
+      </td>
+      <td>
+        <div class="copy-sub">에이전시는 구조적으로 손해를 보도록 설계되어 있습니다. 이유를 알면 막을 수 있습니다.</div>
+      </td>
+      <td style="color:var(--t4)">CTA 없음</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">S3 How</span></td>
+      <td>
+        <div class="copy-h">3단계로 끝납니다.<br>교육 불필요.</div>
+      </td>
+      <td>
+        <div class="copy-sub">계약서 붙여넣기 → 요청 입력 → AI 판정. 첫 판정까지 5분이면 충분합니다.</div>
+      </td>
+      <td style="color:var(--t4)">CTA 없음</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">S4 Features</span></td>
+      <td>
+        <div class="copy-h">기능이 아닌 결과를<br>드립니다</div>
+      </td>
+      <td>
+        <div class="copy-sub">AI가 판정합니다. 숫자로 보여줍니다. 문서로 만들어드립니다. 팀을 지킵니다.</div>
+      </td>
+      <td style="color:var(--t4)">CTA 없음</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-yellow">S5 Social</span></td>
+      <td>
+        <div class="copy-h">숫자가 증명합니다</div>
+      </td>
+      <td>
+        <div class="copy-sub">베타 PM들이 Scope Manager를 사용한 후 변한 것들</div>
+        <div class="copy-note">후기 카드 3개 + 숫자 3개</div>
+      </td>
+      <td style="color:var(--t4)">CTA 없음</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-cyan">S6 Pricing</span></td>
+      <td>
+        <div class="copy-h">지금은 무료입니다.<br>오래 안 갑니다.</div>
+      </td>
+      <td>
+        <div class="copy-sub">베타 기간 동안 무료로 모든 기능을 사용하세요. 정식 출시 후 월 5만원이 됩니다. 지금 가입하면 첫 3개월 무료.</div>
+      </td>
+      <td><div class="lp-cta-chip" style="background:rgba(16,185,129,.2);color:var(--green)">베타 시작하기 →</div></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-gray">S8 Final</span></td>
+      <td>
+        <div class="copy-h">지금 이 순간에도<br>측정 못 한 요청이<br>쌓이고 있습니다</div>
+      </td>
+      <td>
+        <div class="copy-sub">오늘 가입하면 내일 첫 번째 판정을 받을 수 있습니다.</div>
+        <div class="copy-note">신용카드 불필요 · 30초 가입</div>
+      </td>
+      <td><div class="lp-cta-chip" style="background:rgba(16,185,129,.2);color:var(--green)">지금 시작하기 →</div></td>
+    </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="sec mb16">카피 작성 원칙</div>
+  <div class="g3">
+    <div class="card-sm" style="border-top:3px solid var(--blue)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">① 기능 → 결과 변환</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">
+        <span style="color:var(--red)">✗ "AI 범위 판정 기능"</span><br>
+        <span style="color:var(--green)">✓ "더 이상 혼자 고민하지 않아도 됩니다"</span>
+      </div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--yellow)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">② 에이전시 언어 사용</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">
+        <span style="color:var(--red)">✗ "비용 초과 관리"</span><br>
+        <span style="color:var(--green)">✓ "클라이언트 추가 요청"</span><br>
+        <span style="color:var(--red)">✗ "범위 이탈"</span><br>
+        <span style="color:var(--green)">✓ "계약 범위 밖"</span>
+      </div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--green)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">③ 과장 없는 솔직함</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">
+        "모든 문제 해결" ✗<br>
+        "AI 판정이 틀릴 수도 있습니다" ✓<br>
+        Radical Transparency 원칙 유지
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════ 전환 퍼널 ═══════════ -->
+<div class="page" id="page-funnel">
+
+  <div class="sec mb16">방문자 전환 퍼널 — 목표 수치</div>
+  <div class="funnel mb16">
+    <div class="fn-row">
+      <div class="fn-label">랜딩 방문자</div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="background:var(--blue);width:100%">1,000명 / 월</div></div>
+      <div class="fn-rate" style="color:var(--blue)">100%</div>
+    </div>
+    <div class="fn-desc">LinkedIn, Brunch, Product Hunt, 지인 공유</div>
+
+    <div class="fn-row">
+      <div class="fn-label">30초 이상 체류</div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="background:var(--purple);width:60%">600명</div></div>
+      <div class="fn-rate" style="color:var(--purple)">60%</div>
+    </div>
+    <div class="fn-desc">Hero + Pain 섹션 읽기 완료</div>
+
+    <div class="fn-row">
+      <div class="fn-label">How It Works 도달</div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="background:var(--cyan);width:35%">350명</div></div>
+      <div class="fn-rate" style="color:var(--cyan)">35%</div>
+    </div>
+    <div class="fn-desc">페이지 50% 스크롤 이상</div>
+
+    <div class="fn-row">
+      <div class="fn-label">Pricing 섹션 도달</div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="background:var(--yellow);width:18%">180명</div></div>
+      <div class="fn-rate" style="color:var(--yellow)">18%</div>
+    </div>
+    <div class="fn-desc">페이지 80% 스크롤 이상</div>
+
+    <div class="fn-row">
+      <div class="fn-label">CTA 클릭</div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="background:var(--orange);width:9%">90명</div></div>
+      <div class="fn-rate" style="color:var(--orange)">9%</div>
+    </div>
+    <div class="fn-desc">Hero CTA #1 or Pricing CTA #2 or Final CTA #3</div>
+
+    <div class="fn-row">
+      <div class="fn-label">가입 완료</div>
+      <div class="fn-bar-wrap"><div class="fn-bar" style="background:var(--green);width:5%">50명</div></div>
+      <div class="fn-rate" style="color:var(--green)">5%</div>
+    </div>
+    <div class="fn-desc">이메일 인증 완료 · 계정 생성 · 목표치</div>
+  </div>
+
+  <div class="g2 mb28">
+    <div class="card-sm" style="background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.2)">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">📈 퍼널 개선 포인트</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.8">
+        <b style="color:var(--t2)">30초 체류율 (60% 목표)</b><br>→ Hero 카피 A/B 테스트가 가장 큰 레버<br><br>
+        <b style="color:var(--t2)">Pricing 도달율 (18% 목표)</b><br>→ How It Works 섹션에 인터랙티브 GIF 추가<br><br>
+        <b style="color:var(--t2)">가입 전환율 (5% 목표)</b><br>→ 가입 폼 필드 최소화 (이메일만)
+      </div>
+    </div>
+    <div class="card-sm" style="background:rgba(245,158,11,.05);border-color:rgba(245,158,11,.2)">
+      <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:8px">📊 추적 지표 (PostHog)</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.8">
+        <b style="color:var(--t2)">Scroll Depth</b> — 각 섹션 도달률<br>
+        <b style="color:var(--t2)">CTA Click Rate</b> — Hero / Pricing / Final CTA별<br>
+        <b style="color:var(--t2)">Time on Page</b> — 평균 체류 시간<br>
+        <b style="color:var(--t2)">Bounce Rate</b> — 10초 이내 이탈율<br>
+        <b style="color:var(--t2)">Sign-up Funnel</b> — 클릭 → 이메일 입력 → 완료
+      </div>
+    </div>
+  </div>
+
+  <div class="sec mb16">CTA 배치 전략</div>
+  <div class="cta-grid">
+    <div class="cta-cell">
+      <div class="cta-cell-head" style="color:var(--blue)">CTA #1</div>
+      <div class="cta-cell-name">Hero CTA</div>
+      <div class="cta-cell-desc" style="color:var(--t3)">이미 확신한 방문자 즉시 포착. 고통이 명확한 사람은 여기서 바로 전환.</div>
+    </div>
+    <div class="cta-cell">
+      <div class="cta-cell-head" style="color:var(--cyan)">CTA #2</div>
+      <div class="cta-cell-name">How It Works 하단</div>
+      <div class="cta-cell-desc" style="color:var(--t3)">작동 방식을 이해한 직후 바로 행동 유도. "해볼 수 있겠다" 시점.</div>
+    </div>
+    <div class="cta-cell">
+      <div class="cta-cell-head" style="color:var(--yellow)">CTA #3</div>
+      <div class="cta-cell-name">Pricing 섹션</div>
+      <div class="cta-cell-desc" style="color:var(--t3)">가격을 확인하고 "무료니까 해보자" 결정 시점. 긴급성 메시지 결합.</div>
+    </div>
+    <div class="cta-cell">
+      <div class="cta-cell-head" style="color:var(--green)">CTA #4</div>
+      <div class="cta-cell-name">Final CTA</div>
+      <div class="cta-cell-desc" style="color:var(--t3)">페이지 끝까지 읽은 고관심 방문자. 가장 높은 의도 보유. 전환율 최고.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════ SEO & 키워드 ═══════════ -->
+<div class="page" id="page-seo">
+
+  <div class="sec mb16">타겟 키워드 — 검색 의도 분류</div>
+  <div class="mb20" style="border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+    <div class="seo-row" style="background:var(--s2)">
+      <div class="seo-key" style="color:var(--t4);font-size:10px;letter-spacing:1px;text-transform:uppercase">키워드</div>
+      <div class="seo-vol" style="color:var(--t4);font-size:10px;text-transform:uppercase">볼륨</div>
+      <div class="seo-intent" style="color:var(--t4);font-size:10px;text-transform:uppercase">의도</div>
+      <div class="seo-section" style="color:var(--t4);font-size:10px;text-transform:uppercase">최적화 위치</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">웹 에이전시 범위 관리</div>
+      <div class="seo-vol"><span class="tag tag-yellow">중</span></div>
+      <div class="seo-intent"><span class="tag tag-blue">정보</span></div>
+      <div class="seo-section">Hero 헤드라인, Meta Title</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">클라이언트 추가 요청 거절</div>
+      <div class="seo-vol"><span class="tag tag-green">저</span></div>
+      <div class="seo-intent"><span class="tag tag-orange">문제</span></div>
+      <div class="seo-section">Pain 섹션 소제목</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">프로젝트 스코프 크리프 관리</div>
+      <div class="seo-vol"><span class="tag tag-yellow">중</span></div>
+      <div class="seo-intent"><span class="tag tag-orange">문제</span></div>
+      <div class="seo-section">Pain 섹션, FAQ</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">에이전시 수익성 개선</div>
+      <div class="seo-vol"><span class="tag tag-yellow">중</span></div>
+      <div class="seo-intent"><span class="tag tag-blue">정보</span></div>
+      <div class="seo-section">Features 섹션, Meta Description</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">계약 범위 초과 비용 청구</div>
+      <div class="seo-vol"><span class="tag tag-green">저</span></div>
+      <div class="seo-intent"><span class="tag tag-purple">전환</span></div>
+      <div class="seo-section">Features, Pricing</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">웹 개발 프로젝트 관리 툴</div>
+      <div class="seo-vol"><span class="tag tag-red">고</span></div>
+      <div class="seo-intent"><span class="tag tag-purple">전환</span></div>
+      <div class="seo-section">Meta Title 보조, Pricing</div>
+    </div>
+    <div class="seo-row">
+      <div class="seo-key">스코프 매니저</div>
+      <div class="seo-vol"><span class="tag tag-green">저</span></div>
+      <div class="seo-intent"><span class="tag tag-purple">브랜드</span></div>
+      <div class="seo-section">로고, Meta, OG Tag</div>
+    </div>
+  </div>
+
+  <div class="sec mb16">페이지 메타데이터 설계</div>
+  <div class="g2 mb28">
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:var(--t4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Meta Tags</div>
+      <div style="font-family:monospace;font-size:11px;line-height:2;color:var(--t2)">
+        <span style="color:var(--t4)">&lt;!-- Title --&gt;</span><br>
+        <span style="color:var(--cyan)">Scope Manager</span> | 에이전시 범위 초과 AI 판정 도구<br><br>
+        <span style="color:var(--t4)">&lt;!-- Description --&gt;</span><br>
+        클라이언트 요청이 계약 범위 안인지 밖인지<br>AI가 3초 만에 판정합니다. 한국 웹 에이전시 PM을 위한 손익 관리 도구.<br><br>
+        <span style="color:var(--t4)">&lt;!-- OG Image --&gt;</span><br>
+        1200×630, 제품 대시보드 + 로고 + 핵심 헤드라인<br><br>
+        <span style="color:var(--t4)">&lt;!-- Canonical --&gt;</span><br>
+        https://scopemanager.io/
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:var(--t4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">SNS 공유 최적화</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.8">
+        <b style="color:var(--t2)">LinkedIn 공유 시</b><br>
+        OG Title: 에이전시 손실의 시작은 측정 못 한 요청입니다<br>
+        OG Image: 에이전시 PM이 공감할 수치가 담긴 이미지<br><br>
+        <b style="color:var(--t2)">카카오톡 공유 시</b><br>
+        썸네일 + 제목 + 설명 최적화<br>
+        kakao:image 별도 설정 검토<br><br>
+        <b style="color:var(--t2)">Twitter/X 공유 시</b><br>
+        twitter:card = summary_large_image
+      </div>
+    </div>
+  </div>
+
+  <div class="sec mb16">콘텐츠 → SEO 연계 전략</div>
+  <div class="g3">
+    <div class="card-sm" style="border-top:3px solid var(--orange)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📝 Brunch 연계</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">에이전시 손실 경험담 글 → 본문 하단 랜딩 링크. 롱테일 키워드 자연 유입. 구글 크롤링 신뢰도 상승.</div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--blue)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">💼 LinkedIn 연계</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">게시물 댓글에 랜딩 링크 → UTM 파라미터로 채널별 전환율 추적. LinkedIn 게시물 자체가 SEO 도움은 제한적이나 유입 트래픽 역할.</div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--purple)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📊 블로그 (Phase 2)</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">"에이전시 스코프 크리프 방지 방법" 등 정보성 글 → 검색 유입. MVP 이후 콘텐츠 전략으로 전환.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════ A/B 테스트 ═══════════ -->
+<div class="page" id="page-ab">
+
+  <div class="sec mb16">A/B 테스트 계획 — 우선순위 순</div>
+  <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px">
+
+    <div class="card" style="border-left:4px solid var(--red)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(239,68,68,.2);color:var(--red);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">1</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Hero 헤드라인 — 가장 높은 임팩트</div>
+        <span class="tag tag-red">최우선</span>
+      </div>
+      <div class="ab-wrap" style="margin-bottom:0">
+        <div style="background:rgba(79,128,255,.06);border:1px solid rgba(79,128,255,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.8px;margin-bottom:6px">안 A — 고통 중심</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px">"에이전시 손실의 시작은 측정 못 한 요청입니다"</div>
+          <div style="font-size:11px;color:var(--t4)">기대: 에이전시 대표에게 강한 공감. 즉각적 반응 유도.</div>
+        </div>
+        <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:.8px;margin-bottom:6px">안 B — 질문 형식</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px">"매출은 있는데, 왜 남는 게 없을까요?"</div>
+          <div style="font-size:11px;color:var(--t4)">기대: 호기심 유발, 더 많은 사람이 계속 읽게 만듦.</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--t3)">측정 지표: 30초 이상 체류율, CTA #1 클릭율. 200회 방문 시 통계적 유의미성 확인.</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--yellow)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(245,158,11,.2);color:var(--yellow);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">2</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Hero CTA 버튼 문구</div>
+        <span class="tag tag-yellow">고우선</span>
+      </div>
+      <div class="ab-wrap" style="margin-bottom:0">
+        <div style="background:rgba(79,128,255,.06);border:1px solid rgba(79,128,255,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.8px;margin-bottom:6px">안 A — 행동 중심</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:5px">무료로 시작하기 →</div>
+          <div style="font-size:11px;color:var(--t4)">일반적이지만 명확. 무료 강조로 저항감 감소.</div>
+        </div>
+        <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:.8px;margin-bottom:6px">안 B — 결과 중심</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:5px">첫 번째 판정 받기 →</div>
+          <div style="font-size:11px;color:var(--t4)">구체적 행동 명시. 제품의 핵심 가치를 CTA에서 체험.</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--t3)">측정 지표: CTA 클릭율. 100회 클릭 시 비교.</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--cyan)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(6,182,212,.2);color:var(--cyan);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">3</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Hero 비주얼 요소</div>
+        <span class="tag tag-cyan">중우선</span>
+      </div>
+      <div class="ab-wrap" style="margin-bottom:0">
+        <div style="background:rgba(79,128,255,.06);border:1px solid rgba(79,128,255,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.8px;margin-bottom:6px">안 A — 대시보드 스크린샷</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:5px">손익 대시보드 전체 UI 이미지. 완성도 높은 제품 느낌.</div>
+          <div style="font-size:11px;color:var(--t4)">기대: "실제 제품이 있구나" 신뢰감.</div>
+        </div>
+        <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:.8px;margin-bottom:6px">안 B — 판정 결과 GIF</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:5px">요청 입력 → 판정 결과 표시되는 짧은 GIF 애니메이션.</div>
+          <div style="font-size:11px;color:var(--t4)">기대: 핵심 기능을 즉각 체험. "3초 판정" 실증.</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--t3)">측정 지표: 스크롤 깊이(How It Works 도달율). MVP 출시 후 Phase 2에서 실행.</div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--green)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:24px;height:24px;border-radius:6px;background:rgba(16,185,129,.2);color:var(--green);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">4</div>
+        <div style="font-size:13px;font-weight:700;color:#fff">Pricing 긴급성 장치</div>
+        <span class="tag tag-green">Phase 2</span>
+      </div>
+      <div class="ab-wrap" style="margin-bottom:0">
+        <div style="background:rgba(79,128,255,.06);border:1px solid rgba(79,128,255,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.8px;margin-bottom:6px">안 A — 자리 제한</div>
+          <div style="font-size:12px;color:var(--t3);">"베타 마감 ○○자리 남음" 실시간 카운터</div>
+        </div>
+        <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:.8px;margin-bottom:6px">안 B — 혜택 기간</div>
+          <div style="font-size:12px;color:var(--t3);">"정식 출시까지 D-○○, 지금 가입하면 3개월 무료"</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--t3)">측정 지표: Pricing CTA 클릭율. 베타 사용자 50명 이후 실행.</div>
+    </div>
+
+  </div>
+
+  <div class="sec mb16">테스트 운영 원칙</div>
+  <div class="g3">
+    <div class="card-sm" style="border-top:3px solid var(--blue)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">한 번에 하나만</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">동시에 여러 요소를 테스트하면 인과관계를 알 수 없습니다. 우선순위 순서대로 하나씩.</div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--yellow)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">최소 200 방문자</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">통계적 유의미성을 위해 각 변형당 최소 100명 이상. 초기엔 직관을 믿고, 데이터가 쌓이면 테스트.</div>
+    </div>
+    <div class="card-sm" style="border-top:3px solid var(--green)">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">PostHog로 추적</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.7">Feature Flags 기능으로 A/B 그룹 분기. 전환 이벤트를 미리 정의해두고 자동 집계.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+function go(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('page-' + id).classList.add('on');
+  el.classList.add('on');
+}
+function toggleSec(el) {
+  const body = el.nextElementSibling;
+  const sec = el.closest('.lp-sec');
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.lp-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.lp-sec').forEach(s => s.classList.remove('active'));
+  if (!isOpen) {
+    body.classList.add('open');
+    sec.classList.add('active');
+  }
+}
+</script>
+</body>
+</html>
