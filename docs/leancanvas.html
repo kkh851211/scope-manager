@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI 린 캔버스 v6.0</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; min-width: 900px; }
+
+  .header { text-align: center; margin-bottom: 20px; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+  .header .badge { display: inline-block; background: #4f46e5; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-top: 6px; }
+  .header .sub { font-size: 12px; color: #666; margin-top: 4px; }
+
+  .canvas { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; grid-template-rows: auto auto auto; gap: 8px; }
+
+  .cell {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    border-top: 4px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    position: relative;
+  }
+
+  .cell-num {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 10px; font-weight: 700; color: #cbd5e1;
+  }
+
+  .cell h3 {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 8px;
+  }
+  .cell h4 { font-size: 11px; font-weight: 700; color: #334155; margin: 8px 0 4px; }
+  .cell p, .cell li { font-size: 11.5px; color: #475569; line-height: 1.6; }
+  .cell ul { padding-left: 14px; }
+  .cell li { margin-bottom: 4px; }
+
+  .tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px; margin-bottom: 6px;
+  }
+  .tag-user { background: #ede9fe; color: #6d28d9; }
+  .tag-buyer { background: #fce7f3; color: #be185d; }
+  .tag-mvp { background: #dcfce7; color: #15803d; }
+  .tag-roadmap { background: #fef9c3; color: #92400e; }
+  .tag-end { background: #dbeafe; color: #1d4ed8; }
+
+  /* color coding */
+  .c-problem { border-top-color: #f87171; }
+  .c-solution { border-top-color: #34d399; }
+  .c-uvp     { border-top-color: #818cf8; }
+  .c-adv     { border-top-color: #fb923c; }
+  .c-segment { border-top-color: #38bdf8; }
+  .c-alt     { border-top-color: #a78bfa; }
+  .c-metrics { border-top-color: #f472b6; }
+  .c-channel { border-top-color: #4ade80; }
+  .c-cost    { border-top-color: #94a3b8; }
+  .c-revenue { border-top-color: #fbbf24; }
+
+  /* grid layout */
+  .problem  { grid-column: 1; grid-row: 1 / 3; }
+  .solution { grid-column: 2; grid-row: 1 / 3; }
+  .uvp      { grid-column: 3; grid-row: 1 / 3; }
+  .adv      { grid-column: 4; grid-row: 1 / 3; }
+  .segment  { grid-column: 5; grid-row: 1 / 3; }
+  .alt      { grid-column: 1; grid-row: 3; }
+  .metrics  { grid-column: 2; grid-row: 3; }
+  .channel  { grid-column: 3 / 4; grid-row: 3; }
+  .cost     { grid-column: 4; grid-row: 3; }
+  .revenue  { grid-column: 5; grid-row: 3; }
+
+  .divider { border: none; border-top: 1px dashed #e2e8f0; margin: 8px 0; }
+
+  .metric-item {
+    background: #f8fafc; border-radius: 6px; padding: 6px 8px;
+    margin-bottom: 5px; border-left: 3px solid #818cf8;
+  }
+  .metric-item .label { font-size: 10px; font-weight: 700; color: #6d28d9; }
+  .metric-item .val { font-size: 11px; color: #475569; }
+
+  .revenue-item {
+    background: #fffbeb; border-radius: 6px; padding: 6px 8px;
+    margin-bottom: 5px; border-left: 3px solid #fbbf24;
+  }
+
+  footer { text-align: center; margin-top: 12px; font-size: 11px; color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 MyROI 린 캔버스</h1>
+  <div class="badge">v6.0 · MVP 집중형</div>
+  <div class="sub">B2B HR/성과관리 SaaS · 일반 중소기업(SME) 타겟</div>
+</div>
+
+<div class="canvas">
+
+  <!-- 1. Problem -->
+  <div class="cell c-problem problem">
+    <div class="cell-num">1</div>
+    <h3>🔥 Problem</h3>
+    <span class="tag tag-user">End-User · 실무자</span>
+    <ul>
+      <li>사전 방어·위기 수습 등 공식 KPI에 없는 헌신을 <strong>객관적으로 증명할 방법 부재</strong></li>
+      <li>평소 기록 누락으로 연말 평가 시 <strong>증빙 자료 급조 및 무력감</strong> 경험</li>
+    </ul>
+    <hr class="divider">
+    <span class="tag tag-buyer">Buyer · 경영진</span>
+    <ul>
+      <li>진짜 에이스 식별 불가 및 <strong>리소스 누수(블라인드 스팟)</strong></li>
+    </ul>
+    <hr class="divider">
+    <h4>기존 대안</h4>
+    <ul>
+      <li><strong>Jira/Asana:</strong> 계획된 Task만 추적</li>
+      <li><strong>MBO/KPI:</strong> 정적 목표만 평가</li>
+      <li><strong>Notion/Excel:</strong> 파편화·금액 환산 불가</li>
+    </ul>
+  </div>
+
+  <!-- 4. Solution -->
+  <div class="cell c-solution solution">
+    <div class="cell-num">4</div>
+    <h3>⚙️ Solution</h3>
+    <span class="tag tag-mvp">초기 MVP 핵심 기능</span>
+    <h4>① 자유 텍스트 AI 환산기</h4>
+    <p>복잡한 연동 없이 과거 이슈 3가지를 자유 텍스트로 입력 → AI가 구조화 및 예상 방어 금액(M/M) <strong>초안 자동 산출</strong></p>
+    <hr class="divider">
+    <h4>② Human-in-the-Loop 검토</h4>
+    <p>실무자가 최종 금액 조정 + 캡처본 첨부 → <strong>연봉 피치덱(PDF) 원클릭 생성</strong></p>
+    <hr class="divider">
+    <span class="tag tag-roadmap">추후 검증 로드맵</span>
+    <h4>③ B2B 블라인드 대시보드</h4>
+    <p>트렌드 데이터만으로 Buyer가 결제할지 <strong>IDI 검증 후 개발 결정</strong></p>
+  </div>
+
+  <!-- 3. UVP -->
+  <div class="cell c-uvp uvp">
+    <div class="cell-num">3</div>
+    <h3>💎 Unique Value Proposition</h3>
+    <span class="tag tag-user">End-User</span>
+    <p style="font-size:13px; font-weight:600; color:#4f46e5; line-height:1.5; margin-bottom:10px;">
+      "내 숨은 헌신을 즉시<br>재무적 성과로 변환해 주는<br>연봉 협상 무기"
+    </p>
+    <hr class="divider">
+    <span class="tag tag-buyer">Buyer</span>
+    <p style="font-size:13px; font-weight:600; color:#be185d; line-height:1.5;">
+      "직관이 아닌 데이터로<br>숨은 에이스를 찾아내는<br>조직 ROI 대시보드"
+    </p>
+    <hr class="divider">
+    <p style="font-size:10px; color:#94a3b8; margin-top:6px;">High-Level Concept</p>
+    <p style="font-size:11px; font-style:italic; color:#64748b;">직장인을 위한 연봉 협상용 재무 영수증</p>
+  </div>
+
+  <!-- 9. Unfair Advantage -->
+  <div class="cell c-adv adv">
+    <div class="cell-num">9</div>
+    <h3>🛡️ Unfair Advantage</h3>
+    <div style="background:#fef2f2; border-radius:6px; padding:8px; margin-bottom:10px; border-left:3px solid #f87171;">
+      <p style="font-size:12px; font-weight:700; color:#dc2626;">현재: 없음</p>
+    </div>
+    <h4>초기 확보 계획</h4>
+    <p>실무자들의 비정형 '문제 해결/방어 텍스트'를 <strong>재무적 절감액(Cost Saving)</strong>으로 변환하는 특화 프롬프트 및 매핑 데이터셋 <strong>선점</strong></p>
+    <hr class="divider">
+    <p style="font-size:10.5px; color:#94a3b8;">→ 경쟁사가 따라올 수 없는 비공식 기여 환산 알고리즘 구축 (중기 목표)</p>
+  </div>
+
+  <!-- 2. Customer Segments -->
+  <div class="cell c-segment segment">
+    <div class="cell-num">2</div>
+    <h3>👥 Customer Segments</h3>
+    <h4>초기 거점 시장 (SOM)</h4>
+    <p>직원 수 <strong>50인 미만</strong> 성장기<br>IT / 웹에이전시 / 컨설팅 기업</p>
+    <hr class="divider">
+    <h4>얼리어답터</h4>
+    <span class="tag tag-user">실무자</span>
+    <p>프로젝트 파행을 막아냈지만 주관적 평가에 실망해 <strong>이직·협상을 준비 중인 PM/기획자</strong></p>
+    <hr class="divider">
+    <span class="tag tag-buyer">경영진</span>
+    <p>핵심 인재 퇴사로 <strong>프로젝트 마진율에 타격</strong>을 입은 CEO</p>
+  </div>
+
+  <!-- 8. Key Metrics -->
+  <div class="cell c-metrics metrics">
+    <div class="cell-num">8</div>
+    <h3>📈 Key Metrics</h3>
+    <div class="metric-item">
+      <div class="label">습관 형성 (WAU)</div>
+      <div class="val">주 1회 이상 로깅 유저 비율<br>초기 목표 <strong>15%</strong> → 6개월 후 <strong>30%</strong></div>
+    </div>
+    <div class="metric-item">
+      <div class="label">활성화 (Activation · Aha Moment)</div>
+      <div class="val">소급 입력 후 <strong>피치덱 최초 생성</strong> 완료 유저 비율</div>
+    </div>
+    <div class="metric-item">
+      <div class="label">무료→유료 전환 (CVR)</div>
+      <div class="val">B2B 결제 전환율 <strong>(Buyer WTP 검증용)</strong></div>
+    </div>
+  </div>
+
+  <!-- 5. Channels -->
+  <div class="cell c-channel channel">
+    <div class="cell-num">5</div>
+    <h3>📣 Channels</h3>
+    <h4>콘텐츠 바이럴</h4>
+    <p>블라인드 / 브런치<br>"기획자 사전 방어 성과" 공감 아티클</p>
+    <hr class="divider">
+    <h4>커뮤니티</h4>
+    <p>타겟 실무자 오픈 단톡방<br>'무료 연봉 리포트' 배포 이벤트</p>
+    <hr class="divider">
+    <h4>B2B 다이렉트 세일즈</h4>
+    <p>타겟 기업 CEO 대상 콜드 메일</p>
+  </div>
+
+  <!-- 7. Cost Structure -->
+  <div class="cell c-cost cost">
+    <div class="cell-num">7</div>
+    <h3>💸 Cost Structure</h3>
+    <ul>
+      <li><strong>플랫폼 / 서버 유지비</strong></li>
+      <li>
+        <strong>LLM API 비용</strong><br>
+        <span style="font-size:10.5px; color:#16a34a;">GPT-4o-mini 등 경량화 모델<br>유저당 월 <strong>50~100원</strong> 수준</span>
+      </li>
+      <li><strong>고객 획득 비용 (CAC)</strong><br>콘텐츠 마케팅, 다이렉트 세일즈</li>
+    </ul>
+  </div>
+
+  <!-- 6. Revenue Streams -->
+  <div class="cell c-revenue revenue">
+    <div class="cell-num">6</div>
+    <h3>💰 Revenue Streams</h3>
+    <div class="revenue-item">
+      <span class="tag tag-user" style="margin-bottom:4px; display:inline-block;">B2C · Freemium</span>
+      <p>방어 내역 로깅 + <strong>월 1회 요약 피치덱 무료</strong><br>심층 리포트는 유료 전환 유도</p>
+    </div>
+    <div class="revenue-item">
+      <span class="tag tag-buyer" style="margin-bottom:4px; display:inline-block;">B2B · SaaS 구독</span>
+      <p>기업용 전사 ROI 대시보드<br><strong>Per-seat 월 과금</strong><br><em style="font-size:10px; color:#92400e;">※ IDI 검증 후 개발 결정</em></p>
+    </div>
+  </div>
+
+</div>
+
+<footer>MyROI Lean Canvas v6.0 · MVP 집중형 · 데스크 리서치 기반 가설 단계</footer>
+
+</body>
+</html>
