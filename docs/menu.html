@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyROI — 메뉴 구조도</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f172a;
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      padding: 36px 28px 48px;
+      color: #f1f5f9;
+    }
+
+    /* ── Header ── */
+    .header { margin-bottom: 32px; }
+    .header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+    .header p  { font-size: 11px; color: #64748b; margin-top: 5px; }
+
+    /* ── Legend ── */
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8; }
+    .legend-dot  { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    /* ── Section Card ── */
+    .section {
+      border-radius: 14px;
+      border: 1.5px solid;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 12px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .section-title { font-size: 13px; font-weight: 700; }
+    .section-desc  { font-size: 10px; color: #94a3b8; margin-top: 1px; }
+
+    /* ── Group inside section ── */
+    .group { padding: 0 12px 12px; }
+    .group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding: 6px 4px 4px;
+      margin-top: 4px;
+      border-top: 1px solid #1e293b;
+    }
+
+    /* ── Menu Item ── */
+    .item {
+      display: flex;
+      flex-direction: column;
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 7px 10px;
+      margin-top: 5px;
+    }
+    .item-name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
+    .item-desc { font-size: 10px; color: #64748b; margin-top: 2px; }
+
+    /* ── Depth connector ── */
+    .sub-items { padding-left: 12px; border-left: 2px solid #334155; margin: 4px 0 0 10px; }
+    .sub-item {
+      display: flex; flex-direction: column;
+      padding: 5px 8px;
+      margin-top: 4px;
+      background: #162032;
+      border-radius: 6px;
+    }
+    .sub-item-name { font-size: 11px; font-weight: 500; color: #cbd5e1; }
+    .sub-item-desc { font-size: 10px; color: #475569; margin-top: 1px; }
+
+    /* ── Depth label badge ── */
+    .badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MyROI — 메뉴 구조도</h1>
+  <p>MVP 기준 전체 화면 및 메뉴 구성</p>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>온보딩</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0ea5e9"></div>핵심 기능 (MVP)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>대시보드</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>설정 · 마이페이지</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ───────── 1. 온보딩 ───────── -->
+  <div class="section" style="border-color:#8b5cf6; background:linear-gradient(160deg,#1a1040 0%,#0f172a 60%)">
+    <div class="section-header" style="background:#8b5cf611">
+      <div class="section-icon" style="background:#8b5cf622">🚀</div>
+      <div>
+        <div class="section-title">온보딩</div>
+        <div class="section-desc">최초 진입 · 계정 생성</div>
+      </div>
+    </div>
+    <div class="group">
+      <div class="item">
+        <span class="item-name">스플래시 / 랜딩</span>
+        <span class="item-desc">가치 제안 · CTA 버튼</span>
+      </div>
+      <div class="item">
+        <span class="item-name">회원가입</span>
+        <span class="item-desc">소셜 or 이메일 인증</span>
+      </div>
+      <div class="item">
+        <span class="item-name">로그인</span>
+        <span class="item-desc">기존 계정 진입</span>
+      </div>
+      <div class="item">
+        <span class="item-name">초기 프로필 설정</span>
+        <span class="item-desc">직군 · 연차 · 기업 규모</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 2. 핵심 기능 ───────── -->
+  <div class="section" style="border-color:#0ea5e9; background:linear-gradient(160deg,#0c1f33 0%,#0f172a 60%)">
+    <div class="section-header" style="background:#0ea5e911">
+      <div class="section-icon" style="background:#0ea5e922">⚡</div>
+      <div>
+        <div class="section-title">핵심 기능 <span class="badge" style="background:#0ea5e922;color:#38bdf8">MVP</span></div>
+        <div class="section-desc">성과 입력 → 피치덱 생성</div>
+      </div>
+    </div>
+    <div class="group">
+
+      <div class="group-label" style="color:#0ea5e9">성과 입력</div>
+      <div class="item">
+        <span class="item-name">이슈 텍스트 입력</span>
+        <span class="item-desc">과거 이슈 최대 3건 작성</span>
+      </div>
+      <div class="sub-items">
+        <div class="sub-item"><span class="sub-item-name">AI 구조화 처리</span><span class="sub-item-desc">카테고리 · 임팩트 자동 분류</span></div>
+        <div class="sub-item"><span class="sub-item-name">예상 방어 금액 산출</span><span class="sub-item-desc">M/M 단위 초안 생성</span></div>
+      </div>
+
+      <div class="group-label" style="color:#0ea5e9">Human-in-the-loop 검토</div>
+      <div class="item">
+        <span class="item-name">금액 수동 조정</span>
+        <span class="item-desc">슬라이더 · 직접 입력</span>
+      </div>
+      <div class="item">
+        <span class="item-name">증빙 캡처 첨부</span>
+        <span class="item-desc">이미지 업로드</span>
+      </div>
+      <div class="item">
+        <span class="item-name">검토 완료 저장</span>
+        <span class="item-desc">항목 확정</span>
+      </div>
+
+      <div class="group-label" style="color:#0ea5e9">피치덱 생성</div>
+      <div class="item">
+        <span class="item-name">PDF 원클릭 생성</span>
+        <span class="item-desc">요약 + 항목 상세 포함</span>
+      </div>
+      <div class="item">
+        <span class="item-name">공유 링크 발행</span>
+        <span class="item-desc">읽기 전용 URL</span>
+      </div>
+      <div class="item">
+        <span class="item-name">다운로드</span>
+        <span class="item-desc">로컬 저장</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 3. 대시보드 ───────── -->
+  <div class="section" style="border-color:#10b981; background:linear-gradient(160deg,#0b1f1a 0%,#0f172a 60%)">
+    <div class="section-header" style="background:#10b98111">
+      <div class="section-icon" style="background:#10b98122">📊</div>
+      <div>
+        <div class="section-title">대시보드</div>
+        <div class="section-desc">성과 현황 · 이력 관리</div>
+      </div>
+    </div>
+    <div class="group">
+      <div class="item">
+        <span class="item-name">총 방어 금액 요약</span>
+        <span class="item-desc">누적 ROI 카드 · 기간 필터</span>
+      </div>
+      <div class="item">
+        <span class="item-name">이슈 목록 · 히스토리</span>
+        <span class="item-desc">타임라인 뷰 · 검색</span>
+      </div>
+      <div class="sub-items">
+        <div class="sub-item"><span class="sub-item-name">이슈 상세 보기</span><span class="sub-item-desc">입력 내용 · 금액 수정</span></div>
+        <div class="sub-item"><span class="sub-item-name">이슈 삭제</span><span class="sub-item-desc">개별 항목 제거</span></div>
+      </div>
+      <div class="item">
+        <span class="item-name">카테고리별 분석</span>
+        <span class="item-desc">차트 · 태그 필터</span>
+      </div>
+      <div class="item">
+        <span class="item-name">피치덱 히스토리</span>
+        <span class="item-desc">생성 이력 · 재다운로드</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 4. 설정 ───────── -->
+  <div class="section" style="border-color:#f59e0b; background:linear-gradient(160deg,#1f1608 0%,#0f172a 60%)">
+    <div class="section-header" style="background:#f59e0b11">
+      <div class="section-icon" style="background:#f59e0b22">⚙️</div>
+      <div>
+        <div class="section-title">설정 · 마이페이지</div>
+        <div class="section-desc">계정 · 플랜 · 환경 관리</div>
+      </div>
+    </div>
+    <div class="group">
+
+      <div class="group-label" style="color:#f59e0b">계정</div>
+      <div class="item">
+        <span class="item-name">프로필 수정</span>
+        <span class="item-desc">직군 · 연차 · 이름</span>
+      </div>
+      <div class="item">
+        <span class="item-name">비밀번호 변경</span>
+        <span class="item-desc">보안 설정</span>
+      </div>
+
+      <div class="group-label" style="color:#f59e0b">플랜 · 결제</div>
+      <div class="item">
+        <span class="item-name">현재 플랜 확인</span>
+        <span class="item-desc">무료 / 프리미엄 상태</span>
+      </div>
+      <div class="item">
+        <span class="item-name">업그레이드</span>
+        <span class="item-desc">Freemium → 유료 전환</span>
+      </div>
+      <div class="item">
+        <span class="item-name">결제 수단 관리</span>
+        <span class="item-desc">카드 등록 · 변경</span>
+      </div>
+
+      <div class="group-label" style="color:#f59e0b">알림 · 기타</div>
+      <div class="item">
+        <span class="item-name">알림 설정</span>
+        <span class="item-desc">WAU 리마인더 ON/OFF</span>
+      </div>
+      <div class="item">
+        <span class="item-name">로그아웃 · 회원 탈퇴</span>
+        <span class="item-desc">계정 종료</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+</body>
+</html>
