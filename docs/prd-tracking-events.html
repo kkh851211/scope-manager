@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — PRD for AI & Tracking Events</title>
+<title>Scope Manager — PRD for AI & Tracking Events v1.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -81,29 +81,17 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 .ai-context-val{font-size:11px;color:var(--t2);line-height:1.8;font-family:monospace;background:var(--s3);padding:8px 10px;border-radius:6px}
 .ai-note{font-size:11px;color:var(--t3);line-height:1.7;padding:8px 10px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);border-radius:6px;margin-top:8px}
 
-/* ── NFR ── */
-.nfr-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
-.nfr-item:last-child{border-bottom:none}
-.nfr-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
-.nfr-body{flex:1}
-.nfr-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
-.nfr-desc{font-size:11px;color:var(--t3);line-height:1.6}
-.nfr-metric{font-size:11px;color:var(--cyan);font-family:monospace;margin-top:4px;font-weight:700}
-
 /* ── TRACKING EVENT TABLE ── */
 .ev-wrap{margin-bottom:28px}
-.ev-group-head{padding:10px 16px;display:flex;align-items:center;gap:10px;border-radius:8px 8px 0 0;border:1px solid;border-bottom:none;cursor:pointer;user-select:none}
-.ev-group-head:hover{filter:brightness(1.1)}
-.ev-group-body{border:1px solid;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;margin-bottom:8px}
-.ev-row{display:grid;grid-template-columns:220px 1fr 80px;border-bottom:1px solid;padding:10px 16px;gap:12px;align-items:start}
+.ev-group-body{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.ev-row{display:grid;grid-template-columns:220px 1fr 80px;border-bottom:1px solid var(--bd);padding:10px 16px;gap:12px;align-items:start}
 .ev-row:last-child{border-bottom:none}
-.ev-row-head{display:grid;grid-template-columns:220px 1fr 80px;padding:7px 16px;gap:12px}
+.ev-row-head{display:grid;grid-template-columns:220px 1fr 80px;padding:7px 16px;gap:12px;background:var(--s3)}
 .ev-name{font-family:monospace;font-size:11px;font-weight:700;color:var(--cyan)}
 .ev-desc{font-size:11px;color:var(--t3);line-height:1.6}
 .ev-props{margin-top:4px}
 .ev-prop{display:inline-block;font-size:9px;background:var(--s3);color:var(--t3);padding:1px 5px;border-radius:3px;margin:1px 2px 1px 0;font-family:monospace}
 .ev-when{font-size:10px;color:var(--t4);text-align:center}
-.ev-priority-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
 
 /* ── FUNNEL METRICS ── */
 .metric-def{background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;padding:14px 16px}
@@ -140,353 +128,162 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 <header>
   <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">PRD for AI + Tracking Events</span></div>
   <div class="hbadge">
-    <span class="badge b-green">요구사항 정의</span>
-    <span class="badge b-blue">v1.0</span>
-    <span style="font-size:11px;color:var(--t4)">2026.02</span>
+    <span class="badge b-green">Lean 검증 최적화</span>
+    <span class="badge b-blue">v1.2 (Full Version)</span>
   </div>
 </header>
 
 <nav>
   <div class="tab on" onclick="go('prd',this)">📋 PRD 개요</div>
-  <div class="tab" onclick="go('fr',this)">⚙️ 기능 요구사항</div>
+  <div class="tab" onclick="go('fr',this)">⚙️ 요구사항 정리</div>
   <div class="tab" onclick="go('ai',this)">🤖 AI 컨텍스트</div>
   <div class="tab" onclick="go('nfr',this)">🛡 비기능 요구사항</div>
-  <div class="tab" onclick="go('events',this)">📊 트래킹 이벤트</div>
-  <div class="tab" onclick="go('metrics',this)">🎯 핵심 지표</div>
+  <div class="tab" onclick="go('events',this)">📊 검증용 트래킹</div>
+  <div class="tab" onclick="go('metrics',this)">🎯 PMF 지표</div>
   <div class="tab" onclick="go('posthog',this)">⚡ PostHog 설정</div>
 </nav>
 
 
-<!-- ═══════════ PRD 개요 ═══════════ -->
 <div class="page on" id="page-prd">
+
+  <div class="card mb20" style="border-left: 4px solid var(--orange);">
+    <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">💡 Lean MVP 기조: "행동 데이터가 곧 인터뷰"</div>
+    <div style="font-size:11px;color:var(--t2);line-height:1.7;">사전 인터뷰를 생략한 대신, MVP 배포 후 사용자의 클릭과 이탈 등 <b>모든 행동 데이터를 완벽히 추적하여 '말'이 아닌 '행동'으로 PMF를 검증</b>합니다. 이를 위해 검증과 무관한 부가 기능은 모조리 덜어냈습니다.</div>
+  </div>
 
   <div class="kpi-row">
     <div class="kpi">
-      <div class="kpi-l">기능 요구사항</div>
-      <div class="kpi-v" style="color:var(--blue)">18<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">MVP 13 + Phase2 5</div>
+      <div class="kpi-l">초압축 기능 요구사항</div>
+      <div class="kpi-v" style="color:var(--blue)">8<span style="font-size:14px">개</span></div>
+      <div class="kpi-s">기존 13개에서 핵심만 생존</div>
     </div>
     <div class="kpi">
       <div class="kpi-l">AI 호출 포인트</div>
-      <div class="kpi-v" style="color:var(--yellow)">3<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">계약 요약·판정·비용추정</div>
+      <div class="kpi-v" style="color:var(--yellow)">2<span style="font-size:14px">개</span></div>
+      <div class="kpi-s">계약 요약 & 판정만 (비용추정 제외)</div>
     </div>
     <div class="kpi">
-      <div class="kpi-l">트래킹 이벤트</div>
-      <div class="kpi-v" style="color:var(--green)">32<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">핵심 24 + 보조 8</div>
+      <div class="kpi-l">핵심 트래킹 이벤트</div>
+      <div class="kpi-v" style="color:var(--green)">14<span style="font-size:14px">개</span></div>
+      <div class="kpi-s">PMF 신호 포착용 이벤트 집중</div>
     </div>
     <div class="kpi">
       <div class="kpi-l">핵심 성과 지표</div>
-      <div class="kpi-v" style="color:var(--orange)">7<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">PMF 판단 기준</div>
+      <div class="kpi-v" style="color:var(--orange)">4<span style="font-size:14px">개</span></div>
+      <div class="kpi-s">가설 검증 통과 기준</div>
     </div>
   </div>
 
-  <div class="sec mb16">제품 목적 & 성공 기준</div>
-  <div class="g2 mb20">
-    <div class="card" style="border-top:3px solid var(--blue)">
-      <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:10px">🎯 해결하는 문제</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.8">
-        한국 웹 에이전시 PM이 클라이언트 요청이 계약 범위 안인지 밖인지 판단하는 데 <b style="color:var(--t2)">근거 없이 혼자 고민</b>하고, 범위 초과 시 <b style="color:var(--t2)">추가 비용을 청구할 데이터가 없어</b> 손실을 감수하는 구조적 문제.
-      </div>
-    </div>
-    <div class="card" style="border-top:3px solid var(--green)">
-      <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:10px">✅ 제품이 제공하는 것</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.8">
-        계약서 기반 AI 범위 판정 + 판정 근거 + 예상 비용 산출 + 히스토리 누적 + 내부 공유 리포트. <b style="color:var(--t2)">측정 → 근거 → 의사결정</b> 3단계를 하나의 도구로.
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb16">MVP 범위 결정 매트릭스 (임팩트 × 난이도)</div>
+  <div class="sec mb16">MVP 범위 결정 매트릭스 (가설 검증 중심)</div>
   <div class="pm-wrap mb28">
     <div class="pm-q" style="background:rgba(239,68,68,.04)">
-      <div class="pm-q-label" style="color:var(--red)">고임팩트 / 고난이도 — 신중하게</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>청구 기록 자동화 연동</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>팀 협업 / 멀티 사용자</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>Fine-tuning 모델 적용</div>
-      <div class="pm-axis-v">↑ 고임팩트</div>
+      <div class="pm-q-label" style="color:var(--red)">검증 무관 (Defer to V2)</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>디테일한 온보딩 정보 수집</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>자동 비용 추정 로직 복잡화</div>
+      <div class="pm-axis-v">↑ 개발 비용(Cost)</div>
     </div>
     <div class="pm-q" style="background:rgba(16,185,129,.04)">
-      <div class="pm-q-label" style="color:var(--green)">고임팩트 / 저난이도 — 즉시 실행 ⭐</div>
+      <div class="pm-q-label" style="color:var(--green)">핵심 가치 증명 (Must Have) ⭐</div>
       <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>AI 범위 판정 (F-020)</div>
       <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>계약서 AI 요약 (F-002)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>손익 대시보드 (F-050)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>공유 리포트 (F-030)</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>PM 판정 Override 데이터 수집</div>
     </div>
     <div class="pm-q" style="background:rgba(90,100,120,.04)">
-      <div class="pm-q-label" style="color:var(--t4)">저임팩트 / 고난이도 — 보류</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--t4)"></div>Slack 자동 알림 봇</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--t4)"></div>PDF 계약서 OCR 파싱</div>
-      <div class="pm-axis-h">저난이도 →</div>
+      <div class="pm-q-label" style="color:var(--t4)">부가 가치 (Nice to Have - Drop)</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--t4)"></div>상세한 히스토리 필터/정렬</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--t4)"></div>프로필/설정 메뉴</div>
+      <div class="pm-axis-h">검증 효과(Value) →</div>
     </div>
     <div class="pm-q" style="background:rgba(79,128,255,.04)">
-      <div class="pm-q-label" style="color:var(--blue)">저임팩트 / 저난이도 — 빠르게 채우기</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>이메일 알림 (Resend)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>설정 화면 (시급 변경)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>히스토리 필터</div>
-    </div>
-  </div>
-
-  <div class="sec mb16">MVP vs Phase 2 경계</div>
-  <div class="g2 mb20">
-    <div class="card" style="border-left:3px solid var(--green)">
-      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:10px">✅ MVP 포함 (W7~W12)</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t3)">
-        <div>• 이메일 회원가입 + Google OAuth</div>
-        <div>• 온보딩 (에이전시명, 시급, 첫 프로젝트)</div>
-        <div>• 계약서 텍스트 → AI 범위 요약</div>
-        <div>• 요청 입력 → AI 판정 (in/out/unclear)</div>
-        <div>• 판정 근거 + 예상 비용 표시</div>
-        <div>• 히스토리 목록 + 필터</div>
-        <div>• 리포트 생성 + 공유 링크</div>
-        <div>• 손익 대시보드 (기본 집계)</div>
-        <div>• AI 피드백 (맞음/틀림)</div>
-        <div>• PostHog 이벤트 트래킹</div>
-      </div>
-    </div>
-    <div class="card" style="border-left:3px solid var(--t4)">
-      <div style="font-size:12px;font-weight:700;color:var(--t3);margin-bottom:10px">⏳ Phase 2 (PMF 이후)</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t4)">
-        <div>• Stripe 결제 / 유료 플랜 전환</div>
-        <div>• 팀 초대 / 멀티 사용자</div>
-        <div>• PDF 계약서 업로드 (OCR)</div>
-        <div>• 청구 기록 자동 연동</div>
-        <div>• A/B 테스트 (PostHog Feature Flags)</div>
-        <div>• Slack / 카카오워크 알림 봇</div>
-        <div>• ROI 계산기 (랜딩)</div>
-        <div>• 프롬프트 Fine-tuning 파이프라인</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb16">제약 조건 & 가정 (Assumptions)</div>
-  <div class="g3">
-    <div class="card-sm" style="border-top:3px solid var(--red)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:7px">🚧 기술 제약</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">Claude API Rate Limit 60 req/min. 계약서 텍스트 최대 3,000자. PDF 직접 파싱 MVP 미포함.</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--yellow)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:7px">📌 핵심 가정</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">사용자는 한국어 계약서 보유. 시급 개념을 이해. 주 1~5건의 클라이언트 요청을 받음.</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--blue)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:7px">🎯 PMF 판단 기준</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">베타 사용자 중 40%+가 "없으면 매우 불편하다" 응답. 주 3회 이상 능동 사용자 10명+.</div>
+      <div class="pm-q-label" style="color:var(--blue)">공유/바이럴 (Should Have)</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>공유 리포트 (F-030)</div>
+      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>간단한 손익 대시보드 UI</div>
     </div>
   </div>
 
 </div>
 
 
-<!-- ═══════════ 기능 요구사항 ═══════════ -->
 <div class="page" id="page-fr">
-
-  <div class="sec mb16">기능 요구사항 — MVP 우선</div>
+  <div class="sec mb16">기능 요구사항 — 1분 내 가치 증명(TTV)을 위한 최소 스펙</div>
   <div style="overflow-x:auto">
   <table class="fr-table">
     <thead><tr>
       <th style="width:70px">ID</th>
       <th style="width:150px">기능명</th>
-      <th>설명 & 수용 기준 (AC)</th>
-      <th style="width:80px">우선순위</th>
-      <th style="width:80px">단계</th>
+      <th>설명 & 수용 기준 (Lean AC)</th>
     </tr></thead>
     <tbody>
 
     <tr>
       <td><div class="fr-id">F-001</div></td>
-      <td><div class="fr-name">회원가입 / 로그인</div></td>
+      <td><div class="fr-name">마찰 제로 회원가입</div></td>
       <td>
-        <div class="fr-desc">이메일+비밀번호 또는 Google OAuth로 계정 생성. Supabase Auth 활용.</div>
+        <div class="fr-desc">입력 폼을 최소화하고 Google 로그인 위주로 즉각 진입.</div>
         <ul class="fr-ac">
-          <li>이메일 중복 시 "이미 가입된 계정" 에러 표시</li>
-          <li>이메일 인증 완료 후 온보딩 화면 이동</li>
-          <li>Google OAuth 1-click 가입 동작</li>
-          <li>로그인 유지 (30일 세션)</li>
+          <li>Google OAuth 1-Click 로그인/가입 지원</li>
+          <li>가입 직후 불필요한 온보딩(이름, 시급 등) 생략하고 바로 첫 프로젝트 생성(F-003)으로 직행</li>
         </ul>
       </td>
-      <td><span class="tag tag-red">P0 필수</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
     </tr>
 
     <tr>
       <td><div class="fr-id">F-002</div></td>
-      <td><div class="fr-name">계약서 AI 요약</div></td>
+      <td><div class="fr-name">계약서 AI 요약 (최단 경로)</div></td>
       <td>
-        <div class="fr-desc">계약서 텍스트를 Claude API에 전달하여 포함/제외/불명확 항목을 JSONB로 구조화 저장.</div>
+        <div class="fr-desc">판정의 기준이 될 계약서 핵심 텍스트를 붙여넣고 AI가 요약.</div>
         <ul class="fr-ac">
-          <li>입력 3,000자 초과 시 경고 후 처리 중단</li>
-          <li>AI 요약 완료까지 Progress bar 표시 (최대 10초)</li>
-          <li>포함/제외/불명확 3카테고리 결과 화면 표시</li>
-          <li>요약 실패 시 재시도 1회, 이후 수동 입력 유도</li>
-          <li>scope_summary 변경 시 이전 버전 스냅샷 저장</li>
+          <li>텍스트 붙여넣기 폼 제공 (최대 3,000자)</li>
+          <li>로딩 시 이탈을 막기 위한 직관적 프로그레스 바 제공</li>
         </ul>
       </td>
-      <td><span class="tag tag-red">P0 필수</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-010</div></td>
-      <td><div class="fr-name">일일 요청 입력</div></td>
-      <td>
-        <div class="fr-desc">PM이 당일 클라이언트 요청을 텍스트로 입력. 입력 유형(request / none / hold) 선택 가능.</div>
-        <ul class="fr-ac">
-          <li>입력 유형 탭 전환 시 텍스트 영역 조건부 표시</li>
-          <li>none/hold 선택 시 AI 미호출, 즉시 저장</li>
-          <li>요청 텍스트 1,000자 하드 제한 (800자 소프트 경고)</li>
-          <li>제출 후 로딩 상태 (버튼 비활성화)</li>
-        </ul>
-      </td>
-      <td><span class="tag tag-red">P0 필수</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
     </tr>
 
     <tr>
       <td><div class="fr-id">F-020</div></td>
-      <td><div class="fr-name">AI 범위 판정 ⭐</div></td>
+      <td><div class="fr-name">AI 범위 판정 (Aha Moment) ⭐</div></td>
       <td>
-        <div class="fr-desc">입력 요청 텍스트 + 계약 범위 요약을 Claude API에 전달하여 in/out/unclear 판정 및 근거·신뢰도 반환.</div>
+        <div class="fr-desc">PM이 요청을 입력하면 Claude API가 즉시 In/Out/Unclear를 판정.</div>
         <ul class="fr-ac">
-          <li>판정 결과 3초 내 반환 (목표)</li>
-          <li>confidence &lt; 0.70 시 자동 unclear 처리</li>
-          <li>JSON 파싱 실패 시 1회 재호출, 실패 시 unclear 폴백</li>
-          <li>Fast Path: 명시 포함/제외 항목 90%+ 유사도 → AI 미호출</li>
-          <li>판정 결과·근거·신뢰도·예상시간 화면 표시</li>
-          <li>AI 원본 판정값 별도 컬럼 보존 (오버라이드 시)</li>
+          <li>가장 직관적이고 큰 UI로 판정 결과(초록/빨강/노랑 뱃지)와 핵심 근거 1문장 노출</li>
+          <li>응답 시간 3초를 넘길 경우 "거의 다 분석했습니다" 등 안심시키는 텍스트 교체 표시</li>
         </ul>
       </td>
-      <td><span class="tag tag-red">P0 필수</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
     </tr>
 
     <tr>
       <td><div class="fr-id">F-021</div></td>
-      <td><div class="fr-name">PM 판정 오버라이드</div></td>
+      <td><div class="fr-name">판정 피드백 (가설 검증 장치)</div></td>
       <td>
-        <div class="fr-desc">AI 판정이 틀렸을 경우 PM이 직접 올바른 판정을 입력. 피드백 데이터로 수집.</div>
+        <div class="fr-desc">AI의 판정이 시장(PM)의 상식과 맞는지 확인하는 핵심 검증 장치.</div>
         <ul class="fr-ac">
-          <li>맞음/틀림 버튼 항상 노출</li>
-          <li>틀림 선택 시 올바른 판정 + 이유 입력 필드 슬라이드</li>
-          <li>AI 원본값(judgment_original) 변경 불가, 별도 저장</li>
-          <li>오버라이드 케이스 피드백 학습 데이터로 자동 분류</li>
+          <li>결과 화면에 무조건 [👍 맞음] / [👎 직접 수정(Override)] 버튼 노출</li>
+          <li>수정 시 PM이 선택한 결과값(in/out)을 백그라운드로 즉시 DB에 적재 (프롬프트 튜닝의 핵심 지표)</li>
         </ul>
       </td>
-      <td><span class="tag tag-red">P0 필수</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
     </tr>
 
     <tr>
       <td><div class="fr-id">F-030</div></td>
-      <td><div class="fr-name">리포트 생성</div></td>
+      <td><div class="fr-name">초간편 리포트 & 공유</div></td>
       <td>
-        <div class="fr-desc">범위 외 판정 항목들을 선택하여 비용 합산 리포트 생성. 내부 공유 목적.</div>
+        <div class="fr-desc">판정된(범위 외) 결과를 묶어 URL로 내부 공유.</div>
         <ul class="fr-ac">
-          <li>히스토리에서 복수 항목 체크 선택 가능</li>
-          <li>개별 비용 수동 조정 허용</li>
-          <li>합계 자동 계산 + 면책 문구 자동 삽입</li>
-          <li>draft 저장 → shared 상태 전환 시 링크 발급</li>
+          <li>항목 체크박스 선택 후 "공유 링크 생성" 클릭 시 즉시 클립보드에 URL 복사</li>
+          <li>인증 없이 볼 수 있는 깔끔한 리포트 뷰 제공 (바이럴 유도)</li>
         </ul>
       </td>
-      <td><span class="tag tag-yellow">P1 중요</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
     </tr>
-
-    <tr>
-      <td><div class="fr-id">F-031</div></td>
-      <td><div class="fr-name">공유 링크 발급</div></td>
-      <td>
-        <div class="fr-desc">리포트를 인증 없이 열람 가능한 공개 링크로 발급. 만료일 설정 포함.</div>
-        <ul class="fr-ac">
-          <li>만료일: 7일/30일/무기한 선택</li>
-          <li>링크 복사 클릭 시 즉시 클립보드 저장 + 확인 피드백</li>
-          <li>만료 시 404 페이지 표시</li>
-          <li>링크 철회 즉시 접근 차단</li>
-          <li>공개 뷰에서 시급·청구 이력 숨김</li>
-        </ul>
-      </td>
-      <td><span class="tag tag-yellow">P1 중요</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-050</div></td>
-      <td><div class="fr-name">손익 대시보드</div></td>
-      <td>
-        <div class="fr-desc">프로젝트별 예상 이익, 범위 외 누적 비용, 청구 성공률을 실시간 집계하여 표시.</div>
-        <ul class="fr-ac">
-          <li>예상 이익 = 계약액 - (총 시간 × 시급)</li>
-          <li>범위 외 누적 금액, 청구 성공액, 청구 성공률 표시</li>
-          <li>판정 히스토리 최근 5건 리스트</li>
-          <li>시급 변경 시 이전 기록 소급 적용 안 함</li>
-        </ul>
-      </td>
-      <td><span class="tag tag-yellow">P1 중요</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-060</div></td>
-      <td><div class="fr-name">히스토리 목록</div></td>
-      <td>
-        <div class="fr-desc">모든 판정 이력을 목록으로 표시. 필터·정렬 기능 포함.</div>
-        <ul class="fr-ac">
-          <li>판정 결과별 필터 (전체/범위 내/범위 외/불명확)</li>
-          <li>날짜 기준 정렬 (최신순 기본)</li>
-          <li>리스트 항목 클릭 시 판정 상세 화면 이동</li>
-          <li>soft delete 항목 기본 숨김</li>
-        </ul>
-      </td>
-      <td><span class="tag tag-yellow">P1 중요</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-070</div></td>
-      <td><div class="fr-name">온보딩 플로우</div></td>
-      <td>
-        <div class="fr-desc">신규 가입 후 에이전시 정보 입력 → 첫 프로젝트 생성까지 2단계 가이드.</div>
-        <ul class="fr-ac">
-          <li>각 단계 스킵 가능 (모든 항목 선택사항)</li>
-          <li>Progress bar (1/2 → 2/2) 표시</li>
-          <li>온보딩 완료 시 대시보드 이동</li>
-          <li>재방문 시 온보딩 미노출</li>
-        </ul>
-      </td>
-      <td><span class="tag tag-red">P0 필수</span></td>
-      <td><span class="tag tag-green">MVP</span></td>
-    </tr>
-
-    <tr style="opacity:.6">
-      <td><div class="fr-id">F-080</div></td>
-      <td><div class="fr-name">Stripe 결제</div></td>
-      <td><div class="fr-desc">구독 결제 처리. 베타 종료 후 유료 플랜 전환 시 활성화.</div></td>
-      <td><span class="tag tag-gray">P2</span></td>
-      <td><span class="tag tag-gray">Phase 2</span></td>
-    </tr>
-
-    <tr style="opacity:.6">
-      <td><div class="fr-id">F-090</div></td>
-      <td><div class="fr-name">팀 초대</div></td>
-      <td><div class="fr-desc">동일 에이전시 내 복수 PM이 프로젝트 공유 사용.</div></td>
-      <td><span class="tag tag-gray">P2</span></td>
-      <td><span class="tag tag-gray">Phase 2</span></td>
-    </tr>
-
     </tbody>
   </table>
   </div>
 </div>
 
 
-<!-- ═══════════ AI 컨텍스트 ═══════════ -->
 <div class="page" id="page-ai">
 
-  <div class="sec mb16">AI 호출 포인트 3개 — 상세 명세</div>
+  <div class="sec mb16">AI 호출 포인트 2개 (Lean MVP 기준 비용 추정 제외)</div>
 
-  <!-- F-002 계약서 요약 -->
   <div class="ai-block mb12">
     <div class="ai-block-head">
       <div class="ai-block-id">AI-001</div>
@@ -499,21 +296,19 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
           <div class="ai-context-label">System Prompt</div>
           <div class="ai-context-val">당신은 웹 에이전시 계약서에서 프로젝트 범위를 구조화하는 전문가입니다.<br>계약서 텍스트를 분석해 반드시 유효한 JSON으로만 응답합니다.<br>설명 문장, 마크다운 코드블록 절대 포함 금지.</div>
           <div class="ai-context-label" style="margin-top:10px">User Prompt 구조</div>
-          <div class="ai-context-val">다음 계약서에서 프로젝트 범위를 분석하세요:<br><br>"{contract_text}"<br><br>응답 형식:<br>{<br>  "included": ["명시 포함 항목"],<br>  "excluded": ["명시 제외 항목"],<br>  "unclear": ["불명확 항목"],<br>  "page_count": 숫자 또는 null,<br>  "summary_ko": "한 문장 요약"<br>}</div>
+          <div class="ai-context-val">다음 계약서에서 프로젝트 범위를 분석하세요:<br><br>"{contract_text}"<br><br>응답 형식:<br>{<br>  "included": ["명시 포함 항목"],<br>  "excluded": ["명시 제외 항목"],<br>  "unclear": ["불명확 항목"],<br>  "summary_ko": "한 문장 요약"<br>}</div>
         </div>
         <div>
           <div class="ai-context-label">파라미터 설정</div>
-          <div class="ai-context-val">model: claude-sonnet-4-5<br>temperature: 0.1<br>max_tokens: 1000<br>timeout: 10s</div>
+          <div class="ai-context-val">model: claude-3-5-sonnet<br>temperature: 0.1<br>max_tokens: 1000<br>timeout: 10s</div>
           <div class="ai-context-label" style="margin-top:10px">에러 처리</div>
           <div class="ai-context-val">JSON 파싱 실패 → 1회 재호출<br>재실패 → 수동 입력 유도<br>타임아웃 → "잠시 후 재시도" 토스트</div>
-          <div class="ai-note">💡 계약서 원본(contract_text)은 별도 보존. 요약(scope_summary)만 판정에 사용. API 비용 절감 위해 scope_summary 캐시 활용.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- F-020 판정 -->
-  <div class="ai-block mb12">
+  <div class="ai-block mb28">
     <div class="ai-block-head">
       <div class="ai-block-id">AI-002</div>
       <div class="ai-block-title">범위 초과 판정 ⭐ (F-020 연동)</div>
@@ -525,65 +320,21 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
           <div class="ai-context-label">System Prompt</div>
           <div class="ai-context-val">당신은 웹 에이전시 프로젝트의 계약 범위를 판정하는 전문가입니다.<br>주어진 계약 범위 요약과 클라이언트 요청을 비교하여<br>반드시 유효한 JSON으로만 응답합니다.</div>
           <div class="ai-context-label" style="margin-top:10px">User Prompt 구조</div>
-          <div class="ai-context-val">## 계약 범위 요약<br>포함: {scope.included}<br>제외: {scope.excluded}<br>불명확: {scope.unclear}<br><br>## 클라이언트 요청<br>"{request_text}"<br><br>## 응답 형식<br>{<br>  "judgment": "in_scope|out_of_scope|unclear",<br>  "confidence": 0.0~1.0,<br>  "reasoning": "1~3문장 근거",<br>  "estimated_hours": 숫자 또는 null,<br>  "judgment_basis": "참조 항목 또는 계약서 미언급"<br>}</div>
+          <div class="ai-context-val">## 계약 범위 요약<br>포함: {scope.included}<br>제외: {scope.excluded}<br>불명확: {scope.unclear}<br><br>## 클라이언트 요청<br>"{request_text}"<br><br>## 응답 형식<br>{<br>  "judgment": "in_scope|out_of_scope|unclear",<br>  "confidence": 0.0~1.0,<br>  "reasoning": "1~3문장 근거"<br>}</div>
         </div>
         <div>
           <div class="ai-context-label">파라미터 설정</div>
-          <div class="ai-context-val">model: claude-sonnet-4-5<br>temperature: 0.2<br>max_tokens: 500<br>timeout: 5s</div>
-          <div class="ai-context-label" style="margin-top:10px">Fast Path 조건</div>
-          <div class="ai-context-val">similarity(request, included) ≥ 0.90<br>→ judgment: "in_scope", confidence: 0.98<br>→ AI API 호출 생략 (비용 절감)<br><br>similarity(request, excluded) ≥ 0.90<br>→ judgment: "out_of_scope", confidence: 0.98</div>
+          <div class="ai-context-val">model: claude-3-5-sonnet<br>temperature: 0.2<br>max_tokens: 500<br>timeout: 5s</div>
           <div class="ai-context-label" style="margin-top:10px">신뢰도 임계값</div>
           <div class="ai-context-val">confidence &lt; 0.70<br>→ judgment 강제 "unclear"로 오버라이드<br>→ PM 직접 판단 유도</div>
         </div>
       </div>
-      <div class="ai-note" style="margin-top:0">💡 Few-shot 예시: 베타 피드백에서 수집된 오류 케이스 최대 5개를 System Prompt 하단에 추가. 주 1회 업데이트 사이클로 정확도 개선.</div>
-    </div>
-  </div>
-
-  <!-- F-030 비용 추정 -->
-  <div class="ai-block mb28">
-    <div class="ai-block-head">
-      <div class="ai-block-id">AI-003</div>
-      <div class="ai-block-title">추가 작업 시간 추정 (F-020 out_of_scope 시)</div>
-      <span class="tag tag-orange">범위 외 판정 시 자동 호출</span>
-    </div>
-    <div class="ai-block-body">
-      <div class="g2">
-        <div>
-          <div class="ai-context-label">추정 로직</div>
-          <div class="ai-context-val">estimated_hours = AI-002 응답의 estimated_hours<br><br>estimated_cost = hours × user.hourly_rate<br><br>complexity 가중치:<br>- "high" (신규 페이지, DB 연동) → × 1.5<br>- "medium" (기능 추가, 디자인) → × 1.0<br>- "low" (텍스트, 이미지 교체) → × 0.8<br><br>최종 반올림: 1,000원 단위</div>
-          <div class="ai-context-label" style="margin-top:10px">표시 원칙</div>
-          <div class="ai-context-val">PM 내부 화면: 전체 표시<br>공유 리포트: "AI 추정값" 면책 문구 필수<br>시급 정보: 공유 리포트에서 숨김</div>
-        </div>
-        <div>
-          <div class="ai-context-label">AI-002 응답 예시</div>
-          <div class="ai-context-val">{<br>  "judgment": "out_of_scope",<br>  "confidence": 0.92,<br>  "reasoning": "계약서에 명시된<br>총 5페이지를 초과합니다.",<br>  "estimated_hours": 12.0,<br>  "judgment_basis": "계약서 3항: 총 5페이지"<br>}</div>
-          <div class="ai-note" style="margin-top:8px">⚠️ 비용 추정은 참고값입니다. 실제 청구 금액은 PM이 리포트 작성 시 수동 조정 가능합니다.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb16">AI 품질 관리 정책</div>
-  <div class="g3">
-    <div class="card-sm" style="border-top:3px solid var(--blue)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📊 정확도 측정</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">feedback='correct' 건수 / 전체 판정 건수. 주간 자동 집계. 80% 미달 시 프롬프트 개선 트리거.</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--yellow)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">🔄 개선 사이클</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">feedback='wrong' 케이스 주간 수집 → 패턴 분류 → Few-shot 추가 → 테스트 케이스 25개 재검증.</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--green)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">🎯 단계별 목표</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">MVP: 70% → 베타 1개월: 80% → PMF 후: 90% → Fine-tuning: 95%+</div>
     </div>
   </div>
 
 </div>
 
 
-<!-- ═══════════ 비기능 요구사항 ═══════════ -->
 <div class="page" id="page-nfr">
 
   <div class="sec mb16">비기능 요구사항 (NFR) — 측정 가능한 기준으로</div>
@@ -632,53 +383,13 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
       <td><span class="tag tag-red">보안</span></td>
       <td style="font-weight:700;color:#fff;font-size:12px">API 키 보호</td>
       <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Claude API 키는 Railway 환경변수로만 관리</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Supabase Edge Functions 환경변수로만 관리</div>
         <div style="font-size:11px;color:var(--t4);line-height:1.6">프론트엔드 코드에 API 키 절대 노출 금지. GitHub 커밋 전 .env 파일 gitignore 확인.</div>
       </td>
       <td><span class="tag tag-red">P0</span></td>
     </tr>
     <tr>
       <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-05</span></td>
-      <td><span class="tag tag-blue">가용성</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">서비스 업타임</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">베타: SLA 없음 (Railway Hobby). 유료 전환 후 99.5% 목표.</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">Vercel (프론트) 자동 스케일. Railway 다운 시 사용자에게 유지보수 페이지 표시.</div>
-      </td>
-      <td><span class="tag tag-yellow">P1</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-06</span></td>
-      <td><span class="tag tag-green">확장성</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">동시 사용자</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">베타 50팀 동시 처리. Railway Hobby 플랜으로 충분.</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">Claude API Rate Limit 60 req/min. 일일 판정 건수 제한(무료 5건)으로 Rate Limit 버퍼 확보.</div>
-      </td>
-      <td><span class="tag tag-yellow">P1</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-07</span></td>
-      <td><span class="tag tag-purple">UX</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">모바일 반응형</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">iPhone SE (375px) ~ 1440px 모든 해상도 지원</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">Tailwind CSS 반응형 유틸리티 활용. 대시보드·판정 화면 모바일 우선 레이아웃.</div>
-      </td>
-      <td><span class="tag tag-yellow">P1</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-08</span></td>
-      <td><span class="tag tag-orange">데이터</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">데이터 무결성</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">change_requests soft delete only / billing_records 수정·삭제 불가</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">PostgreSQL 트랜잭션으로 판정 저장 원자성 보장. scope_summary 변경 시 스냅샷 자동 저장.</div>
-      </td>
-      <td><span class="tag tag-red">P0</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-09</span></td>
       <td><span class="tag tag-cyan">개인정보</span></td>
       <td style="font-weight:700;color:#fff;font-size:12px">계정 탈퇴 처리</td>
       <td>
@@ -687,353 +398,114 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
       </td>
       <td><span class="tag tag-yellow">P1</span></td>
     </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-10</span></td>
-      <td><span class="tag tag-blue">접근성</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">키보드 네비게이션</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">핵심 액션(판정 입력·제출) Tab+Enter로 완료 가능</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">WCAG 2.1 AA 기준. 색상 대비 4.5:1 이상. aria-label 주요 인터랙티브 요소 적용.</div>
-      </td>
-      <td><span class="tag tag-gray">P2</span></td>
-    </tr>
     </tbody>
   </table>
   </div>
 </div>
 
 
-<!-- ═══════════ 트래킹 이벤트 ═══════════ -->
 <div class="page" id="page-events">
 
-  <div class="sec mb16">트래킹 이벤트 정의 — PostHog</div>
-
-  <!-- Group 1: 온보딩 -->
+  <div class="sec mb16">PMF 가설 검증을 위한 핵심 이벤트 로깅</div>
   <div class="ev-wrap">
-    <div class="ev-group-head" style="background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.3)" onclick="toggleGroup(this)">
-      <div style="width:10px;height:10px;border-radius:50%;background:var(--purple);flex-shrink:0"></div>
-      <div style="font-size:12px;font-weight:700;color:var(--purple)">🟣 온보딩 & 인증 이벤트</div>
-      <span class="tag tag-purple" style="margin-left:auto">8개</span>
-      <span style="color:var(--t4);margin-left:8px;font-size:14px">▼</span>
-    </div>
-    <div class="ev-group-body" style="border-color:rgba(168,85,247,.2)">
+    <div class="ev-group-body" style="border-color:var(--bd); border-top: 1px solid var(--bd); border-radius: 8px;">
       <div class="ev-row-head" style="background:var(--s3)">
-        <div style="font-size:10px;font-weight:700;color:var(--t4);letter-spacing:.8px">이벤트명</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4);letter-spacing:.8px">설명 & 프로퍼티</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4);letter-spacing:.8px;text-align:center">중요도</div>
+        <div style="font-size:10px;font-weight:700;color:var(--t4)">이벤트명</div>
+        <div style="font-size:10px;font-weight:700;color:var(--t4)">검증하려는 가설 (목적) & 프로퍼티</div>
+        <div style="font-size:10px;font-weight:700;color:var(--t4);text-align:center">발생 시점</div>
       </div>
+      
       <div class="ev-row" style="border-color:var(--bd)">
         <div><div class="ev-name">user_signed_up</div></div>
-        <div><div class="ev-desc">회원가입 완료 (이메일 인증 후)</div><div class="ev-props"><span class="ev-prop">method: email|google</span><span class="ev-prop">referrer</span><span class="ev-prop">utm_source</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
+        <div>
+          <div class="ev-desc"><b>가설:</b> "방문자는 이 문제를 심각하게 여겨 가입 허들을 넘을 것이다."</div>
+          <div class="ev-props"><span class="ev-prop">method: google</span><span class="ev-prop">utm_source</span></div>
+        </div>
+        <div class="ev-when"><span class="tag tag-blue">가입 직후</span></div>
       </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">user_logged_in</div></div>
-        <div><div class="ev-desc">로그인 성공</div><div class="ev-props"><span class="ev-prop">method: email|google</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">onboarding_step_completed</div></div>
-        <div><div class="ev-desc">온보딩 각 단계 완료</div><div class="ev-props"><span class="ev-prop">step: 1|2</span><span class="ev-prop">skipped: bool</span><span class="ev-prop">agency_name_filled: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">onboarding_completed</div></div>
-        <div><div class="ev-desc">온보딩 전체 완료 → 대시보드 진입</div><div class="ev-props"><span class="ev-prop">has_contract: bool</span><span class="ev-prop">hourly_rate_set: bool</span><span class="ev-prop">duration_seconds</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">project_created</div></div>
-        <div><div class="ev-desc">프로젝트 생성 완료</div><div class="ev-props"><span class="ev-prop">has_contract_text: bool</span><span class="ev-prop">contract_length: number</span><span class="ev-prop">source: onboarding|dashboard</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">contract_analyzed</div></div>
-        <div><div class="ev-desc">계약서 AI 요약 완료</div><div class="ev-props"><span class="ev-prop">included_count: number</span><span class="ev-prop">excluded_count: number</span><span class="ev-prop">unclear_count: number</span><span class="ev-prop">analysis_duration_ms</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">contract_analysis_failed</div></div>
-        <div><div class="ev-desc">계약서 분석 실패 (API 오류 등)</div><div class="ev-props"><span class="ev-prop">error_type: api_error|timeout|parse_fail</span><span class="ev-prop">retry_count</span></div></div>
-        <div class="ev-when"><span class="tag tag-orange">보조</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">onboarding_skipped</div></div>
-        <div><div class="ev-desc">온보딩 단계 스킵</div><div class="ev-props"><span class="ev-prop">step: 1|2</span><span class="ev-prop">skip_reason: implicit</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Group 2: 판정 -->
-  <div class="ev-wrap">
-    <div class="ev-group-head" style="background:rgba(79,128,255,.08);border-color:rgba(79,128,255,.3)" onclick="toggleGroup(this)">
-      <div style="width:10px;height:10px;border-radius:50%;background:var(--blue);flex-shrink:0"></div>
-      <div style="font-size:12px;font-weight:700;color:var(--blue)">🔵 AI 판정 이벤트</div>
-      <span class="tag tag-blue" style="margin-left:auto">9개</span>
-      <span style="color:var(--t4);margin-left:8px;font-size:14px">▼</span>
-    </div>
-    <div class="ev-group-body" style="border-color:rgba(79,128,255,.2)">
-      <div class="ev-row-head" style="background:var(--s3)">
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">이벤트명</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">설명 & 프로퍼티</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4);text-align:center">중요도</div>
-      </div>
       <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_requested</div></div>
-        <div><div class="ev-desc">판정 요청 제출 (AI 호출 전)</div><div class="ev-props"><span class="ev-prop">project_id</span><span class="ev-prop">input_type: request|none|hold</span><span class="ev-prop">text_length: number</span><span class="ev-prop">fast_path: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
+        <div><div class="ev-name">first_judgment_completed</div></div>
+        <div>
+          <div class="ev-desc"><b>가설:</b> "가입자는 이탈 없이 1분 안에 첫 AI 판정(Aha Moment)을 경험할 것이다."</div>
+          <div class="ev-props"><span class="ev-prop">time_since_signup_seconds</span><span class="ev-prop">judgment_result: in|out</span></div>
+        </div>
+        <div class="ev-when"><span class="tag tag-green">첫 판정 수신</span></div>
       </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_completed</div></div>
-        <div><div class="ev-desc">AI 판정 완료 수신</div><div class="ev-props"><span class="ev-prop">judgment: in|out|unclear</span><span class="ev-prop">confidence: float</span><span class="ev-prop">duration_ms: number</span><span class="ev-prop">fast_path: bool</span><span class="ev-prop">estimated_cost: number</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_in_scope_viewed</div></div>
-        <div><div class="ev-desc">범위 내 결과 화면 조회</div><div class="ev-props"><span class="ev-prop">confidence</span><span class="ev-prop">reasoning_length</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_out_of_scope_viewed</div></div>
-        <div><div class="ev-desc">범위 외 결과 화면 조회</div><div class="ev-props"><span class="ev-prop">confidence</span><span class="ev-prop">estimated_cost</span><span class="ev-prop">estimated_hours</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_feedback_given</div></div>
-        <div><div class="ev-desc">AI 판정 피드백 제출 (맞음/틀림)</div><div class="ev-props"><span class="ev-prop">feedback: correct|wrong</span><span class="ev-prop">original_judgment</span><span class="ev-prop">corrected_judgment</span><span class="ev-prop">has_reason: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
+
       <div class="ev-row" style="border-color:var(--bd)">
         <div><div class="ev-name">judgment_overridden</div></div>
-        <div><div class="ev-desc">PM이 AI 판정을 수동 변경</div><div class="ev-props"><span class="ev-prop">original_judgment</span><span class="ev-prop">new_judgment</span><span class="ev-prop">has_reason: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
+        <div>
+          <div class="ev-desc"><b>가설 기각 신호:</b> "AI의 판정 로직이 PM의 실무 감각과 일치하지 않는다." (이 수치가 높으면 프롬프트 즉각 수정)</div>
+          <div class="ev-props"><span class="ev-prop">ai_original</span><span class="ev-prop">pm_corrected</span></div>
+        </div>
+        <div class="ev-when"><span class="tag tag-red">결과 수정 시</span></div>
       </div>
+
       <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_api_error</div></div>
-        <div><div class="ev-desc">AI 판정 API 오류 발생</div><div class="ev-props"><span class="ev-prop">error_type: timeout|parse_fail|api_error</span><span class="ev-prop">retry_count</span><span class="ev-prop">fallback: unclear</span></div></div>
-        <div class="ev-when"><span class="tag tag-orange">보조</span></div>
+        <div><div class="ev-name">report_shared</div></div>
+        <div>
+          <div class="ev-desc"><b>가설:</b> "PM은 AI의 판정 결과를 팀이나 윗선에 공유하여 근거로 사용할 것이다."</div>
+          <div class="ev-props"><span class="ev-prop">item_count</span></div>
+        </div>
+        <div class="ev-when"><span class="tag tag-purple">링크 복사 시</span></div>
       </div>
+
       <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">daily_no_input_recorded</div></div>
-        <div><div class="ev-desc">당일 없음 기록</div><div class="ev-props"><span class="ev-prop">project_id</span><span class="ev-prop">input_type: none|hold</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
+        <div><div class="ev-name">return_session_started</div></div>
+        <div>
+          <div class="ev-desc"><b>가설:</b> "이 도구는 일회성 호기심이 아니라, 지속적인 실무 루틴(Retention)으로 자리 잡는다."</div>
+          <div class="ev-props"><span class="ev-prop">days_since_signup</span></div>
+        </div>
+        <div class="ev-when"><span class="tag tag-yellow">재접속 시</span></div>
       </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">duplicate_request_warned</div></div>
-        <div><div class="ev-desc">유사 요청 중복 경고 표시</div><div class="ev-props"><span class="ev-prop">similarity_score: float</span><span class="ev-prop">ignored: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-orange">보조</span></div>
-      </div>
+
     </div>
   </div>
-
-  <!-- Group 3: 리포트 -->
-  <div class="ev-wrap">
-    <div class="ev-group-head" style="background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.25)" onclick="toggleGroup(this)">
-      <div style="width:10px;height:10px;border-radius:50%;background:var(--orange);flex-shrink:0"></div>
-      <div style="font-size:12px;font-weight:700;color:var(--orange)">🟠 리포트 & 공유 이벤트</div>
-      <span class="tag tag-orange" style="margin-left:auto">7개</span>
-      <span style="color:var(--t4);margin-left:8px;font-size:14px">▼</span>
-    </div>
-    <div class="ev-group-body" style="border-color:rgba(249,115,22,.2)">
-      <div class="ev-row-head" style="background:var(--s3)">
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">이벤트명</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">설명 & 프로퍼티</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4);text-align:center">중요도</div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_item_added</div></div>
-        <div><div class="ev-desc">판정 결과 화면에서 리포트 추가 클릭</div><div class="ev-props"><span class="ev-prop">judgment_id</span><span class="ev-prop">estimated_cost</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_created</div></div>
-        <div><div class="ev-desc">리포트 생성 완료</div><div class="ev-props"><span class="ev-prop">item_count: number</span><span class="ev-prop">total_estimated_cost</span><span class="ev-prop">has_manual_adjustment: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_share_link_generated</div></div>
-        <div><div class="ev-desc">공유 링크 발급 완료</div><div class="ev-props"><span class="ev-prop">expires_in_days: number|null</span><span class="ev-prop">report_id</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_link_copied</div></div>
-        <div><div class="ev-desc">공유 링크 클립보드 복사</div><div class="ev-props"><span class="ev-prop">report_id</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_viewed_public</div></div>
-        <div><div class="ev-desc">공개 링크로 리포트 조회 (비인증)</div><div class="ev-props"><span class="ev-prop">report_id</span><span class="ev-prop">is_expired: bool</span><span class="ev-prop">referrer</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_link_revoked</div></div>
-        <div><div class="ev-desc">공유 링크 철회</div><div class="ev-props"><span class="ev-prop">report_id</span><span class="ev-prop">days_active: number</span></div></div>
-        <div class="ev-when"><span class="tag tag-orange">보조</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">billing_record_created</div></div>
-        <div><div class="ev-desc">청구 기록 입력 완료</div><div class="ev-props"><span class="ev-prop">result: success|rejected|pending</span><span class="ev-prop">requested_amount</span><span class="ev-prop">actual_amount</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Group 4: 참여 -->
-  <div class="ev-wrap">
-    <div class="ev-group-head" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.25)" onclick="toggleGroup(this)">
-      <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
-      <div style="font-size:12px;font-weight:700;color:var(--green)">🟢 참여 & 리텐션 이벤트</div>
-      <span class="tag tag-green" style="margin-left:auto">8개</span>
-      <span style="color:var(--t4);margin-left:8px;font-size:14px">▼</span>
-    </div>
-    <div class="ev-group-body" style="border-color:rgba(16,185,129,.2)">
-      <div class="ev-row-head" style="background:var(--s3)">
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">이벤트명</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">설명 & 프로퍼티</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4);text-align:center">중요도</div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">dashboard_viewed</div></div>
-        <div><div class="ev-desc">대시보드 페이지 진입</div><div class="ev-props"><span class="ev-prop">active_projects: number</span><span class="ev-prop">today_judgment_count</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">history_viewed</div></div>
-        <div><div class="ev-desc">히스토리 목록 조회</div><div class="ev-props"><span class="ev-prop">filter: all|in|out|unclear</span><span class="ev-prop">total_count</span></div></div>
-        <div class="ev-when"><span class="tag tag-blue">표준</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">session_started</div></div>
-        <div><div class="ev-desc">앱 세션 시작 (DAU 측정 기준)</div><div class="ev-props"><span class="ev-prop">days_since_signup</span><span class="ev-prop">total_judgments_lifetime</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">weekly_active_streak</div></div>
-        <div><div class="ev-desc">주 3일 이상 연속 사용 달성</div><div class="ev-props"><span class="ev-prop">streak_days: number</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">settings_hourly_rate_changed</div></div>
-        <div><div class="ev-desc">시급 설정 변경</div><div class="ev-props"><span class="ev-prop">old_rate</span><span class="ev-prop">new_rate</span></div></div>
-        <div class="ev-when"><span class="tag tag-orange">보조</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">user_churned</div></div>
-        <div><div class="ev-desc">14일 이상 미접속 (이탈 감지)</div><div class="ev-props"><span class="ev-prop">last_active_days_ago</span><span class="ev-prop">total_judgments</span><span class="ev-prop">had_report: bool</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">feedback_survey_completed</div></div>
-        <div><div class="ev-desc">PMF 설문 완료 ("없으면 매우 불편" 응답)</div><div class="ev-props"><span class="ev-prop">score: very_disappointed|disappointed|not_disappointed</span><span class="ev-prop">nps_score: number</span></div></div>
-        <div class="ev-when"><span class="tag tag-red">핵심</span></div>
-      </div>
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">error_404_public_report</div></div>
-        <div><div class="ev-desc">만료된 공유 링크 접근</div><div class="ev-props"><span class="ev-prop">share_token</span><span class="ev-prop">expired_at</span></div></div>
-        <div class="ev-when"><span class="tag tag-orange">보조</span></div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-
-<!-- ═══════════ 핵심 지표 ═══════════ -->
 <div class="page" id="page-metrics">
+  <div class="sec mb16">PMF(Product-Market Fit) 통과 기준 (수치적 목표)</div>
 
-  <div class="sec mb16">핵심 성과 지표 (KPI) — PMF 판단 기준</div>
+  <div class="g2 mb28">
+    <div class="metric-def">
+      <div class="metric-head">
+        <div class="metric-id" style="background:rgba(16,185,129,.2);color:var(--green)">지표 1</div>
+        <div class="metric-name">Time to Value (TTV) 전환율</div>
+      </div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">가입자 중 1분 안에 첫 AI 판정을 받는 비율</div>
+      <div class="metric-target" style="background:rgba(16,185,129,.15);color:var(--green);display:inline-block">목표: 80% 이상 (이탈 시 온보딩 축소)</div>
+    </div>
 
-  <div class="metric-def mb12">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(79,128,255,.2);color:var(--blue)">M-01</div>
-      <div class="metric-name">활성 사용자 (WAU)</div>
-      <div class="metric-target" style="background:rgba(79,128,255,.15);color:var(--blue)">목표: 30명+</div>
+    <div class="metric-def">
+      <div class="metric-head">
+        <div class="metric-id" style="background:rgba(239,68,68,.2);color:var(--red)">지표 2</div>
+        <div class="metric-name">AI 신뢰도 붕괴율 (Override Rate)</div>
+      </div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">AI가 내린 판정을 PM이 수동으로 수정한 비율</div>
+      <div class="metric-target" style="background:rgba(239,68,68,.15);color:var(--red);display:inline-block">경고: 30% 초과 시 프롬프트 롤백/수정</div>
     </div>
-    <div class="metric-formula">WAU = COUNT(DISTINCT user_id WHERE session_started IN last 7 days)</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">session_started</code> — PostHog Insights에서 주간 Unique Users 집계</div>
-  </div>
 
-  <div class="metric-def mb12">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(16,185,129,.2);color:var(--green)">M-02</div>
-      <div class="metric-name">AI 판정 정확도</div>
-      <div class="metric-target" style="background:rgba(16,185,129,.15);color:var(--green)">목표: ≥ 80%</div>
+    <div class="metric-def">
+      <div class="metric-head">
+        <div class="metric-id" style="background:rgba(168,85,247,.2);color:var(--purple)">지표 3</div>
+        <div class="metric-name">리포트 공유 활성화율</div>
+      </div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">범위 외(Out of Scope) 판정을 1회 이상 받은 유저 중 리포트 링크를 생성한 유저의 비율</div>
+      <div class="metric-target" style="background:rgba(168,85,247,.15);color:var(--purple);display:inline-block">목표: 20% 이상 (가치의 최종 목적지 도달 여부)</div>
     </div>
-    <div class="metric-formula">정확도 = COUNT(feedback='correct') / COUNT(feedback IS NOT NULL) × 100</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">judgment_feedback_given</code> — feedback 프로퍼티 필터링</div>
-  </div>
 
-  <div class="metric-def mb12">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(245,158,11,.2);color:var(--yellow)">M-03</div>
-      <div class="metric-name">일일 판정 입력률</div>
-      <div class="metric-target" style="background:rgba(245,158,11,.15);color:var(--yellow)">목표: ≥ 3회/주</div>
-    </div>
-    <div class="metric-formula">판정률 = COUNT(judgment_requested per user) / active_days</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">judgment_requested</code>, <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">daily_no_input_recorded</code></div>
-  </div>
-
-  <div class="metric-def mb12">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(249,115,22,.2);color:var(--orange)">M-04</div>
-      <div class="metric-name">리포트 생성률</div>
-      <div class="metric-target" style="background:rgba(249,115,22,.15);color:var(--orange)">목표: ≥ 20%</div>
-    </div>
-    <div class="metric-formula">리포트율 = COUNT(report_created) / COUNT(users with ≥1 out_of_scope) × 100</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">report_created</code> / <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">judgment_out_of_scope_viewed</code></div>
-  </div>
-
-  <div class="metric-def mb12">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(168,85,247,.2);color:var(--purple)">M-05</div>
-      <div class="metric-name">온보딩 완료율</div>
-      <div class="metric-target" style="background:rgba(168,85,247,.15);color:var(--purple)">목표: ≥ 70%</div>
-    </div>
-    <div class="metric-formula">완료율 = COUNT(onboarding_completed) / COUNT(user_signed_up) × 100</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">user_signed_up</code> → <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">onboarding_completed</code> Funnel</div>
-  </div>
-
-  <div class="metric-def mb12">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(239,68,68,.2);color:var(--red)">M-06</div>
-      <div class="metric-name">14일 리텐션</div>
-      <div class="metric-target" style="background:rgba(239,68,68,.15);color:var(--red)">목표: ≥ 40%</div>
-    </div>
-    <div class="metric-formula">D14 Retention = COUNT(users active on D14) / COUNT(users signed_up on D0) × 100</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">session_started</code> — PostHog Retention Analysis 활용</div>
-  </div>
-
-  <div class="metric-def mb28">
-    <div class="metric-head">
-      <div class="metric-id" style="background:rgba(6,182,212,.2);color:var(--cyan)">M-07</div>
-      <div class="metric-name">PMF 설문 점수</div>
-      <div class="metric-target" style="background:rgba(6,182,212,.15);color:var(--cyan)">목표: ≥ 40%</div>
-    </div>
-    <div class="metric-formula">PMF = COUNT("없으면 매우 불편" 응답) / 전체 응답자 × 100 ≥ 40%</div>
-    <div class="metric-events">트래킹 이벤트: <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--cyan)">feedback_survey_completed</code> — score='very_disappointed' 필터</div>
-  </div>
-
-  <div class="sec mb16">지표 우선순위 & 측정 주기</div>
-  <div class="g3">
-    <div class="card-sm" style="border-top:3px solid var(--red)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📅 매일 확인</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.8">DAU (session_started)<br>판정 요청 건수<br>AI 오류 건수<br>응답 시간 P95</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--yellow)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📅 매주 확인</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.8">WAU + 리텐션<br>AI 판정 정확도<br>리포트 생성률<br>이탈 사용자 수</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--blue)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">📅 격주 확인</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.8">온보딩 완료율<br>PMF 설문 점수<br>D14 리텐션<br>사용자 인터뷰 인사이트</div>
+    <div class="metric-def">
+      <div class="metric-head">
+        <div class="metric-id" style="background:rgba(79,128,255,.2);color:var(--blue)">지표 4</div>
+        <div class="metric-name">D7 리텐션 (재방문율)</div>
+      </div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">가입 후 7일 이내에 앱에 다시 접속하여 판정을 요청한 비율</div>
+      <div class="metric-target" style="background:rgba(79,128,255,.15);color:var(--blue);display:inline-block">목표: 15% 이상 (실무 루틴화 검증)</div>
     </div>
   </div>
-
 </div>
 
-
-<!-- ═══════════ POSTHOG 설정 ═══════════ -->
 <div class="page" id="page-posthog">
 
   <div class="sec mb16">PostHog 초기 설정 코드 — React</div>
@@ -1058,7 +530,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 <span class="kw">export function</span> <span class="fn">identifyUser</span>(userId: <span class="pr">string</span>, props: <span class="pr">object</span>) {
   posthog.<span class="fn">identify</span>(userId, {
     email: props.email,
-    agency_name: props.agency_name,
     plan: props.plan, <span class="cm">// 'beta' | 'paid'</span>
     created_at: props.created_at
   })
@@ -1076,7 +547,7 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 
   <div class="sec mb16">이벤트 호출 예시 — 핵심 3개</div>
   <div class="ph-code mb12">
-<span class="cm">// ① 회원가입 완료 (S-01)</span>
+<span class="cm">// ① 회원가입 완료</span>
 <span class="fn">track</span>(<span class="str">'user_signed_up'</span>, {
   method: <span class="str">'google'</span>,
   referrer: document.referrer,
@@ -1084,98 +555,21 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 })</div>
 
   <div class="ph-code mb12">
-<span class="cm">// ② AI 판정 완료 (F-020)</span>
-<span class="fn">track</span>(<span class="str">'judgment_completed'</span>, {
-  judgment: result.judgment,          <span class="cm">// 'in_scope' | 'out_of_scope' | 'unclear'</span>
-  confidence: result.confidence,
-  duration_ms: Date.<span class="fn">now</span>() - startTime,
-  fast_path: result.fast_path,
-  estimated_cost: result.estimated_cost ?? <span class="num">0</span>,
-  project_id: currentProject.id       <span class="cm">// group analytics 용</span>
+<span class="cm">// ② AI 첫 판정 완료 (Aha Moment)</span>
+<span class="fn">track</span>(<span class="str">'first_judgment_completed'</span>, {
+  judgment: result.judgment,
+  time_since_signup_seconds: (Date.now() - user.created_at) / 1000
 })</div>
 
   <div class="ph-code mb28">
-<span class="cm">// ③ 피드백 제출 (F-021)</span>
-<span class="fn">track</span>(<span class="str">'judgment_feedback_given'</span>, {
-  feedback: <span class="str">'wrong'</span>,
-  original_judgment: <span class="str">'in_scope'</span>,
-  corrected_judgment: <span class="str">'out_of_scope'</span>,
-  has_reason: reason.length > <span class="num">0</span>,
+<span class="cm">// ③ 결과 오버라이드 (프롬프트 튜닝 지표)</span>
+<span class="fn">track</span>(<span class="str">'judgment_overridden'</span>, {
+  ai_original: <span class="str">'in_scope'</span>,
+  pm_corrected: <span class="str">'out_of_scope'</span>,
   judgment_id: judgment.id
 })</div>
 
-  <div class="sec mb16">PostHog 대시보드 설정 가이드</div>
-  <div class="g2 mb20">
-    <div class="card">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">📊 Insights 생성 순서</div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:11px">
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--blue)">
-          <div style="color:var(--blue);font-weight:700;margin-bottom:2px">① 온보딩 퍼널</div>
-          <div style="color:var(--t3)">user_signed_up → onboarding_completed → project_created → judgment_requested</div>
-        </div>
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--green)">
-          <div style="color:var(--green);font-weight:700;margin-bottom:2px">② AI 정확도 트렌드</div>
-          <div style="color:var(--t3)">judgment_feedback_given에서 feedback='correct' 비율 주간 라인차트</div>
-        </div>
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--orange)">
-          <div style="color:var(--orange);font-weight:700;margin-bottom:2px">③ 리포트 전환율</div>
-          <div style="color:var(--t3)">judgment_out_of_scope_viewed → report_item_added → report_created</div>
-        </div>
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--purple)">
-          <div style="color:var(--purple);font-weight:700;margin-bottom:2px">④ D14 리텐션</div>
-          <div style="color:var(--t3)">Retention Analysis: user_signed_up 기준 → session_started 반환</div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">🔔 알림 설정 (Alerts)</div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:11px">
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--red)">
-          <div style="color:var(--red);font-weight:700;margin-bottom:2px">AI 오류율 급등</div>
-          <div style="color:var(--t3)">judgment_api_error가 1시간 내 5건 초과 시 즉시 알림</div>
-        </div>
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--yellow)">
-          <div style="color:var(--yellow);font-weight:700;margin-bottom:2px">AI 정확도 하락</div>
-          <div style="color:var(--t3)">주간 feedback='correct' 비율 70% 미달 시 알림</div>
-        </div>
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--cyan)">
-          <div style="color:var(--cyan);font-weight:700;margin-bottom:2px">신규 가입 급증</div>
-          <div style="color:var(--t3)">user_signed_up 하루 10건 초과 시 (바이럴 신호)</div>
-        </div>
-        <div style="padding:8px;background:var(--s2);border-radius:6px;border-left:2px solid var(--t4)">
-          <div style="color:var(--t3);font-weight:700;margin-bottom:2px">이탈 감지</div>
-          <div style="color:var(--t3)">user_churned 이벤트 주간 5명 초과 시 재참여 캠페인 트리거</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb16">사용자 프로퍼티 & 그룹 설정</div>
-  <div class="ph-code">
-<span class="cm">// 사용자 프로퍼티 (identify 시 설정)</span>
-{
-  email: <span class="str">"jey@agency.kr"</span>,
-  agency_name: <span class="str">"크리에이티브 에이전시"</span>,
-  plan: <span class="str">"beta"</span>,              <span class="cm">// 'beta' | 'paid'</span>
-  hourly_rate: <span class="num">50000</span>,
-  total_judgments: <span class="num">47</span>,          <span class="cm">// 누적 판정 건수</span>
-  total_out_of_scope: <span class="num">12</span>,      <span class="cm">// 누적 범위 외 건수</span>
-  has_completed_onboarding: <span class="kw">true</span>,
-  created_at: <span class="str">"2026-02-10"</span>,
-  last_active_at: <span class="str">"2026-02-23"</span>
-}
-
-<span class="cm">// 프로젝트 그룹 (Group Analytics - 팀 기능 Phase 2)</span>
-posthog.<span class="fn">group</span>(<span class="str">'project'</span>, projectId, {
-  name: <span class="str">"ABC 쇼핑몰 리뉴얼"</span>,
-  contract_amount: <span class="num">15000000</span>,
-  total_judgments: <span class="num">23</span>,
-  out_of_scope_count: <span class="num">8</span>,
-  created_at: <span class="str">"2026-02-01"</span>
-})</div>
-
-</div>
-
+</div>s
 
 <script>
 function go(id, el) {
@@ -1183,14 +577,6 @@ function go(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById('page-' + id).classList.add('on');
   el.classList.add('on');
-}
-
-function toggleGroup(el) {
-  const body = el.nextElementSibling;
-  const chev = el.querySelector('span:last-child');
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : 'block';
-  chev.textContent = isOpen ? '▶' : '▼';
 }
 </script>
 </body>
