@@ -142,7 +142,6 @@
 </head>
 <body>
 
-<!-- Nav -->
 <nav class="nav">
   <div class="nav-logo"><b>Scope</b>Manager</div>
   <div class="nav-tabs">
@@ -150,14 +149,13 @@
     <button class="nav-tab" onclick="showPage('problem')">문제 원인</button>
     <button class="nav-tab" onclick="showPage('target')">타겟</button>
     <button class="nav-tab" onclick="showPage('solution')">솔루션</button>
-    <button class="nav-tab" onclick="showPage('unknown')">미검증 과제</button>
+    <button class="nav-tab" onclick="showPage('unknown')">가설 검증</button>
   </div>
 </nav>
 
-<!-- ══ PAGE 1: 개요 ══ -->
 <div class="page active" id="page-overview">
   <div class="hero">
-    <div class="hero-eyebrow"><div class="hero-dot"></div>시장 문제 정의서 v1.0</div>
+    <div class="hero-eyebrow"><div class="hero-dot"></div>시장 문제 정의서 v1.1</div>
     <h1>에이전시는 왜<br><em>"돈 달라는 말"</em>을<br>못 꺼낼까</h1>
     <p>도구의 부재가 아닌 <strong style="color:#fff;">구조의 부재</strong>.<br>Scope Manager는 PM이 혼자 감당해온 그 구조를 대신한다.</p>
     <div class="hero-quote">
@@ -167,7 +165,6 @@
   </div>
 
   <div class="container" style="padding-top:0;">
-    <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-num">52<span>%</span></div>
@@ -191,7 +188,6 @@
       </div>
     </div>
 
-    <!-- 핵심 구조 플로우 -->
     <div class="section">
       <div class="section-label">핵심 구조</div>
       <div class="section-title">문제가 반복되는 이유</div>
@@ -232,7 +228,6 @@
   </div>
 </div>
 
-<!-- ══ PAGE 2: 문제 원인 ══ -->
 <div class="page" id="page-problem">
   <div class="container">
     <div class="section-label" style="margin-top:8px;">근본 원인 분석</div>
@@ -294,7 +289,6 @@
   </div>
 </div>
 
-<!-- ══ PAGE 3: 타겟 ══ -->
 <div class="page" id="page-target">
   <div class="container">
     <div class="section-label" style="margin-top:8px;">타겟 정의</div>
@@ -365,7 +359,6 @@
   </div>
 </div>
 
-<!-- ══ PAGE 4: 솔루션 ══ -->
 <div class="page" id="page-solution">
   <div class="container">
     <div class="section-label" style="margin-top:8px;">솔루션 정의</div>
@@ -393,7 +386,6 @@
       </div>
     </div>
 
-    <!-- Before / After -->
     <div class="sol-before-after">
       <div class="ba-col before">
         <div class="ba-label before">BEFORE — 지금</div>
@@ -416,12 +408,11 @@
   </div>
 </div>
 
-<!-- ══ PAGE 5: 미검증 과제 ══ -->
 <div class="page" id="page-unknown">
   <div class="container">
-    <div class="section-label" style="margin-top:8px;">열린 과제</div>
-    <div class="section-title" style="margin-bottom:8px;">아직 모르는 것들</div>
-    <div class="section-sub" style="margin-bottom:40px;">고객 인터뷰와 파일럿을 통해 반드시 검증되어야 할 과제들. 이 질문들에 대한 답이 제품 방향을 결정한다.</div>
+    <div class="section-label" style="margin-top:8px;">가설 검증 전략</div>
+    <div class="section-title" style="margin-bottom:8px;">말이 아닌 제품으로 검증한다</div>
+    <div class="section-sub" style="margin-bottom:40px;">AI 도구를 활용해 개발 비용이 극단적으로 낮아진 현재, 불확실한 사전 인터뷰 대신 6주 내 완성된 MVP를 직접 시장에 던져 실제 반응을 확인한다.</div>
 
     <div class="unknown-grid">
       <div class="unknown-card">
@@ -434,31 +425,31 @@
       </div>
       <div class="unknown-card">
         <div class="q-icon">Q3</div>
-        <p>클라이언트는 'AI 또는 시스템 판정 결과'를 <strong style="color:#fff;">수용</strong>하는가, 아니면 <strong style="color:#fff;">반발</strong>하는가?</p>
+        <p>클라이언트는 시스템이 생성한 '객관적 판정 결과'를 <strong style="color:#fff;">수용</strong>하는가, 아니면 <strong style="color:#fff;">반발</strong>하는가?</p>
       </div>
       <div class="unknown-card">
         <div class="q-icon">Q4</div>
-        <p>기존 협업 도구(Jira, 노션 등)가 이 기능을 추가할 경우 <strong style="color:#fff;">차별점</strong>이 유지되는가?</p>
+        <p>실제 MVP를 도입한 후, 에이전시의 <strong style="color:#fff;">추가 청구 성공률</strong>은 유의미하게 상승하는가?</p>
       </div>
     </div>
 
     <div style="margin-top:40px;background:#1e2533;border:1px solid #2e3748;border-radius:14px;padding:28px;">
-      <div style="font-size:13px;font-weight:700;color:#8c95aa;margin-bottom:16px;">검증 방법론</div>
+      <div style="font-size:13px;font-weight:700;color:#8c95aa;margin-bottom:16px;">행동 중심 검증 방법론 (AI-Driven)</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
         <div style="text-align:center;">
-          <div style="font-size:28px;margin-bottom:8px;">💬</div>
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">고객 인터뷰</div>
-          <div style="font-size:12px;color:#5a6478;">5~20인 에이전시<br>PM 5~10명 대상</div>
+          <div style="font-size:28px;margin-bottom:8px;">⚡</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">초고속 MVP 빌드</div>
+          <div style="font-size:12px;color:#5a6478;">AI 통합 IDE 기반<br>6주 내 핵심 기능 배포</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:28px;margin-bottom:8px;">🧪</div>
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">파일럿 테스트</div>
-          <div style="font-size:12px;color:#5a6478;">데모 프로그램으로<br>실제 사용 관찰</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">클로즈드 베타 테스트</div>
+          <div style="font-size:12px;color:#5a6478;">타겟 에이전시 5~10곳<br>실제 실무 적용 및 관찰</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:28px;margin-bottom:8px;">📊</div>
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">2차 데이터 분석</div>
-          <div style="font-size:12px;color:#5a6478;">정부 통계·업계 보고서<br>소셜 미디어 분석</div>
+          <div style="font-size:28px;margin-bottom:8px;">📈</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">사용 데이터 분석</div>
+          <div style="font-size:12px;color:#5a6478;">판정 기능 사용 빈도 및<br>실제 이탈률 트래킹</div>
         </div>
       </div>
     </div>
@@ -466,8 +457,8 @@
     <div style="margin-top:20px;background:#1a2540;border:1px solid #4f80ff30;border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;">
       <div style="font-size:24px;">📌</div>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">문서 상태</div>
-        <div style="font-size:12px;color:#8c95aa;">본 문서는 시장 문제 정의 단계의 초안입니다. 고객 인터뷰 결과에 따라 내용이 업데이트됩니다.</div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">전략 피벗 완료</div>
+        <div style="font-size:12px;color:#8c95aa;">개념 검증(PoC)을 위한 사전 인터뷰를 생략하고, MVP 실사용 피드백을 통해 Product-Market Fit을 찾습니다.</div>
       </div>
     </div>
   </div>
