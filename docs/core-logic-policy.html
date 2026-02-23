@@ -21,6 +21,7 @@ header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-it
 .badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
 .b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
 .b-orange{background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.25)}
+.b-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
 
 nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
 .tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
@@ -136,8 +137,8 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
   <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">Core Logic & Policy Design</span></div>
   <div class="hbadge">
     <span class="badge b-orange">데이터 & 로직 설계</span>
-    <span class="badge b-blue">v1.0</span>
-    <span style="font-size:11px;color:var(--t4)">2026.02</span>
+    <span class="badge b-green">Lean MVP 최적화</span>
+    <span class="badge b-blue">v1.2</span>
   </div>
 </header>
 
@@ -145,13 +146,12 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
   <div class="tab on" onclick="go('judgment',this)">⚖️ 판정 로직</div>
   <div class="tab" onclick="go('state',this)">🔄 상태 관리</div>
   <div class="tab" onclick="go('cost',this)">💰 비용 계산</div>
+  <div class="tab" onclick="go('feedback',this)">🔁 가설 검증 루프</div>
   <div class="tab" onclick="go('data',this)">🛡 데이터 정책</div>
-  <div class="tab" onclick="go('feedback',this)">🔁 피드백 루프</div>
   <div class="tab" onclick="go('edge',this)">⚠️ 예외 처리</div>
 </nav>
 
 
-<!-- ═══════════ 판정 로직 ═══════════ -->
 <div class="page on" id="page-judgment">
 
   <div class="kpi-row">
@@ -204,15 +204,6 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
 
   <span class="ak">return</span> result
       </div>
-      <div class="algo-box">
-<span class="ak">function</span> <span class="ao">exactMatch</span>(requestText, scopeItems):
-  <span class="ac">// 키워드 정규화 후 유사도 비교</span>
-  normalized = <span class="ao">normalize</span>(requestText)   <span class="ac">// 조사 제거, 소문자화</span>
-  <span class="ak">for</span> item <span class="ak">in</span> scopeItems:
-    <span class="ak">if</span> <span class="ao">similarity</span>(normalized, item) &gt; <span class="an">0.90</span>:
-      <span class="ak">return true</span>
-  <span class="ak">return false</span>
-      </div>
     </div>
     <div>
       <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">판정 흐름도</div>
@@ -229,32 +220,24 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
           <div class="flow-num" style="background:rgba(16,185,129,.2);color:var(--green)">2</div>
           <div class="flow-body">
             <div class="flow-title">빠른 매칭 (Fast Path)</div>
-            <div class="flow-desc">계약서 포함/제외 항목과 90% 이상 유사 시 AI 호출 없이 즉시 판정. API 비용 절감 + 응답 속도 향상.</div>
-            <div class="flow-tags"><span class="tag tag-green">비용 절감</span><span class="tag tag-gray">0.1초 이내</span></div>
+            <div class="flow-desc">계약서 포함/제외 항목과 유사 시 AI 호출 없이 즉시 판정.</div>
+            <div class="flow-tags"><span class="tag tag-green">비용 절감</span></div>
           </div>
         </div>
         <div class="flow-step">
           <div class="flow-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">3</div>
           <div class="flow-body">
             <div class="flow-title">Claude API 판정</div>
-            <div class="flow-desc">애매한 케이스만 AI로 판정. scope_summary + request_text 전달. Temperature 0.2, JSON 응답 강제.</div>
-            <div class="flow-tags"><span class="tag tag-yellow">핵심 AI 호출</span><span class="tag tag-gray">1.5~3초</span></div>
+            <div class="flow-desc">애매한 케이스만 AI로 판정. JSON 응답 강제.</div>
+            <div class="flow-tags"><span class="tag tag-yellow">핵심 AI 호출</span></div>
           </div>
         </div>
         <div class="flow-step">
           <div class="flow-num" style="background:rgba(168,85,247,.2);color:var(--purple)">4</div>
           <div class="flow-body">
             <div class="flow-title">신뢰도 임계값 적용</div>
-            <div class="flow-desc">confidence < 0.70 → 자동으로 unclear 처리. PM이 직접 판단하도록 유도.</div>
+            <div class="flow-desc">confidence &lt; 0.70 → автоматически unclear 처리.</div>
             <div class="flow-tags"><span class="tag tag-purple">품질 게이트</span></div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:rgba(16,185,129,.2);color:var(--green)">5</div>
-          <div class="flow-body">
-            <div class="flow-title">저장 & 응답</div>
-            <div class="flow-desc">change_requests 테이블에 저장. 범위 외 판정 시 리포트 추가 버튼 활성화.</div>
-            <div class="flow-tags"><span class="tag tag-green">Supabase 저장</span></div>
           </div>
         </div>
       </div>
@@ -293,23 +276,13 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
       <td style="color:var(--t3)">PM 직접 판단 유도<br>재판정 요청 가능</td>
       <td><span class="tag tag-gray">PM 입력 대기</span></td>
     </tr>
-    <tr>
-      <td><span class="tag tag-gray">— no_judgment</span></td>
-      <td style="color:var(--t3)">input_type = none/hold</td>
-      <td style="color:var(--t3)">회색 "기록만" 표시</td>
-      <td style="color:var(--t3)">히스토리에만 기록</td>
-      <td><span class="tag tag-gray">미산출</span></td>
-    </tr>
     </tbody>
   </table>
   </div>
-
 </div>
 
 
-<!-- ═══════════ 상태 관리 ═══════════ -->
 <div class="page" id="page-state">
-
   <div class="sec mb20">프로젝트 상태 머신 (State Machine)</div>
   <div class="sm-wrap mb28">
     <div class="sm-state" style="background:rgba(79,128,255,.08);border:1px solid rgba(79,128,255,.25)">
@@ -329,15 +302,6 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
         <div class="sm-tr" style="background:rgba(90,100,120,.15);color:var(--t3)">→ closed (프로젝트 종료)</div>
       </div>
     </div>
-    <div class="sm-state" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25)">
-      <div class="sm-label" style="color:var(--yellow)">일시정지</div>
-      <div class="sm-name" style="color:var(--yellow)">⏸ paused</div>
-      <div class="sm-desc" style="color:var(--t3)">히스토리 조회 가능. 새 판정 불가.</div>
-      <div class="sm-transitions">
-        <div class="sm-tr" style="background:rgba(16,185,129,.1);color:var(--green)">→ active (재개)</div>
-        <div class="sm-tr" style="background:rgba(90,100,120,.15);color:var(--t3)">→ closed</div>
-      </div>
-    </div>
     <div class="sm-state" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2)">
       <div class="sm-label" style="color:var(--red)">종료</div>
       <div class="sm-name" style="color:var(--red)">🔴 closed</div>
@@ -346,111 +310,11 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
         <div class="sm-tr" style="background:rgba(90,100,120,.12);color:var(--t4)">← 되돌리기 불가</div>
       </div>
     </div>
-    <div class="sm-state" style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2)">
-      <div class="sm-label" style="color:var(--purple)">리포트</div>
-      <div class="sm-name" style="color:var(--purple)">📄 draft</div>
-      <div class="sm-desc" style="color:var(--t3)">리포트 작성 중. 공유 전 상태.</div>
-      <div class="sm-transitions">
-        <div class="sm-tr" style="background:rgba(6,182,212,.1);color:var(--cyan)">→ shared (링크 발급)</div>
-        <div class="sm-tr" style="background:rgba(90,100,120,.12);color:var(--t4)">→ archived (철회)</div>
-      </div>
-    </div>
-    <div class="sm-state" style="background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2)">
-      <div class="sm-label" style="color:var(--cyan)">공유됨</div>
-      <div class="sm-name" style="color:var(--cyan)">🔗 shared</div>
-      <div class="sm-desc" style="color:var(--t3)">공개 링크 활성. 만료 시 자동 archived.</div>
-      <div class="sm-transitions">
-        <div class="sm-tr" style="background:rgba(90,100,120,.12);color:var(--t4)">→ archived (만료/철회)</div>
-      </div>
-    </div>
   </div>
-
-  <div class="sec mb20">Change Request 상태 전이</div>
-  <div class="card mb28">
-    <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:14px">요청 상태 전이 규칙</div>
-    <div class="g2">
-      <div>
-        <div style="font-size:11px;color:var(--t4);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">판정 상태</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-gray" style="min-width:70px;text-align:center">pending</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">AI 호출 중 (로딩)</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-green" style="min-width:70px;text-align:center">in_scope</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">최종 상태 (변경 가능: 피드백 통해)</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-red" style="min-width:70px;text-align:center">out_of_scope</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">리포트 포함 가능 상태</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-yellow" style="min-width:70px;text-align:center">unclear</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">PM 재판정 대기 상태</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-purple" style="min-width:70px;text-align:center">overridden</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">PM이 AI 판정을 수동 변경</span>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--t4);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">청구 상태 (billing)</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-gray" style="min-width:70px;text-align:center">not_billed</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">청구 전 (기본값)</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-blue" style="min-width:70px;text-align:center">in_report</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">리포트에 포함됨</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-orange" style="min-width:70px;text-align:center">pending</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">청구 시도 중</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-green" style="min-width:70px;text-align:center">success</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">청구 성공 → billing_records 생성</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-            <span class="tag tag-red" style="min-width:70px;text-align:center">rejected</span>
-            <span style="color:var(--t4)">→</span>
-            <span style="color:var(--t3)">클라이언트 거부 기록</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb20">불변 규칙 (Immutable Rules)</div>
-  <div class="policy" style="border-left-color:var(--red)">
-    <div class="policy-title">🔒 데이터 무결성 보호 규칙</div>
-    <div class="policy-desc">아래 규칙은 어떤 사용자 액션으로도 변경되지 않습니다. 데이터 신뢰성과 감사 추적을 보장합니다.</div>
-    <div class="policy-rule">
-1. change_requests는 <span style="color:var(--red)">삭제 불가</span> — soft delete만 허용 (is_deleted = true)<br>
-2. AI 원본 판정값(judgment_original)은 <span style="color:var(--red)">수정 불가</span> — PM 오버라이드 시 별도 컬럼에 기록<br>
-3. closed 상태 프로젝트의 데이터는 <span style="color:var(--red)">읽기 전용</span><br>
-4. billing_records는 <span style="color:var(--red)">삭제/수정 불가</span> — 청구 이력 감사 추적 보장<br>
-5. scope_summary 변경 시 이전 버전 <span style="color:var(--red)">자동 스냅샷 저장</span> (scope_summary_history)
-    </div>
-  </div>
-
 </div>
 
 
-<!-- ═══════════ 비용 계산 ═══════════ -->
 <div class="page" id="page-cost">
-
   <div class="sec mb20">추가 비용 자동 산출 로직</div>
   <div class="g2 mb28">
     <div>
@@ -460,422 +324,127 @@ code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-
   <span class="ak">if</span> judgment != <span class="av">"out_of_scope"</span>:
     <span class="ak">return</span> {hours: <span class="ak">null</span>, cost: <span class="ak">null</span>}
 
-  <span class="ac">// Claude API로 작업 시간 추정</span>
   hours = <span class="ak">await</span> <span class="ao">estimateHours</span>(requestText)
-
-  <span class="ac">// 사용자 설정 시급 적용</span>
   hourly_rate = user.hourly_rate <span class="ac">// default: 50,000원</span>
   base_cost = hours × hourly_rate
-
-  <span class="ac">// 난이도 가중치 적용</span>
+  
+  <span class="ac">// 난이도 가중치</span>
   complexity = <span class="ao">getComplexity</span>(requestText)
   <span class="ak">if</span> complexity == <span class="av">"high"</span>: base_cost *= <span class="an">1.5</span>
-  <span class="ak">if</span> complexity == <span class="av">"low"</span>:  base_cost *= <span class="an">0.8</span>
-
-  <span class="ac">// 1,000원 단위 반올림</span>
-  final_cost = <span class="ao">roundTo</span>(base_cost, <span class="an">1000</span>)
-
-  <span class="ak">return</span> {
-    estimated_hours: hours,
-    estimated_cost: final_cost,
-    hourly_rate_used: hourly_rate,
-    complexity: complexity
-  }
+  
+  <span class="ak">return</span> { estimated_cost: <span class="ao">roundTo</span>(base_cost, <span class="an">1000</span>) }
       </div>
     </div>
     <div>
-      <div class="score-card mb12">
-        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:14px">난이도 판단 기준</div>
-        <div class="score-bar-row">
-          <div class="score-bar-label">신규 페이지/섹션</div>
-          <div class="score-bar"><div class="score-bar-fill" style="background:var(--red);width:90%"></div></div>
-          <div class="score-val" style="color:var(--red)">High</div>
-        </div>
-        <div class="score-bar-row">
-          <div class="score-bar-label">기능 추가</div>
-          <div class="score-bar"><div class="score-bar-fill" style="background:var(--orange);width:65%"></div></div>
-          <div class="score-val" style="color:var(--orange)">Med</div>
-        </div>
-        <div class="score-bar-row">
-          <div class="score-bar-label">텍스트/이미지 수정</div>
-          <div class="score-bar"><div class="score-bar-fill" style="background:var(--green);width:30%"></div></div>
-          <div class="score-val" style="color:var(--green)">Low</div>
-        </div>
-        <div class="score-bar-row">
-          <div class="score-bar-label">디자인 변경</div>
-          <div class="score-bar"><div class="score-bar-fill" style="background:var(--yellow);width:55%"></div></div>
-          <div class="score-val" style="color:var(--yellow)">Med</div>
-        </div>
-        <div class="score-bar-row">
-          <div class="score-bar-label">DB/API 연동</div>
-          <div class="score-bar"><div class="score-bar-fill" style="background:var(--red);width:95%"></div></div>
-          <div class="score-val" style="color:var(--red)">High</div>
-        </div>
-        <div class="score-bar-row">
-          <div class="score-bar-label">반응형 최적화</div>
-          <div class="score-bar"><div class="score-bar-fill" style="background:var(--yellow);width:50%"></div></div>
-          <div class="score-val" style="color:var(--yellow)">Med</div>
-        </div>
-      </div>
-      <div class="card-sm" style="background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)">
-        <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">⚠️ 비용 추정의 한계</div>
-        <div style="font-size:11px;color:var(--t3);line-height:1.7">AI 비용 추정은 <b style="color:var(--t2)">참고값</b>입니다. 실제 청구 금액은 PM이 확정합니다. 추정값은 "근거 제시용"으로만 사용하고, 클라이언트에게 직접 전달되지 않습니다.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb20">손익 계산 공식</div>
-  <div class="g2 mb28">
-    <div class="policy" style="border-left-color:var(--cyan)">
-      <div class="policy-title">💡 프로젝트 손익 계산</div>
-      <div class="policy-rule">
+      <div class="policy" style="border-left-color:var(--cyan)">
+        <div class="policy-title">💡 프로젝트 손익 계산</div>
+        <div class="policy-rule">
 예상 매출  = contract_amount<br>
 예상 인건비 = Σ(daily_hours × hourly_rate)<br>
 예상 이익  = 예상 매출 - 예상 인건비<br>
 <br>
-추가 청구 가능액 = Σ(out_of_scope × estimated_cost)<br>
-실제 청구 성공액 = Σ(billing_records.actual_amount)<br>
-<br>
-청구 성공률 = 실제 청구 성공액 / 추가 청구 가능액 × 100%<br>
-<br>
-총 예상 이익 = 예상 이익 + 실제 청구 성공액
-      </div>
-    </div>
-    <div class="policy" style="border-left-color:var(--purple)">
-      <div class="policy-title">📊 대시보드 집계 규칙</div>
-      <div class="policy-rule">
-일일 시간 입력: daily_logs 테이블에 기록<br>
-→ 프로젝트 총 시간: SUM(daily_logs.hours)<br>
-<br>
-시급 변경 시: 이전 기록은 변경 전 시급 유지<br>
-→ hourly_rate는 daily_log 저장 시 스냅샷<br>
-<br>
-범위 외 요청 집계: judgment = out_of_scope<br>
-→ is_deleted = false 필터 적용<br>
-<br>
-청구 성공률: result = 'success' 건수 / 전체 시도 건수
+추가 청구 가능액 = Σ(out_of_scope × estimated_cost)
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="sec mb20">비용 표시 정책</div>
-  <div class="g3">
-    <div class="card-sm" style="border-top:3px solid var(--green)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">✅ PM 내부용 표시</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">대시보드, 히스토리 화면에서 예상 비용 전체 표시. 정확한 수치보다 "규모 파악"이 목적.</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--yellow)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">⚠️ 공유 리포트 표시</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">클라이언트용 공유 링크에는 "AI 추정값" 면책 문구 필수. PM이 금액 조정 후 공유 권장.</div>
-    </div>
-    <div class="card-sm" style="border-top:3px solid var(--blue)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">🔒 숨김 처리</div>
-      <div style="font-size:11px;color:var(--t3);line-height:1.7">시급(hourly_rate), 실제 청구 성공액은 공유 리포트에서 숨김. 에이전시 내부 수익 정보 보호.</div>
-    </div>
-  </div>
-
 </div>
 
 
-<!-- ═══════════ 데이터 정책 ═══════════ -->
-<div class="page" id="page-data">
-
-  <div class="sec mb20">데이터 보존 & 삭제 정책</div>
-  <div class="tl mb28">
-    <div class="tl-item">
-      <div class="tl-dot" style="background:rgba(79,128,255,.25);color:var(--blue)">▶</div>
-      <div class="tl-content">
-        <div class="tl-title">생성 시점 — 즉시 보존</div>
-        <div class="tl-desc">모든 change_requests, billing_records는 생성 즉시 Supabase에 저장. 절대 자동 삭제 없음. 에이전시의 분쟁 대비 증거 자료로 활용 가능.</div>
-        <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
-          <span class="tag tag-green">영구 보존</span><span class="tag tag-gray">audit log</span>
-        </div>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot" style="background:rgba(245,158,11,.25);color:var(--yellow)">⏱</div>
-      <div class="tl-content">
-        <div class="tl-title">공유 리포트 만료 — 사용자 설정</div>
-        <div class="tl-desc">share_expires_at 기준. 만료 시 공개 접근 차단, 내부 데이터는 유지. 기본값 7일, null 설정 시 무기한 공개.</div>
-        <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
-          <span class="tag tag-yellow">만료 시 public 차단</span><span class="tag tag-gray">내부 데이터 유지</span>
-        </div>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot" style="background:rgba(239,68,68,.25);color:var(--red)">🗑</div>
-      <div class="tl-content">
-        <div class="tl-title">계정 삭제 — 90일 유예</div>
-        <div class="tl-desc">사용자가 탈퇴 요청 시 90일 유예 기간 후 데이터 완전 삭제. 유예 기간 중 취소 가능. GDPR/개인정보보호법 대응.</div>
-        <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
-          <span class="tag tag-red">90일 유예</span><span class="tag tag-gray">취소 가능</span>
-        </div>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot" style="background:rgba(16,185,129,.25);color:var(--green)">✓</div>
-      <div class="tl-content">
-        <div class="tl-title">계약서 원본 텍스트 — 분리 저장</div>
-        <div class="tl-desc">contract_text(원본)와 scope_summary(AI 요약)를 분리 저장. 원본은 재분석 가능하도록 보존. 요약만 판정에 활용.</div>
-        <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
-          <span class="tag tag-green">원본 보존</span><span class="tag tag-cyan">요약 캐시</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb20">접근 권한 정책 (Permission Matrix)</div>
-  <div class="matrix mb28">
-    <div class="mx-cell mx-header"></div>
-    <div class="mx-cell mx-header">owner (에이전시 대표)</div>
-    <div class="mx-cell mx-header">pm (프로젝트 매니저)</div>
-    <div class="mx-cell mx-header">viewer (클라이언트/공유)</div>
-
-    <div class="mx-cell mx-row-label">프로젝트 생성/삭제</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-yellow">생성만</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-
-    <div class="mx-cell mx-row-label">판정 요청</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-
-    <div class="mx-cell mx-row-label">판정 오버라이드</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-
-    <div class="mx-cell mx-row-label">손익 대시보드</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 전체</span></div>
-    <div class="mx-cell"><span class="tag tag-yellow">본인 프로젝트</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-
-    <div class="mx-cell mx-row-label">리포트 공유</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-
-    <div class="mx-cell mx-row-label">공유 리포트 열람</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-cyan">토큰 필요</span></div>
-
-    <div class="mx-cell mx-row-label">시급 설정</div>
-    <div class="mx-cell"><span class="tag tag-green">✓ 가능</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-    <div class="mx-cell"><span class="tag tag-red">✗ 불가</span></div>
-  </div>
-
-  <div class="sec mb16">민감 데이터 처리 정책</div>
-  <div class="policy mb12">
-    <div class="policy-title">🔐 계약서 텍스트 처리</div>
-    <div class="policy-desc">계약서 원본 텍스트는 Claude API로 전송 후 즉시 AI 요약(scope_summary)으로 대체됩니다. API 전송 시 Anthropic 데이터 처리 방침에 따라 처리됩니다.</div>
-    <div class="policy-rule">
-- Claude API 전송: 계약서 텍스트 (일회성, 캐시 안 함)<br>
-- 저장: scope_summary JSONB만 DB에 영구 저장<br>
-- 원본 텍스트: 사용자 요청 시 삭제 가능 (contract_text = null)
-    </div>
-  </div>
-  <div class="policy">
-    <div class="policy-title">👁 공유 리포트 개인정보</div>
-    <div class="policy-desc">공유 링크는 인증 없이 접근 가능하므로 개인정보 최소화 원칙을 적용합니다.</div>
-    <div class="policy-rule">
-공개 허용: 요청 내용, 판정 결과, 근거, 예상 비용, 날짜<br>
-공개 차단: 에이전시 시급, PM 이름, 실제 청구 성공/실패 이력<br>
-선택 공개: 프로젝트명, 클라이언트명 (PM이 마스킹 선택 가능)
-    </div>
-  </div>
-
-</div>
-
-
-<!-- ═══════════ 피드백 루프 ═══════════ -->
 <div class="page" id="page-feedback">
+  <div class="sec mb20">PMF 가설 검증 및 피드백 사이클 (사전 인터뷰 대체)</div>
+  <div class="policy mb20" style="border-left-color:var(--orange)">
+    <div class="policy-title">🚀 Lean Execution 원칙</div>
+    <div class="policy-desc">고객 인터뷰를 생략한 만큼, 현재의 AI 판정 로직과 UI 플로우는 '우리의 가설'입니다. 베타 유저의 행동 데이터와 수동 개입(Override) 패턴을 실시간으로 추적하여 제품의 방향이 현업 에이전시의 니즈와 맞는지 4주 내에 판별합니다.</div>
+  </div>
 
-  <div class="sec mb20">AI 판정 품질 개선 사이클</div>
   <div class="g2 mb28">
     <div class="flow">
       <div class="flow-step">
         <div class="flow-num" style="background:rgba(16,185,129,.2);color:var(--green)">1</div>
         <div class="flow-body">
-          <div class="flow-title">PM 피드백 수집</div>
-          <div class="flow-desc">AI 판정 결과 하단에 "맞음 👍 / 틀림 👎" 버튼 제공. 틀린 경우 올바른 판정과 이유 입력 유도.</div>
-          <div class="flow-tags"><span class="tag tag-green">feedback 컬럼</span><span class="tag tag-gray">feedback_reason</span></div>
+          <div class="flow-title">핵심 이탈 및 마찰 지점 수집 (Analytics)</div>
+          <div class="flow-desc">판정 결과(unclear 등)가 나왔을 때 사용자가 '재판정'을 누르는지, '수동 수정(Override)'을 하는지, 아니면 '이탈'하는지 Mixpanel 이벤트로 적재합니다.</div>
+          <div class="flow-tags"><span class="tag tag-green">이벤트 트래킹</span><span class="tag tag-gray">행동 기반 검증</span></div>
         </div>
       </div>
       <div class="flow-step">
         <div class="flow-num" style="background:rgba(79,128,255,.2);color:var(--blue)">2</div>
         <div class="flow-body">
-          <div class="flow-title">정확도 지표 자동 집계</div>
-          <div class="flow-desc">feedback = 'correct' 비율을 주간 단위로 자동 계산. 목표치(80%) 미달 시 프롬프트 개선 신호로 활용.</div>
-          <div class="flow-tags"><span class="tag tag-blue">weekly metric</span></div>
+          <div class="flow-title">PM 수동 개입(Override) 패턴 분석</div>
+          <div class="flow-desc">AI가 판정한 결과를 PM이 얼마나 자주 뒤집는지 파악합니다. 수동 변경 비율이 30%를 넘는다면 판정 로직 가설이 틀렸다는 신호입니다.</div>
+          <div class="flow-tags"><span class="tag tag-blue">가설 기각 판별기</span></div>
         </div>
       </div>
       <div class="flow-step">
         <div class="flow-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">3</div>
         <div class="flow-body">
-          <div class="flow-title">오류 패턴 분류</div>
-          <div class="flow-desc">feedback = 'wrong'인 케이스를 모아 공통 패턴 분석. "한국 에이전시 관행 표현", "페이지 수 계산 오류" 등 카테고리로 분류.</div>
-          <div class="flow-tags"><span class="tag tag-yellow">패턴 분석</span></div>
+          <div class="flow-title">명시적 피드백 수집 (마이크로 서베이)</div>
+          <div class="flow-desc">인터뷰를 대체하기 위해 앱 내에 자연스러운 피드백 버튼("이 판정이 합리적인가요?")을 배치하여, 맥락에 맞는 구체적 이유(feedback_reason)를 수집합니다.</div>
+          <div class="flow-tags"><span class="tag tag-yellow">정성적 데이터 확보</span></div>
         </div>
       </div>
       <div class="flow-step">
         <div class="flow-num" style="background:rgba(168,85,247,.2);color:var(--purple)">4</div>
         <div class="flow-body">
-          <div class="flow-title">프롬프트 개선 (주 1회)</div>
-          <div class="flow-desc">오류 케이스를 Few-shot 예시로 프롬프트에 추가. 최대 5개 예시 유지 (토큰 절약). 개선 후 테스트 케이스 재검증.</div>
-          <div class="flow-tags"><span class="tag tag-purple">Few-shot 추가</span><span class="tag tag-gray">프롬프트 버전 관리</span></div>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num" style="background:rgba(6,182,212,.2);color:var(--cyan)">5</div>
-        <div class="flow-body">
-          <div class="flow-title">A/B 테스트 (Phase 2)</div>
-          <div class="flow-desc">사용자를 두 그룹으로 나누어 프롬프트 버전 비교. 정확도가 높은 버전으로 전환. 베타 이후 단계에서 적용.</div>
-          <div class="flow-tags"><span class="tag tag-cyan">Phase 2</span></div>
+          <div class="flow-title">빠른 로직 피벗 (주 1회)</div>
+          <div class="flow-desc">수집된 행동 데이터와 정성 피드백을 바탕으로 Claude 시스템 프롬프트를 즉각 수정하거나, 불필요한 기능을 과감히 폐기(Drop)합니다.</div>
+          <div class="flow-tags"><span class="tag tag-purple">Prompt Update</span><span class="tag tag-gray">Feature Drop</span></div>
         </div>
       </div>
     </div>
+    
     <div>
-      <div class="score-card mb12">
-        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:14px">목표 정확도 로드맵</div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-              <span style="font-size:11px;color:var(--t3)">MVP 론칭 (W12)</span>
-              <span style="font-size:11px;font-weight:700;color:var(--yellow)">70%</span>
-            </div>
-            <div class="score-bar"><div class="score-bar-fill" style="background:var(--yellow);width:70%"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-              <span style="font-size:11px;color:var(--t3)">베타 1개월 (M+1)</span>
-              <span style="font-size:11px;font-weight:700;color:var(--orange)">80%</span>
-            </div>
-            <div class="score-bar"><div class="score-bar-fill" style="background:var(--orange);width:80%"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-              <span style="font-size:11px;color:var(--t3)">PMF 달성 후 (M+3)</span>
-              <span style="font-size:11px;font-weight:700;color:var(--green)">90%</span>
-            </div>
-            <div class="score-bar"><div class="score-bar-fill" style="background:var(--green);width:90%"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-              <span style="font-size:11px;color:var(--t3)">Fine-tuning 적용 (M+6)</span>
-              <span style="font-size:11px;font-weight:700;color:var(--cyan)">95%+</span>
-            </div>
-            <div class="score-bar"><div class="score-bar-fill" style="background:var(--cyan);width:95%"></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="card-sm" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)">
-        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px">📈 피드백 데이터 활용 계획</div>
-        <div style="font-size:11px;color:var(--t3);line-height:1.7">
-          베타 사용자 100건 피드백 누적 시 → Fine-tuning 데이터셋 준비.<br>
-          500건 이상 → 자체 판정 모델 fine-tuning 검토.<br>
-          이 데이터가 Scope Manager의 <b style="color:var(--t2)">핵심 기술 자산</b>이 됨.
-        </div>
+      <div class="card-sm mb12" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)">
+        <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">🚨 피드백 기반 치명적 경고 신호 (Red Flags)</div>
+        <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:8px">다음 조건 충족 시 타겟 고객 또는 제품 핵심 가설의 전면 재검토가 필요합니다:</div>
+        <ul style="font-size:11px;color:var(--t2);line-height:1.6;padding-left:16px;margin-bottom:6px">
+          <li>계약서 입력 단계 이탈률 > 60% (입력 허들이 너무 높음)</li>
+          <li>판정 후 리포트 생성 전환율 &lt; 10% (판정 결과의 실무 활용도 낮음)</li>
+          <li>AI 판정에 대한 수동 Override 비율 > 40% (로직 신뢰성 붕괴)</li>
+        </ul>
       </div>
     </div>
   </div>
-
-  <div class="sec mb16">피드백 데이터 수집 정책</div>
-  <div class="policy" style="border-left-color:var(--green)">
-    <div class="policy-title">🎯 피드백 수집 원칙</div>
-    <div class="policy-rule">
-1. 피드백은 <span style="color:var(--green)">선택사항</span> — 강제하면 피로감 유발, 자연스럽게 유도<br>
-2. "틀림" 선택 시 올바른 판정 이유 입력 요청 (텍스트, 50자 이내 권장)<br>
-3. 피드백 데이터는 <span style="color:var(--green)">익명화</span> 후 프롬프트 개선에만 사용<br>
-4. 사용자 탈퇴 시 피드백 원문 삭제, 통계만 익명으로 보존<br>
-5. feedback_reason은 <span style="color:var(--yellow)">한국어</span>로 수집 (프롬프트 한국어 컨텍스트 강화)
-    </div>
-  </div>
-
 </div>
 
 
-<!-- ═══════════ 예외 처리 ═══════════ -->
+<div class="page" id="page-data">
+  <div class="sec mb16">민감 데이터 및 이벤트 트래킹 정책</div>
+  <div class="policy mb12">
+    <div class="policy-title">🔐 MVP 행동 데이터 트래킹 (Analytics)</div>
+    <div class="policy-desc">사전 인터뷰 부재로 인한 블랙박스를 해소하기 위해, 사용자의 모든 주요 의사결정 지점을 이벤트로 기록합니다. (개인정보보호법을 준수하여 철저히 익명/비식별화 처리)</div>
+    <div class="policy-rule">
+- 트래킹 도구: Mixpanel 또는 Amplitude (클라이언트 사이드)<br>
+- 핵심 이벤트 로그:<br>
+  1. `project_created` (계약 금액, 입력 방식)<br>
+  2. `judgment_requested` (판정 소요 시간, 결과 상태 - in/out/unclear)<br>
+  3. `judgment_overridden` (AI 원본 값 vs PM 수정 값)<br>
+  4. `report_shared` (리포트 생성 및 공유 버튼 클릭 여부)
+    </div>
+  </div>
+</div>
+
+
 <div class="page" id="page-edge">
-
   <div class="sec mb20">예외 케이스 & 처리 방법</div>
-
   <div class="exc-item">
     <div class="exc-head">
       <span class="tag tag-red">API 오류</span>
       <div class="exc-title">Claude API 호출 실패 / 타임아웃</div>
     </div>
-    <div class="exc-body">Claude API가 5초 이상 응답 없거나 HTTP 500 에러 반환 시. 네트워크 이슈, Anthropic 서버 장애 등.</div>
-    <div class="exc-resolution">1회 자동 재시도 (2초 후). 재시도도 실패 시 judgment = "unclear"로 저장. PM에게 "일시적 오류, 잠시 후 재판정 요청" 안내 토스트 표시.</div>
+    <div class="exc-body">Claude API가 5초 이상 응답 없거나 HTTP 500 에러 반환 시.</div>
+    <div class="exc-resolution">1회 자동 재시도. 재시도도 실패 시 judgment = "unclear"로 저장. "일시적 오류" 안내 토스트 표시.</div>
   </div>
-
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-red">파싱 오류</span>
-      <div class="exc-title">Claude 응답이 유효한 JSON이 아닌 경우</div>
-    </div>
-    <div class="exc-body">Temperature 0.2에서도 간혹 JSON 앞뒤에 설명 문구가 붙거나, 중첩 따옴표 오류로 파싱 실패가 발생할 수 있음.</div>
-    <div class="exc-resolution">응답에서 JSON 블록 정규식으로 추출 시도. 추출 실패 시 1회 재호출 (프롬프트에 "반드시 JSON만" 강조). 2회 실패 시 unclear 폴백.</div>
-  </div>
-
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-yellow">빈 계약서</span>
-      <div class="exc-title">scope_summary 미생성 상태에서 판정 요청</div>
-    </div>
-    <div class="exc-body">사용자가 계약서를 입력하지 않고 프로젝트를 생성한 후 바로 요청 판정을 시도하는 경우.</div>
-    <div class="exc-resolution">API 레벨에서 400 에러 반환. UI에서 "계약 범위를 먼저 입력해주세요" 안내 + 계약서 입력 화면으로 이동 버튼 표시.</div>
-  </div>
-
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-yellow">중복 요청</span>
-      <div class="exc-title">동일/유사 요청 텍스트 재입력</div>
-    </div>
-    <div class="exc-body">PM이 같은 내용을 실수로 두 번 입력하거나, 이전에 판정받은 내용과 매우 유사한 요청을 다시 입력.</div>
-    <div class="exc-resolution">최근 7일 내 유사도 85% 이상 요청 감지 시 "이전에 유사한 요청이 있습니다" 경고 + 기존 판정 결과 링크 제공. 무시하고 재판정도 가능.</div>
-  </div>
-
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-orange">매우 긴 요청</span>
-      <div class="exc-title">요청 텍스트 1,000자 초과</div>
-    </div>
-    <div class="exc-body">PM이 여러 요청을 한꺼번에 붙여넣거나, 클라이언트 이메일 전체를 복붙하는 경우. 토큰 초과 및 판정 정확도 저하 우려.</div>
-    <div class="exc-resolution">UI에서 입력 중 500자 경고, 800자 강제 줄임 권고. 1,000자 초과 시 "요청을 개별 항목으로 나눠주세요" 안내. API에서도 1,000자 하드 제한.</div>
-  </div>
-
   <div class="exc-item">
     <div class="exc-head">
       <span class="tag tag-purple">PM 오버라이드</span>
       <div class="exc-title">AI 판정과 다른 결정을 PM이 직접 내림</div>
     </div>
-    <div class="exc-body">AI가 "범위 내"로 판정했지만 PM 경험상 "범위 외"인 경우, 또는 그 반대. 한국 에이전시 관행적 표현에서 자주 발생.</div>
-    <div class="exc-resolution">judgment_original 컬럼에 AI 원본값 보존. judgment 컬럼을 PM 판정값으로 업데이트. override_reason 필드 기록. 이 케이스를 피드백 학습 데이터로 자동 수집.</div>
+    <div class="exc-body">AI가 "범위 내"로 판정했지만 PM 경험상 "범위 외"인 경우.</div>
+    <div class="exc-resolution">judgment_original 컬럼에 AI 원본값 보존. judgment 컬럼 업데이트. override_reason 기록하여 피드백 데이터 수집.</div>
   </div>
-
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-cyan">공유 링크 만료</span>
-      <div class="exc-title">만료된 공유 링크 접근</div>
-    </div>
-    <div class="exc-body">클라이언트가 만료된 공유 링크로 접근하거나, PM이 공유를 철회한 경우.</div>
-    <div class="exc-resolution">공개 엔드포인트에서 share_expires_at < now() 확인 후 404 반환. 클라이언트에게 "링크가 만료되었습니다. 담당자에게 문의하세요." 안내 페이지 표시.</div>
-  </div>
-
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-gray">일일 한도 초과</span>
-      <div class="exc-title">무료 플랜 일일 판정 한도 초과</div>
-    </div>
-    <div class="exc-body">무료 플랜 사용자가 5건/일 한도를 초과하여 추가 판정을 요청.</div>
-    <div class="exc-resolution">API에서 429 반환. UI에서 "오늘의 판정 횟수를 모두 사용했습니다. (5/5)" + 유료 플랜 업그레이드 CTA 표시. 한국 시간 자정 기준 초기화.</div>
-  </div>
-
 </div>
-
 
 <script>
 function go(id, el) {
