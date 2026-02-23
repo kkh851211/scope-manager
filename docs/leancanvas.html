@@ -14,7 +14,7 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
 .logo b { color:#4f80ff; }
 .header-meta { font-size:11px; color:#5a6478; display:flex; align-items:center; gap:16px; }
 .header-meta span { display:flex; align-items:center; gap:5px; }
-.dot { width:7px; height:7px; border-radius:50%; background:#4f80ff; animation:pulse 2s infinite; }
+.dot { width:7px; height:7px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 .view-btns { display:flex; gap:4px; }
 .vbtn { padding:5px 12px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid #2e3748; background:none; color:#8c95aa; transition:.15s; }
@@ -143,13 +143,12 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div>
-    <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:#5a6478;font-weight:400;">린 캔버스 2026.02</span></div>
+    <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:#5a6478;font-weight:400;">린 캔버스 v1.1</span></div>
   </div>
   <div class="header-meta">
-    <span><div class="dot"></div>초안 · 검증 진행 중</span>
+    <span><div class="dot"></div>초고속 MVP 빌드 및 클로즈드 베타 전환</span>
   </div>
   <div class="view-btns">
     <button class="vbtn active" onclick="switchView('canvas',this)">캔버스</button>
@@ -157,11 +156,9 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
   </div>
 </div>
 
-<!-- ── CANVAS VIEW ── -->
 <div class="canvas-wrap" id="view-canvas">
   <div class="canvas">
 
-    <!-- 문제 -->
     <div class="cell c-problem" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">⚡</span> 문제</div>
       <div class="items">
@@ -179,7 +176,6 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       </div>
     </div>
 
-    <!-- 솔루션 -->
     <div class="cell c-solution" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">🛠</span> 솔루션</div>
       <div class="items">
@@ -190,7 +186,6 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       </div>
     </div>
 
-    <!-- UVP -->
     <div class="cell c-uvp" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">💜</span> 핵심 가치 제안</div>
       <div class="uvp-headline">💬 '돈 달라는<br>아쉬운 소리를,<br>기계가 대신해 준다'</div>
@@ -209,17 +204,15 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       </div>
     </div>
 
-    <!-- 차별화 -->
     <div class="cell c-advantage" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">⚡</span> 경쟁 우위</div>
       <div class="items">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>업계 단가 표준화</b> 선점 가능성</div></div>
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>초고속 MVP 실행력</b><span class="sub">AI 통합 IDE 기반 6주 배포</span></div></div>
         <div class="item"><div class="item-dot"></div><div class="item-text"><b>현직 PM 실무 경험</b> 기반 설계<span class="sub">감정 노동 구조를 정확히 이해</span></div></div>
         <div class="item"><div class="item-dot"></div><div class="item-text"><b>'청구 근거 생성' 도구</b>로<br>명확한 포지셔닝</div></div>
       </div>
     </div>
 
-    <!-- 고객 세그먼트 -->
     <div class="cell c-segment" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">👥</span> 고객 세그먼트</div>
       <div class="items">
@@ -227,7 +220,7 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
         <div class="item"><div class="item-dot"></div><div class="item-text"><b>PM을 겸하는 에이전시 대표</b></div></div>
       </div>
       <div style="margin-top:12px;padding-top:10px;border-top:1px solid #2e3748;">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#10b981;margin-bottom:7px;">🌱 얼리어답터</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#10b981;margin-bottom:7px;">🌱 얼리어답터 (CBT 타겟)</div>
         <div class="items">
           <div class="item"><div class="item-dot"></div><div class="item-text">PM 커뮤니티 활동 참여자</div></div>
           <div class="item"><div class="item-dot"></div><div class="item-text">추가 청구 실패 경험이 있는 실무자</div></div>
@@ -235,9 +228,8 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       </div>
     </div>
 
-    <!-- 핵심 지표 -->
     <div class="cell c-metrics" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">📊</span> 핵심 지표</div>
+      <div class="cell-label"><span class="cell-label-icon">📊</span> 핵심 지표 (베타 검증용)</div>
       <div class="metric-cards">
         <div class="mc"><div class="mc-num">지표 01</div><div class="mc-text"><b>실제 추가 청구 시도 건수</b></div></div>
         <div class="mc"><div class="mc-num">지표 02</div><div class="mc-text"><b>일 평균 입력 완료율</b> — 습관 형성 지표</div></div>
@@ -246,29 +238,26 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       </div>
     </div>
 
-    <!-- 채널 -->
     <div class="cell c-channels" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">📣</span> 채널</div>
       <div class="items">
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>클로즈드 베타 섭외 (콜드메일)</b><span class="sub">작동하는 MVP로 직접 제안</span></div></div>
         <div class="item"><div class="item-dot"></div><div class="item-text"><b>링크드인 콘텐츠 마케팅</b></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>PM 오픈채팅방·커뮤니티</b><span class="sub">직접 접근</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>에이전시 협회·네트워크 행사</b></div></div>
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>PM 오픈채팅방·커뮤니티</b></div></div>
         <div class="item"><div class="item-dot"></div><div class="item-text"><b>'Anti-Gaslighting Sheet'</b><span class="sub">리드 마그넷</span></div></div>
       </div>
     </div>
 
-    <!-- 비용 구조 -->
     <div class="cell c-cost" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">💸</span> 비용 구조</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>커뮤니티 마케팅 운영</b></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>제품 개발</b> (MVP 구축)</div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>AI 판정 엔진</b> API 비용</div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>고객 인터뷰·검증 비용</b></div></div>
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>클로즈드 베타 운영 및 리워드</b></div></div>
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>초고속 MVP 빌드</b> (AI IDE 활용)</div></div>
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>AI API 토큰 비용</b> (Full Context)</div></div>
+        <div class="item"><div class="item-dot"></div><div class="item-text"><b>인프라 호스팅 비용</b> (Supabase)</div></div>
       </div>
     </div>
 
-    <!-- 수익 구조 -->
     <div class="cell c-revenue" onclick="toggleCell(this)">
       <div class="cell-label"><span class="cell-label-icon">💰</span> 수익 구조</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;">
@@ -290,7 +279,6 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
   </div>
 </div>
 
-<!-- ── CARDS VIEW ── -->
 <div class="alt-view cards-wrap" id="view-cards">
   <div class="cards-grid">
     <div class="card-big">
@@ -318,8 +306,8 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       <div class="cb-items">
         <div class="cb-item"><span class="cb-icon">🏢</span>국내 웹 에이전시 PM (5~20인 규모)</div>
         <div class="cb-item"><span class="cb-icon">👤</span>PM을 겸하는 에이전시 대표</div>
-        <div class="cb-item"><span class="cb-icon">🌱</span>얼리어답터: PM 커뮤니티 활동 참여자</div>
-        <div class="cb-item"><span class="cb-icon">🌱</span>얼리어답터: 추가 청구 실패 경험이 있는 실무자</div>
+        <div class="cb-item"><span class="cb-icon">🌱</span>CBT 타겟: PM 커뮤니티 활동 참여자</div>
+        <div class="cb-item"><span class="cb-icon">🌱</span>CBT 타겟: 추가 청구 실패 경험이 있는 실무자</div>
       </div>
     </div>
     <div class="card-big">
@@ -336,17 +324,17 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       <div class="cb-label">📊 핵심 지표</div>
       <div class="cb-title">무엇으로 검증하는가</div>
       <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">📈</span>실제 추가 청구 시도 건수</div>
+        <div class="cb-item"><span class="cb-icon">📈</span>실제 추가 청구 시도 건수 (베타 검증)</div>
         <div class="cb-item"><span class="cb-icon">🔁</span>일 평균 입력 완료율 (습관 형성 지표)</div>
         <div class="cb-item"><span class="cb-icon">🔍</span>범위 초과 감지 건수 / 월</div>
         <div class="cb-item"><span class="cb-icon">⭐</span>청구 성공률 (핵심 가치 검증)</div>
       </div>
     </div>
     <div class="card-big">
-      <div class="cb-label">⚡ 경 우위</div>
+      <div class="cb-label">⚡ 경쟁 우위</div>
       <div class="cb-title">왜 우리인가</div>
       <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">🏆</span>업계 변경 관리 단가 표준화 선점 가능성</div>
+        <div class="cb-item"><span class="cb-icon">🚀</span>초고속 MVP 실행력 (AI 통합 IDE 기반 6주 배포)</div>
         <div class="cb-item"><span class="cb-icon">💼</span>현직 PM 실무 경험 기반 설계 — 감정 노동 구조를 정확히 이해</div>
         <div class="cb-item"><span class="cb-icon">🎯</span>'청구 근거 생성' 도구로 명확한 포지셔닝</div>
       </div>
@@ -355,9 +343,9 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       <div class="cb-label">📣 채널</div>
       <div class="cb-title">어떻게 고객에게 닿는가</div>
       <div class="cb-items">
+        <div class="cb-item"><span class="cb-icon">✉️</span>클로즈드 베타 직접 섭외 (작동하는 MVP로 콜드메일 제안)</div>
         <div class="cb-item"><span class="cb-icon">🔗</span>링크드인 콘텐츠 마케팅</div>
-        <div class="cb-item"><span class="cb-icon">💬</span>PM 오픈채팅방·커뮤니티 (직접 접근)</div>
-        <div class="cb-item"><span class="cb-icon">🤝</span>에이전시 협회·네트워크 행사</div>
+        <div class="cb-item"><span class="cb-icon">💬</span>PM 오픈채팅방·커뮤니티</div>
         <div class="cb-item"><span class="cb-icon">🎁</span>'Anti-Gaslighting Sheet' 리드 마그넷</div>
       </div>
     </div>
@@ -365,10 +353,10 @@ body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f
       <div class="cb-label">💸 비용 구조</div>
       <div class="cb-title">무엇에 돈이 드는가</div>
       <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">📢</span>커뮤니티 마케팅 운영</div>
-        <div class="cb-item"><span class="cb-icon">💻</span>제품 개발 (MVP 구축)</div>
-        <div class="cb-item"><span class="cb-icon">🤖</span>AI 판정 엔진 API 비용</div>
-        <div class="cb-item"><span class="cb-icon">🎤</span>고객 인터뷰·검증 비용</div>
+        <div class="cb-item"><span class="cb-icon">🧪</span>클로즈드 베타 테스트 운영 및 리워드</div>
+        <div class="cb-item"><span class="cb-icon">💻</span>초고속 MVP 빌드 (AI IDE 활용)</div>
+        <div class="cb-item"><span class="cb-icon">🤖</span>AI 판정 엔진 API 토큰 비용 (Full Context 주입)</div>
+        <div class="cb-item"><span class="cb-icon">⚙️</span>인프라 호스팅 비용 (Supabase 등)</div>
       </div>
     </div>
     <div class="card-big">
