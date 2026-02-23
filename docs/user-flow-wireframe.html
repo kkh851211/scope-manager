@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI — 유저 플로우 & 와이어프레임</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --s1: #1a1f2e;
+  --s2: #1e2538;
+  --s3: #232b3e;
+  --t1: #e8eaf0;
+  --t2: #b0b8cc;
+  --t3: #8c95aa;
+  --bd: #232b3e;
+  --blue: #4f80ff;
+  --green: #10b981;
+  --purple: #7c5cfc;
+  --orange: #f59e0b;
+  --red: #ef4444;
+}
+body.light {
+  --bg: #f5f7fa;
+  --s1: #ffffff;
+  --s2: #eef1f7;
+  --s3: #e2e8f0;
+  --t1: #1a1f2e;
+  --t2: #3a4258;
+  --t3: #5a6478;
+  --bd: #d1d9e6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);transition:background .2s,color .2s;min-height:100vh;font-size:14px;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:background .2s;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;}
+.logo-text{font-size:18px;font-weight:700;color:var(--t1);}
+.logo-text span{color:var(--blue);}
+.badges{display:flex;gap:6px;align-items:center;}
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);}
+.badge.green{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border-color:color-mix(in srgb,var(--green) 30%,transparent);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.toggle-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:5px 11px;cursor:pointer;font-size:13px;color:var(--t1);transition:background .2s;}
+.toggle-btn:hover{background:var(--bd);}
+
+/* NAV */
+nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;overflow-x:auto;transition:background .2s;}
+nav::-webkit-scrollbar{height:0;}
+.tab{padding:14px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;user-select:none;}
+.tab:hover{color:var(--t2);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* MAIN */
+main{padding:28px 24px;max-width:1140px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* SECTION HEADER */
+.sec-hd{margin-bottom:20px;}
+.sec-hd h2{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.sec-hd p{font-size:13px;color:var(--t3);line-height:1.6;}
+
+/* CARD */
+.card{background:var(--s1);border-radius:12px;padding:18px;border:1px solid var(--bd);transition:background .2s,border-color .2s;}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:12px;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.span2{grid-column:span 2;}
+.gap{height:14px;}
+
+/* TAG */
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;}
+.tag-blue{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue);}
+.tag-green{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);}
+.tag-purple{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple);}
+.tag-orange{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange);}
+.tag-red{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red);}
+.tag-t3{background:var(--s2);color:var(--t3);}
+
+/* ─── FLOW DIAGRAM ─── */
+.flow-wrap{overflow-x:auto;padding-bottom:8px;}
+.flow{display:flex;align-items:flex-start;gap:0;min-width:600px;}
+.flow-col{display:flex;flex-direction:column;align-items:center;gap:0;}
+.fnode{
+  background:var(--s2);border:1px solid var(--bd);border-radius:10px;
+  padding:10px 12px;text-align:center;width:120px;position:relative;
+  transition:background .2s;
+}
+.fnode.primary{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,transparent);}
+.fnode.success{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,transparent);}
+.fnode.warn{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 10%,transparent);}
+.fnode.danger{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent);}
+.fnode.purple{border-color:var(--purple);background:color-mix(in srgb,var(--purple) 10%,transparent);}
+.fnode .fn-ico{font-size:18px;margin-bottom:4px;}
+.fnode .fn-lbl{font-size:11px;font-weight:700;color:var(--t1);margin-bottom:2px;}
+.fnode .fn-sub{font-size:10px;color:var(--t3);line-height:1.4;}
+/* arrows */
+.arr-h{display:flex;align-items:center;padding:0 6px;padding-top:22px;flex-shrink:0;}
+.arr-h::after{content:'→';font-size:16px;color:var(--t3);}
+.arr-v{display:flex;justify-content:center;width:100%;padding:4px 0;}
+.arr-v::after{content:'↓';font-size:14px;color:var(--t3);}
+.arr-branch{font-size:10px;color:var(--t3);text-align:center;padding:2px 0;}
+
+/* fork label */
+.fork-line{display:flex;align-items:center;gap:4px;padding:4px 0;}
+.fork-line .fl-bar{flex:1;height:1px;background:var(--bd);}
+.fork-line .fl-lbl{font-size:10px;color:var(--t3);white-space:nowrap;}
+
+/* ─── WIREFRAME ─── */
+.wf{border:2px dashed var(--bd);border-radius:10px;padding:14px;margin-bottom:10px;position:relative;}
+.wf-lbl{position:absolute;top:-9px;left:10px;background:var(--bg);padding:0 6px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;}
+body.light .wf-lbl{background:var(--bg);}
+.wf-row{display:flex;gap:8px;margin-top:8px;}
+.wf-box{flex:1;background:var(--s2);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--t2);text-align:center;border:1px solid var(--bd);}
+.wf-box.bl{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);font-weight:600;border-color:color-mix(in srgb,var(--blue) 30%,transparent);}
+.wf-box.gr{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);font-weight:600;border-color:color-mix(in srgb,var(--green) 30%,transparent);}
+.wf-box.or{background:color-mix(in srgb,var(--orange) 15%,transparent);color:var(--orange);font-weight:600;}
+.wf-box.pu{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple);font-weight:600;}
+.wf-textarea{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:10px;font-size:11px;color:var(--t3);min-height:52px;margin-top:8px;width:100%;}
+.wf-bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--blue) 30%,transparent);overflow:hidden;margin-top:6px;}
+.wf-bar-fill{height:100%;background:var(--blue);border-radius:3px;}
+.screen-shell{border:2px solid var(--bd);border-radius:12px;overflow:hidden;background:var(--bg);}
+.screen-topbar{background:var(--s1);padding:8px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.screen-topbar .dots{display:flex;gap:5px;}
+.screen-topbar .dot{width:9px;height:9px;border-radius:50%;}
+.dot-r{background:var(--red);}
+.dot-y{background:var(--orange);}
+.dot-g{background:var(--green);}
+.screen-body{padding:14px;}
+
+/* ANNOTATION */
+.ann{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+.ann-num{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ann-body strong{font-size:12px;color:var(--t1);}
+.ann-body p{font-size:11px;color:var(--t3);line-height:1.5;margin-top:2px;}
+
+/* DECISION NODE */
+.dnode{background:var(--s2);border:1px solid var(--orange);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--orange);font-weight:600;text-align:center;}
+
+/* STATE TABLE */
+.state-table{width:100%;border-collapse:collapse;font-size:12px;}
+.state-table th{background:var(--s2);color:var(--t3);font-weight:600;padding:8px 12px;text-align:left;border-bottom:1px solid var(--bd);}
+.state-table td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;}
+.state-table tr:last-child td{border-bottom:none;}
+
+/* PERSONA PILL */
+.persona{display:inline-flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--t2);}
+.persona .pa{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;}
+
+@media(max-width:700px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  main{padding:14px 12px;}
+  .tab{padding:12px 10px;font-size:11px;}
+  .fnode{width:100px;}
+}
+@media(max-width:900px){
+  .g3{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">M</div>
+    <div class="logo-text">My<span>ROI</span></div>
+    <div class="badges">
+      <span class="badge">유저 플로우</span>
+      <span class="badge green">와이어프레임</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+  </div>
+</header>
+
+<nav>
+  <div class="tab active" onclick="showTab('overview','this')">🗺️ 전체 플로우</div>
+  <div class="tab" onclick="showTab('onboarding','this')">👋 온보딩</div>
+  <div class="tab" onclick="showTab('core','this')">🤖 AI 환산기</div>
+  <div class="tab" onclick="showTab('pitchdeck','this')">📄 피치덱</div>
+  <div class="tab" onclick="showTab('dashboard','this')">📊 B2B 대시보드</div>
+  <div class="tab" onclick="showTab('states','this')">📋 화면 목록</div>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════
+     TAB 1 — 전체 플로우
+══════════════════════════════════════════ -->
+<div class="page active" id="page-overview">
+  <div class="sec-hd">
+    <h2>전체 유저 플로우</h2>
+    <p>두 페르소나(실무자 End-User / 경영진 Buyer)의 진입부터 핵심 가치 경험까지의 전체 경로</p>
+  </div>
+
+  <!-- 페르소나 구분 -->
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card" style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--blue) 20%,transparent);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👩‍💻</div>
+      <div>
+        <div class="tag tag-blue" style="margin-bottom:4px;">END-USER · 실무자</div>
+        <div style="font-size:12px;font-weight:600;color:var(--t1);">PM / 기획자 — 연봉 협상 준비 중</div>
+        <div style="font-size:11px;color:var(--t3);">블라인드·브런치 아티클 or 커뮤니티 단톡방 유입</div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--purple) 20%,transparent);border:2px solid var(--purple);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏢</div>
+      <div>
+        <div class="tag tag-purple" style="margin-bottom:4px;">BUYER · 경영진</div>
+        <div style="font-size:12px;font-weight:600;color:var(--t1);">CEO / HR — 핵심 인재 퇴사 경험</div>
+        <div style="font-size:11px;color:var(--t3);">콜드 메일 or 실무자 피치덱 수령 후 유입</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 플로우 다이어그램 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">End-User 메인 플로우 (MVP 핵심 경로)</div>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="flow-col">
+          <div class="fnode">
+            <div class="fn-ico">📲</div>
+            <div class="fn-lbl">유입</div>
+            <div class="fn-sub">블라인드/단톡/<br>콜드메일</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary">
+            <div class="fn-ico">🏠</div>
+            <div class="fn-lbl">랜딩 페이지</div>
+            <div class="fn-sub">Hero 공감<br>데모 체험</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary">
+            <div class="fn-ico">✍️</div>
+            <div class="fn-lbl">회원가입</div>
+            <div class="fn-sub">이메일/<br>소셜 로그인</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary">
+            <div class="fn-ico">📝</div>
+            <div class="fn-lbl">이슈 입력</div>
+            <div class="fn-sub">과거 3가지<br>자유 텍스트</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode warn">
+            <div class="fn-ico">🤖</div>
+            <div class="fn-lbl">AI 분석</div>
+            <div class="fn-sub">구조화 + 금액<br>산출 중...</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary">
+            <div class="fn-ico">💰</div>
+            <div class="fn-lbl">결과 검토</div>
+            <div class="fn-sub">금액 조정<br>캡처 첨부</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode success">
+            <div class="fn-ico">📄</div>
+            <div class="fn-lbl">피치덱 PDF</div>
+            <div class="fn-sub">원클릭 생성<br>다운로드</div>
+          </div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode success">
+            <div class="fn-ico">🎯</div>
+            <div class="fn-lbl">연봉 협상</div>
+            <div class="fn-sub">경영진에<br>제출</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 분기 플로우 -->
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="card-title">AI 분석 결과 분기</div>
+      <div class="flow-wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;min-width:280px;">
+          <div class="fnode warn" style="width:160px;">
+            <div class="fn-ico">🤖</div>
+            <div class="fn-lbl">AI 금액 산출 완료</div>
+          </div>
+          <div class="arr-v"></div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div class="tag tag-green" style="margin-bottom:4px;">수용</div>
+              <div class="fnode success" style="width:110px;">
+                <div class="fn-sub">금액 그대로<br>피치덱 생성</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div class="tag tag-orange" style="margin-bottom:4px;">조정</div>
+              <div class="fnode warn" style="width:110px;">
+                <div class="fn-sub">Human-in-loop<br>직접 수정</div>
+              </div>
+            </div>
+          </div>
+          <div class="arr-v"></div>
+          <div class="fnode success" style="width:160px;">
+            <div class="fn-lbl">📄 피치덱 PDF 생성</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Buyer 진입 분기 플로우</div>
+      <div class="flow-wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;min-width:280px;">
+          <div class="fnode purple" style="width:160px;">
+            <div class="fn-ico">📧</div>
+            <div class="fn-lbl">피치덱 수령 / 콜드메일</div>
+          </div>
+          <div class="arr-v"></div>
+          <div class="fnode purple" style="width:160px;">
+            <div class="fn-ico">🏠</div>
+            <div class="fn-lbl">랜딩 → Pricing</div>
+          </div>
+          <div class="arr-v"></div>
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div class="tag tag-purple" style="margin-bottom:4px;">WTP 있음</div>
+              <div class="fnode purple" style="width:110px;">
+                <div class="fn-sub">B2B 데모<br>요청 제출</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div class="tag tag-t3" style="margin-bottom:4px;">관망</div>
+              <div class="fnode" style="width:110px;">
+                <div class="fn-sub">뉴스레터<br>등록 이탈</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이탈 복귀 -->
+  <div class="card">
+    <div class="card-title">이탈 포인트 & 재유입 전략</div>
+    <table class="state-table">
+      <thead>
+        <tr>
+          <th>이탈 지점</th>
+          <th>가설</th>
+          <th>복귀 전략</th>
+          <th>측정 지표</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-red">Hero</span> 랜딩 이탈</td>
+          <td>헤드라인 공감 실패</td>
+          <td>카피 A/B 테스트, 데모 GIF 추가</td>
+          <td>Bounce Rate &lt; 60%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">가입</span> 폼 이탈</td>
+          <td>가입 마찰 과다</td>
+          <td>소셜 원클릭 로그인, "신용카드 불필요" 배지</td>
+          <td>가입 완료율 &gt; 60%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">이슈 입력</span> 이탈</td>
+          <td>뭘 써야 할지 모름</td>
+          <td>예시 텍스트 3개 자동 삽입, 가이드 툴팁</td>
+          <td>입력 완료율 &gt; 50%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">AI 결과</span> 이탈</td>
+          <td>금액 신뢰도 부족</td>
+          <td>산출 근거 표시, 사례 비교 데이터</td>
+          <td>PDF 생성 완료율 &gt; 40%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">PDF 생성 후</span> 재방문 유도</td>
+          <td>일회성 사용 위험</td>
+          <td>이메일 리마인더 "다음 이슈 추가하기", WAU 알림</td>
+          <td>WAU 15% → 30%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2 — 온보딩
+══════════════════════════════════════════ -->
+<div class="page" id="page-onboarding">
+  <div class="sec-hd">
+    <h2>온보딩 플로우 & 와이어프레임</h2>
+    <p>랜딩 진입 → 회원가입 → 첫 이슈 입력 안내까지의 화면 설계</p>
+  </div>
+
+  <!-- 온보딩 플로우 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">온보딩 단계 플로우</div>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="flow-col">
+          <div class="fnode"><div class="fn-ico">🏠</div><div class="fn-lbl">Landing</div><div class="fn-sub">Hero 공감<br>데모 미리보기</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary"><div class="fn-ico">🔑</div><div class="fn-lbl">Sign Up</div><div class="fn-sub">이메일/<br>구글 로그인</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary"><div class="fn-ico">👤</div><div class="fn-lbl">프로필</div><div class="fn-sub">직무/업종<br>선택 (2단계)</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode warn"><div class="fn-ico">💡</div><div class="fn-lbl">첫 이슈 가이드</div><div class="fn-sub">예시 이슈<br>3개 제안</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode success"><div class="fn-ico">✅</div><div class="fn-lbl">AHA Moment</div><div class="fn-sub">첫 AI 결과<br>확인</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 와이어프레임 3개 화면 -->
+  <div class="g3">
+
+    <!-- 화면 1: Landing Hero -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 1 — Landing Hero</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">myroi.app</div>
+        </div>
+        <div class="screen-body">
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">NAV</div>
+            <div class="wf-row" style="margin-top:0;">
+              <div class="wf-box" style="flex:2;text-align:left;">MyROI 🔵</div>
+              <div class="wf-box bl">무료 시작</div>
+            </div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;text-align:center;">
+            <div class="wf-lbl">HERO</div>
+            <div style="font-size:12px;font-weight:700;color:var(--t1);padding:8px 0 4px;">"보이지 않는 헌신을<br>연봉 무기로"</div>
+            <div style="font-size:10px;color:var(--t3);margin-bottom:8px;">과거 이슈 3가지 → AI 재무화 → PDF</div>
+            <div class="wf-box bl" style="display:inline-block;padding:6px 14px;">무료로 피치덱 만들기 →</div>
+          </div>
+          <div class="wf">
+            <div class="wf-lbl">DEMO PREVIEW</div>
+            <div class="wf-box" style="min-height:40px;margin-top:0;font-size:10px;color:var(--t3);display:flex;align-items:center;justify-content:center;">[ 인터랙티브 데모 영역 ]<br>텍스트 입력 → AI 결과 애니메이션</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>Hero 카피</strong><p>가장 강한 고통 공감 문장으로 첫 5초 내 "이거 나 얘기네" 반응 유도</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>데모 미리보기</strong><p>회원가입 없이 체험 → 진입 장벽 제거. 가입 후 실제 사용으로 연결</p></div></div>
+      </div>
+    </div>
+
+    <!-- 화면 2: Sign Up -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 2 — 회원가입</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">myroi.app/signup</div>
+        </div>
+        <div class="screen-body">
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">PROGRESS</div>
+            <div class="wf-bar"><div class="wf-bar-fill" style="width:25%"></div></div>
+            <div style="font-size:10px;color:var(--t3);margin-top:4px;">STEP 1 / 4</div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">SOCIAL LOGIN</div>
+            <div class="wf-row" style="margin-top:0;">
+              <div class="wf-box">🔵 구글로 계속</div>
+            </div>
+            <div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px;">── 또는 이메일 ──</div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">EMAIL FORM</div>
+            <div style="margin-top:4px;display:flex;flex-direction:column;gap:5px;">
+              <div class="wf-box" style="text-align:left;color:var(--t3);">이메일 주소</div>
+              <div class="wf-box" style="text-align:left;color:var(--t3);">비밀번호</div>
+              <div class="wf-box bl">가입하기</div>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:10px;color:var(--t3);">신용카드 불필요 · 언제든 탈퇴</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>소셜 로그인 우선</strong><p>구글 원클릭을 상단 배치 — 가입 마찰 최소화, 완료율 상승</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>마찰 제거 문구</strong><p>"신용카드 불필요" 배지로 조기 이탈 방지</p></div></div>
+      </div>
+    </div>
+
+    <!-- 화면 3: 프로필 + 첫 가이드 -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 3 — 프로필 & 첫 이슈 가이드</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">myroi.app/onboarding</div>
+        </div>
+        <div class="screen-body">
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">PROGRESS</div>
+            <div class="wf-bar"><div class="wf-bar-fill" style="width:50%"></div></div>
+            <div style="font-size:10px;color:var(--t3);margin-top:4px;">STEP 2 / 4 — 직무 선택</div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">ROLE SELECT</div>
+            <div class="wf-row" style="margin-top:0;flex-wrap:wrap;">
+              <div class="wf-box bl">PM/기획자 ✓</div>
+              <div class="wf-box">개발자</div>
+              <div class="wf-box">디자이너</div>
+            </div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">EXAMPLE ISSUE GUIDE (AHA 가이드)</div>
+            <div style="margin-top:4px;display:flex;flex-direction:column;gap:5px;">
+              <div class="wf-box" style="text-align:left;font-size:10px;">💡 예시 1: "런칭 3일 전 서버 장애 밤샘 수습 → 계약 무산 방지"</div>
+              <div class="wf-box" style="text-align:left;font-size:10px;">💡 예시 2: "클라이언트 요구사항 충돌 중재 → 재작업 40% 절감"</div>
+              <div class="wf-box" style="text-align:left;font-size:10px;">💡 예시 3: "팀원 갑작스러운 이탈 → 혼자 납기 달성"</div>
+            </div>
+          </div>
+          <div class="wf-box bl" style="margin-top:4px;">이 예시로 바로 시작하기 →</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>직무별 예시 자동 제안</strong><p>PM 선택 시 PM에 맞는 이슈 예시 3개 표시 → 입력 장벽 제거</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>"이 예시로 바로 시작"</strong><p>예시를 그대로 써도 OK → 첫 AI 결과 체험 극대화 (AHA Moment)</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 3 — AI 환산기 (MVP 핵심)
+══════════════════════════════════════════ -->
+<div class="page" id="page-core">
+  <div class="sec-hd">
+    <h2>AI 환산기 — 핵심 MVP 화면</h2>
+    <p>자유 텍스트 입력 → AI 재무 금액 산출 → Human-in-the-loop 검토의 3단계 핵심 플로우</p>
+  </div>
+
+  <!-- 핵심 플로우 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">AI 환산기 세부 플로우</div>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="flow-col">
+          <div class="fnode primary"><div class="fn-ico">📝</div><div class="fn-lbl">이슈 입력</div><div class="fn-sub">자유 텍스트<br>1~3개</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode warn"><div class="fn-ico">⚙️</div><div class="fn-lbl">AI 처리</div><div class="fn-sub">LLM 구조화<br>M/M 계산</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode primary"><div class="fn-ico">📊</div><div class="fn-lbl">결과 표시</div><div class="fn-sub">카테고리<br>예상 금액</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode warn"><div class="fn-ico">✏️</div><div class="fn-lbl">Human 검토</div><div class="fn-sub">금액 수정<br>캡처 첨부</div></div>
+        </div>
+        <div class="arr-h"></div>
+        <div class="flow-col">
+          <div class="fnode success"><div class="fn-ico">✅</div><div class="fn-lbl">확정</div><div class="fn-sub">피치덱으로<br>이동</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3화면 와이어프레임 -->
+  <div class="g3">
+
+    <!-- 이슈 입력 화면 -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 4 — 이슈 입력</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">AI 환산기</div>
+        </div>
+        <div class="screen-body">
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">INPUT AREA — ISSUE 1</div>
+            <div class="wf-textarea">어떤 위기/헌신을 막아냈나요?<br><span style="font-size:10px;opacity:.6;">예: 런칭 전날 버그를 혼자 수습해 납기를 지켰습니다...</span></div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--t3);">
+              <span>💡 구체적일수록 금액 정확도 상승</span>
+              <span>0 / 500자</span>
+            </div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">INPUT AREA — ISSUE 2 (선택)</div>
+            <div class="wf-textarea" style="min-height:36px;opacity:.5;">+ 두 번째 이슈 추가...</div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">INPUT AREA — ISSUE 3 (선택)</div>
+            <div class="wf-textarea" style="min-height:36px;opacity:.5;">+ 세 번째 이슈 추가...</div>
+          </div>
+          <div class="wf-box bl">🤖 AI 분석 시작하기 →</div>
+          <div style="font-size:10px;color:var(--t3);text-align:center;margin-top:5px;">약 10~15초 소요 · 데이터 외부 유출 없음</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>점진적 입력 공개</strong><p>이슈 2·3은 접힌 상태로 시작 → 첫 입력 부담 최소화</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>실시간 가이드</strong><p>입력 중 유사 사례 힌트 팝업 → 구체화 유도</p></div></div>
+        <div class="ann"><div class="ann-num">3</div><div class="ann-body"><strong>프라이버시 신뢰</strong><p>"외부 유출 없음" 문구 — 민감 업무 정보 입력 거부감 해소</p></div></div>
+      </div>
+    </div>
+
+    <!-- AI 처리 중 -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 5 — AI 처리 중 (Loading)</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">AI 분석 중...</div>
+        </div>
+        <div class="screen-body" style="text-align:center;padding:24px 14px;">
+          <div style="font-size:32px;margin-bottom:12px;">🤖</div>
+          <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:8px;">AI가 분석 중입니다</div>
+          <div class="wf-bar" style="margin:0 auto;width:80%;margin-bottom:8px;">
+            <div class="wf-bar-fill" style="width:65%;animation:none;"></div>
+          </div>
+          <div style="margin:12px 0;display:flex;flex-direction:column;gap:6px;">
+            <div class="wf-box gr" style="font-size:10px;">✅ 이슈 유형 분류 완료 (위기 수습)</div>
+            <div class="wf-box gr" style="font-size:10px;">✅ M/M 비용 구조 매핑 완료</div>
+            <div class="wf-box or" style="font-size:10px;">⏳ 예상 방어 금액 계산 중...</div>
+          </div>
+          <div style="font-size:10px;color:var(--t3);">약 10~15초 · 화면을 닫지 마세요</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>단계별 진행 표시</strong><p>단순 스피너 대신 AI 처리 단계 실시간 표시 → 신뢰감 & 기대감 형성</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>유사 사례 팁</strong><p>로딩 중 "비슷한 위기 대응으로 ₩18M 절감 사례" 카드 노출 → 앵커링</p></div></div>
+      </div>
+    </div>
+
+    <!-- AI 결과 & Human-in-loop -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 6 — 결과 & Human 검토</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">AI 분석 결과</div>
+        </div>
+        <div class="screen-body">
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">AI RESULT CARD</div>
+            <div style="margin-top:4px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span class="tag tag-orange">위기 수습 · 계약 유지</span>
+                <span class="tag tag-green">신뢰도 87%</span>
+              </div>
+              <div class="wf-box gr" style="font-size:16px;font-weight:700;padding:10px;">💰 ₩24,000,000</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:4px;">M/M 환산: 2.4개월 · 투입 리소스 대비 절감</div>
+            </div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">HUMAN-IN-LOOP 조정</div>
+            <div class="wf-row" style="margin-top:0;">
+              <div class="wf-box" style="max-width:40px;">−</div>
+              <div class="wf-box bl" style="font-weight:700;">₩24,000,000</div>
+              <div class="wf-box" style="max-width:40px;">+</div>
+            </div>
+            <div class="wf-box" style="margin-top:5px;font-size:10px;text-align:left;color:var(--t3);">📎 캡처/증거자료 첨부 (선택)</div>
+          </div>
+          <div class="wf-box bl" style="margin-top:4px;">✅ 확정 후 피치덱 추가하기 →</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>신뢰도 % 표시</strong><p>AI 산출 근거 투명화 → 불신 해소. 낮으면 입력 보완 가이드 제시</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>금액 직접 수정</strong><p>실무자가 컨텍스트 알아 더 정확 → Human-in-loop 권한 부여로 신뢰↑</p></div></div>
+        <div class="ann"><div class="ann-num">3</div><div class="ann-body"><strong>증거자료 첨부</strong><p>슬랙·이메일 캡처 → 피치덱 신빙성 극대화</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 4 — 피치덱
+══════════════════════════════════════════ -->
+<div class="page" id="page-pitchdeck">
+  <div class="sec-hd">
+    <h2>피치덱 생성 & 관리 화면</h2>
+    <p>누적된 이슈 리스트 → 원클릭 PDF 생성 → 경영진 제출까지의 플로우</p>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">피치덱 생성 플로우</div>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="flow-col"><div class="fnode primary"><div class="fn-ico">📋</div><div class="fn-lbl">이슈 목록</div><div class="fn-sub">확정된<br>성과 리스트</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode primary"><div class="fn-ico">🎨</div><div class="fn-lbl">피치덱 구성</div><div class="fn-sub">항목 선택<br>순서 정렬</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode warn"><div class="fn-ico">⚙️</div><div class="fn-lbl">PDF 렌더링</div><div class="fn-sub">브랜드 템플릿<br>자동 적용</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode success"><div class="fn-ico">📄</div><div class="fn-lbl">PDF 완성</div><div class="fn-sub">다운로드<br>링크 공유</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode success"><div class="fn-ico">📨</div><div class="fn-lbl">경영진 제출</div><div class="fn-sub">이메일/<br>직접 전달</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+
+    <!-- 이슈 목록 화면 -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 7 — 이슈 목록 (내 성과 보관함)</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">내 성과 보관함</div>
+        </div>
+        <div class="screen-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);">누적 방어 금액</div>
+            <div class="tag tag-green" style="font-size:13px;font-weight:800;">₩58,000,000</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+            <div class="wf" style="margin-bottom:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0;">
+                <div>
+                  <span class="tag tag-orange" style="font-size:9px;">위기 수습</span>
+                  <div style="font-size:11px;font-weight:600;color:var(--t1);margin-top:3px;">서버 장애 수습 → 계약 유지</div>
+                  <div style="font-size:10px;color:var(--t3);">2024.11 · 증거자료 1개</div>
+                </div>
+                <div class="tag tag-green">₩24M</div>
+              </div>
+            </div>
+            <div class="wf" style="margin-bottom:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0;">
+                <div>
+                  <span class="tag tag-blue" style="font-size:9px;">사전 방어</span>
+                  <div style="font-size:11px;font-weight:600;color:var(--t1);margin-top:3px;">요구사항 충돌 중재</div>
+                  <div style="font-size:10px;color:var(--t3);">2024.09 · 증거자료 없음</div>
+                </div>
+                <div class="tag tag-green">₩18M</div>
+              </div>
+            </div>
+            <div class="wf" style="margin-bottom:0;opacity:.5;">
+              <div style="font-size:11px;color:var(--t3);text-align:center;margin-top:0;">+ 이슈 추가하기</div>
+            </div>
+          </div>
+          <div class="wf-box bl">📄 피치덱 PDF 생성하기 →</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>누적 금액 상단 노출</strong><p>"₩58M"이라는 숫자 자체가 WAU 재방문 동기 → 습관 형성 핵심</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>이슈별 증거자료 표시</strong><p>캡처 첨부 여부 표시 → "없음" 시 추가 유도 넛지</p></div></div>
+      </div>
+    </div>
+
+    <!-- 피치덱 미리보기 -->
+    <div class="card">
+      <div class="card-title">🖥️ Screen 8 — 피치덱 미리보기 & PDF 생성</div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">피치덱 미리보기</div>
+        </div>
+        <div class="screen-body">
+          <!-- PDF Preview Mock -->
+          <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:10px;">
+            <div style="background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 30%,transparent),color-mix(in srgb,var(--purple) 30%,transparent));border-radius:6px;padding:10px;text-align:center;margin-bottom:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--t1);">2024 성과 보고서</div>
+              <div style="font-size:10px;color:var(--t3);">홍길동 · PM / 기획자</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div class="wf-box" style="text-align:left;font-size:10px;"><span class="tag tag-orange" style="font-size:9px;">위기수습</span> 서버 장애 수습 — <strong style="color:var(--green);">₩24M</strong></div>
+              <div class="wf-box" style="text-align:left;font-size:10px;"><span class="tag tag-blue" style="font-size:9px;">사전방어</span> 요구사항 충돌 중재 — <strong style="color:var(--green);">₩18M</strong></div>
+              <div style="border-top:1px solid var(--bd);padding-top:5px;text-align:right;font-size:11px;font-weight:700;color:var(--t1);">총 방어 가치: <span style="color:var(--green);">₩58,000,000</span></div>
+            </div>
+          </div>
+          <div class="wf-row">
+            <div class="wf-box bl">⬇ PDF 다운로드</div>
+            <div class="wf-box">🔗 링크 공유</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>PDF 미리보기 필수</strong><p>다운로드 전 시각적 확인 → 완성도 신뢰 + 공유 의욕 극대화</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>링크 공유 옵션</strong><p>PDF 다운로드 외 링크 공유 → 경영진이 모바일로도 바로 확인 가능</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 5 — B2B 대시보드
+══════════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="sec-hd">
+    <h2>B2B 대시보드 — Buyer 화면 (추후 검증 로드맵)</h2>
+    <p>린 캔버스 v6.0 기준 — 경영진 WTP 검증 후 개발 착수. 현재는 Pricing 섹션에서 "데모 요청" 버튼으로 WTP 탐색 중.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;border-color:var(--purple);">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span class="tag tag-purple">개발 조건</span>
+      <span style="font-size:12px;color:var(--t2);">B2B 데모 요청 월 10건 이상 달성 시 → 개발 착수 그린라이트</span>
+    </div>
+    <div class="card-title">Buyer 플로우 (현재 단계)</div>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="flow-col"><div class="fnode"><div class="fn-ico">📧</div><div class="fn-lbl">피치덱 수령</div><div class="fn-sub">실무자가<br>제출한 PDF</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode purple"><div class="fn-ico">🤔</div><div class="fn-lbl">관심 발생</div><div class="fn-sub">"전사 트렌드<br>보고 싶다"</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode purple"><div class="fn-ico">🏠</div><div class="fn-lbl">랜딩 Pricing</div><div class="fn-sub">B2B 플랜<br>확인</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode warn"><div class="fn-ico">📋</div><div class="fn-lbl">데모 요청</div><div class="fn-sub">WTP 검증<br>폼 제출</div></div></div>
+        <div class="arr-h"></div>
+        <div class="flow-col"><div class="fnode success"><div class="fn-ico">📞</div><div class="fn-lbl">세일즈 콜</div><div class="fn-sub">맞춤 데모<br>제안</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B2B 대시보드 와이어프레임 (개발 예정) -->
+  <div class="g2">
+    <div class="card" style="border-style:dashed;">
+      <div class="card-title">🖥️ Screen 9 — B2B 대시보드 (개발 예정)</div>
+      <div style="margin-bottom:8px;"><span class="tag tag-purple">FUTURE</span></div>
+      <div class="screen-shell">
+        <div class="screen-topbar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div style="font-size:10px;color:var(--t3);">조직 ROI 대시보드</div>
+        </div>
+        <div class="screen-body">
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">BLIND KPI (개인 식별 없음)</div>
+            <div class="wf-row" style="margin-top:0;">
+              <div class="wf-box pu" style="text-align:center;"><div style="font-size:14px;font-weight:800;">₩142M</div><div style="font-size:9px;">전사 방어 가치 (월)</div></div>
+              <div class="wf-box" style="text-align:center;"><div style="font-size:14px;font-weight:800;">7명</div><div style="font-size:9px;">핵심 기여자 감지</div></div>
+            </div>
+          </div>
+          <div class="wf" style="margin-bottom:8px;">
+            <div class="wf-lbl">TREND CHART (익명 데이터)</div>
+            <div style="height:50px;background:var(--s2);border-radius:6px;margin-top:4px;display:flex;align-items:flex-end;padding:6px;gap:4px;">
+              <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:40%;opacity:.5;"></div>
+              <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:60%;opacity:.6;"></div>
+              <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:45%;opacity:.7;"></div>
+              <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:80%;opacity:.8;"></div>
+              <div style="flex:1;background:var(--purple);border-radius:3px 3px 0 0;height:90%;"></div>
+            </div>
+          </div>
+          <div class="wf">
+            <div class="wf-lbl">RISK ALERT</div>
+            <div class="wf-box" style="margin-top:0;text-align:left;font-size:10px;border-color:color-mix(in srgb,var(--red) 30%,transparent);color:var(--red);">⚠️ 핵심 기여자 2명 — 3개월 신규 입력 없음. 이탈 위험 감지</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="ann"><div class="ann-num">1</div><div class="ann-body"><strong>블라인드 데이터</strong><p>개인 식별 없이 트렌드만 표시 → 프라이버시 & 데이터 구조적 리스크 대응</p></div></div>
+        <div class="ann"><div class="ann-num">2</div><div class="ann-body"><strong>이탈 위험 알림</strong><p>핵심 인재의 활동 감소를 선제적으로 감지 → CEO 핵심 니즈 직결</p></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">B2B WTP 검증 — 현재 운영 방식</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="wf">
+          <div class="wf-lbl">PRICING 페이지 B2B 섹션</div>
+          <div style="margin-top:6px;background:color-mix(in srgb,var(--purple) 10%,transparent);border:1px solid color-mix(in srgb,var(--purple) 30%,transparent);border-radius:8px;padding:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">기업용 ROI 대시보드</div>
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;">직관이 아닌 데이터로 핵심 인재를 파악하세요</div>
+            <div class="wf-row" style="flex-direction:column;gap:5px;">
+              <div class="wf-box" style="text-align:left;font-size:10px;">✓ 전사 ROI 트렌드 대시보드</div>
+              <div class="wf-box" style="text-align:left;font-size:10px;">✓ 핵심 기여자 익명 감지</div>
+              <div class="wf-box" style="text-align:left;font-size:10px;">✓ 이탈 위험 선제 알림</div>
+            </div>
+            <div class="wf-box pu" style="margin-top:8px;">데모 요청하기 →</div>
+          </div>
+        </div>
+        <div class="wf">
+          <div class="wf-lbl">데모 요청 폼 (WTP 탐색)</div>
+          <div style="margin-top:4px;display:flex;flex-direction:column;gap:5px;">
+            <div class="wf-box" style="text-align:left;color:var(--t3);">회사명 / 직함</div>
+            <div class="wf-box" style="text-align:left;color:var(--t3);">현재 가장 큰 인사 고민은?</div>
+            <div class="wf-box" style="text-align:left;color:var(--t3);">적정 예산 범위 (선택)</div>
+            <div class="wf-box pu">제출하기</div>
+          </div>
+        </div>
+        <div style="padding:10px;background:var(--s2);border-radius:8px;">
+          <div class="tag tag-orange" style="margin-bottom:6px;">검증 기준</div>
+          <p style="font-size:11px;color:var(--t3);">데모 요청 <strong style="color:var(--t1);">월 10건 이상</strong> → B2B 대시보드 개발 착수 결정<br>이하 → Buyer UVP 재검토 or 채널 전략 수정</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 6 — 화면 목록
+══════════════════════════════════════════ -->
+<div class="page" id="page-states">
+  <div class="sec-hd">
+    <h2>전체 화면 목록 & 상태 정의</h2>
+    <p>MVP 범위 내 모든 화면, 트리거 조건, 검증 지표 한눈에 정리</p>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">MVP 화면 전체 목록</div>
+    <table class="state-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>화면명</th>
+          <th>페르소나</th>
+          <th>진입 조건</th>
+          <th>핵심 액션</th>
+          <th>검증 지표</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-blue">S1</span></td>
+          <td><strong style="color:var(--t1)">Landing Hero</strong></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>외부 채널 유입</td>
+          <td>CTA 클릭 / 데모 체험</td>
+          <td>Bounce Rate &lt; 60%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">S2</span></td>
+          <td><strong style="color:var(--t1)">회원가입</strong></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>Hero CTA 클릭</td>
+          <td>소셜/이메일 가입</td>
+          <td>가입 완료율 &gt; 60%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">S3</span></td>
+          <td><strong style="color:var(--t1)">프로필 & 가이드</strong></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>가입 완료</td>
+          <td>직무 선택, 예시 확인</td>
+          <td>이슈 입력 진입율 &gt; 70%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">S4</span></td>
+          <td><strong style="color:var(--t1)">이슈 입력</strong> ⭐ 핵심</td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>온보딩 완료</td>
+          <td>자유 텍스트 1~3개 작성</td>
+          <td>입력 완료율 &gt; 50%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">S5</span></td>
+          <td><strong style="color:var(--t1)">AI 처리 중</strong></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>"AI 분석 시작" 클릭</td>
+          <td>대기 (단계별 피드백 확인)</td>
+          <td>이탈율 &lt; 10%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">S6</span></td>
+          <td><strong style="color:var(--t1)">AI 결과 & 검토</strong> ⭐ 핵심</td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>AI 처리 완료</td>
+          <td>금액 확인·수정·첨부·확정</td>
+          <td>PDF 진행율 &gt; 40%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">S7</span></td>
+          <td><strong style="color:var(--t1)">이슈 목록 (보관함)</strong></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>로그인 후 홈</td>
+          <td>이슈 추가·편집·피치덱 생성</td>
+          <td>WAU 15% → 30%</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">S8</span></td>
+          <td><strong style="color:var(--t1)">피치덱 미리보기</strong> ⭐ 핵심</td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--blue) 30%,transparent);">👩‍💻</span>실무자</span></td>
+          <td>"PDF 생성" 클릭</td>
+          <td>PDF 다운로드 / 링크 공유</td>
+          <td>Activation 달성 지점</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">S9</span></td>
+          <td><strong style="color:var(--t1)">Pricing (B2B 탐색)</strong></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--purple) 30%,transparent);">🏢</span>경영진</span></td>
+          <td>콜드메일 / 피치덱 수령</td>
+          <td>데모 요청 폼 제출</td>
+          <td>데모 요청 월 10건</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">S10</span></td>
+          <td><strong style="color:var(--t1)">B2B 대시보드</strong> <span class="tag tag-orange">개발 예정</span></td>
+          <td><span class="persona"><span class="pa" style="background:color-mix(in srgb,var(--purple) 30%,transparent);">🏢</span>경영진</span></td>
+          <td>WTP 검증 후 개발</td>
+          <td>ROI 트렌드 확인 / 알림 수신</td>
+          <td>Free-to-Paid CVR</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 검증 우선순위 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">MVP 화면 개발 우선순위</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="tag tag-red">P0</span>
+          <span style="font-size:12px;color:var(--t1);">S4 이슈 입력 + S5 AI 처리 + S6 결과 검토</span>
+          <span style="font-size:10px;color:var(--t3);">— 핵심 가설 검증</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="tag tag-orange">P1</span>
+          <span style="font-size:12px;color:var(--t1);">S1 Landing + S2 가입 + S8 피치덱 PDF</span>
+          <span style="font-size:10px;color:var(--t3);">— Activation 달성</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="tag tag-blue">P2</span>
+          <span style="font-size:12px;color:var(--t1);">S3 온보딩 가이드 + S7 보관함</span>
+          <span style="font-size:10px;color:var(--t3);">— WAU 습관 형성</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="tag tag-purple">P3</span>
+          <span style="font-size:12px;color:var(--t1);">S9 Pricing B2B + S10 대시보드</span>
+          <span style="font-size:10px;color:var(--t3);">— WTP 검증 후 착수</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">AHA Moment & 핵심 지표</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:10px;background:color-mix(in srgb,var(--green) 10%,transparent);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);border-radius:8px;">
+          <div class="tag tag-green" style="margin-bottom:5px;">AHA Moment</div>
+          <p style="font-size:12px;color:var(--t1);font-weight:600;">첫 AI 결과 화면에서 "₩24,000,000" 숫자를 확인하는 순간</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:3px;">→ "이게 진짜 내 가치구나" 인식 전환 = 제품 핵심 가치 체험</p>
+        </div>
+        <div style="padding:10px;background:color-mix(in srgb,var(--blue) 10%,transparent);border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);border-radius:8px;">
+          <div class="tag tag-blue" style="margin-bottom:5px;">Activation 정의</div>
+          <p style="font-size:12px;color:var(--t1);font-weight:600;">소급 입력 모드로 첫 피치덱 PDF까지 완성한 유저</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:3px;">S4 → S6 → S8 완주 = Activated User 판정 기준</p>
+        </div>
+        <div style="padding:10px;background:color-mix(in srgb,var(--orange) 10%,transparent);border:1px solid color-mix(in srgb,var(--orange) 30%,transparent);border-radius:8px;">
+          <div class="tag tag-orange" style="margin-bottom:5px;">WAU 목표</div>
+          <p style="font-size:12px;color:var(--t1);font-weight:600;">초기 15% → 6개월 후 30%</p>
+          <p style="font-size:11px;color:var(--t3);margin-top:3px;">이슈 목록(S7) 재방문 = 누적 금액 확인 습관 형성 지표</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // find clicked tab
+  const tabs = document.querySelectorAll('.tab');
+  const pages = ['overview','onboarding','core','pitchdeck','dashboard','states'];
+  const idx = pages.indexOf(id);
+  if(idx > -1) tabs[idx].classList.add('active');
+  document.getElementById('page-' + id).classList.add('active');
+}
+
+// Tab click wiring
+document.querySelectorAll('.tab').forEach((tab, i) => {
+  const ids = ['overview','onboarding','core','pitchdeck','dashboard','states'];
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-' + ids[i]).classList.add('active');
+  });
+});
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent =
+    document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+}
+</script>
+</body>
+</html>
