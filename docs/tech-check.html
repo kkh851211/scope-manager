@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — Tech Feasibility Check v1.1</title>
+<title>Scope Manager — Tech Feasibility Check v1.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -23,6 +23,7 @@ header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-it
 .b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
 .b-cyan{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25)}
 .b-purple{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3)}
+.b-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
 
 /* NAV */
 nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
@@ -66,49 +67,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 .kpi-v{font-size:22px;font-weight:900;line-height:1;margin-bottom:3px}
 .kpi-s{font-size:11px;color:var(--t4)}
 
-/* ARCH DIAGRAM */
-.arch{display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:28px}
-.arch-layer{padding:16px 20px;border-bottom:1px solid var(--bd);position:relative}
-.arch-layer:last-child{border-bottom:none}
-.al-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t4);margin-bottom:10px}
-.al-nodes{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.al-node{border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.al-node-icon{font-size:14px}
-.al-arrow{font-size:18px;color:var(--t4);margin:0 2px;flex-shrink:0}
-.al-note{font-size:10px;color:var(--t4);margin-top:8px;font-style:italic}
-
-.layer-user{background:rgba(79,128,255,.06)}
-.layer-front{background:rgba(168,85,247,.06)}
-.layer-back{background:rgba(6,182,212,.06)}
-.layer-ai{background:rgba(245,158,11,.06)}
-.layer-db{background:rgba(16,185,129,.06)}
-.layer-infra{background:rgba(239,68,68,.06)}
-
-.nd-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.25)}
-.nd-purple{background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
-.nd-cyan{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.2)}
-.nd-yellow{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
-.nd-green{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
-.nd-red{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.nd-gray{background:rgba(90,100,120,.15);color:var(--t2);border:1px solid var(--bd2)}
-
-/* TECH STACK TABLE */
-.tstack{width:100%;border-collapse:collapse}
-.tstack th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
-.tstack td{padding:11px 14px;border-bottom:1px solid var(--bd);vertical-align:top}
-.tstack tr:last-child td{border-bottom:none}
-.tstack tr:hover td{background:rgba(79,128,255,.025)}
-.ts-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;display:flex;align-items:center;gap:7px}
-.ts-desc{font-size:11px;color:var(--t3);line-height:1.5}
-.ts-why{font-size:11px;color:var(--t2);line-height:1.5;border-left:2px solid var(--bd2);padding-left:8px;margin-top:5px}
-.feasibility{display:flex;align-items:center;gap:6px}
-.fbar{width:64px;height:5px;background:var(--bd2);border-radius:3px;overflow:hidden}
-.fbar-fill{height:100%;border-radius:3px}
-.fnum{font-size:11px;font-weight:700;color:var(--t3);min-width:28px}
-.cost-cell{font-size:12px}
-.cost-val{font-weight:700;color:#fff}
-.cost-sub{font-size:10px;color:var(--t4);margin-top:2px}
-
 /* RISK TABLE */
 .rtable{width:100%;border-collapse:collapse}
 .rtable th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
@@ -120,76 +78,19 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 .risk-mitigation{font-size:11px;color:var(--t2);margin-top:5px;display:flex;gap:6px}
 .risk-mitigation::before{content:'→';color:var(--green);font-weight:700;flex-shrink:0}
 
-/* COST ESTIMATE */
-.cost-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-@media(max-width:600px){.cost-breakdown{grid-template-columns:1fr}}
-.cost-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
-.cc-head{font-size:12px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.cc-items{display:flex;flex-direction:column;gap:8px}
-.cc-row{display:flex;justify-content:space-between;align-items:center;font-size:12px}
-.cc-name{color:var(--t3)}
-.cc-val{font-weight:700;color:var(--t2)}
-.cc-total{border-top:1px solid var(--bd);padding-top:10px;margin-top:4px}
-.cc-total .cc-name{color:var(--t2);font-weight:700}
-.cc-total .cc-val{color:var(--green);font-size:14px}
-
-/* API SPEC */
-.api-item{background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden}
-.api-head{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
-.api-head:hover{background:rgba(79,128,255,.04)}
-.api-method{font-size:10px;font-weight:800;padding:3px 7px;border-radius:4px;font-family:monospace;flex-shrink:0}
-.m-post{background:rgba(79,128,255,.2);color:var(--blue)}
-.m-get{background:rgba(16,185,129,.15);color:var(--green)}
-.m-put{background:rgba(245,158,11,.15);color:var(--yellow)}
-.m-del{background:rgba(239,68,68,.15);color:var(--red)}
-.api-path{font-size:12px;font-weight:700;color:#fff;font-family:monospace;flex:1}
-.api-summary{font-size:11px;color:var(--t3)}
-.api-body{display:none;padding:14px 16px;border-top:1px solid var(--bd);background:var(--s2)}
-.api-body.open{display:block}
-.api-section-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);margin-bottom:6px;margin-top:10px}
-.api-section-label:first-child{margin-top:0}
-pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',monospace;overflow-x:auto;white-space:pre-wrap}
-.key{color:var(--cyan)}.str{color:var(--green)}.num{color:var(--yellow)}.cmt{color:var(--t4)}
-.chev{font-size:13px;color:var(--t4);transition:.2s;margin-left:auto}
-.chev.open{transform:rotate(180deg)}
-
-/* PROMPT DESIGN */
-.prompt-block{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:16px;margin-bottom:12px;font-family:'Courier New',monospace;font-size:11px;line-height:1.8;color:var(--t2);overflow-x:auto}
-.prompt-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px}
-.ph{color:var(--blue)}   /* placeholder */
-.kw{color:var(--yellow)} /* keyword */
-.cm{color:var(--t4)}     /* comment */
-.val{color:var(--green)} /* value */
-
-/* DB SCHEMA */
-.schema-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:28px}
-.schema-table{background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
-.st-head{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
-.st-name{font-size:12px;font-weight:800;color:#fff;font-family:monospace}
-.st-body{padding:8px 0}
-.st-row{padding:5px 14px;display:flex;align-items:center;gap:8px;font-family:monospace;font-size:11px;transition:.1s}
-.st-row:hover{background:rgba(79,128,255,.04)}
-.sr-pk{width:16px;height:16px;background:rgba(245,158,11,.2);color:var(--yellow);border-radius:3px;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sr-fk{width:16px;height:16px;background:rgba(79,128,255,.15);color:var(--blue);border-radius:3px;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sr-col{width:16px;height:16px;flex-shrink:0}
-.sr-name{color:var(--t2);flex:1}
-.sr-type{color:var(--t4);font-size:10px}
-.sr-nullable{color:var(--t4);font-size:9px;margin-left:2px}
-
 /* TIMELINE / GANTT */
 .gantt{display:flex;flex-direction:column;gap:6px;margin-bottom:28px}
 .gantt-row{display:flex;align-items:center;gap:10px}
-.gantt-label{width:130px;font-size:11px;color:var(--t3);flex-shrink:0;text-align:right}
+.gantt-label{width:140px;font-size:11px;color:var(--t3);flex-shrink:0;text-align:right}
 .gantt-track{flex:1;height:24px;background:var(--s2);border-radius:4px;position:relative;overflow:hidden}
 .gantt-bar{height:100%;border-radius:4px;position:absolute;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:.5s}
-.gantt-week{display:flex;gap:0}
-.gantt-week-labels{display:flex;margin-left:140px;margin-bottom:6px}
+.gantt-week-labels{display:flex;margin-left:150px;margin-bottom:6px}
 .gwl{flex:1;text-align:center;font-size:9px;color:var(--t4);font-weight:700}
 
 /* VERDICT */
 .verdict{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(79,128,255,.06));border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:24px;text-align:center;margin-bottom:28px}
 .verdict-title{font-size:20px;font-weight:900;color:var(--green);margin-bottom:8px}
-.verdict-sub{font-size:13px;color:var(--t3);line-height:1.8;max-width:560px;margin:0 auto 16px}
+.verdict-sub{font-size:13px;color:var(--t3);line-height:1.8;max-width:580px;margin:0 auto 16px}
 .verdict-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .vc{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700}
 </style>
@@ -200,34 +101,30 @@ pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',mon
   <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">Tech Feasibility & Architecture</span></div>
   <div class="hbadge">
     <span class="badge b-purple">스택 고도화 완료</span>
-    <span class="badge b-blue">v1.1 Draft</span>
+    <span class="badge b-green">Lean MVP 전략</span>
+    <span class="badge b-blue">v1.2 Draft</span>
     <span style="font-size:11px;color:var(--t4)">2026.02</span>
   </div>
 </header>
 
 <nav>
   <div class="tab on"  onclick="go('overview',this)">🔭 Overview</div>
-  <div class="tab" onclick="go('stack',this)">🛠 기술 스택</div>
-  <div class="tab" onclick="go('arch',this)">🏗 아키텍처</div>
-  <div class="tab" onclick="go('db',this)">🗄 DB 스키마</div>
-  <div class="tab" onclick="go('api',this)">⚡ API 명세</div>
-  <div class="tab" onclick="go('prompt',this)">🤖 AI 프롬프트</div>
-  <div class="tab" onclick="go('risk',this)">⚠️ 리스크 & 비용</div>
-</nav>
+  <div class="tab" onclick="go('risk',this)">⚠️ 리스크 & 실행 전략</div>
+  </nav>
 
 
 <div class="page on" id="page-overview">
 
   <div class="verdict">
-    <div class="verdict-title">✅ 기술적으로 실현 가능합니다 (최적화 완료)</div>
+    <div class="verdict-title">🚀 Lean Execution: "인터뷰 대신 코드로 묻는다"</div>
     <div class="verdict-sub">
-      불필요한 투 서버(Two-server) 구조를 제거하고 단일 생태계로 통합했습니다.<br>
-      <b style="color:#fff">비개발자 1인이 통합 AI IDE를 활용해 6주 내 MVP를 안정적으로 출시</b>할 수 있습니다.
+      AI 발달로 낮아진 개발 허들을 활용하여 <b>사전 고객 인터뷰를 전면 생략</b>합니다.<br>
+      MVP 자체를 가장 강력한 프로토타입으로 삼아, 즉시 배포 후 실제 사용 데이터를 기반으로 검증합니다.
     </div>
     <div class="verdict-chips">
-      <span class="vc" style="background:rgba(168,85,247,.15);color:var(--purple)">✓ Antigravity — 단일 IDE 통합</span>
-      <span class="vc" style="background:rgba(6,182,212,.12);color:var(--cyan)">✓ Supabase — DB + Edge Functions</span>
-      <span class="vc" style="background:rgba(16,185,129,.15);color:var(--green)">✓ Claude API — 판정 엔진 유지 (원본 주입)</span>
+      <span class="vc" style="background:rgba(245,158,11,.15);color:var(--yellow)">✓ 사전 인터뷰 생략</span>
+      <span class="vc" style="background:rgba(6,182,212,.12);color:var(--cyan)">✓ MVP 즉시 배포</span>
+      <span class="vc" style="background:rgba(16,185,129,.15);color:var(--green)">✓ 실데이터 기반 빠른 피벗 대비</span>
     </div>
   </div>
 
@@ -238,9 +135,9 @@ pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',mon
       <div class="kpi-s">단일 워크스페이스 구축</div>
     </div>
     <div class="kpi">
-      <div class="kpi-l">MVP 개발 기간</div>
-      <div class="kpi-v" style="color:var(--blue)">6<span style="font-size:15px">주</span></div>
-      <div class="kpi-s">Antigravity 멀티 에이전트 활용</div>
+      <div class="kpi-l">MVP 개발/배포</div>
+      <div class="kpi-v" style="color:var(--blue)">4<span style="font-size:15px">주</span></div>
+      <div class="kpi-s">검증 단축으로 일정 앞당김</div>
     </div>
     <div class="kpi">
       <div class="kpi-l">월 운영 비용</div>
@@ -248,44 +145,13 @@ pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',mon
       <div class="kpi-s">서버 분리 제거로 가성비 극대화</div>
     </div>
     <div class="kpi">
-      <div class="kpi-l">핵심 기술 리스크</div>
-      <div class="kpi-v" style="color:var(--orange)">중간</div>
-      <div class="kpi-s">AI 판정 정확도 및 로딩 UX 제어</div>
+      <div class="kpi-l">PMF 검증 방식</div>
+      <div class="kpi-v" style="color:var(--orange)">실데이터</div>
+      <div class="kpi-s">가설 검증을 앱 자체로 수행</div>
     </div>
   </div>
 
-  <div class="sec mb20">개발 접근 방식 — 최적화된 AI 통합 도구 전략</div>
-  <div class="g3 mb28">
-    <div class="card" style="border-top:3px solid var(--purple)">
-      <div style="font-size:20px;margin-bottom:8px">🌌</div>
-      <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:6px">Google Antigravity</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:10px">프론트엔드와 백엔드 코드를 작성하는 통합 AI IDE. 멀티 에이전트를 통해 로컬 환경에서 코드를 생성, 테스트, 디버깅하며 벤더 락인 방지.</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <span class="tag tag-purple">통합 IDE</span>
-        <span class="tag tag-gray">단일 워크스페이스</span>
-      </div>
-    </div>
-    <div class="card" style="border-top:3px solid var(--cyan)">
-      <div style="font-size:20px;margin-bottom:8px">🦺</div>
-      <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:6px">Supabase 생태계</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:10px">FastAPI와 Railway를 제거하고 Edge Functions 도입. 인증, DB 스키마, 서버리스 API를 하나의 플랫폼에서 완벽히 통제하여 유지보수 급감.</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <span class="tag tag-cyan">백엔드/DB 통합</span>
-        <span class="tag tag-gray">유지보수 최소화</span>
-      </div>
-    </div>
-    <div class="card" style="border-top:3px solid var(--yellow)">
-      <div style="font-size:20px;margin-bottom:8px">🤖</div>
-      <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:6px">Claude API (원본 주입)</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:10px">정확도 80% 달성을 위해 요약본이 아닌 계약서 전체(Full Text)를 매번 시스템 프롬프트에 주입하여 강력한 추론 도출.</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <span class="tag tag-yellow">AI 판정 엔진</span>
-        <span class="tag tag-gray">최고 정확도 지향</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb20">6주 개발 타임라인</div>
+  <div class="sec mb20">6주 개발 및 검증 타임라인 (Lean 버전)</div>
   <div class="gantt-week-labels">
     <div class="gwl">W7</div><div class="gwl">W8</div>
     <div class="gwl">W9</div><div class="gwl">W10</div>
@@ -297,393 +163,28 @@ pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',mon
       <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:16.6%;background:var(--purple)">단일 생태계 세팅</div></div>
     </div>
     <div class="gantt-row">
-      <div class="gantt-label">인증 & 프로젝트 (수동입력)</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:33.2%;background:var(--blue)">F-070, F-001</div></div>
+      <div class="gantt-label">핵심 기능 (인증/판정) 개발</div>
+      <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:50%;background:var(--yellow)">Claude API 연동 및 Edge Function 처리</div></div>
     </div>
     <div class="gantt-row">
-      <div class="gantt-label">계약서 Full Context 주입</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:16.6%;width:33.2%;background:var(--yellow)">Claude API 연동</div></div>
+      <div class="gantt-label">UI/UX 고도화 & QA</div>
+      <div class="gantt-track"><div class="gantt-bar" style="left:33.2%;width:16.6%;background:var(--blue)">최소 기능 묶음 완성</div></div>
     </div>
     <div class="gantt-row">
-      <div class="gantt-label">로딩 UX & 일일 UI</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:16.6%;width:16.6%;background:var(--purple)">F-010</div></div>
+      <div class="gantt-label">MVP 라이브 배포 (Vercel)</div>
+      <div class="gantt-track"><div class="gantt-bar" style="left:50%;width:16.6%;background:var(--red)">사전 인터뷰 없이 즉각 시장 투입</div></div>
     </div>
     <div class="gantt-row">
-      <div class="gantt-label">Edge Function 범위 판정</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:33.2%;width:33.2%;background:var(--red)">F-020 ⭐ 핵심</div></div>
-    </div>
-    <div class="gantt-row">
-      <div class="gantt-label">리포트 생성</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:50%;width:16.6%;background:var(--orange)">F-030</div></div>
-    </div>
-    <div class="gantt-row">
-      <div class="gantt-label">손익 대시보드</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:66.6%;width:16.6%;background:var(--cyan)">F-050</div></div>
-    </div>
-    <div class="gantt-row">
-      <div class="gantt-label">히스토리 & 완성</div>
-      <div class="gantt-track"><div class="gantt-bar" style="left:66.6%;width:33.2%;background:var(--green)">QA & Vercel 배포</div></div>
+      <div class="gantt-label">실데이터 수집 및 마켓 검증</div>
+      <div class="gantt-track"><div class="gantt-bar" style="left:66.6%;width:33.2%;background:var(--green)">유저 행동 트래킹 및 피드백 수집</div></div>
     </div>
   </div>
 
 </div>
-
-
-<div class="page" id="page-stack">
-
-  <div class="sec mb20">기술 스택 정의 — 선택 이유 & 타당성</div>
-  <div style="overflow-x:auto;margin-bottom:28px">
-  <table class="tstack">
-    <thead><tr>
-      <th style="width:50px">레이어</th>
-      <th style="width:160px">기술</th>
-      <th>선택 이유</th>
-      <th style="width:100px">타당성</th>
-      <th style="width:110px">월 비용</th>
-    </tr></thead>
-    <tbody>
-
-    <tr>
-      <td style="color:var(--t4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px">IDE / UI</td>
-      <td><div class="ts-name"><span>🌌</span> Google Antigravity</div><div class="ts-desc">AI 통합 개발 환경<br>멀티 에이전트 지휘</div></td>
-      <td>
-        <div class="ts-why">도구 파편화를 막기 위한 핵심. 프론트엔드/백엔드 코드를 하나의 환경에서 생성 및 관리. 컨텍스트 전환 비용 제로. 벤더 락인 없이 코드를 로컬에 소유.</div>
-      </td>
-      <td><div class="feasibility"><div class="fbar"><div class="fbar-fill" style="background:var(--green);width:95%"></div></div><span class="fnum" style="color:var(--green)">95%</span></div></td>
-      <td><div class="cost-cell"><div class="cost-val">무료</div><div class="cost-sub">퍼블릭 프리뷰</div></div></td>
-    </tr>
-
-    <tr>
-      <td style="color:var(--t4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px">Backend / DB</td>
-      <td><div class="ts-name"><span>🦺</span> Supabase</div><div class="ts-desc">PostgreSQL DB + Auth<br>Edge Functions (API)</div></td>
-      <td>
-        <div class="ts-why">FastAPI/Railway를 완벽히 대체. CORS 설정이나 토큰 전달의 복잡함 없이 프론트엔드와 인증 일체화. DB 트리거 및 서버리스 API(Edge Functions)로 백엔드 구축.</div>
-      </td>
-      <td><div class="feasibility"><div class="fbar"><div class="fbar-fill" style="background:var(--green);width:98%"></div></div><span class="fnum" style="color:var(--green)">98%</span></div></td>
-      <td><div class="cost-cell"><div class="cost-val">$0~$25/월</div><div class="cost-sub">Free 플랜 시작 가능</div></div></td>
-    </tr>
-
-    <tr>
-      <td style="color:var(--t4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px">AI Engine</td>
-      <td><div class="ts-name"><span>🤖</span> Claude API</div><div class="ts-desc">claude-3-5-sonnet<br>범위 판정 특화 엔진</div></td>
-      <td>
-        <div class="ts-why">한국어 계약 맥락 파악 및 구조화 JSON 응답 안정성 최고. 200K 토큰 지원으로 계약서 전체(Full Text) 주입 가능. 프롬프트 마이그레이션 리스크 제거.</div>
-      </td>
-      <td><div class="feasibility"><div class="fbar"><div class="fbar-fill" style="background:var(--green);width:90%"></div></div><span class="fnum" style="color:var(--green)">90%</span></div></td>
-      <td><div class="cost-cell"><div class="cost-val">$10~$30/월</div><div class="cost-sub">토큰 사용량 기반<br>전체 텍스트 주입 반영</div></div></td>
-    </tr>
-
-    <tr>
-      <td style="color:var(--t4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px">Hosting</td>
-      <td><div class="ts-name"><span>▲</span> Vercel</div><div class="ts-desc">프론트엔드 배포<br>CDN 자동 설정</div></td>
-      <td>
-        <div class="ts-why">Antigravity에서 생성된 React 코드를 GitHub를 통해 즉시 배포. MVP 정적 에셋 서빙에 최적화.</div>
-      </td>
-      <td><div class="feasibility"><div class="fbar"><div class="fbar-fill" style="background:var(--green);width:98%"></div></div><span class="fnum" style="color:var(--green)">98%</span></div></td>
-      <td><div class="cost-cell"><div class="cost-val">$0/월</div><div class="cost-sub">Hobby 플랜 무료</div></div></td>
-    </tr>
-
-    <tr>
-      <td style="color:var(--t4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px">결제</td>
-      <td><div class="ts-name"><span>💳</span> Stripe</div><div class="ts-desc">구독 결제 처리</div></td>
-      <td>
-        <div class="ts-why">글로벌 B2B SaaS 결제 표준. Supabase Edge Functions와 웹훅 연동 레퍼런스 풍부. (Phase 2 도입)</div>
-      </td>
-      <td><div class="feasibility"><div class="fbar"><div class="fbar-fill" style="background:var(--green);width:85%"></div></div><span class="fnum" style="color:var(--green)">85%</span></div></td>
-      <td><div class="cost-cell"><div class="cost-val">수수료만</div><div class="cost-sub">Phase 2 유료화 시 적용</div></div></td>
-    </tr>
-
-    </tbody>
-  </table>
-  </div>
-
-  <div class="sec mb20">도구별 역할 분담</div>
-  <div class="g2">
-    <div class="card">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">🙋 Jey가 직접 하는 일</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>Figma 기반 UI 기획 및 Antigravity 에이전트 지휘</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>계약서 PDF 파싱 우회: 텍스트 직접 복사/붙여넣기 진행</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>Supabase 대시보드 프로젝트 개설 & 환경변수 관리</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--blue);font-weight:700;flex-shrink:0">→</span>AI 판정 테스트 케이스 검증 및 Vercel 배포 트리거</div>
-      </div>
-    </div>
-    <div class="card">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">🤖 AI (Antigravity & Claude) 가 하는 일</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700;flex-shrink:0">→</span>(Antigravity) React 컴포넌트 자동 조립 및 UI 디버깅</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700;flex-shrink:0">→</span>(Antigravity) Supabase Edge Functions 코드 (Deno/TS) 작성</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700;flex-shrink:0">→</span>(Claude API) 계약서 전체 문맥 기반 과업 초과 여부 추론</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700;flex-shrink:0">→</span>(Claude API) 구조화된 JSON 결과 반환 및 근거 작성</div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-<div class="page" id="page-arch">
-
-  <div class="sec mb20">시스템 아키텍처 — 단일 생태계 통합 구조</div>
-  <div class="arch mb28">
-    <div class="arch-layer layer-user">
-      <div class="al-label">👤 User Layer</div>
-      <div class="al-nodes">
-        <div class="al-node nd-gray"><span class="al-node-icon">💻</span>웹 브라우저 (Chrome / Safari)</div>
-        <div class="al-arrow">+</div>
-        <div class="al-node nd-gray"><span class="al-node-icon">📱</span>모바일 반응형</div>
-      </div>
-      <div class="al-note">계약서 텍스트 수동 붙여넣기 기능 활용 (MVP 한정)</div>
-    </div>
-
-    <div class="arch-layer layer-front">
-      <div class="al-label">🎨 Frontend Layer — Vercel 배포</div>
-      <div class="al-nodes">
-        <div class="al-node nd-purple"><span class="al-node-icon">⚛️</span>React 18 + TypeScript</div>
-        <div class="al-arrow">+</div>
-        <div class="al-node nd-purple"><span class="al-node-icon">🌊</span>Tailwind CSS</div>
-        <div class="al-arrow">+</div>
-        <div class="al-node nd-purple"><span class="al-node-icon">⏳</span>고도화된 로딩 스텝 UI</div>
-      </div>
-      <div class="al-note">Antigravity에서 생성. AI 판정 시 체감 대기시간 완화용 스피너/텍스트 포함</div>
-    </div>
-
-    <div class="arch-layer layer-back">
-      <div class="al-label">⚙️ Backend & DB Layer — Supabase 통합 (핵심 변경점)</div>
-      <div class="al-nodes">
-        <div class="al-node nd-green"><span class="al-node-icon">🔑</span>Auth (소셜 로그인 인증)</div>
-        <div class="al-arrow">+</div>
-        <div class="al-node nd-cyan"><span class="al-node-icon">⚡</span>Edge Functions (Deno 기반 API)</div>
-        <div class="al-arrow">+</div>
-        <div class="al-node nd-green"><span class="al-node-icon">🦺</span>PostgreSQL DB + RLS 격리</div>
-      </div>
-      <div class="al-note">별도 서버(Railway) 없이 Supabase 생태계 안에서 인증/로직/데이터 완벽 통제</div>
-    </div>
-
-    <div class="arch-layer layer-ai">
-      <div class="al-label">🤖 AI Engine Layer — Claude API</div>
-      <div class="al-nodes">
-        <div class="al-node nd-yellow"><span class="al-node-icon">🧠</span>Full Context(원본) 주입</div>
-        <div class="al-arrow">→</div>
-        <div class="al-node nd-yellow"><span class="al-node-icon">⚖️</span>범위 초과 판정 (F-020)</div>
-      </div>
-      <div class="al-note">200K 토큰 윈도우 활용, 구조화 JSON 응답 (요약 의존성 제거)</div>
-    </div>
-  </div>
-
-  <div class="sec mb20">데이터 흐름 — 범위 초과 판정 시퀀스 (Supabase Edge Function 기반)</div>
-  <div class="g2">
-    <div class="card" style="border-left:3px solid var(--blue)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">📥 최적화된 요청 처리 흐름</div>
-      <div style="display:flex;flex-direction:column;gap:0">
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(79,128,255,.2);color:var(--blue);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
-          <div style="font-size:11px;color:var(--t2);line-height:1.6">PM이 클라이언트 요청 입력 → React 폼에서 <code style="font-size:10px;background:var(--s3);padding:1px 4px;border-radius:3px">/functions/v1/judgments</code> (Edge Function) 호출</div>
-        </div>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(79,128,255,.2);color:var(--blue);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
-          <div style="font-size:11px;color:var(--t2);line-height:1.6">Edge Function 내부에서 사용자 세션 자동 검증 (CORS 이슈 없음)</div>
-        </div>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(245,158,11,.2);color:var(--yellow);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
-          <div style="font-size:11px;color:var(--t2);line-height:1.6">DB에서 <b>계약서 원본(Full Text)</b> 조회 → 원본 텍스트 + 사용자 요청을 Claude API에 주입</div>
-        </div>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(245,158,11,.2);color:var(--yellow);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
-          <div style="font-size:11px;color:var(--t2);line-height:1.6">Claude가 추론 후 JSON 반환. 프론트는 이 동안 "계약서 조항 교차 검증 중..." 로딩 UX 표시 (약 5~8초)</div>
-        </div>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(16,185,129,.2);color:var(--green);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
-          <div style="font-size:11px;color:var(--t2);line-height:1.6">Edge Function이 DB에 판정 결과를 안전하게 Insert</div>
-        </div>
-        <div style="display:flex;gap:10px;padding:8px 0">
-          <div style="width:22px;height:22px;border-radius:50%;background:rgba(16,185,129,.2);color:var(--green);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">6</div>
-          <div style="font-size:11px;color:var(--t2);line-height:1.6">React UI에 결과 반영 완료</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="border-left:3px solid var(--purple)">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">⚡ 수정된 성능 목표 (현실화)</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="card-sm" style="background:var(--s2)">
-          <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:4px">AI 판정 응답 시간</div>
-          <div style="font-size:13px;font-weight:800;color:#fff">목표 5 ~ 10초</div>
-          <div style="font-size:10px;color:var(--t4);margin-top:2px">추론(Reasoning) 포함 현실적 속도. 로딩 UX로 상쇄.</div>
-        </div>
-        <div class="card-sm" style="background:var(--s2)">
-          <div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:4px">판정 정확도 목표</div>
-          <div style="font-size:13px;font-weight:800;color:#fff">≥ 85%</div>
-          <div style="font-size:10px;color:var(--t4);margin-top:2px">원본 텍스트 Full Injection을 통한 정확도 향상.</div>
-        </div>
-        <div class="card-sm" style="background:var(--s2)">
-          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px">토큰 비용 (API Rate)</div>
-          <div style="font-size:13px;font-weight:800;color:#fff">건당 비용 증가 (감수)</div>
-          <div style="font-size:10px;color:var(--t4);margin-top:2px">높은 판정 퀄리티를 위해 MVP 단계에서는 요약본 대신 원본 토큰 소모 수용.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-<div class="page" id="page-db">
-
-  <div class="sec mb20">데이터베이스 스키마 — PostgreSQL (Supabase)</div>
-  <div class="schema-wrap mb28">
-
-    <div class="schema-table">
-      <div class="st-head">
-        <span class="tag tag-yellow" style="font-size:9px">PK</span>
-        <span class="st-name">users</span>
-        <span class="tag tag-cyan" style="font-size:9px;margin-left:auto">Auth 자동 연동</span>
-      </div>
-      <div class="st-body">
-        <div class="st-row"><div class="sr-pk">PK</div><span class="sr-name">id</span><span class="sr-type">UUID</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">email</span><span class="sr-type">VARCHAR(255) UNIQUE</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">name</span><span class="sr-type">VARCHAR(100)</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">agency_name</span><span class="sr-type">VARCHAR(200)</span><span class="sr-nullable">nullable</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">hourly_rate</span><span class="sr-type">INTEGER</span><span class="sr-nullable">default 50000</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">created_at</span><span class="sr-type">TIMESTAMPTZ</span></div>
-      </div>
-    </div>
-
-    <div class="schema-table">
-      <div class="st-head">
-        <span class="tag tag-yellow" style="font-size:9px">PK</span>
-        <span class="st-name">projects</span>
-      </div>
-      <div class="st-body">
-        <div class="st-row"><div class="sr-pk">PK</div><span class="sr-name">id</span><span class="sr-type">UUID</span></div>
-        <div class="st-row"><div class="sr-fk">FK</div><span class="sr-name">user_id</span><span class="sr-type">UUID → users.id</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">name</span><span class="sr-type">VARCHAR(200)</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">client_name</span><span class="sr-type">VARCHAR(200)</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">contract_amount</span><span class="sr-type">INTEGER</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">contract_text</span><span class="sr-type">TEXT</span><span class="sr-nullable">수동 복사/붙여넣기</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">start_date</span><span class="sr-type">DATE</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">end_date</span><span class="sr-type">DATE</span><span class="sr-nullable">nullable</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">created_at</span><span class="sr-type">TIMESTAMPTZ</span></div>
-      </div>
-    </div>
-
-    <div class="schema-table">
-      <div class="st-head">
-        <span class="tag tag-yellow" style="font-size:9px">PK</span>
-        <span class="st-name">change_requests</span>
-      </div>
-      <div class="st-body">
-        <div class="st-row"><div class="sr-pk">PK</div><span class="sr-name">id</span><span class="sr-type">UUID</span></div>
-        <div class="st-row"><div class="sr-fk">FK</div><span class="sr-name">project_id</span><span class="sr-type">UUID → projects.id</span></div>
-        <div class="st-row"><div class="sr-fk">FK</div><span class="sr-name">user_id</span><span class="sr-type">UUID → users.id</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">request_text</span><span class="sr-type">TEXT</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">judgment</span><span class="sr-type">VARCHAR(15)</span><span class="sr-nullable">in|out|unclear</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">confidence</span><span class="sr-type">DECIMAL(4,2)</span><span class="sr-nullable">0.00~1.00</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">reasoning</span><span class="sr-type">TEXT</span><span class="sr-nullable">AI 판정 근거</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">estimated_hours</span><span class="sr-type">DECIMAL(5,1)</span><span class="sr-nullable">nullable</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">estimated_cost</span><span class="sr-type">INTEGER</span><span class="sr-nullable">nullable</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">feedback</span><span class="sr-type">VARCHAR(10)</span><span class="sr-nullable">correct|wrong|null</span></div>
-        <div class="st-row"><div class="sr-col"></div><span class="sr-name">created_at</span><span class="sr-type">TIMESTAMPTZ</span></div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="sec mb16">Row Level Security 정책</div>
-  <div class="card-sm mb20" style="font-family:monospace;font-size:11px;line-height:1.9;color:var(--t2)">
-    <div style="color:var(--t4);margin-bottom:6px;font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase">Supabase SQL — RLS 예시</div>
-    <span style="color:var(--cyan)">ALTER TABLE</span> projects <span style="color:var(--cyan)">ENABLE ROW LEVEL SECURITY</span>;<br>
-    <br>
-    <span style="color:var(--t4)">-- 자신의 프로젝트만 읽기/쓰기 허용 (Edge Function에서 자동 식별)</span><br>
-    <span style="color:var(--cyan)">CREATE POLICY</span> <span style="color:var(--green)">"Users can only manage own projects"</span><br>
-    &nbsp;&nbsp;<span style="color:var(--cyan)">ON</span> projects <span style="color:var(--cyan)">FOR ALL USING</span><br>
-    &nbsp;&nbsp;(auth.uid() = user_id);
-  </div>
-
-</div>
-
-
-<div class="page" id="page-api">
-
-  <div class="sec mb20">API 명세 — Supabase Edge Functions</div>
-  <div style="margin-bottom:28px">
-
-    <div class="api-item">
-      <div class="api-head" onclick="toggleApi(this)">
-        <span class="api-method m-post">POST</span>
-        <span class="api-path">/functions/v1/judgments</span>
-        <span class="api-summary">계약 원본 기반 범위 초과 판정 (Full Text Injection)</span>
-        <span class="chev">▼</span>
-      </div>
-      <div class="api-body">
-        <div class="api-section-label">Request Body</div>
-        <pre><span class="key">"project_id"</span>: <span class="str">"uuid-xxxx"</span>,
-<span class="key">"request_text"</span>: <span class="str">"제품 소개 페이지를 3개 추가해주세요"</span></pre>
-        <div class="api-section-label">Response 200</div>
-        <pre><span class="key">"id"</span>: <span class="str">"uuid-yyyy"</span>,
-<span class="key">"judgment"</span>: <span class="str">"out_of_scope"</span>,
-<span class="key">"confidence"</span>: <span class="num">0.92</span>,
-<span class="key">"reasoning"</span>: <span class="str">"계약서 원본 제3조에 명시된 총 5페이지를 초과합니다. 신규 3페이지는 별도 산정 대상입니다."</span>,
-<span class="key">"estimated_hours"</span>: <span class="num">12.0</span>,
-<span class="key">"estimated_cost"</span>: <span class="num">600000</span></pre>
-        <div class="api-section-label">서버리스 처리 흐름 (Deno)</div>
-        <pre><span class="cmt">1. Supabase Client로 project_id에 해당하는 contract_text(원본) 조회</span>
-<span class="cmt">2. Claude API 연동 (contract_text + request_text 전송)</span>
-<span class="cmt">3. Claude의 JSON 응답 검증 및 파싱</span>
-<span class="cmt">4. change_requests 테이블에 자동 Insert 후 반환</span></pre>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<div class="page" id="page-prompt">
-
-  <div class="sec mb20">AI 판정 프롬프트 설계 (원본 텍스트 기반 최적화)</div>
-
-  <div style="margin-bottom:24px">
-    <div class="prompt-label"><span>⚖️</span> 초과 판정 프롬프트 (최적화 반영)</div>
-    <div class="prompt-block"><span class="kw">[SYSTEM PROMPT]</span>
-<span class="val">당신은 웹 에이전시 프로젝트의 계약 범위를 엄격하게 판정하는 전문가입니다.</span>
-<span class="val">아래 제공된 '계약서 원본'을 근거로 클라이언트 요청이 계약 범위 내인지 판정하세요.</span>
-<span class="val">답변은 반드시 유효한 JSON 형식으로만 작성해야 하며, 그 외의 설명은 금지합니다.</span>
-
-<span class="kw">[USER PROMPT]</span>
-<span class="ph">## 계약서 원본 (Full Text)
-{contract_text}
-
-## 클라이언트 요청
-"{request_text}"
-
-## 응답 형식 (JSON only)</span>
-{
-  <span class="key">"judgment"</span>: <span class="str">"out_of_scope"</span>, <span class="cm">// in_scope | out_of_scope | unclear</span>
-  <span class="key">"confidence"</span>: <span class="num">0.92</span>,           <span class="cm">// 0.0 ~ 1.0</span>
-  <span class="key">"reasoning"</span>: <span class="str">"계약서 원본의 특정 조항이나 맥락을 인용하여 판정 근거를 2~3문장으로 구체적 서술"</span>,
-  <span class="key">"estimated_hours"</span>: <span class="num">12.0</span>,      <span class="cm">// 예상 추가 시간 (범위 외인 경우)</span>
-  <span class="key">"judgment_basis"</span>: <span class="str">"명시적 포함/제외 항목 또는 미언급 사항 여부 판단"</span>
-}</div>
-  </div>
-
-  <div class="sec mb20">프롬프트 및 응답 검증 계획</div>
-  <div class="g2">
-    <div class="card">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">🌡 파라미터 제어: Temperature = 0.2</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.7">창의성보다는 <b>일관성과 정확성</b>이 생명인 로직입니다. 환각(Hallucination)을 최소화하기 위해 Temperature를 낮게 유지합니다.</div>
-    </div>
-    <div class="card">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">💡 폴백 (Fallback) 전략</div>
-      <div style="font-size:12px;color:var(--t3);line-height:1.7">JSON 파싱이 실패하거나 AI가 확신을 갖지 못할 경우(Confidence &lt; 0.6) 자동으로 "unclear(불명확)" 처리하여 PM이 최종 판단하도록 설계합니다.</div>
-    </div>
-  </div>
-
-</div>
-
 
 <div class="page" id="page-risk">
 
-  <div class="sec mb20">기술 리스크 매트릭스 (수정판)</div>
+  <div class="sec mb20">기술 및 비즈니스 리스크 매트릭스 (Lean 전략 반영)</div>
   <div style="overflow-x:auto;margin-bottom:28px">
   <table class="rtable">
     <thead><tr>
@@ -693,22 +194,22 @@ pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',mon
       <th>상세 설명 & 완화 방안</th>
     </tr></thead>
     <tbody>
+    <tr style="background:rgba(239,68,68,.05)">
+      <td><div class="risk-name" style="color:var(--red)">초기 시장 적합성(PMF) 실패</div></td>
+      <td><span class="tag tag-red">매우 높음</span></td>
+      <td><span class="tag tag-red">치명적</span></td>
+      <td>
+        <div class="risk-desc">사전 고객 인터뷰를 생략했기 때문에, 실제 에이전시 실무자들이 겪는 Pain point와 우리가 만든 솔루션의 방향이 완전히 엇갈릴 수 있음.</div>
+        <div class="risk-mitigation">AI를 활용해 개발 매몰 비용을 극단적으로 낮췄으므로, MVP 배포 후 즉시 사용자 리텐션과 피드백을 수집. 반응이 미온적일 경우, 수집된 데이터를 바탕으로 GEO/AIO 최적화 등 타겟 시장을 빠르게 피벗(Pivot)하는 유연성 확보.</div>
+      </td>
+    </tr>
     <tr>
       <td><div class="risk-name">계약서 PDF 파싱 한계</div></td>
       <td><span class="tag tag-red">매우 높음</span></td>
       <td><span class="tag tag-yellow">중간</span></td>
       <td>
-        <div class="risk-desc">한국어 PDF/Word 문서는 표, 들여쓰기 등이 복잡하여 OCR/파싱 개발에 막대한 시간이 소모됨.</div>
-        <div class="risk-mitigation">MVP 단계 파싱 개발 과감히 제외. 사용자가 과업지시서나 계약서 핵심 텍스트를 직접 복사/붙여넣기 하도록 UX 유도.</div>
-      </td>
-    </tr>
-    <tr>
-      <td><div class="risk-name">Antigravity 학습/충돌</div></td>
-      <td><span class="tag tag-yellow">중간</span></td>
-      <td><span class="tag tag-yellow">중간</span></td>
-      <td>
-        <div class="risk-desc">멀티 에이전트 도구 특성상 파일 구조 관리나 프롬프트 충돌이 발생할 수 있음.</div>
-        <div class="risk-mitigation">단일 컴포넌트 단위로 명확히 끊어서 작업 지시. Figma 레퍼런스 이미지를 촘촘히 제공하여 에이전트의 헛돌기 방지.</div>
+        <div class="risk-desc">한국어 문서의 표, 들여쓰기 등이 복잡하여 OCR 파싱 개발에 시간이 소모됨.</div>
+        <div class="risk-mitigation">MVP 단계 파싱 개발 과감히 제외. 사용자가 텍스트를 직접 복사/붙여넣기 하도록 유도.</div>
       </td>
     </tr>
     <tr>
@@ -717,42 +218,13 @@ pre{font-size:11px;color:var(--t2);line-height:1.7;font-family:'Courier New',mon
       <td><span class="tag tag-yellow">중간</span></td>
       <td>
         <div class="risk-desc">계약서 원본(Full Context)을 매 요청 시 주입하므로 토큰 사용량이 증가함.</div>
-        <div class="risk-mitigation">초기 정확도를 위해 필수적인 투자. 사용량 폭증 시 RAG 도입 또는 요청별로 계약서를 Chunking하는 방안을 V2로 미룸.</div>
-      </td>
-    </tr>
-    <tr>
-      <td><div class="risk-name">AI 응답 대기시간 이탈</div></td>
-      <td><span class="tag tag-yellow">중간</span></td>
-      <td><span class="tag tag-yellow">중간</span></td>
-      <td>
-        <div class="risk-desc">추론 과정에서 5~10초 대기가 발생하여 사용자가 앱이 멈춘 것으로 오인할 수 있음.</div>
-        <div class="risk-mitigation">단순 스피너가 아닌, 단계별 상태 메시지("조항 분석 중..." -> "비용 산출 중...")를 제공하는 고도화된 로딩 UI 기획 적용.</div>
+        <div class="risk-mitigation">초기 정확도를 위한 필수 투자로 간주. V2에서 RAG 또는 Chunking 도입 검토.</div>
       </td>
     </tr>
     </tbody>
   </table>
   </div>
-
-  <div class="sec mb20">MVP 운영 비용 — 단일 생태계 통합 효과</div>
-  <div class="cost-breakdown">
-    <div class="cost-card">
-      <div class="cc-head">
-        <span>💸 베타 단계 (10팀 이하)</span>
-        <span class="tag tag-green">최적화 반영</span>
-      </div>
-      <div class="cc-items">
-        <div class="cc-row"><div class="cc-name">Antigravity (IDE)</div><div class="cc-val">$0</div></div>
-        <div class="cc-row"><div class="cc-name">Vercel (프론트 배포)</div><div class="cc-val">$0</div></div>
-        <div class="cc-row"><div class="cc-name">Supabase (DB+API)</div><div class="cc-val">$0</div></div>
-        <div class="cc-row"><div class="cc-name">Claude API (원본 주입 기준)</div><div class="cc-val">~$10</div></div>
-        <div class="cc-row"><div class="cc-name">도메인</div><div class="cc-val">$2</div></div>
-        <div class="cc-row cc-total"><div class="cc-name">월 합계</div><div class="cc-val" style="color:var(--blue)">~$12/월</div></div>
-      </div>
-    </div>
-  </div>
-
 </div>
-
 
 <script>
 function go(id, el) {
@@ -760,12 +232,6 @@ function go(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById('page-' + id).classList.add('on');
   el.classList.add('on');
-}
-function toggleApi(el) {
-  const body = el.nextElementSibling;
-  const ch = el.querySelector('.chev');
-  body.classList.toggle('open');
-  ch.classList.toggle('open');
 }
 </script>
 </body>
