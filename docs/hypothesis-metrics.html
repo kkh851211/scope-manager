@@ -19,7 +19,7 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
 .logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
 .header-right{display:flex;align-items:center;gap:16px}
 .badge{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px}
-.badge-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
+.badge-purple{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3)}
 .badge-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:5px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -186,11 +186,11 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
 
 <header>
   <div>
-    <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--text4);font-weight:400">가설 & 성공 지표</span></div>
+    <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--text4);font-weight:400">가설 & 성공 지표 v1.1</span></div>
   </div>
   <div class="header-right">
-    <span class="badge badge-blue">Lean Validation</span>
-    <span style="font-size:11px;color:var(--text4)"><span class="dot"></span>검증 진행 중 · 2026.02</span>
+    <span class="badge badge-purple">MVP-Led Validation</span>
+    <span style="font-size:11px;color:var(--text4)"><span class="dot"></span>제품 빌드 및 섭외 단계</span>
   </div>
 </header>
 
@@ -201,69 +201,68 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
   <div class="tab" onclick="showPage('experiment',this)">🔬 실험 계획</div>
 </nav>
 
-<!-- ═══════════════ OVERVIEW ═══════════════ -->
 <div class="page active" id="page-overview">
 
   <div class="kpi-row">
     <div class="kpi" data-icon="🎯">
       <div class="kpi-label">핵심 검증 가설</div>
       <div class="kpi-val" style="color:var(--blue)">5<span style="font-size:16px;color:var(--text4)">/5</span></div>
-      <div class="kpi-sub">검증 대기 중</div>
+      <div class="kpi-sub">실증 테스트 대기</div>
     </div>
     <div class="kpi" data-icon="📈">
-      <div class="kpi-label">목표 청구 성공률</div>
+      <div class="kpi-label">목표 청구 성공률 (OMTM)</div>
       <div class="kpi-val" style="color:var(--green)">30<span style="font-size:16px">%</span></div>
-      <div class="kpi-sub">6주 내 달성 목표</div>
+      <div class="kpi-sub">베타 런칭 후 측정</div>
     </div>
     <div class="kpi" data-icon="👥">
-      <div class="kpi-label">인터뷰 목표</div>
-      <div class="kpi-val" style="color:var(--purple)">20<span style="font-size:16px">명</span></div>
-      <div class="kpi-sub">문제 검증 Phase</div>
+      <div class="kpi-label">클로즈드 베타 목표</div>
+      <div class="kpi-val" style="color:var(--purple)">10<span style="font-size:16px">팀</span></div>
+      <div class="kpi-sub">콜드 메일 및 인바운드</div>
     </div>
     <div class="kpi" data-icon="💰">
       <div class="kpi-label">유료 전환 목표</div>
-      <div class="kpi-val" style="color:var(--yellow)">10<span style="font-size:16px">팀</span></div>
+      <div class="kpi-val" style="color:var(--yellow)">5<span style="font-size:16px">팀</span></div>
       <div class="kpi-sub">12주 내 · 월 5만원</div>
     </div>
   </div>
 
-  <div class="section-title">검증 퍼널</div>
+  <div class="section-title">MVP 검증 퍼널 (베타 모수 기준)</div>
   <div class="dash-grid">
     <div class="chart-card">
       <div class="chart-title">가설 검증 단계별 목표 <span class="ctag">12주 로드맵</span></div>
       <div class="bar-chart">
         <div class="bar-row">
-          <div class="bar-label">문제 공감</div>
+          <div class="bar-label">리드 수집</div>
           <div class="bar-track">
-            <div class="bar-fill pb-blue" style="width:80%">80%</div>
+            <div class="bar-fill pb-blue" style="width:100%">100% (Base)</div>
           </div>
         </div>
         <div class="bar-row">
-          <div class="bar-label">실사용 의향</div>
+          <div class="bar-label">베타 등록 (H1)</div>
           <div class="bar-track">
             <div class="bar-fill pb-purple" style="width:60%">60%</div>
           </div>
         </div>
         <div class="bar-row">
-          <div class="bar-label">베타 등록</div>
+          <div class="bar-label">주간 활성 (H3)</div>
           <div class="bar-track">
             <div class="bar-fill pb-blue" style="width:40%">40%</div>
           </div>
         </div>
         <div class="bar-row">
-          <div class="bar-label">유료 전환</div>
+          <div class="bar-label">청구 시도 (H2)</div>
           <div class="bar-track">
-            <div class="bar-fill pb-green" style="width:20%">20%</div>
+            <div class="bar-fill pb-green" style="width:25%">25%</div>
           </div>
         </div>
         <div class="bar-row">
-          <div class="bar-label">청구 성공</div>
+          <div class="bar-label">유료 전환 (H5)</div>
           <div class="bar-track">
             <div class="bar-fill" style="width:15%;background:linear-gradient(90deg,var(--yellow),#fcd34d)">15%</div>
           </div>
         </div>
       </div>
-      <div style="margin-top:14px;font-size:10px;color:var(--text4)">※ 각 단계의 목표 전환율 (인터뷰 모수 기준)</div>
+      <div style="margin-top:14px;font-size:10px;color:var(--text4)">※ 각 단계의 목표 전환율 (최초 마케팅 리드 기준)</div>
     </div>
 
     <div class="chart-card">
@@ -271,7 +270,7 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       <div class="funnel">
         <div class="funnel-step">
           <div class="funnel-fill" style="background:var(--red);width:100%"></div>
-          <div><div class="funnel-name">H1 · 심리적 장벽</div><div class="funnel-rate">리스크 HIGH</div></div>
+          <div><div class="funnel-name">H1 · 심리적 장벽 실재</div><div class="funnel-rate">리스크 HIGH</div></div>
           <div class="funnel-val">🔴</div>
         </div>
         <div class="funnel-step">
@@ -298,28 +297,28 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
     </div>
   </div>
 
-  <div class="section-title">검증 스코어카드</div>
+  <div class="section-title">MVP 초기 검증 스코어카드</div>
   <div class="scorecard">
     <div class="sc-item">
-      <div class="sc-icon">😤</div>
+      <div class="sc-icon">⚡</div>
       <div style="flex:1">
-        <div class="sc-label">문제 심각도 공감 (인터뷰)</div>
-        <div class="sc-val">미검증 — 목표: 인터뷰 대상 80%</div>
-        <div class="sc-bar"><div class="sc-fill pb-blue" style="width:0%"></div></div>
+        <div class="sc-label">MVP 런칭 속도 (목표 6주)</div>
+        <div class="sc-val">진행 중 — 1주 차 달성률</div>
+        <div class="sc-bar"><div class="sc-fill pb-blue" style="width:16%"></div></div>
       </div>
     </div>
     <div class="sc-item">
-      <div class="sc-icon">💬</div>
+      <div class="sc-icon">✉️</div>
       <div style="flex:1">
-        <div class="sc-label">PM 심리적 장벽 실재 확인</div>
-        <div class="sc-val">미검증 — 목표: 인터뷰 70% 이상 공감</div>
+        <div class="sc-label">콜드 메일 회신율 (베타 수락)</div>
+        <div class="sc-val">미검증 — 목표: 10%</div>
         <div class="sc-bar"><div class="sc-fill pb-purple" style="width:0%"></div></div>
       </div>
     </div>
     <div class="sc-item">
       <div class="sc-icon">⚙️</div>
       <div style="flex:1">
-        <div class="sc-label">3버튼 입력 UX — 1분 이내 완료율</div>
+        <div class="sc-label">3버튼 입력 UX — 1주 차 활성률</div>
         <div class="sc-val">미검증 — 목표: 베타 사용자 70%</div>
         <div class="sc-bar"><div class="sc-fill pb-green" style="width:0%"></div></div>
       </div>
@@ -327,8 +326,8 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
     <div class="sc-item">
       <div class="sc-icon">💳</div>
       <div style="flex:1">
-        <div class="sc-label">월 5만원 지불 의향</div>
-        <div class="sc-val">미검증 — 목표: 대화 상대 30%</div>
+        <div class="sc-label">유료 플랜 전환율 (CBT 종료 시점)</div>
+        <div class="sc-val">미검증 — 목표: 베타 대상 30%</div>
         <div class="sc-bar"><div class="sc-fill pb-yellow" style="width:0%"></div></div>
       </div>
     </div>
@@ -336,10 +335,9 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
 
 </div>
 
-<!-- ═══════════════ HYPOTHESIS ═══════════════ -->
 <div class="page" id="page-hypothesis">
 
-  <div class="section-title">핵심 가설 5가지</div>
+  <div class="section-title">핵심 가설 5가지 (제품 검증 기반)</div>
   <div class="hypo-grid">
 
     <div class="hypo-card h1">
@@ -349,17 +347,16 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       </div>
       <div class="hypo-title">PM은 증거가 없어서가 아니라,<br>심리적 부담 때문에 청구를 못 한다</div>
       <div class="hypo-if">
-        <b>만약</b> 웹 에이전시 PM과 인터뷰를 하면,<br>
-        <b>70% 이상이</b> "추가 청구를 포기한 경험이 있고, 그 이유가 증거 부족보다 '아쉬운 소리 하기 싫음'이었다"고 답할 것이다.
+        <b>만약</b> 리드 마그넷(자가진단 시트)을 배포하고 베타 신청서를 받으면,<br>
+        <b>신청자의 60% 이상이</b> 가입 사유로 '클라이언트와의 직접 협상 부담(아쉬운 소리)'을 지목할 것이다.
       </div>
       <div class="hypo-metrics-mini">
-        <span class="mm">인터뷰 공감률</span>
-        <span class="mm">포기 경험 비율</span>
-        <span class="mm">원인 귀인 분석</span>
+        <span class="mm">베타 신청 동기 분석</span>
+        <span class="mm">리드 전환율</span>
       </div>
       <div class="hypo-status">
-        <div class="status-dot-wrap"><span class="sdot unverified"></span>검증 대기</div>
-        <div class="confidence-wrap">확신도 <div class="conf-bar"><div class="conf-fill pb-blue" style="width:0%"></div></div> 0%</div>
+        <div class="status-dot-wrap"><span class="sdot testing"></span>지표 수집 중</div>
+        <div class="confidence-wrap">확신도 <div class="conf-bar"><div class="conf-fill pb-blue" style="width:10%"></div></div> 10%</div>
       </div>
     </div>
 
@@ -370,13 +367,12 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       </div>
       <div class="hypo-title">'사람이 아닌 시스템 판정'이<br>청구 시도율을 높인다</div>
       <div class="hypo-if">
-        <b>만약</b> "시스템이 범위 초과를 감지했습니다"라는 자동 리포트를 제공하면,<br>
-        <b>PM의 추가 청구 시도율이 현재 대비 2배 이상</b> 증가할 것이다.
+        <b>만약</b> MVP를 통해 "AI가 범위 초과를 감지했습니다"라는 리포트를 제공하면,<br>
+        <b>초과를 확인한 PM 중 40% 이상이</b> 이를 활용해 실제 클라이언트에게 추가 청구를 시도할 것이다.
       </div>
       <div class="hypo-metrics-mini">
-        <span class="mm">청구 시도율 변화</span>
-        <span class="mm">before/after 비교</span>
-        <span class="mm">프로토타입 반응</span>
+        <span class="mm">리포트 다운로드 수</span>
+        <span class="mm">청구 시도(공유) 비율</span>
       </div>
       <div class="hypo-status">
         <div class="status-dot-wrap"><span class="sdot unverified"></span>검증 대기</div>
@@ -391,13 +387,12 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       </div>
       <div class="hypo-title">3버튼·1분 입력이<br>지속 가능한 습관을 만든다</div>
       <div class="hypo-if">
-        <b>만약</b> 일일 과업 입력을 3버튼·1분 이내로 설계하면,<br>
-        <b>베타 사용자의 70%가 2주 연속</b> 입력을 유지할 것이다.
+        <b>만약</b> 일일 과업 입력을 3버튼·1분 이내로 설계하여 배포하면,<br>
+        <b>베타 사용자의 70%가 2주 차에도 활성 상태(WAU)</b>를 유지할 것이다.
       </div>
       <div class="hypo-metrics-mini">
-        <span class="mm">일 입력 완료율</span>
-        <span class="mm">2주 리텐션</span>
-        <span class="mm">소요 시간 측정</span>
+        <span class="mm">일일 입력 완료율</span>
+        <span class="mm">2주 코호트 리텐션</span>
       </div>
       <div class="hypo-status">
         <div class="status-dot-wrap"><span class="sdot unverified"></span>검증 대기</div>
@@ -412,13 +407,12 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       </div>
       <div class="hypo-title">손익 가시화만으로도<br>충분한 지각 가치가 생긴다</div>
       <div class="hypo-if">
-        <b>만약</b> 프로젝트별 실제 손익 대시보드를 보여주면,<br>
-        <b>에이전시 대표 60% 이상이</b> "이 데이터를 월 단위로 보고 싶다"고 응답할 것이다.
+        <b>만약</b> MVP 내에서 프로젝트별 손익 대시보드 화면을 제공하면,<br>
+        <b>에이전시 대표(관리자) 권한 사용자의 주 1회 이상 대시보드 조회율</b>이 60%를 넘을 것이다.
       </div>
       <div class="hypo-metrics-mini">
-        <span class="mm">대시보드 관심도</span>
-        <span class="mm">정기 조회 의향</span>
-        <span class="mm">경영 의사결정 연결</span>
+        <span class="mm">대시보드 페이지 뷰(PV)</span>
+        <span class="mm">관리자 재방문 주기</span>
       </div>
       <div class="hypo-status">
         <div class="status-dot-wrap"><span class="sdot unverified"></span>검증 대기</div>
@@ -433,13 +427,12 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       </div>
       <div class="hypo-title">연 1건 청구 성공이<br>월 5만원 구독을 정당화한다</div>
       <div class="hypo-if">
-        <b>만약</b> "연 1건 추가 청구 성공 = 구독료 완전 회수"라는 ROI 프레임을 제시하면,<br>
-        <b>관심 고객의 30% 이상이</b> 유료 플랜 결제 의향을 밝힐 것이다.
+        <b>만약</b> 클로즈드 베타 종료 후 유료 전환 오퍼를 발송하면,<br>
+        베타를 적극적으로 사용한(범위 초과 리포트 1회 이상 발급) <b>팀의 30%가 유료 결제로 전환</b>할 것이다.
       </div>
       <div class="hypo-metrics-mini">
-        <span class="mm">지불 의향 비율</span>
-        <span class="mm">ROI 납득도</span>
-        <span class="mm">실제 결제 전환율</span>
+        <span class="mm">결제 페이지 전환율</span>
+        <span class="mm">최종 결제 성공률</span>
       </div>
       <div class="hypo-status">
         <div class="status-dot-wrap"><span class="sdot unverified"></span>검증 대기</div>
@@ -450,26 +443,22 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
   </div>
 
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;font-size:12px;color:var(--text3);line-height:1.8;">
-    <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">💡 가설 검증 우선순위 논리</div>
-    H1(문제 실재 여부)을 먼저 검증해야 나머지 모든 가설이 의미를 갖습니다. H1이 기각되면 H2~H5는 설계 자체를 재검토해야 합니다.
-    H2는 제품의 핵심 메커니즘이므로 프로토타입 테스트에서 반드시 검증해야 합니다.
-    H3은 DAU/리텐션 지표로 검증 가능한 행동 가설이며, MVP 베타 단계에서 자연스럽게 측정됩니다.
-    H5는 리스크가 낮지만, H1~H4가 먼저 검증되어야 유의미한 결제 전환을 만들 수 있습니다.
+    <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">💡 실증 검증 논리</div>
+    모든 가설은 '사용자의 대답'이 아닌 '사용자의 행동(로그 데이터)'으로 증명합니다. MVP 런칭(6주) 직후 H1~H4가 동시다발적으로 데이터 트래킹되며, 10주 차 유료 오퍼를 통해 H5가 최종 검증됩니다.
   </div>
 
 </div>
 
-<!-- ═══════════════ METRICS ═══════════════ -->
 <div class="page" id="page-metrics">
 
-  <div class="section-title">성공 지표 체계</div>
+  <div class="section-title">제품 기반 성공 지표 체계</div>
   <div class="metrics-wrap">
     <table class="metrics-table">
       <thead>
         <tr>
           <th style="width:160px">지표명</th>
           <th style="width:80px">유형</th>
-          <th>측정 방법</th>
+          <th>측정 방법 (Data Source)</th>
           <th style="width:140px">목표값</th>
           <th style="width:160px">현재 진행</th>
           <th style="width:80px">관련 가설</th>
@@ -477,81 +466,59 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
       </thead>
       <tbody>
         <tr>
-          <td><div class="metric-name">문제 공감률</div><div class="metric-desc">인터뷰 대상 중 '청구 포기 경험 + 심리적 장벽' 동시 공감 비율</div></td>
+          <td><div class="metric-name">리드 및 베타 신청 전환율</div><div class="metric-desc">랜딩 페이지 유입 후 실사용을 위한 신청서 작성 완료 비율</div></td>
           <td><span class="metric-type mt-leading">Leading</span></td>
-          <td style="font-size:11px;color:var(--text3)">심층 인터뷰 20명 이상<br>구조화 설문 + 인용 수집</td>
-          <td><div class="target-cell">≥ 70%</div><div class="target-sub">최소 14/20명 공감</div></td>
+          <td style="font-size:11px;color:var(--text3)">Google Analytics / Typeform<br>신청서 내 '고충' 키워드 텍스트 분석</td>
+          <td><div class="target-cell">≥ 15%</div><div class="target-sub">문제 공감도(H1) 1차 판별</div></td>
           <td>
-            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-blue" style="width:0%"></div></div><span class="prog-val">0%</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">0 / 20명 인터뷰 완료</div>
+            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-blue" style="width:0%"></div></div><span class="prog-val">-</span></div>
+            <div style="font-size:10px;color:var(--text4);margin-top:4px">캠페인 오픈 전</div>
           </td>
           <td style="font-size:11px;color:var(--blue)">H1</td>
         </tr>
         <tr>
-          <td><div class="metric-name">청구 시도율</div><div class="metric-desc">범위 초과 감지 이후 실제로 추가 청구를 시도한 비율</div></td>
-          <td><span class="metric-type mt-outcome">Outcome</span></td>
-          <td style="font-size:11px;color:var(--text3)">앱 내 이벤트 로그<br>범위 초과 감지 → 청구 액션 추적</td>
-          <td><div class="target-cell">≥ 40%</div><div class="target-sub">기존 추정 ~10% 대비 4배</div></td>
+          <td><div class="metric-name">일 평균 입력 완료율</div><div class="metric-desc">초기 온보딩 완료 사용자 중 매일 과업을 입력하는 비율</div></td>
+          <td><span class="metric-type mt-behavior">Behavior</span></td>
+          <td style="font-size:11px;color:var(--text3)">Supabase Event Log<br>DAU / MAU (고착도)</td>
+          <td><div class="target-cell">≥ 70%</div><div class="target-sub">2주 차 리텐션 유지 기준</div></td>
           <td>
             <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-purple" style="width:0%"></div></div><span class="prog-val">-</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 출시 전 측정 불가</div>
-          </td>
-          <td style="font-size:11px;color:var(--blue)">H2</td>
-        </tr>
-        <tr>
-          <td><div class="metric-name">일일 입력 완료율</div><div class="metric-desc">활성 사용자 중 당일 과업 입력을 완료한 비율 (DAU 기준)</div></td>
-          <td><span class="metric-type mt-behavior">Behavior</span></td>
-          <td style="font-size:11px;color:var(--text3)">앱 서버 로그<br>입력 완료 이벤트 집계</td>
-          <td><div class="target-cell">≥ 70%</div><div class="target-sub">2주 연속 유지 시 습관 형성</div></td>
-          <td>
-            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-green" style="width:0%"></div></div><span class="prog-val">-</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 출시 전 측정 불가</div>
+            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 런칭 후 트래킹</div>
           </td>
           <td style="font-size:11px;color:var(--blue)">H3</td>
         </tr>
         <tr>
-          <td><div class="metric-name">범위 초과 감지 건수</div><div class="metric-desc">시스템이 자동 판정한 범위 이탈 요청 수 (월 기준)</div></td>
+          <td><div class="metric-name">리포트 발급 및 공유율</div><div class="metric-desc">범위 초과 감지 시, PM이 실제로 '청구 리포트'를 생성/공유한 비율</div></td>
           <td><span class="metric-type mt-leading">Leading</span></td>
-          <td style="font-size:11px;color:var(--text3)">AI 엔진 판정 로그<br>월별 집계 리포트</td>
-          <td><div class="target-cell">≥ 5건/팀/월</div><div class="target-sub">청구 기회가 존재함을 증명</div></td>
-          <td>
-            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-blue" style="width:0%"></div></div><span class="prog-val">-</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 출시 전 측정 불가</div>
-          </td>
-          <td style="font-size:11px;color:var(--blue)">H2, H4</td>
-        </tr>
-        <tr>
-          <td><div class="metric-name">청구 성공률</div><div class="metric-desc">시도된 추가 청구 중 클라이언트가 수용한 비율 — 핵심 가치 검증</div></td>
-          <td><span class="metric-type mt-outcome">Outcome</span></td>
-          <td style="font-size:11px;color:var(--text3)">사용자 직접 입력 (CRM 연동)<br>또는 월간 설문</td>
-          <td><div class="target-cell">≥ 30%</div><div class="target-sub">연 1건 이상 성공 = ROI 달성</div></td>
-          <td>
-            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-yellow" style="width:0%"></div></div><span class="prog-val">-</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 출시 전 측정 불가</div>
-          </td>
-          <td style="font-size:11px;color:var(--blue)">H1, H2, H5</td>
-        </tr>
-        <tr>
-          <td><div class="metric-name">유료 전환율</div><div class="metric-desc">베타 등록 사용자 중 월 5만원 유료 플랜으로 전환한 비율</div></td>
-          <td><span class="metric-type mt-lagging">Lagging</span></td>
-          <td style="font-size:11px;color:var(--text3)">결제 시스템 전환 이벤트<br>채널별 UTM 추적</td>
-          <td><div class="target-cell">≥ 20%</div><div class="target-sub">베타 50팀 → 유료 10팀</div></td>
+          <td style="font-size:11px;color:var(--text3)">앱 서버 로그<br>공유 링크(URL) 발급 및 클릭 수 추적</td>
+          <td><div class="target-cell">≥ 40%</div><div class="target-sub">시스템 판정이 주는 행동 유발력</div></td>
           <td>
             <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-green" style="width:0%"></div></div><span class="prog-val">-</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 출시 전 측정 불가</div>
+            <div style="font-size:10px;color:var(--text4);margin-top:4px">MVP 런칭 후 트래킹</div>
           </td>
-          <td style="font-size:11px;color:var(--blue)">H5</td>
+          <td style="font-size:11px;color:var(--blue)">H2</td>
         </tr>
         <tr>
-          <td><div class="metric-name">리드 마그넷 전환율</div><div class="metric-desc">'Anti-Gaslighting Sheet' 다운로드 후 베타 대기 등록 비율</div></td>
-          <td><span class="metric-type mt-leading">Leading</span></td>
-          <td style="font-size:11px;color:var(--text3)">랜딩 페이지 UTM<br>다운로드 → 이메일 등록 funnel</td>
-          <td><div class="target-cell">≥ 15%</div><div class="target-sub">채널 유효성 검증</div></td>
+          <td><div class="metric-name">청구 성공률 (OMTM)</div><div class="metric-desc">시도된 추가 청구 중 클라이언트가 과업 수정이나 비용을 수용한 비율</div></td>
+          <td><span class="metric-type mt-outcome">Outcome</span></td>
+          <td style="font-size:11px;color:var(--text3)">인앱 피드백 ("성공하셨나요?" 팝업)<br>베타 테스터 주간 체크인 콜</td>
+          <td><div class="target-cell">≥ 30%</div><div class="target-sub">PMF 달성을 위한 절대 지표</div></td>
           <td>
-            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-purple" style="width:0%"></div></div><span class="prog-val">-</span></div>
-            <div style="font-size:10px;color:var(--text4);margin-top:4px">채널 운영 전</div>
+            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-blue" style="width:0%"></div></div><span class="prog-val">-</span></div>
+            <div style="font-size:10px;color:var(--text4);margin-top:4px">데이터 누적 필요</div>
           </td>
-          <td style="font-size:11px;color:var(--text3)">채널</td>
+          <td style="font-size:11px;color:var(--blue)">H2, H5</td>
+        </tr>
+        <tr>
+          <td><div class="metric-name">유료 구독 전환율</div><div class="metric-desc">베타 활성 테스터 중 월 5만원 유료 플랜으로 신용카드를 등록한 비율</div></td>
+          <td><span class="metric-type mt-lagging">Lagging</span></td>
+          <td style="font-size:11px;color:var(--text3)">Stripe 결제 이벤트 연동</td>
+          <td><div class="target-cell">≥ 30%</div><div class="target-sub">활성 테스터 10팀 중 3팀 전환</div></td>
+          <td>
+            <div class="progress-wrap"><div class="progress-bar"><div class="pb-fill pb-yellow" style="width:0%"></div></div><span class="prog-val">-</span></div>
+            <div style="font-size:10px;color:var(--text4);margin-top:4px">Phase 3 검증 예정</div>
+          </td>
+          <td style="font-size:11px;color:var(--blue)">H5</td>
         </tr>
       </tbody>
     </table>
@@ -562,97 +529,56 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
     <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text4);margin-bottom:10px">ONE METRIC THAT MATTERS</div>
     <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:8px">청구 성공률</div>
     <div style="font-size:14px;color:var(--text3);max-width:500px;margin:0 auto;line-height:1.7">
-      PM이 범위 초과 리포트를 사용해 실제로 추가 청구에 성공한 비율.<br>
-      이 숫자가 올라가야만 핵심 가치 제안 "<b style="color:#fff">기계가 대신 말해준다</b>"가 검증됩니다.
+      PM이 앱에서 발급한 범위 초과 리포트를 무기로 <strong style="color:var(--text2)">실제 추가 청구(비용 또는 과업 컷)에 성공한 비율.</strong><br>
+      이 지표의 상승만이 "제품이 진짜 문제를 해결했다"는 유일한 증거입니다.
     </div>
     <div style="margin-top:16px;display:inline-flex;gap:20px;background:rgba(0,0,0,.3);padding:10px 20px;border-radius:8px">
-      <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">≥ 30%</div><div style="font-size:10px;color:var(--text4)">MVP 성공 기준</div></div>
+      <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">≥ 30%</div><div style="font-size:10px;color:var(--text4)">MVP 성공 최소 기준</div></div>
       <div style="width:1px;background:var(--border)"></div>
-      <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--blue)">≥ 50%</div><div style="font-size:10px;color:var(--text4)">PMF 달성 기준</div></div>
+      <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--blue)">≥ 50%</div><div style="font-size:10px;color:var(--text4)">PMF 달성 강력 신호</div></div>
     </div>
   </div>
 
 </div>
 
-<!-- ═══════════════ EXPERIMENT ═══════════════ -->
 <div class="page" id="page-experiment">
 
-  <div class="section-title">12주 실험 계획</div>
+  <div class="section-title">12주 실행 로드맵 (Build & Measure)</div>
   <div class="exp-grid">
 
     <div class="exp-card">
       <div>
         <div class="exp-phase">Phase 1</div>
-        <div class="exp-week">W1–W3</div>
+        <div class="exp-week">W1–W4</div>
       </div>
       <div>
-        <div class="exp-name">문제 인터뷰 — 가설 H1 검증</div>
-        <div class="exp-desc">웹 에이전시 PM 20명 심층 인터뷰. 추가 청구 포기 경험과 그 원인(증거 부족 vs 심리적 장벽)을 구분하는 구조화 인터뷰 실시.</div>
-        <div class="exp-hypo">→ H1: 심리적 장벽 가설 검증 / H4: 손익 가시화 필요성 확인</div>
+        <div class="exp-name">MVP 초고속 빌드 및 섭외</div>
+        <div class="exp-desc">사전 인터뷰 생략. Antigravity IDE와 Supabase를 활용하여 핵심 기능(AI 판정 및 리포트 발급) 구현에 집중. 동시에 링크드인과 콜드메일로 초기 베타 테스터 10팀 섭외.</div>
+        <div class="exp-hypo">→ H1(문제 공감)을 신청 전환율로 즉시 사전 검증</div>
       </div>
       <div>
-        <div class="exp-method-label">방법론</div>
-        <div class="exp-method-val">Jobs-to-be-Done 인터뷰<br>PM 오픈채팅방 모집<br>인터뷰 스크립트 표준화</div>
+        <div class="exp-method-label">실행 액션</div>
+        <div class="exp-method-val">IDE 단일 워크스페이스 구축<br>랜딩 페이지 오픈<br>콜드 메일 DM 발송 (목표 100건)</div>
       </div>
       <div>
         <div class="exp-status-label">상태</div>
-        <div class="exp-status-val es-now">🔄 준비 중</div>
+        <div class="exp-status-val es-now">🔄 진행 중</div>
       </div>
     </div>
 
     <div class="exp-card">
       <div>
         <div class="exp-phase">Phase 1</div>
-        <div class="exp-week">W2–W3</div>
-      </div>
-      <div>
-        <div class="exp-name">리드 마그넷 배포 — 채널 검증</div>
-        <div class="exp-desc">'Anti-Gaslighting Sheet' (범위 초과 자가 진단 시트) 제작 후 링크드인·PM 커뮤니티 배포. 다운로드 → 베타 등록 전환율로 채널 효과 측정.</div>
-        <div class="exp-hypo">→ 채널 유효성 / 문제 관심도 사전 측정</div>
-      </div>
-      <div>
-        <div class="exp-method-label">방법론</div>
-        <div class="exp-method-val">랜딩 페이지 A/B<br>UTM 파라미터 추적<br>이메일 리스트 구축</div>
-      </div>
-      <div>
-        <div class="exp-status-label">상태</div>
-        <div class="exp-status-val es-plan">📋 계획</div>
-      </div>
-    </div>
-
-    <div class="exp-card">
-      <div>
-        <div class="exp-phase">Phase 2</div>
-        <div class="exp-week">W4–W6</div>
-      </div>
-      <div>
-        <div class="exp-name">프로토타입 데모 — H2 핵심 검증</div>
-        <div class="exp-desc">인터뷰 참가자 중 관심 표명자에게 HTML 프로토타입 시연. "시스템 판정 리포트"를 보여준 뒤 청구 의향 변화를 측정. 프로토타입 반응 + 사용성 테스트 동시 진행.</div>
-        <div class="exp-hypo">→ H2: 시스템 판정 효과 / H3: UX 직관성 검증</div>
-      </div>
-      <div>
-        <div class="exp-method-label">방법론</div>
-        <div class="exp-method-val">Think-aloud 프로토콜<br>Before/After 의향 측정<br>5점 척도 + 정성 인터뷰</div>
-      </div>
-      <div>
-        <div class="exp-status-label">상태</div>
-        <div class="exp-status-val es-plan">📋 계획</div>
-      </div>
-    </div>
-
-    <div class="exp-card">
-      <div>
-        <div class="exp-phase">Phase 2</div>
         <div class="exp-week">W5–W6</div>
       </div>
       <div>
-        <div class="exp-name">가격 검증 — H5 지불 의향 테스트</div>
-        <div class="exp-desc">ROI 계산 카드("연 1건 청구 성공 = 구독료 전액 회수") 제시 후 월 5만원 지불 의향 측정. Van Westendorp 가격 민감도 조사 병행.</div>
-        <div class="exp-hypo">→ H5: 수익 가설 / 가격 저항 수준 측정</div>
+        <div class="exp-name">클로즈드 베타 온보딩</div>
+        <div class="exp-desc">섭외된 10팀에게 MVP 배포. 계약서 초기 연동(Full Context 주입)을 지원하고, 첫 '일일 과업 입력'을 유도하여 3버튼 UX의 직관성(H3)을 테스트.</div>
+        <div class="exp-hypo">→ H3(행동 가설): 입력 완료율 및 1주 차 이탈 방어</div>
       </div>
       <div>
-        <div class="exp-method-label">방법론</div>
-        <div class="exp-method-val">Van Westendorp PSM<br>가상 결제 랜딩 페이지<br>조기 할인 오퍼 반응 테스트</div>
+        <div class="exp-method-label">측정 데이터</div>
+        <div class="exp-method-val">가입 후 최초 3일 접속률<br>첫 리포트 생성 완료율<br>AI 판정 성공률 트래킹</div>
       </div>
       <div>
         <div class="exp-status-label">상태</div>
@@ -662,17 +588,17 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
 
     <div class="exp-card">
       <div>
-        <div class="exp-phase">Phase 3</div>
+        <div class="exp-phase">Phase 2</div>
         <div class="exp-week">W7–W10</div>
       </div>
       <div>
-        <div class="exp-name">클로즈드 베타 — H3 행동 검증</div>
-        <div class="exp-desc">관심 고객 10~20팀 대상 MVP 베타 오픈. 3버튼·1분 입력 UX 일일 완료율, 2주 리텐션, 범위 초과 자동 감지 건수 실측. 매주 피드백 콜 진행.</div>
-        <div class="exp-hypo">→ H3 행동 가설 / H2 솔루션 실효성 실측</div>
+        <div class="exp-name">실증 데이터 측정 (Core Validation)</div>
+        <div class="exp-desc">베타 테스터들이 실무에서 겪는 범위 초과 상황을 시스템이 감지하고, 실제 '청구 리포트'를 발급하여 클라이언트에게 공유하는지(H2) 트래킹.</div>
+        <div class="exp-hypo">→ H2(판정 효과) 및 OMTM(청구 성공률) 최초 도출</div>
       </div>
       <div>
-        <div class="exp-method-label">방법론</div>
-        <div class="exp-method-val">사용 로그 자동 수집<br>주간 피드백 설문 (NPS)<br>코호트 리텐션 분석</div>
+        <div class="exp-method-label">측정 데이터</div>
+        <div class="exp-method-val">URL 공유 이벤트 추적<br>주간 15분 피드백 콜 진행<br>인앱 '청구 성공/실패' 기록</div>
       </div>
       <div>
         <div class="exp-status-label">상태</div>
@@ -683,16 +609,16 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
     <div class="exp-card">
       <div>
         <div class="exp-phase">Phase 3</div>
-        <div class="exp-week">W10–W12</div>
+        <div class="exp-week">W11–W12</div>
       </div>
       <div>
-        <div class="exp-name">유료 전환 캠페인 — 전 가설 종합 검증</div>
-        <div class="exp-desc">베타 사용자 대상 유료 플랜 전환 오퍼. 베타 10팀 → 유료 10팀 목표. 청구 성공 사례 수집 후 케이스 스터디 제작. Product Hunt 런칭 준비.</div>
-        <div class="exp-hypo">→ H5 수익 가설 최종 검증 / 청구 성공률 첫 측정</div>
+        <div class="exp-name">유료 전환 캠페인 및 가격 검증</div>
+        <div class="exp-desc">청구 성공 경험이 있는 테스터 중심으로 "월 5만원" 정식 구독 오퍼 발송. ROI("1건만 성공해도 본전") 메시지를 통해 최종 수익 가설(H5) 검증.</div>
+        <div class="exp-hypo">→ H5(수익 가설): 지불 의향 30% 달성 여부 확인</div>
       </div>
       <div>
-        <div class="exp-method-label">방법론</div>
-        <div class="exp-method-val">결제 전환 퍼널 추적<br>청구 성공 사례 인터뷰<br>NPS + CSAT 측정</div>
+        <div class="exp-method-label">측정 데이터</div>
+        <div class="exp-method-val">Stripe 신용카드 연동률<br>가격 저항(이탈) 피드백 수집<br>추가 추천(Viral) 인덱스</div>
       </div>
       <div>
         <div class="exp-status-label">상태</div>
@@ -702,23 +628,19 @@ header{padding:20px 28px 18px;border-bottom:1px solid var(--border);display:flex
 
   </div>
 
-  <div class="section-title">피봇 트리거 — 이 신호가 보이면 재설계</div>
+  <div class="section-title">피벗 트리거 — 데이터 기반 의사결정 기준</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
     <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">🚨 H1 기각 시</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.6">인터뷰의 50% 이하가 심리적 장벽을 언급하면 → <b style="color:var(--text2)">문제 재정의 필요.</b> 증거 부족 문제로 피봇 검토.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">🚨 리드 전환율 &lt; 5% 시</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6">아무도 랜딩 페이지/콜드메일에 반응하지 않으면 → <b style="color:var(--text2)">문제 심각도(H1) 오판.</b> 타겟 재조정 또는 솔루션 전면 재기획.</div>
     </div>
     <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">🚨 H2 기각 시</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.6">시스템 판정이 청구 시도율 변화를 만들지 못하면 → <b style="color:var(--text2)">핵심 메커니즘 재설계.</b> 클라이언트 발송용 리포트 형식 변경 검토.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">🚨 청구 공유율 &lt; 10% 시</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6">AI 리포트가 나와도 클라이언트에게 공유하지 못한다면 → <b style="color:var(--text2)">리포트 톤앤매너 완화.</b> 더 부드러운 협상 유도 문구로 UI 즉각 변경.</div>
     </div>
     <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">⚠️ H3 기각 시</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.6">2주 리텐션이 50% 미만이면 → <b style="color:var(--text2)">입력 UX 재설계.</b> 주간 입력으로 전환 또는 자동 연동 방식 탐색.</div>
-    </div>
-    <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">⚠️ H5 기각 시</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.6">지불 의향이 20% 미만이면 → <b style="color:var(--text2)">가격 모델 재검토.</b> 프리미엄 기능 분리, 성과 연동 수수료 모델 검토.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--yellow);margin-bottom:6px">⚠️ 2주 리텐션 &lt; 30% 시</div>
+      <div style="font-size:12px;color:var(--text3);line-height:1.6">일일 입력을 귀찮아하여 이탈하면 → <b style="color:var(--text2)">수동 입력 폐기.</b> Jira/Slack 연동을 통한 자동 데이터 추출 방식으로 피벗.</div>
     </div>
   </div>
 
