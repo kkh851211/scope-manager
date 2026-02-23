@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI — 가설 & 성공 지표</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --s1: #1a1f2e;
+    --t1: #e8eaf0;
+    --t3: #8c95aa;
+    --bd: #232b3e;
+    --blue: #4f80ff;
+    --green: #10b981;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+  }
+  body.light {
+    --bg: #f5f7fa; --s1: #ffffff;
+    --t1: #1a1f2e; --t3: #5a6478; --bd: #d1d9e6;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--t1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px; line-height: 1.6;
+    transition: background 0.2s, color 0.2s; min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--s1); border-bottom: 1px solid var(--bd);
+    padding: 14px 24px; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px;
+    position: sticky; top: 0; z-index: 100;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .logo { font-size: 18px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; }
+  .logo span { color: var(--t1); }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.3px; }
+  .badge-ver  { background: var(--blue); color: #fff; }
+  .badge-tag  { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-type { background: transparent; border: 1px solid var(--bd); color: var(--t3); }
+  #toggle-btn {
+    background: var(--bg); border: 1px solid var(--bd); color: var(--t1);
+    border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 14px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s; white-space: nowrap;
+  }
+  #toggle-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* NAV */
+  nav {
+    background: var(--s1); border-bottom: 1px solid var(--bd);
+    padding: 0 24px; display: flex; overflow-x: auto; scrollbar-width: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--t3); cursor: pointer; font-size: 13px; font-weight: 600;
+    padding: 12px 16px; white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active { border-bottom: 2px solid var(--blue); color: var(--blue); }
+  .tab-btn:hover:not(.active) { color: var(--t1); }
+
+  /* LAYOUT */
+  main { padding: 24px; max-width: 1000px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--t1); margin-bottom: 5px; }
+  .section-sub { font-size: 13px; color: var(--t3); margin-bottom: 20px; }
+
+  /* CARD */
+  .card {
+    background: var(--s1); border-radius: 12px; padding: 18px;
+    border: 1px solid var(--bd); margin-bottom: 16px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 700; color: var(--t3);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before {
+    content: ''; display: inline-block; width: 3px; height: 14px;
+    background: var(--blue); border-radius: 2px; flex-shrink: 0;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* STRATEGY BANNER */
+  .strategy-banner {
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(79,128,255,0.1), rgba(167,139,250,0.08));
+    border: 1px solid rgba(79,128,255,0.25);
+  }
+  .strategy-banner h3 { font-size: 14px; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+  .strategy-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 10px; }
+  .vs-badge {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+  }
+  .vs-old { background: rgba(248,113,113,0.15); color: var(--red); }
+  .vs-new { background: rgba(16,185,129,0.15); color: var(--green); }
+  .vs-text { font-size: 12px; color: var(--t3); line-height: 1.6; }
+  .vs-text strong { color: var(--t1); }
+  .vs-divider { border: none; border-top: 1px dashed var(--bd); margin: 12px 0; }
+
+  /* HYPOTHESIS CARD */
+  .hypo-list { display: flex; flex-direction: column; gap: 14px; }
+  .hypo-item {
+    border-radius: 12px; border: 1px solid var(--bd); overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .hypo-header {
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--bd);
+  }
+  .hypo-id {
+    width: 28px; height: 28px; border-radius: 8px; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .hypo-title { font-weight: 700; color: var(--t1); font-size: 13px; flex: 1; }
+  .risk-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .risk-high   { background: rgba(248,113,113,0.15); color: var(--red); }
+  .risk-mid    { background: rgba(251,191,36,0.15);  color: var(--amber); }
+  .risk-low    { background: rgba(16,185,129,0.15);  color: var(--green); }
+  .hypo-body { padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .hypo-col-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .hypo-col-val { font-size: 12px; color: var(--t3); line-height: 1.7; }
+  .hypo-col-val strong { color: var(--t1); }
+
+  /* COLOR ACCENTS per hypothesis */
+  .h-blue  { border-color: rgba(79,128,255,0.3); }
+  .h-green { border-color: rgba(16,185,129,0.3); }
+  .h-amber { border-color: rgba(251,191,36,0.3); }
+  .h-red   { border-color: rgba(248,113,113,0.3); }
+  .h-purple{ border-color: rgba(167,139,250,0.3); }
+  .h-blue  .hypo-header { background: rgba(79,128,255,0.05); }
+  .h-green .hypo-header { background: rgba(16,185,129,0.05); }
+  .h-amber .hypo-header { background: rgba(251,191,36,0.05); }
+  .h-red   .hypo-header { background: rgba(248,113,113,0.05); }
+  .h-purple .hypo-header { background: rgba(167,139,250,0.05); }
+  .id-blue  { background: rgba(79,128,255,0.2);  color: var(--blue); }
+  .id-green { background: rgba(16,185,129,0.2);  color: var(--green); }
+  .id-amber { background: rgba(251,191,36,0.2);  color: var(--amber); }
+  .id-red   { background: rgba(248,113,113,0.2); color: var(--red); }
+  .id-purple{ background: rgba(167,139,250,0.2); color: var(--purple); }
+
+  /* METRIC TABLE */
+  .metric-table { width: 100%; border-collapse: collapse; }
+  .metric-table th, .metric-table td {
+    padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--bd); font-size: 12px; vertical-align: top;
+  }
+  .metric-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--t3); background: var(--bg); }
+  .metric-table tr:last-child td { border-bottom: none; }
+  .metric-name { font-weight: 700; color: var(--t1); margin-bottom: 3px; }
+  .metric-desc { color: var(--t3); font-size: 11px; }
+  .target-val { font-weight: 700; }
+  .t-blue   { color: var(--blue); }
+  .t-green  { color: var(--green); }
+  .t-amber  { color: var(--amber); }
+  .t-red    { color: var(--red); }
+  .phase-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+
+  /* FUNNEL VISUAL */
+  .funnel-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .funnel-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border-radius: 8px; border: 1px solid var(--bd);
+  }
+  .funnel-label { font-size: 12px; color: var(--t3); flex: 1; }
+  .funnel-label strong { color: var(--t1); display: block; font-size: 13px; }
+  .funnel-bar-wrap { width: 160px; flex-shrink: 0; }
+  .funnel-bar-bg { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--bd); }
+  .funnel-bar-fill { height: 100%; border-radius: 4px; }
+  .funnel-pct { font-size: 12px; font-weight: 700; width: 40px; text-align: right; flex-shrink: 0; }
+  .funnel-arrow { text-align: center; color: var(--t3); font-size: 11px; padding-left: 4px; }
+
+  /* PHASE TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item { display: flex; gap: 0; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+  .tl-dot {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    border: 2px solid var(--bg); z-index: 1;
+  }
+  .tl-line { width: 2px; flex: 1; min-height: 16px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-content { padding: 0 0 20px 8px; flex: 1; }
+  .tl-phase { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+  .tl-title { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 6px; }
+  .tl-desc { font-size: 12px; color: var(--t3); line-height: 1.7; }
+  .tl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tl-tag { font-size: 11px; padding: 2px 9px; border-radius: 10px; border: 1px solid var(--bd); color: var(--t3); }
+
+  /* DECISION TREE */
+  .decision-list { display: flex; flex-direction: column; gap: 12px; }
+  .decision-item { border-radius: 10px; border: 1px solid var(--bd); overflow: hidden; }
+  .decision-q { padding: 12px 16px; font-weight: 700; font-size: 13px; color: var(--t1); border-bottom: 1px solid var(--bd); }
+  .decision-answers { display: grid; grid-template-columns: 1fr 1fr; }
+  .decision-a {
+    padding: 12px 16px; font-size: 12px; line-height: 1.6;
+  }
+  .decision-a:first-child { border-right: 1px solid var(--bd); }
+  .decision-a .a-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .decision-a.yes .a-label { color: var(--green); }
+  .decision-a.no  .a-label { color: var(--red); }
+  .decision-a .a-action { color: var(--t3); }
+  .decision-a .a-action strong { color: var(--t1); }
+
+  @media (max-width: 560px) {
+    main { padding: 14px; }
+    header { padding: 12px 14px; }
+    nav { padding: 0 14px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .hypo-body { grid-template-columns: 1fr; }
+    .decision-answers { grid-template-columns: 1fr; }
+    .decision-a:first-child { border-right: none; border-bottom: 1px solid var(--bd); }
+    .funnel-bar-wrap { width: 100px; }
+    .tab-btn { padding: 10px 11px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">My<span>ROI</span></div>
+    <span class="badge badge-ver">v1.0</span>
+    <span class="badge badge-tag">가설 & 지표</span>
+    <span class="badge badge-type">MVP 행동 검증형</span>
+  </div>
+  <button id="toggle-btn" onclick="toggleMode()">🌙 다크</button>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="switchTab('strategy', this)">🧭 전략 배경</button>
+  <button class="tab-btn" onclick="switchTab('hypothesis', this)">🔬 핵심 가설</button>
+  <button class="tab-btn" onclick="switchTab('metrics', this)">📊 성공 지표</button>
+  <button class="tab-btn" onclick="switchTab('funnel', this)">🔽 전환 퍼널</button>
+  <button class="tab-btn" onclick="switchTab('roadmap', this)">🗓️ 검증 로드맵</button>
+  <button class="tab-btn" onclick="switchTab('decision', this)">🔀 의사결정 기준</button>
+</nav>
+
+<main>
+
+  <!-- TAB 1: 전략 배경 -->
+  <div id="page-strategy" class="page active">
+    <p class="section-title">검증 전략 배경</p>
+    <p class="section-sub">왜 고객 인터뷰 대신 MVP 즉시 배포를 선택했는가</p>
+
+    <div class="strategy-banner">
+      <h3>⚡ 핵심 전략 명제</h3>
+      <p style="font-size:13px;color:var(--t3);line-height:1.7;">AI 개발 도구의 발달로 <strong style="color:var(--t1)">MVP 제작 비용 < 인터뷰 설계/진행 비용</strong>의 역전 현상이 발생했다. 말(intention)보다 행동(behavior)이 더 정직한 신호다. 따라서 <strong style="color:var(--blue)">"만들어서 보여주는 것"</strong>이 <strong style="color:var(--red)">"물어보는 것"</strong>보다 더 빠르고 정확한 검증 방법이다.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="--blue:var(--red)">❌ 기존 방식 — 인터뷰 우선</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--red);">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">말과 행동의 불일치</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.6;">"쓸 것 같다"는 인터뷰 응답이 실제 사용 행동으로 이어지지 않는 경우가 다반사. <strong style="color:var(--t1)">False Positive 위험</strong>이 높다.</div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--red);">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">시간 & 비용 소모</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.6;">인터뷰 대상자 섭외 → 일정 조율 → 진행 → 분석까지 수 주 소요. AI 시대에 이 비용이 <strong style="color:var(--t1)">MVP 개발보다 커진 역전 현상</strong> 발생.</div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--red);">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">컨텍스트 없는 상상</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.6;">실물을 보지 못한 상태의 인터뷰이는 자신의 실제 니즈를 정확히 언어화하기 어렵다. 프로토타입이 있어야 진짜 반응이 나온다.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="--blue:var(--green)">✅ 선택 방식 — MVP 즉시 배포</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--green);">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">행동 데이터의 정직함</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.6;">실제 가입 여부, 첫 피치덱 생성 완료 여부, 재방문 여부. <strong style="color:var(--t1)">행동은 거짓말하지 않는다.</strong> 이탈 지점이 곧 문제의 좌표다.</div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--green);">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">비용 역전 현상 활용</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.6;">AI 도구 덕분에 MVP 개발 비용이 수백만 원 → 수십만 원 이하로 압축. <strong style="color:var(--t1)">인터뷰 세팅 비용과 역전.</strong></div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--green);">
+            <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">실물 기반 피드백 루프</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.6;">배포 후 실사용자의 행동 패턴 → 인터뷰 시나리오보다 훨씬 구체적인 <strong style="color:var(--t1)">개선 가설 도출</strong> 가능.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">전략 선택의 전제 조건 (이 전략이 유효한 이유)</div>
+      <div class="grid-3">
+        <div style="padding:14px;border:1px solid rgba(79,128,255,0.25);border-radius:10px;background:rgba(79,128,255,0.04);">
+          <div style="font-size:20px;margin-bottom:8px;">🤖</div>
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;">AI 개발 비용 극적 하락</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">단일 기능(소급 텍스트 입력 + 피치덱 생성)으로 좁혀, AI 도구만으로 수 주 내 배포 가능한 수준의 MVP 설계 완료.</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(16,185,129,0.25);border-radius:10px;background:rgba(16,185,129,0.04);">
+          <div style="font-size:20px;margin-bottom:8px;">🎯</div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">명확한 얼리어답터 채널</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">블라인드·단톡방 등 타겟 실무자 집결지가 명확해, 배포 후 초기 트래픽 확보 경로가 존재함.</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(251,191,36,0.25);border-radius:10px;background:rgba(251,191,36,0.04);">
+          <div style="font-size:20px;margin-bottom:8px;">📏</div>
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:4px;">측정 가능한 이진(Binary) 신호</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">"피치덱을 완성했는가/안 했는가"처럼 Yes/No로 끊리는 행동 지표가 존재해, 해석의 모호함 없이 가설 검증 가능.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: 핵심 가설 -->
+  <div id="page-hypothesis" class="page">
+    <p class="section-title">핵심 가설 5선</p>
+    <p class="section-sub">린 캔버스 각 블록에서 도출된 검증 우선순위 가설 · 위험도 순 정렬</p>
+
+    <div class="hypo-list">
+
+      <div class="hypo-item h-red">
+        <div class="hypo-header">
+          <div class="hypo-id id-red">H1</div>
+          <div class="hypo-title">문제 가설 — 실무자의 '증명 불가' 페인은 실재하며, 행동으로 이어질 만큼 강렬하다</div>
+          <span class="risk-badge risk-high">위험도 HIGH</span>
+        </div>
+        <div class="hypo-body">
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">가설 내용</div>
+            <div class="hypo-col-val">KPI에 잡히지 않는 기여를 증명하고 싶은 욕구가 <strong>실제 가입 및 첫 입력 시도 행동</strong>으로 전환될 만큼 강하다.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">검증 방법</div>
+            <div class="hypo-col-val">블라인드/단톡방 배포 후 <strong>랜딩 → 가입 전환율(CVR)</strong> 측정. "이 문제 있는 사람?" 설문 반응도 병행.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">성공 기준</div>
+            <div class="hypo-col-val">랜딩→가입 CVR <strong style="color:var(--red)">≥ 15%</strong><br>첫 이슈 입력 시도율 <strong style="color:var(--red)">≥ 60%</strong> (가입자 중)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hypo-item h-red">
+        <div class="hypo-header">
+          <div class="hypo-id id-red">H2</div>
+          <div class="hypo-title">핵심 기능 가설 — AI가 텍스트를 금액으로 변환한 결과가 "쓸 만하다"고 느껴진다</div>
+          <span class="risk-badge risk-high">위험도 HIGH</span>
+        </div>
+        <div class="hypo-body">
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">가설 내용</div>
+            <div class="hypo-col-val">자유 텍스트 3건을 입력했을 때 AI가 산출한 구조화 결과와 예상 방어 금액이 <strong>실무자가 납득할 수 있는 수준</strong>으로 출력된다.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">검증 방법</div>
+            <div class="hypo-col-val">AI 산출값을 수정 없이 그대로 제출한 비율 vs. <strong>금액 수정 후 제출 비율</strong> 비교. 수정 폭(±%) 분포 분석.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">성공 기준</div>
+            <div class="hypo-col-val">AI 산출값 수용률 <strong style="color:var(--red)">≥ 50%</strong> (수정 없이 진행)<br>수정 시 평균 편차 <strong style="color:var(--red)">≤ ±30%</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hypo-item h-amber">
+        <div class="hypo-header">
+          <div class="hypo-id id-amber">H3</div>
+          <div class="hypo-title">습관 형성 가설 — 한 번 쓴 사용자가 다음 달에도 돌아온다</div>
+          <span class="risk-badge risk-mid">위험도 MID</span>
+        </div>
+        <div class="hypo-body">
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">가설 내용</div>
+            <div class="hypo-col-val">첫 피치덱을 생성한 사용자가 "다음 달 성과도 기록해야겠다"는 <strong>지속 사용 동기</strong>를 갖는다.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">검증 방법</div>
+            <div class="hypo-col-val"><strong>30일 리텐션(D30 Retention)</strong> 추적. 2회 이상 피치덱 생성 유저 비율 측정.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">성공 기준</div>
+            <div class="hypo-col-val">D30 Retention <strong style="color:var(--amber)">≥ 25%</strong><br>2회 이상 생성 유저 비율 <strong style="color:var(--amber)">≥ 20%</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hypo-item h-amber">
+        <div class="hypo-header">
+          <div class="hypo-id id-amber">H4</div>
+          <div class="hypo-title">바이럴 가설 — 피치덱을 만든 사용자가 지인에게 자발적으로 공유한다</div>
+          <span class="risk-badge risk-mid">위험도 MID</span>
+        </div>
+        <div class="hypo-body">
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">가설 내용</div>
+            <div class="hypo-col-val">"나도 이걸로 연봉 협상 준비했어"라는 <strong>소셜 공유 및 추천 행동</strong>이 자연 발생한다. End-User가 채널 역할을 한다.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">검증 방법</div>
+            <div class="hypo-col-val">신규 가입자의 <strong>유입 경로(Referral 비율)</strong> 추적. 공유 버튼 클릭률 & 실제 공유 후 가입 전환 수 측정.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">성공 기준</div>
+            <div class="hypo-col-val">Referral 유입 비율 <strong style="color:var(--amber)">≥ 20%</strong><br>NPS(Net Promoter Score) <strong style="color:var(--amber)">≥ 30</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hypo-item h-green">
+        <div class="hypo-header">
+          <div class="hypo-id id-green">H5</div>
+          <div class="hypo-title">B2B WTP 가설 — 경영진이 전사 ROI 대시보드에 돈을 낼 의향이 있다</div>
+          <span class="risk-badge risk-low">위험도 LOW (검증 후 개발)</span>
+        </div>
+        <div class="hypo-body">
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">가설 내용</div>
+            <div class="hypo-col-val">실무자의 피치덱을 받아본 경영진이 "이 데이터를 전사적으로 보고 싶다"는 <strong>지불 의사(WTP)</strong>를 표현한다.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">검증 방법</div>
+            <div class="hypo-col-val">경영진 랜딩페이지 <strong>사전 신청(Waitlist)</strong> 전환율. "얼마를 내겠는가?" 가격 질문 응답 수집.</div>
+          </div>
+          <div>
+            <div class="hypo-col-label" style="color:var(--t3);">성공 기준</div>
+            <div class="hypo-col-val">Waitlist 신청 <strong style="color:var(--green)">≥ 10건</strong> (3개월 내)<br>제시 가격 중앙값 <strong style="color:var(--green)">≥ 월 3만원/seat</strong></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 3: 성공 지표 -->
+  <div id="page-metrics" class="page">
+    <p class="section-title">성공 지표 (Metrics)</p>
+    <p class="section-sub">AARRR 프레임워크 기반 · 단계별 목표치와 측정 방법</p>
+
+    <div class="card">
+      <div class="card-title">AARRR 지표 전체 테이블</div>
+      <table class="metric-table">
+        <thead>
+          <tr>
+            <th>단계</th>
+            <th>지표명</th>
+            <th>정의 & 측정 방법</th>
+            <th>초기 목표 (4주)</th>
+            <th>6개월 목표</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(79,128,255,0.15);color:var(--blue);">Acquisition</span></td>
+            <td><div class="metric-name">랜딩 → 가입 CVR</div><div class="metric-desc">랜딩 방문자 대비 가입 완료 비율</div></td>
+            <td style="color:var(--t3);">블라인드·단톡방 배포 링크 클릭 → 가입 완료 이벤트 추적</td>
+            <td><span class="target-val t-blue">≥ 15%</span></td>
+            <td><span class="target-val t-blue">≥ 20%</span></td>
+          </tr>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(167,139,250,0.15);color:var(--purple);">Activation</span></td>
+            <td><div class="metric-name">첫 피치덱 완성률</div><div class="metric-desc">가입자 중 피치덱 1건 이상 완성한 비율 (핵심 Aha! Moment)</div></td>
+            <td style="color:var(--t3);">가입 → 이슈 3건 입력 → AI 결과 확인 → PDF 다운로드 완료 퍼널 추적</td>
+            <td><span class="target-val t-purple">≥ 40%</span></td>
+            <td><span class="target-val t-purple">≥ 55%</span></td>
+          </tr>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(16,185,129,0.15);color:var(--green);">Retention</span></td>
+            <td><div class="metric-name">D30 Retention</div><div class="metric-desc">첫 방문 30일 후 재방문 비율</div></td>
+            <td style="color:var(--t3);">코호트 분석. 최초 가입일 기준 D30 로그인 여부 추적</td>
+            <td><span class="target-val t-green">≥ 20%</span></td>
+            <td><span class="target-val t-green">≥ 30%</span></td>
+          </tr>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(16,185,129,0.15);color:var(--green);">Retention</span></td>
+            <td><div class="metric-name">WAU (주간 활성 사용자)</div><div class="metric-desc">주 1회 이상 이슈 기록 또는 피치덱 조회한 유저 비율</div></td>
+            <td style="color:var(--t3);">전체 가입자 대비 주간 활성 세션 발생 유저 수</td>
+            <td><span class="target-val t-green">≥ 15%</span></td>
+            <td><span class="target-val t-green">≥ 30%</span></td>
+          </tr>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(251,191,36,0.15);color:var(--amber);">Referral</span></td>
+            <td><div class="metric-name">Referral 유입 비율</div><div class="metric-desc">신규 가입자 중 기존 유저 추천으로 온 비율</div></td>
+            <td style="color:var(--t3);">가입 시 유입 경로 태그(UTM) + 추천인 코드 추적</td>
+            <td><span class="target-val t-amber">≥ 10%</span></td>
+            <td><span class="target-val t-amber">≥ 20%</span></td>
+          </tr>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(248,113,113,0.15);color:var(--red);">Revenue</span></td>
+            <td><div class="metric-name">Free → Paid CVR</div><div class="metric-desc">무료 사용자 중 유료 플랜 전환 비율 (B2C)</div></td>
+            <td style="color:var(--t3);">심층 리포트 / 추가 피치덱 유료 버튼 클릭 → 결제 완료 퍼널</td>
+            <td><span class="target-val t-red">측정만</span></td>
+            <td><span class="target-val t-red">≥ 3%</span></td>
+          </tr>
+          <tr>
+            <td><span class="phase-tag" style="background:rgba(248,113,113,0.15);color:var(--red);">Revenue</span></td>
+            <td><div class="metric-name">B2B Waitlist</div><div class="metric-desc">경영진 대시보드 사전 신청 건수 (WTP 검증)</div></td>
+            <td style="color:var(--t3);">별도 랜딩 or 실무자 피치덱 제출 후 경영진 유입 트래킹</td>
+            <td><span class="target-val t-red">0 → 탐색</span></td>
+            <td><span class="target-val t-red">≥ 10건</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="--blue:var(--red)">🚨 선행 경보 지표 (Leading KPI)</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:3px;">AI 산출값 수용률 &lt; 30%</div>
+            <div style="font-size:12px;color:var(--t3);">→ LLM 프롬프트 품질 위기 신호. 즉각 프롬프트 재설계 착수.</div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:3px;">이슈 입력 1건 후 이탈 &gt; 50%</div>
+            <div style="font-size:12px;color:var(--t3);">→ UX 또는 결과물 품질 문제. 입력 단계 마찰 제거 필요.</div>
+          </div>
+          <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:3px;">D7 Retention &lt; 15%</div>
+            <div style="font-size:12px;color:var(--t3);">→ 습관 형성 실패 조기 신호. D30까지 기다리지 않고 즉각 인터뷰 전환.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="--blue:var(--green)">✅ 피벗 트리거 vs. 지속 신호</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:12px;border:1px solid rgba(16,185,129,0.25);border-radius:8px;background:rgba(16,185,129,0.04);">
+            <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:3px;">🟢 지속 신호</div>
+            <div style="font-size:12px;color:var(--t3);">Activation ≥ 40% + D30 ≥ 25% 동시 충족 → 현재 방향 유지, 채널 스케일업 집중.</div>
+          </div>
+          <div style="padding:12px;border:1px solid rgba(251,191,36,0.25);border-radius:8px;background:rgba(251,191,36,0.04);">
+            <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:3px;">🟡 부분 피벗 신호</div>
+            <div style="font-size:12px;color:var(--t3);">Activation ≥ 40% but D30 &lt; 20% → 문제는 습관화. 리마인더 / 주기적 기록 넛지 기능 추가.</div>
+          </div>
+          <div style="padding:12px;border:1px solid rgba(248,113,113,0.25);border-radius:8px;background:rgba(248,113,113,0.04);">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:3px;">🔴 전면 피벗 신호</div>
+            <div style="font-size:12px;color:var(--t3);">Activation &lt; 20% + Referral &lt; 5% → 문제 가설 자체 재검토. 인터뷰 병행 전환.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: 전환 퍼널 -->
+  <div id="page-funnel" class="page">
+    <p class="section-title">전환 퍼널 & 목표치</p>
+    <p class="section-sub">랜딩 → 가입 → 첫 피치덱 → 재방문 → 유료 전환의 단계별 목표</p>
+
+    <div class="card">
+      <div class="card-title">End-User (실무자) 핵심 퍼널 — 4주 초기 목표</div>
+      <div class="funnel-wrap">
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>① 랜딩 방문</strong>블라인드/단톡방 링크 클릭</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:var(--blue);"></div></div></div>
+          <div class="funnel-pct t-blue">100%</div>
+        </div>
+        <div class="funnel-arrow">↓ CVR ≥ 15%</div>
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>② 가입 완료</strong>회원가입 또는 소셜 로그인</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:50%;background:var(--purple);"></div></div></div>
+          <div class="funnel-pct t-purple">~50%</div>
+        </div>
+        <div class="funnel-arrow">↓ 이슈 입력 시작률 ≥ 60%</div>
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>③ 이슈 3건 입력 완료</strong>AI 환산기 사용 시작 (Aha! 진입점)</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:35%;background:var(--amber);"></div></div></div>
+          <div class="funnel-pct t-amber">~35%</div>
+        </div>
+        <div class="funnel-arrow">↓ 완성률 ≥ 40%</div>
+        <div class="funnel-row" style="border-color:rgba(16,185,129,0.3);">
+          <div class="funnel-label"><strong>④ 피치덱 PDF 완성 🎯</strong>핵심 Activation 이벤트 (North Star)</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:22%;background:var(--green);"></div></div></div>
+          <div class="funnel-pct t-green">~22%</div>
+        </div>
+        <div class="funnel-arrow">↓ D30 Retention ≥ 25%</div>
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>⑤ 30일 내 재방문</strong>다음 달 성과 기록 또는 리포트 조회</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:12%;background:var(--blue);"></div></div></div>
+          <div class="funnel-pct t-blue">~12%</div>
+        </div>
+        <div class="funnel-arrow">↓ Free→Paid CVR (6개월 목표 ≥ 3%)</div>
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>⑥ 유료 전환</strong>심층 리포트 구매 또는 플랜 업그레이드</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:4%;background:var(--red);"></div></div></div>
+          <div class="funnel-pct t-red">~4%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">B2B (경영진) 퍼널 — 6개월 목표</div>
+      <div class="funnel-wrap">
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>① 피치덱 수신</strong>실무자가 경영진에게 피치덱 제출</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:var(--t3);"></div></div></div>
+          <div class="funnel-pct" style="color:var(--t3);">기준점</div>
+        </div>
+        <div class="funnel-arrow">↓</div>
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>② 경영진 랜딩 방문</strong>피치덱 하단 "전사 대시보드 보기" 링크 클릭</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:40%;background:var(--amber);"></div></div></div>
+          <div class="funnel-pct t-amber">목표 탐색</div>
+        </div>
+        <div class="funnel-arrow">↓</div>
+        <div class="funnel-row" style="border-color:rgba(16,185,129,0.3);">
+          <div class="funnel-label"><strong>③ Waitlist 신청 🎯</strong>B2B WTP 신호 (3개월 내 ≥ 10건)</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:20%;background:var(--green);"></div></div></div>
+          <div class="funnel-pct t-green">≥ 10건</div>
+        </div>
+        <div class="funnel-arrow">↓ WTP 검증 후 대시보드 개발 착수</div>
+        <div class="funnel-row">
+          <div class="funnel-label"><strong>④ B2B 유료 전환</strong>Per-seat 월 구독 결제</div>
+          <div class="funnel-bar-wrap"><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:10%;background:var(--blue);"></div></div></div>
+          <div class="funnel-pct t-blue">검증 후</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: 검증 로드맵 -->
+  <div id="page-roadmap" class="page">
+    <p class="section-title">검증 로드맵</p>
+    <p class="section-sub">MVP 배포 후 단계별 가설 검증 순서 · 행동 데이터 중심</p>
+
+    <div class="card">
+      <div class="card-title">Phase별 검증 타임라인</div>
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot" style="background:var(--blue);"></div>
+            <div class="tl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-phase" style="color:var(--blue);">Phase 0 · 배포 전 (D-7 ~ D0)</div>
+            <div class="tl-title">MVP 빌드 완료 & 배포 준비</div>
+            <div class="tl-desc">단일 기능(자유 텍스트 입력 → AI 환산 → 피치덱 PDF) 완성. 이벤트 트래킹 설정(가입, 이슈 입력, PDF 완성, 재방문). 채널별 UTM 링크 생성.</div>
+            <div class="tl-tags">
+              <span class="tl-tag">H2 준비 (AI 품질)</span>
+              <span class="tl-tag">이벤트 트래킹 설정</span>
+              <span class="tl-tag">UTM 링크 세팅</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot" style="background:var(--purple);"></div>
+            <div class="tl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-phase" style="color:var(--purple);">Phase 1 · Week 1~2</div>
+            <div class="tl-title">문제 & 기능 가설 동시 검증 (H1 + H2)</div>
+            <div class="tl-desc">블라인드 아티클 + 단톡방 무료 리포트 배포. 랜딩→가입 CVR 및 이슈 입력 시작률 측정. AI 산출값 수용률 및 수정 폭 분석. 이탈 지점 히트맵 분석.</div>
+            <div class="tl-tags">
+              <span class="tl-tag">H1 검증: CVR ≥ 15%?</span>
+              <span class="tl-tag">H2 검증: AI 수용률 ≥ 50%?</span>
+              <span class="tl-tag">이탈 분석</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot" style="background:var(--amber);"></div>
+            <div class="tl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-phase" style="color:var(--amber);">Phase 2 · Week 3~4</div>
+            <div class="tl-title">Activation 깊이 검증 & 첫 번째 피드백 루프</div>
+            <div class="tl-desc">첫 피치덱 완성률(≥ 40%) 확인. H1/H2 기준 미달 시 즉각 프롬프트 개선 또는 UX 수정. D7 Retention 선행 측정 시작. 피치덱 완성자 대상 짧은 인앱 설문(3문항) 진행.</div>
+            <div class="tl-tags">
+              <span class="tl-tag">Activation ≥ 40%?</span>
+              <span class="tl-tag">D7 Retention 선행 관찰</span>
+              <span class="tl-tag">인앱 설문 3문항</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot" style="background:var(--green);"></div>
+            <div class="tl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-phase" style="color:var(--green);">Phase 3 · Month 2</div>
+            <div class="tl-title">습관 & 바이럴 가설 검증 (H3 + H4)</div>
+            <div class="tl-desc">D30 Retention(≥ 25%) 및 Referral 유입 비율(≥ 20%) 측정. 피치덱 공유 버튼 클릭률 추적. NPS 측정. Referral 루프가 형성되면 채널 스케일업 판단.</div>
+            <div class="tl-tags">
+              <span class="tl-tag">H3: D30 ≥ 25%?</span>
+              <span class="tl-tag">H4: Referral ≥ 20%?</span>
+              <span class="tl-tag">NPS ≥ 30?</span>
+              <span class="tl-tag">채널 스케일업 판단</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot" style="background:var(--red);"></div>
+            <div class="tl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-phase" style="color:var(--red);">Phase 4 · Month 3~6</div>
+            <div class="tl-title">B2B WTP 검증 & 수익 모델 확인 (H5)</div>
+            <div class="tl-desc">피치덱 하단에 "경영진 대시보드" 티저 삽입. Waitlist 신청 ≥ 10건 달성 시 B2B 대시보드 개발 착수. Free→Paid CVR ≥ 3% 달성 시 B2C 수익화 강화. 두 지표 모두 미달 시 가격/기능 조합 재설계.</div>
+            <div class="tl-tags">
+              <span class="tl-tag">H5: Waitlist ≥ 10건?</span>
+              <span class="tl-tag">Free→Paid ≥ 3%?</span>
+              <span class="tl-tag">B2B 개발 착수 판단</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot" style="background:var(--t3);"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-phase" style="color:var(--t3);">비상구 · 언제든</div>
+            <div class="tl-title">인터뷰 전환 트리거</div>
+            <div class="tl-desc">H1 미달(CVR &lt; 10%) 또는 H2 미달(AI 수용률 &lt; 30%)이 2주 이상 지속될 경우, "MVP 우선" 전략을 중단하고 인터뷰 5인 이상을 즉각 진행하여 가설 재설정.</div>
+            <div class="tl-tags">
+              <span class="tl-tag">CVR &lt; 10% 2주 지속</span>
+              <span class="tl-tag">AI 수용률 &lt; 30%</span>
+              <span class="tl-tag">→ 인터뷰 5인 전환</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: 의사결정 기준 -->
+  <div id="page-decision" class="page">
+    <p class="section-title">의사결정 기준</p>
+    <p class="section-sub">지표 결과에 따른 다음 액션 — 데이터가 말하는 대로 움직인다</p>
+
+    <div class="decision-list">
+
+      <div class="decision-item">
+        <div class="decision-q">🔵 H1 결과 — 랜딩 → 가입 CVR이 ≥ 15%인가?</div>
+        <div class="decision-answers">
+          <div class="decision-a yes">
+            <div class="a-label">✅ YES</div>
+            <div class="a-action">문제 가설 1차 통과. <strong>H2(AI 품질) 검증으로 즉시 이동.</strong> 채널 확장(추가 커뮤니티 배포) 병행 시작.</div>
+          </div>
+          <div class="decision-a no">
+            <div class="a-label">❌ NO (< 10%)</div>
+            <div class="a-action">랜딩 페이지 메시지 A/B 테스트 시작. <strong>2주 내 미개선 시 인터뷰 5인 전환.</strong> 타겟 채널 재검토.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-item">
+        <div class="decision-q">🟣 H2 결과 — AI 산출값 수용률이 ≥ 50%인가?</div>
+        <div class="decision-answers">
+          <div class="decision-a yes">
+            <div class="a-label">✅ YES</div>
+            <div class="a-action">핵심 기술 가설 통과. <strong>프롬프트 유지하며 엣지 케이스(직군별 편차) 고도화</strong>에 집중. Activation 퍼널 개선으로 이동.</div>
+          </div>
+          <div class="decision-a no">
+            <div class="a-label">❌ NO (< 30%)</div>
+            <div class="a-action"><strong>즉각 프롬프트 재설계 스프린트 1주.</strong> 수정 로그를 분석해 어떤 직군·상황에서 산출 오류가 많은지 패턴 추출.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-item">
+        <div class="decision-q">🟢 H3 결과 — D30 Retention이 ≥ 25%인가?</div>
+        <div class="decision-answers">
+          <div class="decision-a yes">
+            <div class="a-label">✅ YES</div>
+            <div class="a-action">습관 형성 성공. <strong>채널 스케일업 + 리퍼럴 루프 강화</strong>에 집중. 유료 전환 실험(심층 리포트 가격 테스트) 시작.</div>
+          </div>
+          <div class="decision-a no">
+            <div class="a-label">❌ NO (< 15%)</div>
+            <div class="a-action"><strong>리마인더 / 월간 성과 기록 넛지 기능 추가.</strong> "연봉 협상 시즌"(11~1월) 타겟 리인게이지먼트 캠페인 설계.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-item">
+        <div class="decision-q">🟡 H4 결과 — Referral 유입 비율이 ≥ 20%인가?</div>
+        <div class="decision-answers">
+          <div class="decision-a yes">
+            <div class="a-label">✅ YES</div>
+            <div class="a-action">바이럴 루프 작동. <strong>공식 추천인 프로그램(Referral 보상) 도입</strong>으로 루프를 구조화. CAC 하락 확인 후 투자 집행 검토.</div>
+          </div>
+          <div class="decision-a no">
+            <div class="a-label">❌ NO (< 10%)</div>
+            <div class="a-action">피치덱 완성 시 <strong>공유 버튼 UX 강화</strong>. "이 리포트 만들어준 서비스" 워터마크 삽입. 단톡방 배포용 카드뉴스 포맷 제공.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-item">
+        <div class="decision-q">🔴 H5 결과 — B2B Waitlist ≥ 10건 (3개월 내)?</div>
+        <div class="decision-answers">
+          <div class="decision-a yes">
+            <div class="a-label">✅ YES</div>
+            <div class="a-action">WTP 검증 완료. <strong>B2B 대시보드 개발 스프린트 착수.</strong> Waitlist 신청자 대상 인터뷰로 기능 우선순위 확정 후 진행.</div>
+          </div>
+          <div class="decision-a no">
+            <div class="a-label">❌ NO (< 5건)</div>
+            <div class="a-action">B2B 개발 보류. <strong>B2C 수익화(심층 리포트 유료화)에 집중.</strong> 6개월 후 B2B WTP 재측정. 경영진 접점 채널 재설계.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function toggleMode() {
+    const light = document.body.classList.toggle('light');
+    document.getElementById('toggle-btn').textContent = light ? '☀️ 라이트' : '🌙 다크';
+  }
+</script>
+</body>
+</html>
