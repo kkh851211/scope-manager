@@ -150,6 +150,7 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 <header>
   <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">AC & QA 시나리오</span></div>
   <div class="hbadge">
+    <span class="badge" style="background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3)">🚀 Build-to-Learn</span>
     <span class="badge b-orange">QA 문서</span>
     <span class="badge b-blue">v1.0</span>
     <span style="font-size:11px;color:var(--t4)">2026.02</span>
@@ -166,7 +167,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 </nav>
 
 
-<!-- ═══════════ 개요 ═══════════ -->
 <div class="page on" id="page-overview">
 
   <div class="kpi-row">
@@ -192,6 +192,15 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
+  <div class="sec mb16">MVP 검증 전략 (Updated)</div>
+  <div class="card mb28" style="border-left:3px solid var(--purple); background:var(--s2)">
+    <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:10px">🎯 가설 검증 우선: 고객 인터뷰 생략 및 실데이터 기반 테스트</div>
+    <div style="font-size:12px;color:var(--t3);line-height:1.8">
+      AI 기반 개발 도구의 발달로 빠른 구현이 가능해짐에 따라, 전통적인 사전 고객 인터뷰를 생략하고 <b>작동하는 MVP를 즉시 배포하여 실제 사용자의 행동 데이터로 시장을 검증</b>합니다. <br>
+      본 AC 및 QA는 완벽한 사용성이나 엣지 케이스 방어보다는 <b style="color:var(--t2)">1) 핵심 가치(AI 판정)의 정상 작동</b>과 <b style="color:var(--t2)">2) 실제 유저 행동 데이터(PostHog 이벤트)가 누락 없이 수집되는가</b>에 최우선 순위를 둡니다.
+    </div>
+  </div>
+
   <div class="sec mb16">문서 구성 & 읽는 법</div>
   <div class="g2 mb20">
     <div class="card" style="border-top:3px solid var(--blue)">
@@ -210,7 +219,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 
   <div class="sec mb16">기능별 QA 범위 요약</div>
   <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:28px">
-    <!-- 각 기능 진행 상태 요약 -->
     <div id="feature-summary"></div>
   </div>
 
@@ -233,7 +241,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 </div>
 
 
-<!-- ═══════════ 인수 조건 ═══════════ -->
 <div class="page" id="page-ac">
 
   <div class="filter-bar" id="ac-filter">
@@ -245,7 +252,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     <button class="filter-btn" onclick="filterAC('onboarding',this)">온보딩</button>
   </div>
 
-  <!-- F-001 인증 -->
   <div class="ac-block" data-cat="auth">
     <div class="ac-head" onclick="toggleAC(this)">
       <div class="ac-fid">F-001</div>
@@ -284,7 +290,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- F-002 계약서 AI 요약 -->
   <div class="ac-block" data-cat="ai">
     <div class="ac-head" onclick="toggleAC(this)">
       <div class="ac-fid">F-002</div>
@@ -323,7 +328,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- F-020 AI 범위 판정 -->
   <div class="ac-block" data-cat="ai">
     <div class="ac-head" onclick="toggleAC(this)">
       <div class="ac-fid">F-020</div>
@@ -366,7 +370,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- F-030 리포트 -->
   <div class="ac-block" data-cat="report">
     <div class="ac-head" onclick="toggleAC(this)">
       <div class="ac-fid">F-030 / F-031</div>
@@ -409,7 +412,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- F-050 대시보드 -->
   <div class="ac-block" data-cat="dashboard">
     <div class="ac-head" onclick="toggleAC(this)">
       <div class="ac-fid">F-050</div>
@@ -444,7 +446,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- F-070 온보딩 -->
   <div class="ac-block" data-cat="onboarding">
     <div class="ac-head" onclick="toggleAC(this)">
       <div class="ac-fid">F-070</div>
@@ -482,12 +483,10 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 </div>
 
 
-<!-- ═══════════ Happy Path ═══════════ -->
 <div class="page" id="page-happy">
 
   <div class="sec mb16">Happy Path — 정상 흐름 QA 시나리오</div>
 
-  <!-- QA-HP-01 전체 플로우 -->
   <div class="qa-block mb12">
     <div class="qa-head" onclick="toggleQA(this)">
       <div class="qa-fid">QA-HP-01</div>
@@ -540,7 +539,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- QA-HP-02 반복 사용 시나리오 -->
   <div class="qa-block mb12">
     <div class="qa-head" onclick="toggleQA(this)">
       <div class="qa-fid">QA-HP-02</div>
@@ -587,7 +585,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     </div>
   </div>
 
-  <!-- QA-HP-03 리포트 -->
   <div class="qa-block mb12">
     <div class="qa-head" onclick="toggleQA(this)">
       <div class="qa-fid">QA-HP-03</div>
@@ -637,7 +634,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 </div>
 
 
-<!-- ═══════════ Edge Case ═══════════ -->
 <div class="page" id="page-edge">
 
   <div class="sec mb16">Edge Case — 예외·경계·오류 시나리오</div>
@@ -807,7 +803,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 </div>
 
 
-<!-- ═══════════ AI 판정 QA ═══════════ -->
 <div class="page" id="page-ai-qa">
 
   <div class="sec mb16">AI 판정 전용 QA — 정확도 & 경계 케이스 18개</div>
@@ -1000,7 +995,6 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
 </div>
 
 
-<!-- ═══════════ 릴리즈 체크리스트 ═══════════ -->
 <div class="page" id="page-checklist">
 
   <div class="sec mb16">릴리즈 전 필수 체크리스트 — 인터랙티브</div>
@@ -1014,25 +1008,21 @@ nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overfl
     <div class="prog-bar-wrap"><div class="prog-bar" id="chk-prog-bar" style="width:0%;background:var(--green)"></div></div>
   </div>
 
-  <!-- 섹션 1: 기능 -->
   <div class="card mb16">
     <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:12px">⚙️ 기능 검증 (11개)</div>
     <div id="chk-func"></div>
   </div>
 
-  <!-- 섹션 2: AI -->
   <div class="card mb16">
     <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:12px">🤖 AI 판정 검증 (8개)</div>
     <div id="chk-ai"></div>
   </div>
 
-  <!-- 섹션 3: 보안 -->
   <div class="card mb16">
     <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:12px">🛡 보안 & 데이터 (6개)</div>
     <div id="chk-sec"></div>
   </div>
 
-  <!-- 섹션 4: 트래킹 -->
   <div class="card mb28">
     <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:12px">📊 트래킹 이벤트 (5개)</div>
     <div id="chk-track"></div>
