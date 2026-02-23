@@ -5,16 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>시장 문제 정의서 | Scope Manager</title>
 <style>
+:root {
+  --bg:#0f1117; --s1:#1a1f2e; --s2:#1e2438; --s3:#222840;
+  --bd:#232b3e; --bd2:#2e3748;
+  --blue:#4f80ff; --purple:#a855f7; --green:#10b981;
+  --red:#ef4444; --cyan:#06b6d4; --orange:#f97316; --yellow:#f59e0b;
+  --t1:#e8eaf0; --t2:#c5cbd8; --t3:#8c95aa; --t4:#5a6478;
+}
+body.light {
+  --bg:#f5f7fa; --s1:#ffffff; --s2:#f0f2f7; --s3:#e8ecf4;
+  --bd:#d1d9e6; --bd2:#c5cdd8;
+  --t1:#1a1f2e; --t2:#3a4257; --t3:#5a6478; --t4:#8c95aa;
+}
+
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f1117; color:#e8eaf0; font-size:14px; line-height:1.6; }
+  body{ font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:var(--bg); color:var(--t1); font-size:14px; line-height:1.6; transition:background .2s,color .2s;}
 
   /* ── Nav ── */
-  .nav { display:flex; align-items:center; justify-content:space-between; padding:18px 48px; border-bottom:1px solid #1e2533; position:sticky; top:0; background:#0f1117; z-index:100; }
+  .nav { display:flex; align-items:center; justify-content:space-between; padding:18px 48px; border-bottom:1px solid #1e2533; position:sticky; top:0; background:var(--bg); z-index:100; }
   .nav-logo { font-size:18px; font-weight:800; letter-spacing:-0.5px; }
-  .nav-logo b { color:#4f80ff; }
+  .nav-logo b { color:var(--blue); }
   .nav-tabs { display:flex; gap:4px; background:#1e2533; border-radius:10px; padding:4px; }
-  .nav-tab { padding:6px 16px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; color:#8c95aa; transition:.15s; border:none; background:none; }
-  .nav-tab.active { background:#4f80ff; color:#fff; }
+  .nav-tab { padding:6px 16px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; color:var(--t3); transition:.15s; border:none; background:none; }
+  .nav-tab.active { background:var(--blue); color:#fff; }
   .nav-tab:hover:not(.active) { color:#fff; }
 
   /* ── Page sections ── */
@@ -24,109 +37,109 @@
   /* ── Common ── */
   .container { max-width:900px; margin:0 auto; padding:48px 24px 80px; }
   .section { margin-bottom:64px; }
-  .section-label { font-size:11px; font-weight:700; color:#4f80ff; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+  .section-label { font-size:11px; font-weight:700; color:var(--blue); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
   .section-title { font-size:28px; font-weight:800; color:#fff; letter-spacing:-1px; margin-bottom:12px; line-height:1.2; }
-  .section-sub { font-size:15px; color:#8c95aa; line-height:1.7; max-width:640px; }
+  .section-sub { font-size:15px; color:var(--t3); line-height:1.7; max-width:640px; }
 
   /* ── Hero ── */
   .hero { text-align:center; padding:72px 24px 56px; position:relative; overflow:hidden; }
   .hero::before { content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:600px; height:600px; background:radial-gradient(circle, rgba(79,128,255,.12) 0%, transparent 70%); pointer-events:none; }
-  .hero-eyebrow { display:inline-flex; align-items:center; gap:8px; background:#1e2533; border:1px solid #2e3748; border-radius:20px; padding:6px 16px; font-size:12px; color:#8c95aa; margin-bottom:24px; }
-  .hero-dot { width:8px; height:8px; border-radius:50%; background:#4f80ff; animation:pulse 2s infinite; }
+  .hero-eyebrow { display:inline-flex; align-items:center; gap:8px; background:#1e2533; border:1px solid var(--bd2); border-radius:20px; padding:6px 16px; font-size:12px; color:var(--t3); margin-bottom:24px; }
+  .hero-dot { width:8px; height:8px; border-radius:50%; background:var(--blue); animation:pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
   .hero h1 { font-size:42px; font-weight:900; color:#fff; letter-spacing:-2px; line-height:1.15; margin-bottom:20px; }
-  .hero h1 em { color:#4f80ff; font-style:normal; }
-  .hero p { font-size:16px; color:#8c95aa; max-width:560px; margin:0 auto 36px; line-height:1.8; }
-  .hero-quote { background:#1e2533; border:1px solid #2e3748; border-left:4px solid #4f80ff; border-radius:10px; padding:18px 24px; max-width:560px; margin:0 auto; font-size:15px; color:#d0d4de; line-height:1.7; font-style:italic; }
-  .hero-quote cite { display:block; margin-top:8px; font-size:12px; color:#5a6478; font-style:normal; }
+  .hero h1 em { color:var(--blue); font-style:normal; }
+  .hero p { font-size:16px; color:var(--t3); max-width:560px; margin:0 auto 36px; line-height:1.8; }
+  .hero-quote { background:#1e2533; border:1px solid var(--bd2); border-left:4px solid var(--blue); border-radius:10px; padding:18px 24px; max-width:560px; margin:0 auto; font-size:15px; color:#d0d4de; line-height:1.7; font-style:italic; }
+  .hero-quote cite { display:block; margin-top:8px; font-size:12px; color:var(--t4); font-style:normal; }
 
   /* ── Stats row ── */
   .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:64px; }
-  .stat-card { background:#1e2533; border:1px solid #2e3748; border-radius:12px; padding:24px 20px; text-align:center; transition:.2s; }
-  .stat-card:hover { border-color:#4f80ff; transform:translateY(-2px); }
-  .stat-num { font-size:32px; font-weight:900; color:#4f80ff; letter-spacing:-1px; margin-bottom:4px; }
+  .stat-card { background:#1e2533; border:1px solid var(--bd2); border-radius:12px; padding:24px 20px; text-align:center; transition:.2s; }
+  .stat-card:hover { border-color:var(--blue); transform:translateY(-2px); }
+  .stat-num { font-size:32px; font-weight:900; color:var(--blue); letter-spacing:-1px; margin-bottom:4px; }
   .stat-num span { font-size:18px; }
-  .stat-label { font-size:12px; color:#8c95aa; line-height:1.5; }
+  .stat-label { font-size:12px; color:var(--t3); line-height:1.5; }
   .stat-source { font-size:10px; color:#3d4556; margin-top:6px; }
 
   /* ── Problem cards ── */
   .prob-grid { display:flex; flex-direction:column; gap:20px; }
-  .prob-card { background:#1e2533; border:1px solid #2e3748; border-radius:14px; padding:28px 28px 28px 0; display:flex; gap:0; overflow:hidden; transition:.2s; }
-  .prob-card:hover { border-color:#4f80ff30; box-shadow:0 8px 32px rgba(79,128,255,.08); }
+  .prob-card { background:#1e2533; border:1px solid var(--bd2); border-radius:14px; padding:28px 28px 28px 0; display:flex; gap:0; overflow:hidden; transition:.2s; }
+  .prob-card:hover { border-color:var(--blue)30; box-shadow:0 8px 32px rgba(79,128,255,.08); }
   .prob-num-col { width:80px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; padding-top:4px; gap:12px; }
   .prob-num { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; flex-shrink:0; }
-  .prob-num.n1 { background:rgba(239,68,68,.15); color:#ef4444; }
+  .prob-num.n1 { background:rgba(239,68,68,.15); color:var(--red); }
   .prob-num.n2 { background:rgba(251,146,60,.15); color:#fb923c; }
-  .prob-num.n3 { background:rgba(168,85,247,.15); color:#a855f7; }
-  .prob-line { flex:1; width:2px; background:#2e3748; }
+  .prob-num.n3 { background:rgba(168,85,247,.15); color:var(--purple); }
+  .prob-line { flex:1; width:2px; background:var(--bd2); }
   .prob-body { flex:1; }
   .prob-tag { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; margin-bottom:12px; }
-  .prob-tag.t1 { background:rgba(239,68,68,.1); color:#ef4444; border:1px solid rgba(239,68,68,.2); }
+  .prob-tag.t1 { background:rgba(239,68,68,.1); color:var(--red); border:1px solid rgba(239,68,68,.2); }
   .prob-tag.t2 { background:rgba(251,146,60,.1); color:#fb923c; border:1px solid rgba(251,146,60,.2); }
-  .prob-tag.t3 { background:rgba(168,85,247,.1); color:#a855f7; border:1px solid rgba(168,85,247,.2); }
+  .prob-tag.t3 { background:rgba(168,85,247,.1); color:var(--purple); border:1px solid rgba(168,85,247,.2); }
   .prob-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:10px; line-height:1.3; }
-  .prob-desc { font-size:13px; color:#8c95aa; line-height:1.8; margin-bottom:16px; }
-  .prob-quote { background:#0f1117; border-radius:8px; padding:12px 16px; font-size:13px; color:#d0d4de; line-height:1.7; border-left:3px solid #2e3748; font-style:italic; }
+  .prob-desc { font-size:13px; color:var(--t3); line-height:1.8; margin-bottom:16px; }
+  .prob-quote { background:var(--bg); border-radius:8px; padding:12px 16px; font-size:13px; color:#d0d4de; line-height:1.7; border-left:3px solid var(--bd2); font-style:italic; }
 
   /* ── Target ── */
   .target-wrap { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  .target-main { background:linear-gradient(135deg,#1a2540,#1e2533); border:1px solid #4f80ff40; border-radius:14px; padding:28px; }
-  .target-main-badge { display:inline-flex; align-items:center; gap:6px; background:#4f80ff20; color:#4f80ff; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .target-main { background:linear-gradient(135deg,#1a2540,#1e2533); border:1px solid var(--blue)40; border-radius:14px; padding:28px; }
+  .target-main-badge { display:inline-flex; align-items:center; gap:6px; background:var(--blue)20; color:var(--blue); font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
   .target-main h3 { font-size:20px; font-weight:800; color:#fff; margin-bottom:8px; }
-  .target-main p { font-size:13px; color:#8c95aa; line-height:1.8; }
+  .target-main p { font-size:13px; color:var(--t3); line-height:1.8; }
   .target-range { margin-top:20px; }
   .range-bar-wrap { display:flex; align-items:center; gap:12px; margin-top:12px; }
-  .range-bar { flex:1; height:10px; background:#2e3748; border-radius:10px; overflow:hidden; position:relative; }
-  .range-fill { position:absolute; left:20%; width:45%; height:100%; background:linear-gradient(90deg,#4f80ff,#60a5fa); border-radius:10px; }
-  .range-labels { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:#5a6478; }
-  .range-labels .hl { color:#4f80ff; font-weight:700; }
+  .range-bar { flex:1; height:10px; background:var(--bd2); border-radius:10px; overflow:hidden; position:relative; }
+  .range-fill { position:absolute; left:20%; width:45%; height:100%; background:linear-gradient(90deg,var(--blue),#60a5fa); border-radius:10px; }
+  .range-labels { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--t4); }
+  .range-labels .hl { color:var(--blue); font-weight:700; }
   .target-side { display:flex; flex-direction:column; gap:12px; }
-  .target-side-card { background:#1e2533; border:1px solid #2e3748; border-radius:10px; padding:16px 18px; display:flex; align-items:flex-start; gap:14px; }
+  .target-side-card { background:#1e2533; border:1px solid var(--bd2); border-radius:10px; padding:16px 18px; display:flex; align-items:flex-start; gap:14px; }
   .target-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
   .target-icon.pain { background:rgba(239,68,68,.1); }
   .target-icon.opp { background:rgba(79,128,255,.1); }
   .target-text h4 { font-size:13px; font-weight:700; color:#fff; margin-bottom:4px; }
-  .target-text p { font-size:12px; color:#8c95aa; line-height:1.6; }
+  .target-text p { font-size:12px; color:var(--t3); line-height:1.6; }
 
   /* ── Solution ── */
   .solution-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
-  .sol-card { background:#1e2533; border:1px solid #2e3748; border-radius:14px; padding:24px 20px; transition:.2s; }
-  .sol-card:hover { border-color:#4f80ff50; transform:translateY(-3px); }
-  .sol-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#4f80ff,#3d6ee8); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:16px; }
-  .sol-num { font-size:11px; font-weight:700; color:#4f80ff; margin-bottom:6px; }
+  .sol-card { background:#1e2533; border:1px solid var(--bd2); border-radius:14px; padding:24px 20px; transition:.2s; }
+  .sol-card:hover { border-color:var(--blue)50; transform:translateY(-3px); }
+  .sol-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--blue),#3d6ee8); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:16px; }
+  .sol-num { font-size:11px; font-weight:700; color:var(--blue); margin-bottom:6px; }
   .sol-title { font-size:15px; font-weight:800; color:#fff; margin-bottom:8px; }
-  .sol-desc { font-size:12px; color:#8c95aa; line-height:1.7; }
-  .sol-before-after { display:grid; grid-template-columns:1fr auto 1fr; gap:0; background:#1e2533; border:1px solid #2e3748; border-radius:14px; overflow:hidden; }
+  .sol-desc { font-size:12px; color:var(--t3); line-height:1.7; }
+  .sol-before-after { display:grid; grid-template-columns:1fr auto 1fr; gap:0; background:#1e2533; border:1px solid var(--bd2); border-radius:14px; overflow:hidden; }
   .ba-col { padding:24px 24px; }
   .ba-col.before { background:#1e2533; }
-  .ba-col.after { background:linear-gradient(135deg,#1a2540,#1e2533); border-left:1px solid #2e3748; }
-  .ba-divider { display:flex; align-items:center; justify-content:center; background:#0f1117; width:48px; }
-  .ba-arrow { color:#4f80ff; font-size:20px; }
+  .ba-col.after { background:linear-gradient(135deg,#1a2540,#1e2533); border-left:1px solid var(--bd2); }
+  .ba-divider { display:flex; align-items:center; justify-content:center; background:var(--bg); width:48px; }
+  .ba-arrow { color:var(--blue); font-size:20px; }
   .ba-label { font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:12px; }
-  .ba-label.before { color:#ef4444; }
-  .ba-label.after { color:#4f80ff; }
-  .ba-item { display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; font-size:13px; color:#8c95aa; line-height:1.5; }
+  .ba-label.before { color:var(--red); }
+  .ba-label.after { color:var(--blue); }
+  .ba-item { display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; font-size:13px; color:var(--t3); line-height:1.5; }
   .ba-item::before { content:''; width:6px; height:6px; border-radius:50%; margin-top:6px; flex-shrink:0; }
-  .ba-col.before .ba-item::before { background:#ef4444; }
-  .ba-col.after .ba-item::before { background:#4f80ff; }
+  .ba-col.before .ba-item::before { background:var(--red); }
+  .ba-col.after .ba-item::before { background:var(--blue); }
   .ba-col.after .ba-item { color:#d0d4de; }
 
   /* ── Unknowns ── */
   .unknown-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .unknown-card { background:#1e2533; border:1px solid #2e3748; border-radius:10px; padding:18px 20px; display:flex; gap:14px; align-items:flex-start; }
-  .q-icon { width:28px; height:28px; border-radius:8px; background:#4f80ff15; color:#4f80ff; font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-  .unknown-card p { font-size:13px; color:#8c95aa; line-height:1.6; }
+  .unknown-card { background:#1e2533; border:1px solid var(--bd2); border-radius:10px; padding:18px 20px; display:flex; gap:14px; align-items:flex-start; }
+  .q-icon { width:28px; height:28px; border-radius:8px; background:var(--blue)15; color:var(--blue); font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .unknown-card p { font-size:13px; color:var(--t3); line-height:1.6; }
 
   /* ── Flow diagram ── */
   .flow { display:flex; align-items:center; gap:0; justify-content:center; flex-wrap:nowrap; margin:32px 0; }
-  .flow-node { background:#1e2533; border:1px solid #2e3748; border-radius:10px; padding:14px 16px; text-align:center; min-width:120px; flex-shrink:0; }
-  .flow-node.highlight { background:linear-gradient(135deg,#1a2540,#1e2533); border-color:#4f80ff60; }
+  .flow-node { background:#1e2533; border:1px solid var(--bd2); border-radius:10px; padding:14px 16px; text-align:center; min-width:120px; flex-shrink:0; }
+  .flow-node.highlight { background:linear-gradient(135deg,#1a2540,#1e2533); border-color:var(--blue)60; }
   .flow-node .fn-icon { font-size:22px; margin-bottom:6px; }
   .flow-node .fn-label { font-size:12px; font-weight:700; color:#fff; }
-  .flow-node .fn-sub { font-size:10px; color:#5a6478; margin-top:3px; }
+  .flow-node .fn-sub { font-size:10px; color:var(--t4); margin-top:3px; }
   .flow-arrow { color:#3d4556; font-size:20px; padding:0 6px; flex-shrink:0; }
-  .flow-arrow.red { color:#ef4444; }
-  .flow-arrow.blue { color:#4f80ff; }
+  .flow-arrow.red { color:var(--red); }
+  .flow-arrow.blue { color:var(--blue); }
 
   /* ── Responsive ── */
   @media(max-width:640px) {
@@ -274,12 +287,12 @@
           <div class="prob-title">기존 PM 도구는 이 문제를 해결하지 않는다</div>
           <div class="prob-desc">Jira, Asana, Notion 같은 기존 도구들은 과업을 '관리'하기 위해 만들어졌다. 범위 초과를 판정하고 청구 근거를 생성하는 것은 이들의 설계 목적이 아니다. 현재 PM들은 카카오톡 대화와 엑셀, 그리고 기억에 의존해 이 공백을 채운다.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
-            <div style="background:#0f1117;border-radius:8px;padding:10px 12px;font-size:12px;color:#5a6478;">
-              <div style="color:#8c95aa;font-weight:700;margin-bottom:4px;">기존 도구</div>
+            <div style="background:var(--bg);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--t4);">
+              <div style="color:var(--t3);font-weight:700;margin-bottom:4px;">기존 도구</div>
               Jira · Asana · Notion<br>과업 관리만 가능
             </div>
-            <div style="background:#1a2540;border:1px solid #4f80ff30;border-radius:8px;padding:10px 12px;font-size:12px;color:#8c95aa;">
-              <div style="color:#4f80ff;font-weight:700;margin-bottom:4px;">필요한 것</div>
+            <div style="background:#1a2540;border:1px solid var(--blue)30;border-radius:8px;padding:10px 12px;font-size:12px;color:var(--t3);">
+              <div style="color:var(--blue);font-weight:700;margin-bottom:4px;">필요한 것</div>
               범위 초과 판정<br>청구 근거 자동 생성
             </div>
           </div>
@@ -301,7 +314,7 @@
         <h3>직원 5~20인<br>웹 에이전시 PM</h3>
         <p style="margin-top:8px;">PM을 겸하는 대표 포함. 프로젝트 하나가 적자로 돌아서면 회사 전체 현금 흐름이 직접 영향을 받는 규모.</p>
         <div class="target-range" style="margin-top:24px;">
-          <div style="font-size:12px;font-weight:700;color:#8c95aa;margin-bottom:8px;">규모별 특성</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t3);margin-bottom:8px;">규모별 특성</div>
           <div class="range-bar-wrap">
             <div class="range-bar"><div class="range-fill"></div></div>
           </div>
@@ -311,16 +324,16 @@
             <span>20인+<br><span style="font-size:10px;">자체 해결책</span></span>
           </div>
         </div>
-        <div style="margin-top:24px;padding:16px;background:#0f1117;border-radius:10px;">
-          <div style="font-size:11px;font-weight:700;color:#5a6478;margin-bottom:10px;">시장 규모</div>
+        <div style="margin-top:24px;padding:16px;background:var(--bg);border-radius:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--t4);margin-bottom:10px;">시장 규모</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
-              <div style="font-size:22px;font-weight:900;color:#4f80ff;">2,500<span style="font-size:14px;">개</span></div>
-              <div style="font-size:11px;color:#5a6478;">국내 타겟 에이전시</div>
+              <div style="font-size:22px;font-weight:900;color:var(--blue);">2,500<span style="font-size:14px;">개</span></div>
+              <div style="font-size:11px;color:var(--t4);">국내 타겟 에이전시</div>
             </div>
             <div>
               <div style="font-size:22px;font-weight:900;color:#60a5fa;">591,400<span style="font-size:14px;">개</span></div>
-              <div style="font-size:11px;color:#5a6478;">글로벌 타겟 에이전시</div>
+              <div style="font-size:11px;color:var(--t4);">글로벌 타겟 에이전시</div>
             </div>
           </div>
         </div>
@@ -433,32 +446,32 @@
       </div>
     </div>
 
-    <div style="margin-top:40px;background:#1e2533;border:1px solid #2e3748;border-radius:14px;padding:28px;">
-      <div style="font-size:13px;font-weight:700;color:#8c95aa;margin-bottom:16px;">행동 중심 검증 방법론 (AI-Driven)</div>
+    <div style="margin-top:40px;background:#1e2533;border:1px solid var(--bd2);border-radius:14px;padding:28px;">
+      <div style="font-size:13px;font-weight:700;color:var(--t3);margin-bottom:16px;">행동 중심 검증 방법론 (AI-Driven)</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
         <div style="text-align:center;">
           <div style="font-size:28px;margin-bottom:8px;">⚡</div>
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">초고속 MVP 빌드</div>
-          <div style="font-size:12px;color:#5a6478;">AI 통합 IDE 기반<br>6주 내 핵심 기능 배포</div>
+          <div style="font-size:12px;color:var(--t4);">AI 통합 IDE 기반<br>6주 내 핵심 기능 배포</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:28px;margin-bottom:8px;">🧪</div>
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">클로즈드 베타 테스트</div>
-          <div style="font-size:12px;color:#5a6478;">타겟 에이전시 5~10곳<br>실제 실무 적용 및 관찰</div>
+          <div style="font-size:12px;color:var(--t4);">타겟 에이전시 5~10곳<br>실제 실무 적용 및 관찰</div>
         </div>
         <div style="text-align:center;">
           <div style="font-size:28px;margin-bottom:8px;">📈</div>
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">사용 데이터 분석</div>
-          <div style="font-size:12px;color:#5a6478;">판정 기능 사용 빈도 및<br>실제 이탈률 트래킹</div>
+          <div style="font-size:12px;color:var(--t4);">판정 기능 사용 빈도 및<br>실제 이탈률 트래킹</div>
         </div>
       </div>
     </div>
 
-    <div style="margin-top:20px;background:#1a2540;border:1px solid #4f80ff30;border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;">
+    <div style="margin-top:20px;background:#1a2540;border:1px solid var(--blue)30;border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;">
       <div style="font-size:24px;">📌</div>
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">전략 피벗 완료</div>
-        <div style="font-size:12px;color:#8c95aa;">개념 검증(PoC)을 위한 사전 인터뷰를 생략하고, MVP 실사용 피드백을 통해 Product-Market Fit을 찾습니다.</div>
+        <div style="font-size:12px;color:var(--t3);">개념 검증(PoC)을 위한 사전 인터뷰를 생략하고, MVP 실사용 피드백을 통해 Product-Market Fit을 찾습니다.</div>
       </div>
     </div>
   </div>
@@ -472,6 +485,14 @@
     event.target.classList.add('active');
     window.scrollTo({top:0, behavior:'smooth'});
   }
+</script>
+<button id="theme-toggle" onclick="toggleTheme()" title="테마 전환" style="position:fixed;bottom:24px;right:24px;z-index:9999;width:40px;height:40px;border-radius:50%;border:1px solid var(--bd);background:var(--s1);color:var(--t1);font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:background .2s,border-color .2s;">☀️</button>
+<script>
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  document.getElementById('theme-toggle').textContent=
+    document.body.classList.contains('light')?'🌙':'☀️';
+}
 </script>
 </body>
 </html>
