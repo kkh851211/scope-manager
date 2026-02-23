@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI — 기능 정의서 & 백로그</title>
+<style>
+  :root {
+    --bg:#0f1117;--s1:#1a1f2e;--t1:#e8eaf0;--t3:#8c95aa;
+    --bd:#232b3e;--blue:#4f80ff;--green:#10b981;
+    --red:#f87171;--amber:#fbbf24;--purple:#a78bfa;
+  }
+  body.light{--bg:#f5f7fa;--s1:#ffffff;--t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
+
+  header{background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:0;z-index:100;transition:background .2s,border-color .2s;}
+  .hl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .logo{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.5px;}
+  .logo span{color:var(--t1);}
+  .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+  .bv{background:var(--blue);color:#fff;}
+  .bt{background:rgba(16,185,129,.15);color:var(--green);}
+  .bs{background:transparent;border:1px solid var(--bd);color:var(--t3);}
+  #tbtn{background:var(--bg);border:1px solid var(--bd);color:var(--t1);
+    border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;
+    transition:background .2s,color .2s,border-color .2s;white-space:nowrap;}
+  #tbtn:hover{border-color:var(--blue);color:var(--blue);}
+
+  nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;
+    display:flex;overflow-x:auto;scrollbar-width:none;transition:background .2s,border-color .2s;}
+  nav::-webkit-scrollbar{display:none;}
+  .tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);
+    cursor:pointer;font-size:13px;font-weight:600;padding:12px 16px;white-space:nowrap;
+    transition:color .15s,border-color .15s;}
+  .tb.active{border-bottom:2px solid var(--blue);color:var(--blue);}
+  .tb:hover:not(.active){color:var(--t1);}
+
+  main{padding:24px;max-width:1000px;margin:0 auto;}
+  .page{display:none;}.page.active{display:block;}
+  .stitle{font-size:20px;font-weight:800;color:var(--t1);margin-bottom:5px;}
+  .ssub{font-size:13px;color:var(--t3);margin-bottom:20px;}
+
+  .card{background:var(--s1);border-radius:12px;padding:18px;border:1px solid var(--bd);
+    margin-bottom:16px;transition:background .2s,border-color .2s;}
+  .ct{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;
+    margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .ct::before{content:'';display:inline-block;width:3px;height:14px;
+    background:var(--blue);border-radius:2px;flex-shrink:0;}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+  /* ── SCOPE MAP ── */
+  .scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .scope-col{border-radius:12px;border:1px solid var(--bd);overflow:hidden;}
+  .scope-col.inc{border-color:rgba(16,185,129,.3);}
+  .scope-col.exc{border-color:rgba(248,113,113,.3);}
+  .scope-head{padding:12px 16px;font-size:12px;font-weight:800;border-bottom:1px solid var(--bd);}
+  .scope-col.inc .scope-head{background:rgba(16,185,129,.06);color:var(--green);}
+  .scope-col.exc .scope-head{background:rgba(248,113,113,.06);color:var(--red);}
+  .scope-row{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bd);
+    font-size:12px;color:var(--t3);line-height:1.6;}
+  .scope-row:last-child{border-bottom:none;}
+  .scope-row strong{color:var(--t1);}
+  .scope-col.inc .scope-row::before{content:'✓';color:var(--green);flex-shrink:0;}
+  .scope-col.exc .scope-row::before{content:'✕';color:var(--red);flex-shrink:0;}
+
+  /* ── FEATURE CARD ── */
+  .feat-list{display:flex;flex-direction:column;gap:14px;}
+  .feat{border-radius:12px;border:1px solid var(--bd);overflow:hidden;transition:border-color .2s;}
+  .feat-head{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bd);}
+  .feat-id{width:32px;height:32px;border-radius:8px;font-size:12px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .feat-title{font-weight:700;color:var(--t1);font-size:13px;flex:1;}
+  .feat-meta{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;}
+  .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+  .feat-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .fb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:5px;}
+  .fb-val{font-size:12px;color:var(--t3);line-height:1.7;}
+  .fb-val strong{color:var(--t1);}
+  .feat-ac{padding:0 16px 14px;border-top:1px solid var(--bd);}
+  .ac-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);padding:10px 0 7px;}
+  .ac-list{display:flex;flex-direction:column;gap:5px;}
+  .ac-item{display:flex;gap:8px;font-size:12px;color:var(--t3);line-height:1.6;}
+  .ac-item::before{content:'·';flex-shrink:0;color:var(--blue);}
+  .ac-item strong{color:var(--t1);}
+
+  /* accent colors */
+  .f-blue{border-color:rgba(79,128,255,.3);}
+  .f-blue .feat-head{background:rgba(79,128,255,.05);}
+  .f-green{border-color:rgba(16,185,129,.3);}
+  .f-green .feat-head{background:rgba(16,185,129,.05);}
+  .f-amber{border-color:rgba(251,191,36,.3);}
+  .f-amber .feat-head{background:rgba(251,191,36,.04);}
+  .f-purple{border-color:rgba(167,139,250,.3);}
+  .f-purple .feat-head{background:rgba(167,139,250,.05);}
+  .f-red{border-color:rgba(248,113,113,.3);}
+  .f-red .feat-head{background:rgba(248,113,113,.05);}
+
+  .id-blue{background:rgba(79,128,255,.2);color:var(--blue);}
+  .id-green{background:rgba(16,185,129,.2);color:var(--green);}
+  .id-amber{background:rgba(251,191,36,.2);color:var(--amber);}
+  .id-purple{background:rgba(167,139,250,.2);color:var(--purple);}
+  .id-red{background:rgba(248,113,113,.2);color:var(--red);}
+
+  .t-mvp{background:rgba(79,128,255,.15);color:var(--blue);}
+  .t-next{background:rgba(251,191,36,.15);color:var(--amber);}
+  .t-later{background:rgba(167,139,250,.15);color:var(--purple);}
+  .t-must{background:rgba(248,113,113,.15);color:var(--red);}
+  .t-should{background:rgba(251,191,36,.15);color:var(--amber);}
+  .t-could{background:rgba(16,185,129,.15);color:var(--green);}
+  .t-wont{background:rgba(139,149,170,.12);color:var(--t3);}
+
+  /* ── BACKLOG TABLE ── */
+  .btab{width:100%;border-collapse:collapse;}
+  .btab th,.btab td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:top;}
+  .btab th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);background:var(--bg);}
+  .btab tr:last-child td{border-bottom:none;}
+  .story-id{font-weight:700;color:var(--blue);white-space:nowrap;}
+  .story-title{font-weight:700;color:var(--t1);margin-bottom:2px;}
+  .story-as{font-size:11px;color:var(--t3);}
+  .effort{font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;
+    background:var(--bg);border:1px solid var(--bd);color:var(--t3);}
+
+  /* ── TECH SPEC ── */
+  .spec-list{display:flex;flex-direction:column;gap:10px;}
+  .spec-item{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;}
+  .spec-name{font-weight:700;color:var(--t1);font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .spec-desc{font-size:12px;color:var(--t3);line-height:1.7;}
+  .spec-desc strong{color:var(--t1);}
+  .spec-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .chip{font-size:11px;padding:2px 9px;border-radius:10px;border:1px solid var(--bd);color:var(--t3);}
+
+  /* ── RELEASE PLAN ── */
+  .release-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .rel-box{border-radius:12px;border:1px solid var(--bd);overflow:hidden;}
+  .rel-head{padding:13px 16px;border-bottom:1px solid var(--bd);}
+  .rel-phase{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;}
+  .rel-name{font-size:14px;font-weight:800;color:var(--t1);}
+  .rel-period{font-size:11px;color:var(--t3);margin-top:2px;}
+  .rel-body{padding:13px 16px;}
+  .rel-item{display:flex;gap:8px;font-size:12px;color:var(--t3);line-height:1.7;margin-bottom:4px;}
+  .rel-item:last-child{margin-bottom:0;}
+  .rel-item::before{content:'→';color:var(--blue);flex-shrink:0;}
+  .rel-item strong{color:var(--t1);}
+  .rel-goal{margin-top:10px;padding:8px 10px;border-radius:7px;font-size:11px;font-weight:700;}
+
+  /* ── UX FLOW ── */
+  .ux-steps{display:flex;gap:0;align-items:stretch;flex-wrap:wrap;}
+  .ux-step{flex:1;min-width:120px;border:1px solid var(--bd);border-radius:10px;
+    padding:14px;text-align:center;position:relative;margin:4px;}
+  .ux-num{width:26px;height:26px;border-radius:50%;font-size:12px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+  .ux-label{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+  .ux-desc{font-size:11px;color:var(--t3);line-height:1.5;}
+  .ux-step.highlight{border-color:rgba(79,128,255,.35);background:rgba(79,128,255,.05);}
+  .ux-arrow{display:flex;align-items:center;padding:0 2px;color:var(--t3);font-size:18px;flex-shrink:0;align-self:center;}
+
+  /* ── PROMPT SPEC ── */
+  .prompt-box{background:var(--bg);border:1px solid var(--bd);border-radius:10px;
+    padding:16px;font-family:'Courier New',monospace;font-size:12px;color:var(--t3);
+    line-height:1.8;margin-top:10px;}
+  .prompt-box .ph{color:var(--amber);}
+  .prompt-box .inst{color:var(--blue);}
+  .prompt-box .out{color:var(--green);}
+
+  @media(max-width:560px){
+    main{padding:14px;}header{padding:12px 14px;}nav{padding:0 14px;}
+    .g2,.g3,.scope-grid,.release-grid{grid-template-columns:1fr;}
+    .feat-body{grid-template-columns:1fr;}
+    .tb{padding:10px 11px;font-size:12px;}
+    .ux-steps{flex-direction:column;}
+    .ux-arrow{transform:rotate(90deg);}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <div class="logo">My<span>ROI</span></div>
+    <span class="badge bv">v1.0</span>
+    <span class="badge bt">기능 정의 & 백로그</span>
+    <span class="badge bs">MVP 집중형</span>
+  </div>
+  <button id="tbtn" onclick="tog()">🌙 다크</button>
+</header>
+
+<nav>
+  <button class="tb active" onclick="sw('overview',this)">🗺️ 기능 범위</button>
+  <button class="tb" onclick="sw('features',this)">⚡ MVP 기능 정의</button>
+  <button class="tb" onclick="sw('backlog',this)">📋 백로그</button>
+  <button class="tb" onclick="sw('ux',this)">🔽 UX 플로우</button>
+  <button class="tb" onclick="sw('prompt',this)">🤖 AI 프롬프트 명세</button>
+  <button class="tb" onclick="sw('release',this)">🚀 릴리즈 플랜</button>
+</nav>
+
+<main>
+
+  <!-- ── TAB 1: 기능 범위 ── -->
+  <div id="page-overview" class="page active">
+    <p class="stitle">기능 범위 정의</p>
+    <p class="ssub">MVP에 담는 것과 담지 않는 것 — 린 캔버스 v6.0 Scope Creep 차단 원칙</p>
+
+    <div class="scope-grid">
+      <div class="scope-col inc">
+        <div class="scope-head">✅ In-Scope — MVP에 포함</div>
+        <div class="scope-row"><span><strong>소급 텍스트 입력</strong> — 과거 이슈 최대 5건 자유 기술</span></div>
+        <div class="scope-row"><span><strong>AI 구조화 & 금액 환산</strong> — 이슈 → 재무 임팩트 초안 산출</span></div>
+        <div class="scope-row"><span><strong>Human-in-the-loop 수정</strong> — 금액·설명 편집, 증빙 캡처 첨부</span></div>
+        <div class="scope-row"><span><strong>피치덱 PDF 원클릭 생성</strong> — 연봉 협상용 1페이지 리포트</span></div>
+        <div class="scope-row"><span><strong>기본 온보딩</strong> — 직군·역할·재직기간 입력 (AI 컨텍스트용)</span></div>
+        <div class="scope-row"><span><strong>이벤트 트래킹</strong> — 가입·입력·완성·다운로드 이벤트 수집</span></div>
+        <div class="scope-row"><span><strong>랜딩 페이지</strong> — 문제 공감 + 가입 유도 + UTM 파라미터</span></div>
+      </div>
+      <div class="scope-col exc">
+        <div class="scope-head">❌ Out-of-Scope — MVP에서 제외</div>
+        <div class="scope-row"><span><strong>이메일·메신저 자동 파싱</strong> — 연동 복잡도 대비 검증 가치 낮음</span></div>
+        <div class="scope-row"><span><strong>B2B 경영진 대시보드</strong> — WTP 검증 후 개발 (Phase 2)</span></div>
+        <div class="scope-row"><span><strong>팀/조직 단위 기능</strong> — 개인 검증 완료 전 불필요</span></div>
+        <div class="scope-row"><span><strong>급여·KPI 시스템 연동</strong> — 대기업 영역, Out-of-Scope 선언</span></div>
+        <div class="scope-row"><span><strong>소셜 공유·커뮤니티</strong> — 핵심 루프 검증 후 추가</span></div>
+        <div class="scope-row"><span><strong>모바일 앱</strong> — 웹 검증 우선, 앱은 Phase 3 이후</span></div>
+        <div class="scope-row"><span><strong>다국어·다통화 지원</strong> — 국내 SME SOM 집중 단계</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">기능 우선순위 판단 기준 — MoSCoW</div>
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:11px 14px;border:1px solid rgba(248,113,113,.25);border-radius:9px;background:rgba(248,113,113,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:3px;">Must Have — 없으면 MVP 아님</div>
+            <div style="font-size:12px;color:var(--t3);">텍스트 입력 → AI 환산 → 피치덱 생성. 이 3단계 중 하나라도 빠지면 핵심 가설 검증 불가.</div>
+          </div>
+          <div style="padding:11px 14px;border:1px solid rgba(251,191,36,.25);border-radius:9px;background:rgba(251,191,36,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:3px;">Should Have — 품질 확보에 필요</div>
+            <div style="font-size:12px;color:var(--t3);">Human-in-the-loop 수정, 증빙 첨부. 없어도 동작하지만 AI 수용률 지표에 직접 영향.</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:11px 14px;border:1px solid rgba(16,185,129,.25);border-radius:9px;background:rgba(16,185,129,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;">Could Have — 있으면 좋지만 나중에</div>
+            <div style="font-size:12px;color:var(--t3);">이벤트 트래킹 고도화, 리마인더 이메일, 공유 버튼. Activation 이후 단계에서 추가.</div>
+          </div>
+          <div style="padding:11px 14px;border:1px solid rgba(139,149,170,.2);border-radius:9px;">
+            <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:3px;">Won't Have — 이번 MVP에서 하지 않음</div>
+            <div style="font-size:12px;color:var(--t3);">자동 파싱, B2B 대시보드, 앱, 팀 기능. Out-of-Scope 항목과 동일. 명시적으로 제외 선언.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">기능과 가설의 연결 구조</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;min-width:600px;">
+          <thead>
+            <tr style="background:var(--bg);">
+              <th style="padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);border-bottom:1px solid var(--bd);">기능</th>
+              <th style="padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);border-bottom:1px solid var(--bd);">검증 가설</th>
+              <th style="padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);border-bottom:1px solid var(--bd);">측정 이벤트</th>
+              <th style="padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);border-bottom:1px solid var(--bd);">성공 기준</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);font-weight:700;color:var(--t1);">랜딩 페이지</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">H1 문제 가설</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">landing_visit → signup_complete</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);"><span class="tag t-mvp">CVR ≥ 15%</span></td></tr>
+            <tr><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);font-weight:700;color:var(--t1);">소급 텍스트 입력</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">H1 페인 강도</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">issue_input_start → 3건 완성</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);"><span class="tag t-mvp">시작률 ≥ 60%</span></td></tr>
+            <tr><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);font-weight:700;color:var(--t1);">AI 금액 환산</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">H2 기술 가설</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">ai_result_accepted / ai_result_edited</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);"><span class="tag t-mvp">수용률 ≥ 50%</span></td></tr>
+            <tr><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);font-weight:700;color:var(--t1);">Human-in-the-loop 수정</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">H2 보조 (수정 폭)</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">edit_delta_pct 분포</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);"><span class="tag t-next">편차 ≤ ±30%</span></td></tr>
+            <tr><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);font-weight:700;color:var(--t1);">피치덱 PDF 생성</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">H1+H2 Activation</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--t3);">pitchdeck_generated, downloaded</td><td style="padding:10px 13px;font-size:12px;border-bottom:1px solid var(--bd);"><span class="tag t-mvp">완성률 ≥ 40%</span></td></tr>
+            <tr><td style="padding:10px 13px;font-size:12px;font-weight:700;color:var(--t1);">이벤트 트래킹</td><td style="padding:10px 13px;font-size:12px;color:var(--t3);">전 가설 측정 인프라</td><td style="padding:10px 13px;font-size:12px;color:var(--t3);">전 이벤트 로깅</td><td style="padding:10px 13px;font-size:12px;"><span class="tag t-must">누락률 0%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: MVP 기능 정의 ── -->
+  <div id="page-features" class="page">
+    <p class="stitle">MVP 기능 상세 정의</p>
+    <p class="ssub">F01~F06 — 각 기능의 목적·동작 방식·인수 조건</p>
+
+    <div class="feat-list">
+
+      <div class="feat f-blue">
+        <div class="feat-head">
+          <div class="feat-id id-blue">F01</div>
+          <div class="feat-title">랜딩 페이지 & 온보딩</div>
+          <div class="feat-meta">
+            <span class="tag t-must">Must</span><span class="tag t-mvp">MVP</span>
+          </div>
+        </div>
+        <div class="feat-body">
+          <div>
+            <div class="fb-label">목적 & 가설 연결</div>
+            <div class="fb-val">문제 공감 메시지로 <strong>H1 CVR ≥ 15%</strong> 달성. 가입 시 직군·역할·재직기간 수집 → AI 프롬프트 컨텍스트로 활용.</div>
+          </div>
+          <div>
+            <div class="fb-label">핵심 동작</div>
+            <div class="fb-val">① 헤드라인 A/B 테스트 ("연봉 협상 무기" vs "숨은 성과 증명") <br>② 소셜 로그인(Google) 또는 이메일 가입<br>③ 온보딩 3문항: 직군 / 회사 규모 / 현재 상황(협상 준비 여부)</div>
+          </div>
+          <div>
+            <div class="fb-label">인수 조건 (AC)</div>
+            <div class="fb-val">• UTM 파라미터 자동 저장<br>• 가입 완료 시 signup_complete 이벤트 발화<br>• 온보딩 3문항 모두 필수 (스킵 불가)<br>• 모바일 반응형</div>
+          </div>
+        </div>
+        <div class="feat-ac">
+          <div class="ac-title">예외 처리</div>
+          <div class="ac-list">
+            <div class="ac-item">소셜 로그인 실패 시 이메일 가입으로 자동 폴백</div>
+            <div class="ac-item">온보딩 이탈 시 <strong>미완성 상태 저장 후 재진입 시 이어서 진행</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat f-red">
+        <div class="feat-head">
+          <div class="feat-id id-red">F02</div>
+          <div class="feat-title">소급 이슈 텍스트 입력</div>
+          <div class="feat-meta">
+            <span class="tag t-must">Must</span><span class="tag t-mvp">MVP 핵심</span>
+          </div>
+        </div>
+        <div class="feat-body">
+          <div>
+            <div class="fb-label">목적 & 가설 연결</div>
+            <div class="fb-val">실무자가 <strong>과거 이슈 1~5건을 자유 텍스트로 기술</strong>. 입력 행동 자체가 H1 페인 강도 측정. 이슈 유형(예방/수습/역할중첩)은 AI가 자동 분류.</div>
+          </div>
+          <div>
+            <div class="fb-label">핵심 동작</div>
+            <div class="fb-val">① 이슈 1건당 입력 필드: 상황 설명(필수) + 예상 임팩트(선택)<br>② 입력 중 <strong>실시간 힌트 문구</strong> 제공 ("언제, 무슨 문제를, 어떻게 막았나요?")<br>③ 1건 입력 후 "추가하기" 버튼으로 최대 5건까지 확장</div>
+          </div>
+          <div>
+            <div class="fb-label">인수 조건 (AC)</div>
+            <div class="fb-val">• 최소 1건 입력 시 AI 분석 버튼 활성화<br>• 각 필드 최소 50자 / 최대 500자<br>• issue_input_start, issue_input_3_complete 이벤트 발화<br>• 임시저장 자동 (30초 간격)</div>
+          </div>
+        </div>
+        <div class="feat-ac">
+          <div class="ac-title">UX 세부 사항</div>
+          <div class="ac-list">
+            <div class="ac-item">입력창 포커스 시 <strong>이슈 유형 예시</strong> 툴팁 표시 (사전 방어 / 위기 수습 / 역할 중첩)</div>
+            <div class="ac-item">글자 수 카운터 표시 (50자 미만 시 경고 색상)</div>
+            <div class="ac-item">이슈 삭제·순서 변경 드래그 앤 드롭 <strong>(Could Have — Phase 2)</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat f-purple">
+        <div class="feat-head">
+          <div class="feat-id id-purple">F03</div>
+          <div class="feat-title">AI 구조화 & 재무 금액 환산</div>
+          <div class="feat-meta">
+            <span class="tag t-must">Must</span><span class="tag t-mvp">MVP 핵심</span>
+          </div>
+        </div>
+        <div class="feat-body">
+          <div>
+            <div class="fb-label">목적 & 가설 연결</div>
+            <div class="fb-val">자유 텍스트를 <strong>"이슈 유형 / 방어 임팩트 / 예상 절감액"</strong> 3요소로 구조화. H2 핵심 기술 가설 — AI 산출값 수용률 ≥ 50% 검증.</div>
+          </div>
+          <div>
+            <div class="fb-label">핵심 동작</div>
+            <div class="fb-val">① 온보딩 컨텍스트(직군·규모) + 이슈 텍스트 → LLM 호출<br>② 출력: 이슈 요약 / 유형 분류 / 방어 금액 범위(하한~상한) / 산정 근거<br>③ 처리 중 <strong>로딩 애니메이션</strong> + 예상 소요시간 표시 (5~10초)</div>
+          </div>
+          <div>
+            <div class="fb-label">인수 조건 (AC)</div>
+            <div class="fb-val">• LLM 응답 실패 시 재시도 버튼 + 오류 메시지<br>• 응답 타임아웃 15초 설정<br>• ai_result_shown 이벤트 발화<br>• 금액 단위: 만원 (소수점 없음)</div>
+          </div>
+        </div>
+        <div class="feat-ac">
+          <div class="ac-title">산정 근거 투명화 (신뢰도 핵심)</div>
+          <div class="ac-list">
+            <div class="ac-item">금액 하단에 <strong>산정 방식 1줄 요약</strong> 노출 ("M/M 비용 × 예상 지연 시간 기준")</div>
+            <div class="ac-item">수용률 &lt; 50% 시 — 근거 상세 펼치기 기능 추가 (Phase 1.5 스프린트)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat f-amber">
+        <div class="feat-head">
+          <div class="feat-id id-amber">F04</div>
+          <div class="feat-title">Human-in-the-loop 수정 & 증빙 첨부</div>
+          <div class="feat-meta">
+            <span class="tag t-should">Should</span><span class="tag t-mvp">MVP 포함</span>
+          </div>
+        </div>
+        <div class="feat-body">
+          <div>
+            <div class="fb-label">목적 & 가설 연결</div>
+            <div class="fb-val">AI 산출값에 대한 <strong>실무자의 최종 통제권 보장</strong>. 금액 수정 폭(±%) 측정으로 H2 보조 가설 검증. 캡처 첨부로 피치덱 신뢰도 향상.</div>
+          </div>
+          <div>
+            <div class="fb-label">핵심 동작</div>
+            <div class="fb-val">① AI 결과 각 항목 인라인 편집 (이슈 요약·금액·근거)<br>② 금액 슬라이더 또는 직접 입력 (AI 값 ±50% 범위 초기 설정)<br>③ 이슈별 증빙 이미지 첨부 (선택, 최대 3장)</div>
+          </div>
+          <div>
+            <div class="fb-label">인수 조건 (AC)</div>
+            <div class="fb-val">• 수정 전·후 금액 차이 edit_delta_pct 로깅<br>• 이미지 파일 5MB 이하, JPG/PNG/WebP<br>• "AI 권장값으로 복원" 버튼 제공<br>• ai_result_accepted / ai_result_edited 이벤트 발화</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat f-green">
+        <div class="feat-head">
+          <div class="feat-id id-green">F05</div>
+          <div class="feat-title">피치덱 PDF 원클릭 생성</div>
+          <div class="feat-meta">
+            <span class="tag t-must">Must</span><span class="tag t-mvp">North Star</span>
+          </div>
+        </div>
+        <div class="feat-body">
+          <div>
+            <div class="fb-label">목적 & 가설 연결</div>
+            <div class="fb-val"><strong>핵심 Activation 이벤트</strong>. 완성된 피치덱이 "연봉 협상 무기"라는 확신을 주는지 — PDF 완성률 ≥ 40% + 다운로드율 측정.</div>
+          </div>
+          <div>
+            <div class="fb-label">핵심 동작</div>
+            <div class="fb-val">① 1페이지 A4 PDF: 이름·직군·기간 / 이슈 요약 카드 / 총 방어 금액 / 기여 유형 분포<br>② 브랜드 커버 디자인 (MyROI 로고 + 날짜)<br>③ "다운로드" + "링크 복사" 2가지 공유 방식</div>
+          </div>
+          <div>
+            <div class="fb-label">인수 조건 (AC)</div>
+            <div class="fb-val">• pitchdeck_generated, pitchdeck_downloaded 이벤트<br>• PDF 생성 3초 이내<br>• 링크 공유 시 뷰어 전용 웹 버전 제공<br>• 피치덱 하단 <strong>B2B Waitlist 티저 문구</strong> 삽입</div>
+          </div>
+        </div>
+        <div class="feat-ac">
+          <div class="ac-title">B2B 연결 포인트 (WTP 검증 내장)</div>
+          <div class="ac-list">
+            <div class="ac-item">PDF 하단 고정 문구: <strong>"이 데이터를 팀 전체로 확장하고 싶으신 대표님 →"</strong> Waitlist 링크</div>
+            <div class="ac-item">링크 클릭 시 buyer_landing_visit 이벤트 발화 → H5 검증 시작</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat f-blue">
+        <div class="feat-head">
+          <div class="feat-id id-blue">F06</div>
+          <div class="feat-title">이벤트 트래킹 & 분석 인프라</div>
+          <div class="feat-meta">
+            <span class="tag t-must">Must</span><span class="tag t-mvp">MVP 전제</span>
+          </div>
+        </div>
+        <div class="feat-body">
+          <div>
+            <div class="fb-label">목적</div>
+            <div class="fb-val">모든 가설 검증의 <strong>측정 인프라</strong>. 이벤트가 누락되면 어떤 가설도 검증 불가. MVP 배포 전 반드시 완료.</div>
+          </div>
+          <div>
+            <div class="fb-label">트래킹 항목</div>
+            <div class="fb-val">landing_visit (UTM) / signup_complete / issue_input_start / issue_input_3_complete / ai_result_shown / ai_result_accepted / ai_result_edited (delta_pct) / pitchdeck_generated / pitchdeck_downloaded / d7_return / d30_return</div>
+          </div>
+          <div>
+            <div class="fb-label">인수 조건 (AC)</div>
+            <div class="fb-val">• 이벤트 누락률 0% (배포 전 QA 체크리스트)<br>• 채널별 UTM 자동 태깅<br>• 코호트 분석을 위한 user_id + first_visit_date 저장<br>• 개인정보: 금액·텍스트는 서버 로그에서 마스킹</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB 3: 백로그 ── -->
+  <div id="page-backlog" class="page">
+    <p class="stitle">제품 백로그</p>
+    <p class="ssub">유저 스토리 형식 · 우선순위 & 개발 공수(Story Points) 포함</p>
+
+    <div class="card">
+      <div class="ct">Sprint 0 — 배포 전 완료 필수 (Must Have)</div>
+      <div style="overflow-x:auto;">
+        <table class="btab" style="min-width:620px;">
+          <thead><tr><th style="width:70px;">ID</th><th>유저 스토리</th><th style="width:80px;">SP</th><th style="width:90px;">우선순위</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="story-id">US-01</span></td>
+              <td><div class="story-title">랜딩 페이지 & 가입 플로우</div><div class="story-as">As 실무자, 랜딩에서 문제에 공감하고 30초 내 가입을 완료할 수 있다.</div></td>
+              <td><span class="effort">5 SP</span></td>
+              <td><span class="tag t-must">Must</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-02</span></td>
+              <td><div class="story-title">온보딩 3문항 (직군·규모·상황)</div><div class="story-as">As 시스템, 온보딩 답변을 AI 프롬프트 컨텍스트에 주입해 산출 정확도를 높인다.</div></td>
+              <td><span class="effort">2 SP</span></td>
+              <td><span class="tag t-must">Must</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-03</span></td>
+              <td><div class="story-title">이슈 텍스트 입력 (1~5건)</div><div class="story-as">As 실무자, 과거 이슈를 자유 텍스트로 기술하고 AI 분석을 요청할 수 있다.</div></td>
+              <td><span class="effort">3 SP</span></td>
+              <td><span class="tag t-must">Must</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-04</span></td>
+              <td><div class="story-title">AI 구조화 & 금액 환산 호출</div><div class="story-as">As 실무자, 이슈 텍스트를 제출하면 AI가 이슈 유형·방어 금액·근거를 5~10초 내 반환한다.</div></td>
+              <td><span class="effort">8 SP</span></td>
+              <td><span class="tag t-must">Must</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-05</span></td>
+              <td><div class="story-title">AI 결과 인라인 수정</div><div class="story-as">As 실무자, AI 산출 금액과 설명을 직접 수정하고 수정 전 값으로 복원할 수 있다.</div></td>
+              <td><span class="effort">3 SP</span></td>
+              <td><span class="tag t-should">Should</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-06</span></td>
+              <td><div class="story-title">피치덱 PDF 생성 & 다운로드</div><div class="story-as">As 실무자, 검토 완료 후 버튼 한 번으로 PDF를 생성하고 다운로드 또는 링크 공유할 수 있다.</div></td>
+              <td><span class="effort">5 SP</span></td>
+              <td><span class="tag t-must">Must</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-07</span></td>
+              <td><div class="story-title">전 이벤트 트래킹 구현</div><div class="story-as">As 팀, 모든 핵심 이벤트가 누락 없이 로깅되어 가설 검증에 사용할 수 있다.</div></td>
+              <td><span class="effort">3 SP</span></td>
+              <td><span class="tag t-must">Must</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center;font-size:12px;color:var(--t3);">
+        <span>Sprint 0 총 공수:</span>
+        <strong style="color:var(--blue);font-size:15px;">29 SP</strong>
+        <span>· 1 SP ≈ 반나절 기준 · 약 <strong style="color:var(--t1);">2~3주</strong> 예상</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Sprint 1 — Activation 개선 (Should / Could · Week 3~6)</div>
+      <div style="overflow-x:auto;">
+        <table class="btab" style="min-width:620px;">
+          <thead><tr><th style="width:70px;">ID</th><th>유저 스토리</th><th style="width:80px;">SP</th><th style="width:90px;">우선순위</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="story-id">US-08</span></td>
+              <td><div class="story-title">증빙 이미지 첨부</div><div class="story-as">As 실무자, 이슈별 증빙 스크린샷을 최대 3장 첨부해 피치덱 신뢰도를 높일 수 있다.</div></td>
+              <td><span class="effort">3 SP</span></td>
+              <td><span class="tag t-should">Should</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-09</span></td>
+              <td><div class="story-title">AI 산정 근거 상세 펼치기</div><div class="story-as">As 실무자, "왜 이 금액인지" 산정 근거를 상세히 확인해 납득 여부를 판단할 수 있다.</div></td>
+              <td><span class="effort">2 SP</span></td>
+              <td><span class="tag t-should">Should</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-10</span></td>
+              <td><div class="story-title">이슈 유형별 힌트 가이드</div><div class="story-as">As 실무자, 사전예방·위기수습·역할중첩 유형별 작성 예시를 보고 입력 마찰을 줄일 수 있다.</div></td>
+              <td><span class="effort">2 SP</span></td>
+              <td><span class="tag t-could">Could</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-11</span></td>
+              <td><div class="story-title">인앱 마이크로 설문 (3문항)</div><div class="story-as">As 팀, 피치덱 완성 직후 만족도 3문항을 수집해 H2 정성 데이터를 보완할 수 있다.</div></td>
+              <td><span class="effort">2 SP</span></td>
+              <td><span class="tag t-could">Could</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-12</span></td>
+              <td><div class="story-title">공유 버튼 & 추천 링크</div><div class="story-as">As 실무자, 피치덱 링크를 1클릭으로 복사해 지인에게 공유하고 Referral 루프를 만들 수 있다.</div></td>
+              <td><span class="effort">2 SP</span></td>
+              <td><span class="tag t-could">Could</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Sprint 2 — Retention & B2B WTP (Month 2~3)</div>
+      <div style="overflow-x:auto;">
+        <table class="btab" style="min-width:620px;">
+          <thead><tr><th style="width:70px;">ID</th><th>유저 스토리</th><th style="width:80px;">SP</th><th style="width:90px;">우선순위</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="story-id">US-13</span></td>
+              <td><div class="story-title">월간 리마인더 이메일</div><div class="story-as">As 실무자, 매달 1회 "이달 성과 기록하기" 이메일을 받아 재방문 동기를 유지한다.</div></td>
+              <td><span class="effort">2 SP</span></td>
+              <td><span class="tag t-next">Next</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-14</span></td>
+              <td><div class="story-title">피치덱 이력 관리</div><div class="story-as">As 실무자, 과거에 생성한 피치덱 목록을 조회하고 새 버전으로 업데이트할 수 있다.</div></td>
+              <td><span class="effort">4 SP</span></td>
+              <td><span class="tag t-next">Next</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-15</span></td>
+              <td><div class="story-title">B2B Waitlist 랜딩</div><div class="story-as">As 경영진, 피치덱 링크를 통해 전사 ROI 대시보드 소개 페이지에 도달하고 사전 신청할 수 있다.</div></td>
+              <td><span class="effort">3 SP</span></td>
+              <td><span class="tag t-next">Next</span></td>
+            </tr>
+            <tr>
+              <td><span class="story-id">US-16</span></td>
+              <td><div class="story-title">심층 리포트 유료 게이트</div><div class="story-as">As 실무자, 월 1회 초과 피치덱 생성 시 유료 플랜 업그레이드를 안내받고 결제할 수 있다.</div></td>
+              <td><span class="effort">5 SP</span></td>
+              <td><span class="tag t-later">Later</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: UX 플로우 ── -->
+  <div id="page-ux" class="page">
+    <p class="stitle">UX 플로우</p>
+    <p class="ssub">핵심 사용자 여정 — 랜딩 방문부터 피치덱 완성까지</p>
+
+    <div class="card">
+      <div class="ct">End-User 핵심 여정 (Happy Path)</div>
+      <div class="ux-steps" style="margin-bottom:12px;">
+        <div class="ux-step">
+          <div class="ux-num" style="background:rgba(79,128,255,.2);color:var(--blue);">1</div>
+          <div class="ux-label">랜딩 방문</div>
+          <div class="ux-desc">채널 유입<br>(블라인드·단톡)</div>
+        </div>
+        <div class="ux-arrow">›</div>
+        <div class="ux-step">
+          <div class="ux-num" style="background:rgba(79,128,255,.2);color:var(--blue);">2</div>
+          <div class="ux-label">가입 완료</div>
+          <div class="ux-desc">소셜 로그인<br>온보딩 3문항</div>
+        </div>
+        <div class="ux-arrow">›</div>
+        <div class="ux-step highlight">
+          <div class="ux-num" style="background:rgba(79,128,255,.3);color:var(--blue);">3</div>
+          <div class="ux-label">이슈 입력</div>
+          <div class="ux-desc">자유 텍스트<br>1~5건 기술</div>
+        </div>
+        <div class="ux-arrow">›</div>
+        <div class="ux-step highlight">
+          <div class="ux-num" style="background:rgba(167,139,250,.2);color:var(--purple);">4</div>
+          <div class="ux-label">AI 분석</div>
+          <div class="ux-desc">구조화 &<br>금액 환산</div>
+        </div>
+        <div class="ux-arrow">›</div>
+        <div class="ux-step">
+          <div class="ux-num" style="background:rgba(251,191,36,.2);color:var(--amber);">5</div>
+          <div class="ux-label">수정·검토</div>
+          <div class="ux-desc">금액 조정<br>증빙 첨부</div>
+        </div>
+        <div class="ux-arrow">›</div>
+        <div class="ux-step" style="border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.04);">
+          <div class="ux-num" style="background:rgba(16,185,129,.2);color:var(--green);">6</div>
+          <div class="ux-label">피치덱 완성</div>
+          <div class="ux-desc">PDF 생성<br>다운로드 🎯</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--t3);text-align:center;">3~6단계가 핵심 Aha! Moment 구간 · 이 구간의 이탈이 최우선 최적화 대상</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">이탈 위험 지점 & 대응 UX</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:14px;padding:12px 14px;border:1px solid rgba(248,113,113,.25);border-radius:10px;background:rgba(248,113,113,.04);">
+          <div style="font-size:12px;font-weight:700;color:var(--red);">이탈 지점 1<br>가입 → 입력 시작</div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;">원인 가설</div><div style="font-size:12px;color:var(--t3);">"뭘 써야 할지 모르겠다" — 입력 진입 장벽</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;">UX 대응</div><div style="font-size:12px;color:var(--t3);">유형별 예시 문장 3개 제공 (클릭하면 자동 삽입). 첫 입력창 플레이스홀더 구체화.</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:14px;padding:12px 14px;border:1px solid rgba(248,113,113,.25);border-radius:10px;background:rgba(248,113,113,.04);">
+          <div style="font-size:12px;font-weight:700;color:var(--red);">이탈 지점 2<br>AI 결과 → 수정</div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;">원인 가설</div><div style="font-size:12px;color:var(--t3);">"이 금액이 맞나?" — AI 결과에 대한 불신</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;">UX 대응</div><div style="font-size:12px;color:var(--t3);">산정 근거 1줄 노출 + 금액 범위(하한~상한) 표시로 신뢰 구간 제공.</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:120px 1fr 1fr;gap:14px;padding:12px 14px;border:1px solid rgba(251,191,36,.2);border-radius:10px;background:rgba(251,191,36,.03);">
+          <div style="font-size:12px;font-weight:700;color:var(--amber);">이탈 지점 3<br>수정 → PDF 생성</div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;">원인 가설</div><div style="font-size:12px;color:var(--t3);">"완성본이 어떻게 생겼는지 모른다" — 결과물 불확실성</div></div>
+          <div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;margin-bottom:4px;">UX 대응</div><div style="font-size:12px;color:var(--t3);">수정 화면 우측에 <strong style="color:var(--t1);">피치덱 실시간 미리보기</strong> 패널 노출 (Phase 1.5).</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 5: AI 프롬프트 명세 ── -->
+  <div id="page-prompt" class="page">
+    <p class="stitle">AI 프롬프트 명세</p>
+    <p class="ssub">H2 기술 가설의 핵심 — 텍스트 → 재무 임팩트 변환 프롬프트 설계</p>
+
+    <div class="card">
+      <div class="ct">프롬프트 설계 원칙</div>
+      <div class="spec-list">
+        <div class="spec-item" style="border-color:rgba(79,128,255,.25);">
+          <div class="spec-name"><span style="background:rgba(79,128,255,.15);color:var(--blue);padding:2px 8px;border-radius:6px;font-size:11px;">원칙 1</span> 컨텍스트 최대화</div>
+          <div class="spec-desc">온보딩에서 수집한 <strong>직군·회사 규모·재직기간</strong>을 System Prompt에 주입. 동일한 이슈도 직군에 따라 금액 스케일이 다르다 (PM의 일정 지연 방어 vs 개발자의 서버 장애 방어).</div>
+          <div class="spec-chips"><span class="chip">직군 컨텍스트 주입</span><span class="chip">M/M 단가 추정</span><span class="chip">규모별 보정</span></div>
+        </div>
+        <div class="spec-item" style="border-color:rgba(16,185,129,.25);">
+          <div class="spec-name"><span style="background:rgba(16,185,129,.15);color:var(--green);padding:2px 8px;border-radius:6px;font-size:11px;">원칙 2</span> 산정 근거 투명화</div>
+          <div class="spec-desc">금액만 출력하면 신뢰도가 낮다. <strong>산정 방식(계산식)을 항상 함께 출력</strong>해 실무자가 검토·수정 근거를 갖도록 한다. "왜 이 숫자인가"에 답할 수 있어야 AI 수용률이 올라간다.</div>
+          <div class="spec-chips"><span class="chip">계산식 노출</span><span class="chip">하한~상한 범위</span><span class="chip">불확실성 명시</span></div>
+        </div>
+        <div class="spec-item" style="border-color:rgba(251,191,36,.25);">
+          <div class="spec-name"><span style="background:rgba(251,191,36,.15);color:var(--amber);padding:2px 8px;border-radius:6px;font-size:11px;">원칙 3</span> 구조화된 JSON 출력</div>
+          <div class="spec-desc">자유 텍스트 응답은 파싱 오류 원인. <strong>항상 JSON 포맷으로만 응답</strong>하도록 강제해 UI 렌더링 신뢰성 확보. 파싱 실패 시 재시도 로직 구현.</div>
+          <div class="spec-chips"><span class="chip">JSON 강제 출력</span><span class="chip">필드 타입 명세</span><span class="chip">재시도 로직</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">System Prompt 구조 (의사코드)</div>
+      <div class="prompt-box">
+<span class="inst">## 역할</span>
+당신은 중소기업 실무자의 비공식 기여를 재무적 임팩트로 변환하는 전문가입니다.
+
+<span class="inst">## 컨텍스트 (온보딩 데이터 주입)</span>
+- 직군: <span class="ph">{job_role}</span>  ← e.g. "PM / 기획자"
+- 회사 규모: <span class="ph">{company_size}</span>  ← e.g. "20~50인"
+- 재직기간: <span class="ph">{tenure}</span>  ← e.g. "3년"
+- 추정 M/M 단가: <span class="ph">{estimated_mm_cost}</span>  ← 직군·규모 기반 자동 계산
+
+<span class="inst">## 이슈 유형 분류 기준</span>
+1. 사전예방 (Proactive Prevention): 사고·지연을 막은 사전 행동
+2. 위기수습 (Reactive Resolution): 발생한 문제를 해결한 사후 행동
+3. 역할중첩 (Role Overlap): 본업 외 조직 공백을 메운 헌신
+
+<span class="inst">## 출력 형식 (JSON 필수, 마크다운 금지)</span>
+<span class="out">{
+  "issues": [
+    {
+      "summary": "이슈 1줄 요약",
+      "type": "사전예방 | 위기수습 | 역할중첩",
+      "impact_low": 숫자(만원),
+      "impact_high": 숫자(만원),
+      "calculation_basis": "산정 근거 1~2문장",
+      "confidence": "high | medium | low"
+    }
+  ],
+  "total_low": 숫자,
+  "total_high": 숫자,
+  "summary_sentence": "전체 기여 1줄 요약"
+}</span>
+
+<span class="inst">## 제약 조건</span>
+- 금액은 보수적으로 산정 (과장 금지, 신뢰 우선)
+- confidence가 low인 경우 이유를 calculation_basis에 명시
+- 정보 부족 시 추가 질문 없이 low confidence로 산정
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">프롬프트 품질 개선 사이클</div>
+      <div class="g3">
+        <div style="padding:14px;border:1px solid var(--bd);border-radius:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">① 측정</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.7;">ai_result_edited 이벤트에서 <strong style="color:var(--t1);">edit_delta_pct와 직군·이슈유형</strong> 교차 분석. 어떤 케이스에서 편차가 큰지 파악.</div>
+        </div>
+        <div style="padding:14px;border:1px solid var(--bd);border-radius:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px;">② 분류</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.7;">편차 큰 케이스를 모아 <strong style="color:var(--t1);">Few-shot 예시로 추가</strong>. "이런 상황에서는 이렇게 산정한다" 예시를 System Prompt에 축적.</div>
+        </div>
+        <div style="padding:14px;border:1px solid var(--bd);border-radius:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">③ 검증</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.7;">프롬프트 수정 후 <strong style="color:var(--t1);">수용률 재측정</strong>. 개선 없으면 직군별 전용 프롬프트 분기 (PM용 / 개발자용 / 마케터용) 검토.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 6: 릴리즈 플랜 ── -->
+  <div id="page-release" class="page">
+    <p class="stitle">릴리즈 플랜</p>
+    <p class="ssub">가설 검증 단계에 맞춘 3-Phase 배포 전략</p>
+
+    <div class="release-grid">
+      <div class="rel-box" style="border-color:rgba(79,128,255,.3);">
+        <div class="rel-head" style="background:rgba(79,128,255,.05);">
+          <div class="rel-phase" style="color:var(--blue);">Phase 0 · Sprint 0</div>
+          <div class="rel-name">MVP 배포</div>
+          <div class="rel-period">D0 ~ Week 2 · ~2~3주</div>
+        </div>
+        <div class="rel-body">
+          <div class="rel-item"><strong>F01</strong> 랜딩 & 온보딩</div>
+          <div class="rel-item"><strong>F02</strong> 소급 텍스트 입력</div>
+          <div class="rel-item"><strong>F03</strong> AI 구조화 & 환산</div>
+          <div class="rel-item"><strong>F04</strong> 수정 & 증빙 첨부</div>
+          <div class="rel-item"><strong>F05</strong> 피치덱 PDF 생성</div>
+          <div class="rel-item"><strong>F06</strong> 이벤트 트래킹</div>
+          <div class="rel-goal" style="background:rgba(79,128,255,.1);color:var(--blue);">
+            🎯 H1 CVR ≥ 15% + H2 수용률 ≥ 50% 검증
+          </div>
+        </div>
+      </div>
+
+      <div class="rel-box" style="border-color:rgba(251,191,36,.3);">
+        <div class="rel-head" style="background:rgba(251,191,36,.04);">
+          <div class="rel-phase" style="color:var(--amber);">Phase 1 · Sprint 1</div>
+          <div class="rel-name">Activation 강화</div>
+          <div class="rel-period">Week 3~6 · ~1개월</div>
+        </div>
+        <div class="rel-body">
+          <div class="rel-item"><strong>US-08</strong> 증빙 첨부 고도화</div>
+          <div class="rel-item"><strong>US-09</strong> AI 근거 상세 펼치기</div>
+          <div class="rel-item"><strong>US-10</strong> 유형별 입력 가이드</div>
+          <div class="rel-item"><strong>US-11</strong> 인앱 마이크로 설문</div>
+          <div class="rel-item"><strong>US-12</strong> 공유 버튼 & 추천 링크</div>
+          <div class="rel-item">피치덱 실시간 미리보기 (UX)</div>
+          <div class="rel-goal" style="background:rgba(251,191,36,.1);color:var(--amber);">
+            🎯 Activation ≥ 40% + H4 Referral 루프 시작
+          </div>
+        </div>
+      </div>
+
+      <div class="rel-box" style="border-color:rgba(16,185,129,.3);">
+        <div class="rel-head" style="background:rgba(16,185,129,.05);">
+          <div class="rel-phase" style="color:var(--green);">Phase 2 · Sprint 2~3</div>
+          <div class="rel-name">Retention & B2B</div>
+          <div class="rel-period">Month 2~6</div>
+        </div>
+        <div class="rel-body">
+          <div class="rel-item"><strong>US-13</strong> 월간 리마인더 이메일</div>
+          <div class="rel-item"><strong>US-14</strong> 피치덱 이력 관리</div>
+          <div class="rel-item"><strong>US-15</strong> B2B Waitlist 랜딩</div>
+          <div class="rel-item"><strong>US-16</strong> 심층 리포트 유료 게이트</div>
+          <div class="rel-item">B2B 대시보드 개발 (WTP 검증 후)</div>
+          <div class="rel-goal" style="background:rgba(16,185,129,.1);color:var(--green);">
+            🎯 D30 ≥ 25% + H5 Waitlist ≥ 10건 + Free→Paid CVR ≥ 3%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">배포 전 QA 체크리스트 — Phase 0</div>
+      <div class="g2">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:10px;">기능 검증</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>온보딩 3문항 → AI 프롬프트 컨텍스트 주입 확인</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>이슈 1건 입력 → AI 호출 → JSON 파싱 → UI 렌더링</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>금액 수정 후 pitchdeck_generated 이벤트 발화</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>PDF 생성 3초 이내 / 다운로드 정상 작동</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>AI 타임아웃(15초) 및 오류 처리 UI</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>모바일(375px) 레이아웃 깨짐 없음</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:10px;">트래킹 검증</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>landing_visit + UTM 파라미터 정상 저장</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>signup_complete 이벤트 발화</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>issue_input_start / issue_input_3_complete 발화</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>ai_result_accepted / ai_result_edited (delta_pct 포함)</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>pitchdeck_generated / pitchdeck_downloaded 발화</span></div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--t3);">☐ <span>개인정보(텍스트·금액) 서버 로그 마스킹 확인</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function sw(id,btn){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function tog(){
+    const l=document.body.classList.toggle('light');
+    document.getElementById('tbtn').textContent=l?'☀️ 라이트':'🌙 다크';
+  }
+</script>
+</body>
+</html>
