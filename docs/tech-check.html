@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI — 기술 타당성 & 아키텍처</title>
+<style>
+  :root{
+    --bg:#0f1117;--s1:#1a1f2e;--t1:#e8eaf0;--t3:#8c95aa;
+    --bd:#232b3e;--blue:#4f80ff;--green:#10b981;
+    --red:#f87171;--amber:#fbbf24;--purple:#a78bfa;
+  }
+  body.light{--bg:#f5f7fa;--s1:#ffffff;--t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
+
+  header{background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:0;z-index:100;transition:background .2s,border-color .2s;}
+  .hl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .logo{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.5px;}
+  .logo span{color:var(--t1);}
+  .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+  .bv{background:var(--blue);color:#fff;}
+  .bt{background:rgba(167,139,250,.15);color:var(--purple);}
+  .bs{background:transparent;border:1px solid var(--bd);color:var(--t3);}
+  #tbtn{background:var(--bg);border:1px solid var(--bd);color:var(--t1);
+    border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;
+    transition:background .2s,color .2s,border-color .2s;white-space:nowrap;}
+  #tbtn:hover{border-color:var(--blue);color:var(--blue);}
+
+  nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;
+    display:flex;overflow-x:auto;scrollbar-width:none;transition:background .2s,border-color .2s;}
+  nav::-webkit-scrollbar{display:none;}
+  .tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);
+    cursor:pointer;font-size:13px;font-weight:600;padding:12px 16px;white-space:nowrap;
+    transition:color .15s,border-color .15s;}
+  .tb.active{border-bottom:2px solid var(--blue);color:var(--blue);}
+  .tb:hover:not(.active){color:var(--t1);}
+
+  main{padding:24px;max-width:1000px;margin:0 auto;}
+  .page{display:none;}.page.active{display:block;}
+  .stitle{font-size:20px;font-weight:800;color:var(--t1);margin-bottom:5px;}
+  .ssub{font-size:13px;color:var(--t3);margin-bottom:20px;}
+
+  .card{background:var(--s1);border-radius:12px;padding:18px;border:1px solid var(--bd);
+    margin-bottom:16px;transition:background .2s,border-color .2s;}
+  .ct{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;
+    margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .ct::before{content:'';display:inline-block;width:3px;height:14px;
+    background:var(--blue);border-radius:2px;flex-shrink:0;}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+  /* ── TAG ── */
+  .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+  .t-ok   {background:rgba(16,185,129,.15);color:var(--green);}
+  .t-risk {background:rgba(248,113,113,.15);color:var(--red);}
+  .t-mid  {background:rgba(251,191,36,.15);color:var(--amber);}
+  .t-blue {background:rgba(79,128,255,.15);color:var(--blue);}
+  .t-pur  {background:rgba(167,139,250,.15);color:var(--purple);}
+
+  /* ── STACK TABLE ── */
+  .stk{width:100%;border-collapse:collapse;}
+  .stk th,.stk td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:top;}
+  .stk th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);background:var(--bg);}
+  .stk tr:last-child td{border-bottom:none;}
+  .stk-name{font-weight:700;color:var(--t1);margin-bottom:2px;}
+  .stk-why{color:var(--t3);font-size:11px;line-height:1.5;}
+
+  /* ── ARCH DIAGRAM ── */
+  .arch-wrap{display:flex;flex-direction:column;gap:10px;}
+  .arch-layer{border-radius:10px;border:1px solid var(--bd);overflow:hidden;}
+  .arch-layer-head{padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.7px;border-bottom:1px solid var(--bd);}
+  .arch-layer-body{padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap;}
+  .arch-box{border-radius:8px;border:1px solid var(--bd);padding:10px 14px;font-size:12px;
+    display:flex;flex-direction:column;gap:4px;min-width:140px;flex:1;}
+  .arch-box-title{font-weight:700;color:var(--t1);font-size:12px;}
+  .arch-box-val{color:var(--t3);font-size:11px;}
+  .arch-arrow{text-align:center;color:var(--t3);font-size:18px;line-height:1;}
+
+  /* ── RISK TABLE ── */
+  .risk-list{display:flex;flex-direction:column;gap:12px;}
+  .risk-item{border-radius:10px;border:1px solid var(--bd);overflow:hidden;}
+  .risk-head{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);}
+  .risk-icon{font-size:18px;flex-shrink:0;}
+  .risk-title{font-weight:700;color:var(--t1);font-size:13px;flex:1;}
+  .risk-body{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  .rb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:4px;}
+  .rb-val{font-size:12px;color:var(--t3);line-height:1.7;}
+  .rb-val strong{color:var(--t1);}
+
+  /* ── COST TABLE ── */
+  .cost-table{width:100%;border-collapse:collapse;}
+  .cost-table th,.cost-table td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:middle;}
+  .cost-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);background:var(--bg);}
+  .cost-table tr:last-child td{border-bottom:none;}
+  .cost-val{font-weight:700;}
+  .cost-total-row td{background:rgba(79,128,255,.05);font-weight:700;color:var(--t1);}
+
+  /* ── TIMELINE ── */
+  .tl{display:flex;flex-direction:column;gap:0;}
+  .tl-row{display:flex;gap:0;}
+  .tl-left{width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+  .tl-dot{width:13px;height:13px;border-radius:50%;margin-top:3px;flex-shrink:0;border:2px solid var(--bg);}
+  .tl-line{width:2px;flex:1;min-height:14px;}
+  .tl-row:last-child .tl-line{display:none;}
+  .tl-content{padding:0 0 20px 10px;flex:1;}
+  .tl-phase{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;}
+  .tl-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:5px;}
+  .tl-desc{font-size:12px;color:var(--t3);line-height:1.7;}
+  .tl-desc strong{color:var(--t1);}
+  .tl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+  .tl-chip{font-size:11px;padding:2px 9px;border-radius:10px;border:1px solid var(--bd);color:var(--t3);}
+
+  /* ── CODE BOX ── */
+  .code-box{background:var(--bg);border:1px solid var(--bd);border-radius:10px;
+    padding:16px;font-family:'Courier New',monospace;font-size:12px;
+    color:var(--t3);line-height:1.9;overflow-x:auto;margin-top:10px;}
+  .c-key{color:var(--blue);}
+  .c-val{color:var(--green);}
+  .c-cmt{color:var(--t3);font-style:italic;}
+  .c-str{color:var(--amber);}
+
+  /* ── DECISION MATRIX ── */
+  .dec-list{display:flex;flex-direction:column;gap:10px;}
+  .dec-item{border-radius:10px;border:1px solid var(--bd);overflow:hidden;}
+  .dec-q{padding:12px 16px;font-weight:700;font-size:13px;color:var(--t1);border-bottom:1px solid var(--bd);}
+  .dec-ans{display:grid;grid-template-columns:1fr 1fr;}
+  .dec-a{padding:12px 16px;font-size:12px;line-height:1.6;}
+  .dec-a:first-child{border-right:1px solid var(--bd);}
+  .dec-a .al{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .dec-a.yes .al{color:var(--green);}
+  .dec-a.no  .al{color:var(--red);}
+  .dec-a .av{color:var(--t3);}
+  .dec-a .av strong{color:var(--t1);}
+
+  /* ── KV ── */
+  .kv-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;}
+  .kv-row:last-child{margin-bottom:0;}
+  .kv-lbl{font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;
+    background:var(--bg);border:1px solid var(--bd);color:var(--t3);
+    white-space:nowrap;flex-shrink:0;margin-top:1px;}
+  .kv-v{font-size:12px;color:var(--t3);line-height:1.7;}
+  .kv-v strong{color:var(--t1);}
+
+  /* ── FEASIBILITY SCORE ── */
+  .fs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .fs-box{border-radius:12px;border:1px solid var(--bd);padding:16px;text-align:center;}
+  .fs-val{font-size:28px;font-weight:800;margin-bottom:4px;}
+  .fs-label{font-size:11px;color:var(--t3);line-height:1.5;}
+  .fs-bar-wrap{height:5px;background:var(--bd);border-radius:3px;margin-top:8px;overflow:hidden;}
+  .fs-bar{height:100%;border-radius:3px;}
+
+  @media(max-width:560px){
+    main{padding:14px;}header{padding:12px 14px;}nav{padding:0 14px;}
+    .g2,.g3,.fs-grid{grid-template-columns:1fr 1fr;}
+    .risk-body,.dec-ans{grid-template-columns:1fr;}
+    .dec-a:first-child{border-right:none;border-bottom:1px solid var(--bd);}
+    .tb{padding:10px 11px;font-size:12px;}
+    .arch-layer-body{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <div class="logo">My<span>ROI</span></div>
+    <span class="badge bv">v1.0</span>
+    <span class="badge bt">Tech Feasibility</span>
+    <span class="badge bs">아키텍처 검토</span>
+  </div>
+  <button id="tbtn" onclick="tog()">🌙 다크</button>
+</header>
+
+<nav>
+  <button class="tb active" onclick="sw('summary',this)">🎯 타당성 요약</button>
+  <button class="tb" onclick="sw('stack',this)">🧱 기술 스택</button>
+  <button class="tb" onclick="sw('arch',this)">🏗️ 시스템 아키텍처</button>
+  <button class="tb" onclick="sw('llm',this)">🤖 LLM 설계</button>
+  <button class="tb" onclick="sw('risk',this)">⚠️ 기술 리스크</button>
+  <button class="tb" onclick="sw('cost',this)">💰 비용 구조</button>
+</nav>
+
+<main>
+
+  <!-- ── TAB 1: 타당성 요약 ── -->
+  <div id="page-summary" class="page active">
+    <p class="stitle">기술 타당성 종합 평가</p>
+    <p class="ssub">MVP 단일 기능(소급 텍스트 입력 → AI 환산 → 피치덱 생성)의 기술적 실현 가능성 검토</p>
+
+    <div class="fs-grid">
+      <div class="fs-box" style="border-color:rgba(16,185,129,.3);">
+        <div class="fs-val" style="color:var(--green);">✓</div>
+        <div class="fs-label">전체 타당성<br>실현 가능</div>
+        <div class="fs-bar-wrap"><div class="fs-bar" style="width:90%;background:var(--green);"></div></div>
+      </div>
+      <div class="fs-box" style="border-color:rgba(79,128,255,.3);">
+        <div class="fs-val" style="color:var(--blue);">2~3주</div>
+        <div class="fs-label">MVP 배포<br>예상 기간</div>
+        <div class="fs-bar-wrap"><div class="fs-bar" style="width:85%;background:var(--blue);"></div></div>
+      </div>
+      <div class="fs-box" style="border-color:rgba(16,185,129,.3);">
+        <div class="fs-val" style="color:var(--green);">₩0</div>
+        <div class="fs-label">초기 인프라<br>고정 비용</div>
+        <div class="fs-bar-wrap"><div class="fs-bar" style="width:100%;background:var(--green);"></div></div>
+      </div>
+      <div class="fs-box" style="border-color:rgba(251,191,36,.3);">
+        <div class="fs-val" style="color:var(--amber);">1건</div>
+        <div class="fs-label">핵심 기술 위험<br>LLM 품질</div>
+        <div class="fs-bar-wrap"><div class="fs-bar" style="width:60%;background:var(--amber);"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">핵심 판단 근거</div>
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="padding:11px 14px;border:1px solid rgba(16,185,129,.25);border-radius:9px;background:rgba(16,185,129,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;">✓ 서버리스 아키텍처로 인프라 복잡도 제거</div>
+            <div style="font-size:12px;color:var(--t3);">Vercel(Next.js) + Supabase 조합으로 서버 관리 불필요. 개발자 1인 기준 2~3주 내 전체 스택 구현 가능.</div>
+          </div>
+          <div style="padding:11px 14px;border:1px solid rgba(16,185,129,.25);border-radius:9px;background:rgba(16,185,129,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;">✓ LLM API 직접 호출 — 자체 모델 학습 불필요</div>
+            <div style="font-size:12px;color:var(--t3);">GPT-4o-mini 또는 Claude Haiku API 직접 호출. Fine-tuning 없이 프롬프트 엔지니어링만으로 MVP 품질 달성 가능.</div>
+          </div>
+          <div style="padding:11px 14px;border:1px solid rgba(16,185,129,.25);border-radius:9px;background:rgba(16,185,129,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;">✓ PDF 생성 — 브라우저 네이티브 활용</div>
+            <div style="font-size:12px;color:var(--t3);">react-pdf 또는 jsPDF로 클라이언트 사이드 생성. 별도 서버 렌더링 불필요. S3 저장 없이 즉시 다운로드.</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="padding:11px 14px;border:1px solid rgba(251,191,36,.25);border-radius:9px;background:rgba(251,191,36,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:3px;">⚠ 핵심 위험: LLM 금액 산출 품질</div>
+            <div style="font-size:12px;color:var(--t3);">H2 가설(AI 수용률 ≥ 50%) 달성 여부가 전적으로 프롬프트 품질에 달림. 배포 전 직군별 10~20건 내부 테스트 필수.</div>
+          </div>
+          <div style="padding:11px 14px;border:1px solid rgba(251,191,36,.25);border-radius:9px;background:rgba(251,191,36,.04);">
+            <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:3px;">⚠ LLM 비용 — 트래픽 급증 시 모니터링 필요</div>
+            <div style="font-size:12px;color:var(--t3);">유저당 월 50~100원이지만, 바이럴로 10,000명 동시 급증 시 일일 한도 설정으로 비용 통제 필요.</div>
+          </div>
+          <div style="padding:11px 14px;border:1px solid rgba(248,113,113,.2);border-radius:9px;">
+            <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:3px;">✕ Out-of-Scope: 실시간 데이터 연동, 파싱 자동화</div>
+            <div style="font-size:12px;color:var(--t3);">이메일·메신저 파싱, Jira 연동 등은 OAuth·웹소켓 등 복잡도 급증. MVP에서 명시적 제외.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">AI 덕분에 가능해진 것 — MVP 개발 비용 역전 근거</div>
+      <div class="g3">
+        <div style="padding:14px;border:1px solid rgba(79,128,255,.2);border-radius:10px;">
+          <div style="font-size:22px;margin-bottom:8px;">🤖</div>
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:5px;">LLM API — 텍스트→금액 변환</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">과거엔 도메인 전문가 + 데이터셋 + 모델 학습이 필요했던 작업을 <strong style="color:var(--t1);">프롬프트 작성만으로</strong> 대체. 개발 기간 수 개월 → 수 일.</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(16,185,129,.2);border-radius:10px;">
+          <div style="font-size:22px;margin-bottom:8px;">⚡</div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:5px;">AI 코딩 도구 — 풀스택 단독 개발</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">Cursor, Claude 등 AI 코딩 어시스턴트로 <strong style="color:var(--t1);">개발자 1인이 풀스택 MVP</strong>를 2~3주 내 구현 가능. 팀 구성 불필요.</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(251,191,36,.2);border-radius:10px;">
+          <div style="font-size:22px;margin-bottom:8px;">🏗️</div>
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:5px;">Managed 서비스 — 인프라 제로</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">Vercel·Supabase·Clerk 등 <strong style="color:var(--t1);">SaaS 인프라 레이어</strong>가 DevOps 공수를 0에 수렴. 인터뷰 세팅 비용보다 싸다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: 기술 스택 ── -->
+  <div id="page-stack" class="page">
+    <p class="stitle">기술 스택 선정</p>
+    <p class="ssub">MVP 배포 속도 최우선 · 관리 복잡도 최소화 · 스케일업 가능성 보존</p>
+
+    <div class="card">
+      <div class="ct">레이어별 기술 선정 & 근거</div>
+      <table class="stk">
+        <thead>
+          <tr><th style="width:90px;">레이어</th><th style="width:150px;">선택 기술</th><th>선정 근거</th><th style="width:90px;">대안</th><th style="width:80px;">판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">프론트엔드</td>
+            <td><div class="stk-name">Next.js 14</div><div class="stk-why">App Router</div></td>
+            <td style="color:var(--t3);font-size:12px;">SSR + CSR 혼용으로 SEO(랜딩) + 앱(대시보드) 동시 대응. Vercel 원클릭 배포. React 생태계로 PDF 라이브러리 풍부.</td>
+            <td><div class="stk-why">Vite+React, SvelteKit</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">스타일링</td>
+            <td><div class="stk-name">Tailwind CSS</div><div class="stk-why">+ shadcn/ui</div></td>
+            <td style="color:var(--t3);font-size:12px;">유틸리티 클래스로 디자인 시스템 없이 빠른 UI 구성. shadcn/ui 컴포넌트로 Input·Dialog·Button 즉시 사용.</td>
+            <td><div class="stk-why">Chakra, MUI</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">인증</td>
+            <td><div class="stk-name">Clerk</div><div class="stk-why">또는 NextAuth</div></td>
+            <td style="color:var(--t3);font-size:12px;">Google 소셜 로그인 5분 세팅. JWT 관리·세션·RBAC 모두 위임. 자체 인증 구현 공수 0. 월 10,000 MAU까지 무료.</td>
+            <td><div class="stk-why">Supabase Auth</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">데이터베이스</td>
+            <td><div class="stk-name">Supabase</div><div class="stk-why">PostgreSQL</div></td>
+            <td style="color:var(--t3);font-size:12px;">관리형 PostgreSQL + Row Level Security로 개인정보 보호. Realtime 구독 내장 (향후 B2B 대시보드에 활용). 무료 플랜 500MB.</td>
+            <td><div class="stk-why">PlanetScale, Firebase</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">LLM API</td>
+            <td><div class="stk-name">GPT-4o-mini</div><div class="stk-why">1차 선택</div></td>
+            <td style="color:var(--t3);font-size:12px;">입력 $0.15/1M 토큰. 이슈 5건 처리 시 약 1,500토큰 → 건당 0.02¢. JSON 모드 지원으로 파싱 안정성 확보. Claude Haiku와 A/B 가능.</td>
+            <td><div class="stk-why">Claude Haiku, Gemini Flash</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">PDF 생성</td>
+            <td><div class="stk-name">@react-pdf/renderer</div><div class="stk-why">클라이언트 사이드</div></td>
+            <td style="color:var(--t3);font-size:12px;">브라우저에서 직접 PDF 렌더링. 서버 부하 없음. React 컴포넌트 문법으로 피치덱 레이아웃 작성. Blob URL로 즉시 다운로드.</td>
+            <td><div class="stk-why">Puppeteer(서버), jsPDF</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">이벤트 트래킹</td>
+            <td><div class="stk-name">Mixpanel</div><div class="stk-why">무료 플랜</div></td>
+            <td style="color:var(--t3);font-size:12px;">코호트 분석·퍼널 분석·리텐션 차트 내장. 월 100만 이벤트 무료. 5줄 설치로 모든 커스텀 이벤트 전송. GA4 대비 프로덕트 분석 특화.</td>
+            <td><div class="stk-why">Amplitude, PostHog</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">배포</td>
+            <td><div class="stk-name">Vercel</div><div class="stk-why">Hobby 플랜</div></td>
+            <td style="color:var(--t3);font-size:12px;">GitHub 연동 자동 배포. PR마다 Preview URL 생성. Edge Functions로 API Routes 서버리스 실행. 도메인 연결 무료.</td>
+            <td><div class="stk-why">Railway, Render</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--t3);font-size:11px;font-weight:700;">이미지 저장</td>
+            <td><div class="stk-name">Supabase Storage</div><div class="stk-why">증빙 첨부용</div></td>
+            <td style="color:var(--t3);font-size:12px;">DB와 동일 프로젝트 내 관리. RLS로 본인 파일만 접근 가능. 1GB 무료. MVP 수준에서 S3 별도 세팅 불필요.</td>
+            <td><div class="stk-why">AWS S3, Cloudflare R2</div></td>
+            <td><span class="tag t-ok">선택</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: 시스템 아키텍처 ── -->
+  <div id="page-arch" class="page">
+    <p class="stitle">시스템 아키텍처</p>
+    <p class="ssub">MVP 단계 — 서버리스 중심의 최소 복잡도 설계</p>
+
+    <div class="card">
+      <div class="ct">레이어 구조도</div>
+      <div class="arch-wrap">
+
+        <div class="arch-layer" style="border-color:rgba(79,128,255,.3);">
+          <div class="arch-layer-head" style="background:rgba(79,128,255,.06);color:var(--blue);">① Client Layer — 브라우저</div>
+          <div class="arch-layer-body">
+            <div class="arch-box" style="border-color:rgba(79,128,255,.2);">
+              <div class="arch-box-title">랜딩 페이지 (SSR)</div>
+              <div class="arch-box-val">Next.js App Router<br>SEO 최적화 · UTM 수집</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(79,128,255,.2);">
+              <div class="arch-box-title">앱 UI (CSR)</div>
+              <div class="arch-box-val">온보딩 · 이슈 입력<br>AI 결과 수정 · 뷰어</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(79,128,255,.2);">
+              <div class="arch-box-title">PDF 렌더러</div>
+              <div class="arch-box-val">@react-pdf/renderer<br>클라이언트 사이드 생성</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(79,128,255,.2);">
+              <div class="arch-box-title">이벤트 트래커</div>
+              <div class="arch-box-val">Mixpanel SDK<br>행동 이벤트 전송</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">↕</div>
+
+        <div class="arch-layer" style="border-color:rgba(167,139,250,.3);">
+          <div class="arch-layer-head" style="background:rgba(167,139,250,.06);color:var(--purple);">② API Layer — Vercel Edge Functions (서버리스)</div>
+          <div class="arch-layer-body">
+            <div class="arch-box" style="border-color:rgba(167,139,250,.2);">
+              <div class="arch-box-title">POST /api/analyze</div>
+              <div class="arch-box-val">이슈 텍스트 수신<br>→ LLM 호출<br>→ JSON 반환</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(167,139,250,.2);">
+              <div class="arch-box-title">POST /api/issues</div>
+              <div class="arch-box-val">이슈 저장·수정<br>Supabase CRUD</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(167,139,250,.2);">
+              <div class="arch-box-title">GET /api/pitchdeck/:id</div>
+              <div class="arch-box-val">피치덱 데이터 조회<br>공유 링크 뷰어용</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(167,139,250,.2);">
+              <div class="arch-box-title">POST /api/track</div>
+              <div class="arch-box-val">서버 사이드 이벤트<br>(결제·민감 이벤트)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">↕</div>
+
+        <div class="arch-layer" style="border-color:rgba(16,185,129,.3);">
+          <div class="arch-layer-head" style="background:rgba(16,185,129,.06);color:var(--green);">③ Data & External Layer — Managed Services</div>
+          <div class="arch-layer-body">
+            <div class="arch-box" style="border-color:rgba(16,185,129,.2);">
+              <div class="arch-box-title">Supabase</div>
+              <div class="arch-box-val">PostgreSQL DB<br>Storage (증빙 이미지)<br>RLS 개인정보 보호</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(16,185,129,.2);">
+              <div class="arch-box-title">Clerk</div>
+              <div class="arch-box-val">Google OAuth<br>세션·JWT 관리</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(16,185,129,.2);">
+              <div class="arch-box-title">OpenAI API</div>
+              <div class="arch-box-val">GPT-4o-mini<br>JSON 모드 호출<br>타임아웃 15초</div>
+            </div>
+            <div class="arch-box" style="border-color:rgba(16,185,129,.2);">
+              <div class="arch-box-title">Mixpanel</div>
+              <div class="arch-box-val">이벤트 수집·분석<br>코호트·퍼널·리텐션</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">핵심 API 흐름 — 이슈 분석 요청</div>
+      <div class="code-box">
+<span class="c-cmt">// 1. 클라이언트: 이슈 텍스트 + 온보딩 컨텍스트 전송</span>
+<span class="c-key">POST</span> <span class="c-str">/api/analyze</span>
+{
+  <span class="c-key">"context"</span>: { <span class="c-str">"job_role"</span>: <span class="c-val">"PM"</span>, <span class="c-str">"company_size"</span>: <span class="c-val">"30인"</span>, <span class="c-str">"tenure"</span>: <span class="c-val">"3년"</span> },
+  <span class="c-key">"issues"</span>: [
+    { <span class="c-str">"text"</span>: <span class="c-val">"클라이언트 요구사항 변경을 사전에 감지해 스펙 재정의..."</span> }
+  ]
+}
+
+<span class="c-cmt">// 2. Edge Function: LLM 호출 (JSON Mode 강제)</span>
+<span class="c-key">const</span> response = <span class="c-key">await</span> openai.chat.completions.create({
+  model: <span class="c-str">"gpt-4o-mini"</span>,
+  response_format: { type: <span class="c-str">"json_object"</span> },  <span class="c-cmt">// 파싱 안정성</span>
+  messages: [systemPrompt, userPrompt],
+  max_tokens: <span class="c-val">800</span>,
+  timeout: <span class="c-val">15000</span>  <span class="c-cmt">// 15초 타임아웃</span>
+})
+
+<span class="c-cmt">// 3. 응답 검증 후 클라이언트 반환</span>
+<span class="c-key">const</span> parsed = JSON.parse(response.choices[<span class="c-val">0</span>].message.content)
+<span class="c-key">if</span> (!parsed.issues || !parsed.total_low) <span class="c-key">throw</span> <span class="c-key">new</span> Error(<span class="c-str">"Invalid schema"</span>)
+<span class="c-key">return</span> NextResponse.json(parsed)  <span class="c-cmt">// 구조화된 JSON 반환</span>
+
+<span class="c-cmt">// 4. 클라이언트: 이벤트 트래킹</span>
+mixpanel.track(<span class="c-str">"ai_result_shown"</span>, { job_role, issue_count, latency_ms })
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">DB 스키마 — MVP 핵심 테이블</div>
+      <div class="code-box">
+<span class="c-cmt">-- users (Clerk에서 sync)</span>
+<span class="c-key">users</span>: id, clerk_id, job_role, company_size, tenure, created_at
+
+<span class="c-cmt">-- issues (이슈 입력 & AI 결과)</span>
+<span class="c-key">issues</span>: id, user_id, raw_text, ai_summary, ai_type,
+         impact_low, impact_high, calc_basis, confidence,
+         user_impact_low, user_impact_high,  <span class="c-cmt">← 수정값</span>
+         evidence_urls[], created_at, updated_at
+
+<span class="c-cmt">-- pitchdecks (생성된 피치덱)</span>
+<span class="c-key">pitchdecks</span>: id, user_id, issue_ids[],
+             total_low, total_high, share_token,  <span class="c-cmt">← 공유 링크용</span>
+             downloaded_at, created_at
+
+<span class="c-cmt">-- RLS Policy: 본인 데이터만 접근 가능</span>
+<span class="c-key">POLICY</span>: user_id = auth.uid()
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: LLM 설계 ── -->
+  <div id="page-llm" class="page">
+    <p class="stitle">LLM 파이프라인 설계</p>
+    <p class="ssub">H2 기술 가설 달성을 위한 프롬프트 아키텍처 & 품질 관리</p>
+
+    <div class="card">
+      <div class="ct">모델 선정 비교</div>
+      <table class="stk">
+        <thead>
+          <tr><th>모델</th><th>입력 비용</th><th>속도</th><th>JSON 모드</th><th>품질</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="stk-name">GPT-4o-mini</div></td>
+            <td style="font-size:12px;color:var(--green);font-weight:700;">$0.15/1M</td>
+            <td style="font-size:12px;color:var(--t3);">빠름 (~3초)</td>
+            <td style="font-size:12px;color:var(--green);">✓ 지원</td>
+            <td style="font-size:12px;color:var(--t3);">우수 (수치 추론)</td>
+            <td><span class="tag t-ok">1차 선택</span></td>
+          </tr>
+          <tr>
+            <td><div class="stk-name">Claude Haiku 3.5</div></td>
+            <td style="font-size:12px;color:var(--green);font-weight:700;">$0.25/1M</td>
+            <td style="font-size:12px;color:var(--t3);">빠름 (~3초)</td>
+            <td style="font-size:12px;color:var(--green);">✓ 지원</td>
+            <td style="font-size:12px;color:var(--t3);">우수 (한국어)</td>
+            <td><span class="tag t-mid">A/B 대안</span></td>
+          </tr>
+          <tr>
+            <td><div class="stk-name">GPT-4o</div></td>
+            <td style="font-size:12px;color:var(--red);font-weight:700;">$2.5/1M</td>
+            <td style="font-size:12px;color:var(--t3);">보통 (~6초)</td>
+            <td style="font-size:12px;color:var(--green);">✓ 지원</td>
+            <td style="font-size:12px;color:var(--t3);">최고</td>
+            <td><span class="tag t-mid">수용률 저시 검토</span></td>
+          </tr>
+          <tr>
+            <td><div class="stk-name">Gemini 2.0 Flash</div></td>
+            <td style="font-size:12px;color:var(--green);font-weight:700;">$0.10/1M</td>
+            <td style="font-size:12px;color:var(--t3);">매우 빠름</td>
+            <td style="font-size:12px;color:var(--green);">✓ 지원</td>
+            <td style="font-size:12px;color:var(--t3);">검증 필요</td>
+            <td><span class="tag" style="background:rgba(139,149,170,.12);color:var(--t3);">보류</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">토큰 사용량 & 비용 추정</div>
+      <div class="code-box">
+<span class="c-cmt">// 이슈 5건 처리 기준 토큰 분해</span>
+System Prompt  : ~<span class="c-val">400</span> tokens  <span class="c-cmt">(역할 정의 + 컨텍스트 + 출력 스키마)</span>
+User Input     : ~<span class="c-val">600</span> tokens  <span class="c-cmt">(이슈 5건 × 평균 120토큰)</span>
+Output (JSON)  : ~<span class="c-val">500</span> tokens  <span class="c-cmt">(구조화 결과 5건 + 총합)</span>
+                  ─────────────────
+Total / call   :  <span class="c-val">1,500</span> tokens
+
+<span class="c-cmt">// GPT-4o-mini 기준 건당 비용</span>
+Input  cost : 1,000 tokens × $0.150/1M = <span class="c-val">$0.00015</span>  (<span class="c-val">약 0.2원</span>)
+Output cost : 500 tokens  × $0.600/1M = <span class="c-val">$0.00030</span>  (<span class="c-val">약 0.4원</span>)
+Total/call  :                            <span class="c-val">$0.00045</span>  (<span class="c-val">약 0.6원</span>)
+
+<span class="c-cmt">// 월간 비용 시뮬레이션 (유저당 월 평균 3회 호출 가정)</span>
+100명  : 300 calls → <span class="c-val">약 180원</span>
+1,000명: 3,000 calls → <span class="c-val">약 1,800원</span>
+10,000명: 30,000 calls → <span class="c-val">약 18,000원</span>  <span class="c-cmt">← Freemium 수익으로 충분히 커버</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">오류 처리 & 폴백 전략</div>
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div class="kv-row"><span class="kv-lbl">JSON 파싱 실패</span><span class="kv-v">response_format: json_object 강제로 발생 빈도 &lt;1%. 실패 시 <strong>자동 1회 재시도</strong>, 2회 연속 실패 시 사용자에게 "다시 시도" UI 표시.</span></div>
+          <div class="kv-row"><span class="kv-lbl">타임아웃 (15초)</span><span class="kv-v">OpenAI 서버 장애 대비. 타임아웃 시 <strong>Claude Haiku로 폴백</strong> (백업 키 설정). 실패 메시지는 "AI가 잠시 바빠요, 재시도 해주세요".</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div class="kv-row"><span class="kv-lbl">스키마 불일치</span><span class="kv-v">필수 필드(impact_low, impact_high) 누락 시 <strong>Zod 스키마 검증</strong> 후 400 에러. System Prompt 스키마 예시 보강으로 빈도 감소.</span></div>
+          <div class="kv-row"><span class="kv-lbl">비용 폭주 방지</span><span class="kv-v">유저당 일 최대 10회 호출 Rate Limit. Supabase RLS로 호출 횟수 카운팅. 초과 시 <strong>다음 날 리셋 안내</strong>.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 5: 기술 리스크 ── -->
+  <div id="page-risk" class="page">
+    <p class="stitle">기술 리스크 & 대응 방안</p>
+    <p class="ssub">발생 가능성 × 임팩트 기준 우선순위 정렬</p>
+
+    <div class="risk-list">
+
+      <div class="risk-item" style="border-color:rgba(248,113,113,.3);">
+        <div class="risk-head" style="background:rgba(248,113,113,.05);">
+          <div class="risk-icon">🔴</div>
+          <div class="risk-title">R01 — LLM 금액 산출 품질 미달 (H2 가설 실패)</div>
+          <div style="display:flex;gap:6px;">
+            <span class="tag t-risk">가능성 HIGH</span><span class="tag t-risk">임팩트 CRITICAL</span>
+          </div>
+        </div>
+        <div class="risk-body">
+          <div><div class="rb-label">리스크 내용</div><div class="rb-val">AI 수용률 &lt; 50% — 실무자가 AI 산출 금액을 신뢰하지 못해 대폭 수정하거나 이탈. <strong>핵심 가치 제안 자체가 무력화</strong>되는 최우선 위험.</div></div>
+          <div><div class="rb-label">발생 원인</div><div class="rb-val">직군별 M/M 단가 편차 미반영, 이슈 유형 분류 오류, 금액 스케일 과장·과소, 산정 근거 불투명.</div></div>
+          <div><div class="rb-label">대응 방안</div><div class="rb-val"><strong>배포 전:</strong> 직군 5종 × 이슈 4유형 = 20케이스 내부 테스트. Few-shot 예시 5건 이상 포함.<br><strong>배포 후:</strong> edit_delta_pct 실시간 모니터링 → 1주 스프린트 프롬프트 개선.</div></div>
+        </div>
+      </div>
+
+      <div class="risk-item" style="border-color:rgba(248,113,113,.3);">
+        <div class="risk-head" style="background:rgba(248,113,113,.05);">
+          <div class="risk-icon">🔴</div>
+          <div class="risk-title">R02 — OpenAI API 장애 / 가격 인상</div>
+          <div style="display:flex;gap:6px;">
+            <span class="tag t-mid">가능성 MID</span><span class="tag t-risk">임팩트 HIGH</span>
+          </div>
+        </div>
+        <div class="risk-body">
+          <div><div class="rb-label">리스크 내용</div><div class="rb-val">MVP 핵심 기능이 외부 API에 완전 의존. OpenAI 장애 시 <strong>서비스 전면 중단</strong>. 가격 인상 시 단위 경제 악화.</div></div>
+          <div><div class="rb-label">발생 원인</div><div class="rb-val">단일 LLM 공급자 의존. OpenAI 역사적으로 연간 수회 장애 발생.</div></div>
+          <div><div class="rb-label">대응 방안</div><div class="rb-val"><strong>멀티 공급자 폴백:</strong> OpenAI 실패 시 Claude Haiku 자동 전환 (환경변수로 백업 키 관리).<br><strong>비용 상한:</strong> 월별 LLM 예산 상한 설정, 초과 시 알림.</div></div>
+        </div>
+      </div>
+
+      <div class="risk-item" style="border-color:rgba(251,191,36,.3);">
+        <div class="risk-head" style="background:rgba(251,191,36,.04);">
+          <div class="risk-icon">🟡</div>
+          <div class="risk-title">R03 — PDF 생성 속도 / 레이아웃 깨짐</div>
+          <div style="display:flex;gap:6px;">
+            <span class="tag t-mid">가능성 MID</span><span class="tag t-mid">임팩트 MID</span>
+          </div>
+        </div>
+        <div class="risk-body">
+          <div><div class="rb-label">리스크 내용</div><div class="rb-val">클라이언트 사이드 PDF 렌더링 시 폰트 로딩 지연 (3초 초과) 또는 한글 폰트 깨짐. <strong>Activation 이벤트 완성 직전 이탈 유발</strong>.</div></div>
+          <div><div class="rb-label">발생 원인</div><div class="rb-val">@react-pdf의 한글 폰트 번들링 이슈. 모바일 저사양 기기에서 렌더링 지연.</div></div>
+          <div><div class="rb-label">대응 방안</div><div class="rb-val"><strong>폰트 사전 로딩:</strong> Noto Sans KR woff2 서브셋으로 압축 (500KB 이내). 생성 중 <strong>스켈레톤 UI</strong> + 진행 상태 표시. 3초 초과 시 서버 사이드 렌더링으로 전환 검토.</div></div>
+        </div>
+      </div>
+
+      <div class="risk-item" style="border-color:rgba(251,191,36,.3);">
+        <div class="risk-head" style="background:rgba(251,191,36,.04);">
+          <div class="risk-icon">🟡</div>
+          <div class="risk-title">R04 — 이벤트 트래킹 누락 (검증 인프라 오염)</div>
+          <div style="display:flex;gap:6px;">
+            <span class="tag t-mid">가능성 MID</span><span class="tag t-risk">임팩트 HIGH</span>
+          </div>
+        </div>
+        <div class="risk-body">
+          <div><div class="rb-label">리스크 내용</div><div class="rb-val">핵심 이벤트 누락 시 <strong>가설 검증 불가 → 전략적 의사결정 오류</strong>. 특히 ai_result_edited의 delta_pct 누락 시 H2 보조 가설 측정 불가.</div></div>
+          <div><div class="rb-label">발생 원인</div><div class="rb-val">광고 차단기(adblocker)의 Mixpanel 차단, 네트워크 오류 시 이벤트 소실, 코드 배포 시 이벤트 누락.</div></div>
+          <div><div class="rb-label">대응 방안</div><div class="rb-val"><strong>배포 전 체크리스트:</strong> 전 이벤트 수동 발화 확인. <strong>서버 사이드 이벤트</strong>(Mixpanel Server API)로 중요 이벤트 이중 수집. DB에도 이벤트 백업 저장.</div></div>
+        </div>
+      </div>
+
+      <div class="risk-item" style="border-color:rgba(16,185,129,.25);">
+        <div class="risk-head" style="background:rgba(16,185,129,.04);">
+          <div class="risk-icon">🟢</div>
+          <div class="risk-title">R05 — Supabase 무료 플랜 한도 초과</div>
+          <div style="display:flex;gap:6px;">
+            <span class="tag t-ok">가능성 LOW</span><span class="tag t-mid">임팩트 MID</span>
+          </div>
+        </div>
+        <div class="risk-body">
+          <div><div class="rb-label">리스크 내용</div><div class="rb-val">월 500MB DB, 1GB Storage 한도. 가입자 급증 시 초과 가능성 (약 10,000+ 유저 수준에서 발생 추정).</div></div>
+          <div><div class="rb-label">발생 원인</div><div class="rb-val">무료 플랜의 구조적 한계. 증빙 이미지 첨부 유저 급증 시 Storage 먼저 소진.</div></div>
+          <div><div class="rb-label">대응 방안</div><div class="rb-val">이미지 압축 (WebP 변환, 1MB 상한) + 30일 후 자동 삭제 정책. Pro 업그레이드 $25/월로 충분히 수용. <strong>좋은 문제 (트래픽 급증 신호)</strong>.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB 6: 비용 구조 ── -->
+  <div id="page-cost" class="page">
+    <p class="stitle">기술 비용 구조</p>
+    <p class="ssub">단계별 인프라 비용 추정 — Freemium 수익성과의 균형점</p>
+
+    <div class="card">
+      <div class="ct">MVP 초기 단계 비용 (월 기준 · MAU 500 이하)</div>
+      <table class="cost-table">
+        <thead>
+          <tr><th>항목</th><th>서비스</th><th>플랜</th><th>월 비용</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">프론트엔드 배포</td>
+            <td style="color:var(--t3);">Vercel</td>
+            <td><span class="tag t-ok">Hobby 무료</span></td>
+            <td><span class="cost-val" style="color:var(--green);">₩0</span></td>
+            <td style="color:var(--t3);font-size:11px;">100GB 대역폭, 서버리스 함수 포함</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">데이터베이스</td>
+            <td style="color:var(--t3);">Supabase</td>
+            <td><span class="tag t-ok">Free 무료</span></td>
+            <td><span class="cost-val" style="color:var(--green);">₩0</span></td>
+            <td style="color:var(--t3);font-size:11px;">500MB DB, 1GB Storage</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">인증</td>
+            <td style="color:var(--t3);">Clerk</td>
+            <td><span class="tag t-ok">Free 무료</span></td>
+            <td><span class="cost-val" style="color:var(--green);">₩0</span></td>
+            <td style="color:var(--t3);font-size:11px;">10,000 MAU까지 무료</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">이벤트 트래킹</td>
+            <td style="color:var(--t3);">Mixpanel</td>
+            <td><span class="tag t-ok">Starter 무료</span></td>
+            <td><span class="cost-val" style="color:var(--green);">₩0</span></td>
+            <td style="color:var(--t3);font-size:11px;">월 100만 이벤트 무료</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">LLM API</td>
+            <td style="color:var(--t3);">OpenAI</td>
+            <td><span class="tag t-mid">종량제</span></td>
+            <td><span class="cost-val" style="color:var(--amber);">₩3,000~15,000</span></td>
+            <td style="color:var(--t3);font-size:11px;">MAU 500 × 월 3회 호출 기준</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">도메인</td>
+            <td style="color:var(--t3);">가비아 등</td>
+            <td><span class="tag t-blue">연간 결제</span></td>
+            <td><span class="cost-val" style="color:var(--blue);">₩1,500</span></td>
+            <td style="color:var(--t3);font-size:11px;">.io 도메인 연 18,000원 기준</td>
+          </tr>
+          <tr class="cost-total-row">
+            <td colspan="3"><strong>MVP 초기 월 총 비용</strong></td>
+            <td><span class="cost-val" style="color:var(--blue);font-size:15px;">₩4,500~16,500</span></td>
+            <td style="color:var(--t3);font-size:11px;">인터뷰 5인 진행 비용보다 저렴</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">MAU별 비용 스케일업 시뮬레이션</div>
+      <table class="cost-table">
+        <thead>
+          <tr><th>MAU 구간</th><th>LLM 비용</th><th>인프라 업그레이드</th><th>월 총 비용</th><th>유저당 비용</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">~500명</td>
+            <td style="color:var(--t3);">₩3,000~15,000</td>
+            <td style="color:var(--t3);">없음 (전부 무료 플랜)</td>
+            <td><span class="cost-val" style="color:var(--green);">₩5,000~17,000</span></td>
+            <td style="color:var(--t3);">~30원</td>
+            <td><span class="tag t-ok">MVP 검증 구간</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">~2,000명</td>
+            <td style="color:var(--t3);">₩12,000~60,000</td>
+            <td style="color:var(--t3);">Vercel Pro ($20) 검토</td>
+            <td><span class="cost-val" style="color:var(--blue);">₩40,000~100,000</span></td>
+            <td style="color:var(--t3);">~50원</td>
+            <td><span class="tag t-blue">B2C 유료화 시작</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">~10,000명</td>
+            <td style="color:var(--t3);">₩60,000~300,000</td>
+            <td style="color:var(--t3);">Supabase Pro ($25) 필요</td>
+            <td><span class="cost-val" style="color:var(--amber);">₩150,000~400,000</span></td>
+            <td style="color:var(--t3);">~40원</td>
+            <td><span class="tag t-mid">스케일업 구간</span></td>
+          </tr>
+          <tr class="cost-total-row">
+            <td colspan="4"><strong>린 캔버스 LLM 비용 목표: 유저당 월 50~100원</strong></td>
+            <td colspan="2" style="color:var(--green);font-weight:700;">✓ 전 구간 달성 가능</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">수익 손익분기점 (Break-even) 추정</div>
+      <div class="g3">
+        <div style="padding:14px;border:1px solid rgba(79,128,255,.25);border-radius:10px;text-align:center;">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px;">B2C 유료 전환 기준</div>
+          <div style="font-size:22px;font-weight:800;color:var(--blue);">~200명</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">구독 ₩9,900/월 × 200명<br>= ₩1,980,000</div>
+          <div style="font-size:11px;color:var(--t3);">인프라 비용 충분히 커버</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(16,185,129,.25);border-radius:10px;text-align:center;">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px;">B2B SaaS 기준</div>
+          <div style="font-size:22px;font-weight:800;color:var(--green);">~5개사</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">₩30,000/seat × 5seat<br>× 5개사 = ₩750,000</div>
+          <div style="font-size:11px;color:var(--t3);">인프라 + LLM 비용 커버</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(251,191,36,.25);border-radius:10px;text-align:center;">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px;">MVP 검증 비용 총계</div>
+          <div style="font-size:22px;font-weight:800;color:var(--amber);">₩20만</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">3개월 운영 기준<br>LLM + 도메인만</div>
+          <div style="font-size:11px;color:var(--t3);">인터뷰 5인 비용보다 낮음</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function sw(id,btn){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function tog(){
+    const l=document.body.classList.toggle('light');
+    document.getElementById('tbtn').textContent=l?'☀️ 라이트':'🌙 다크';
+  }
+</script>
+</body>
+</html>
