@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI — 핵심 데이터 정책 & 로직 설계</title>
+<style>
+  :root{
+    --bg:#0f1117;--s1:#1a1f2e;--t1:#e8eaf0;--t3:#8c95aa;
+    --bd:#232b3e;--blue:#4f80ff;--green:#10b981;
+    --red:#f87171;--amber:#fbbf24;--purple:#a78bfa;
+  }
+  body.light{--bg:#f5f7fa;--s1:#ffffff;--t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
+
+  header{background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:0;z-index:100;transition:background .2s,border-color .2s;}
+  .hl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .logo{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.5px;}
+  .logo span{color:var(--t1);}
+  .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+  .bv{background:var(--blue);color:#fff;}
+  .bt{background:rgba(167,139,250,.15);color:var(--purple);}
+  .bs{background:transparent;border:1px solid var(--bd);color:var(--t3);}
+  #tbtn{background:var(--bg);border:1px solid var(--bd);color:var(--t1);
+    border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;
+    transition:background .2s,color .2s,border-color .2s;white-space:nowrap;}
+  #tbtn:hover{border-color:var(--blue);color:var(--blue);}
+
+  nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;
+    display:flex;overflow-x:auto;scrollbar-width:none;transition:background .2s,border-color .2s;}
+  nav::-webkit-scrollbar{display:none;}
+  .tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);
+    cursor:pointer;font-size:13px;font-weight:600;padding:12px 16px;white-space:nowrap;
+    transition:color .15s,border-color .15s;}
+  .tb.active{border-bottom:2px solid var(--blue);color:var(--blue);}
+  .tb:hover:not(.active){color:var(--t1);}
+
+  main{padding:24px;max-width:1000px;margin:0 auto;}
+  .page{display:none;}.page.active{display:block;}
+  .stitle{font-size:20px;font-weight:800;color:var(--t1);margin-bottom:5px;}
+  .ssub{font-size:13px;color:var(--t3);margin-bottom:20px;}
+
+  .card{background:var(--s1);border-radius:12px;padding:18px;border:1px solid var(--bd);
+    margin-bottom:16px;transition:background .2s,border-color .2s;}
+  .ct{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;
+    margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .ct::before{content:'';display:inline-block;width:3px;height:14px;
+    background:var(--blue);border-radius:2px;flex-shrink:0;}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+  /* ── TAG ── */
+  .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+  .t-ok  {background:rgba(16,185,129,.15);color:var(--green);}
+  .t-warn{background:rgba(251,191,36,.15);color:var(--amber);}
+  .t-risk{background:rgba(248,113,113,.15);color:var(--red);}
+  .t-blue{background:rgba(79,128,255,.15);color:var(--blue);}
+  .t-pur {background:rgba(167,139,250,.15);color:var(--purple);}
+
+  /* ── POLICY BLOCK ── */
+  .pol-list{display:flex;flex-direction:column;gap:14px;}
+  .pol-item{border-radius:12px;border:1px solid var(--bd);overflow:hidden;}
+  .pol-head{padding:13px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);}
+  .pol-icon{font-size:18px;flex-shrink:0;}
+  .pol-title{font-weight:700;color:var(--t1);font-size:13px;flex:1;}
+  .pol-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  .pb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:5px;}
+  .pb-val{font-size:12px;color:var(--t3);line-height:1.7;}
+  .pb-val strong{color:var(--t1);}
+
+  /* accent */
+  .p-blue {border-color:rgba(79,128,255,.3);}
+  .p-blue .pol-head{background:rgba(79,128,255,.05);}
+  .p-green{border-color:rgba(16,185,129,.3);}
+  .p-green .pol-head{background:rgba(16,185,129,.05);}
+  .p-amber{border-color:rgba(251,191,36,.3);}
+  .p-amber .pol-head{background:rgba(251,191,36,.04);}
+  .p-red  {border-color:rgba(248,113,113,.3);}
+  .p-red  .pol-head{background:rgba(248,113,113,.05);}
+  .p-pur  {border-color:rgba(167,139,250,.3);}
+  .p-pur  .pol-head{background:rgba(167,139,250,.05);}
+
+  /* ── CODE BOX ── */
+  .code{background:var(--bg);border:1px solid var(--bd);border-radius:10px;
+    padding:16px;font-family:'Courier New',monospace;font-size:12px;
+    color:var(--t3);line-height:1.9;overflow-x:auto;margin-top:10px;}
+  .ck{color:var(--blue);}
+  .cv{color:var(--green);}
+  .cc{color:var(--t3);font-style:italic;}
+  .cs{color:var(--amber);}
+  .cr{color:var(--red);}
+
+  /* ── DATA TABLE ── */
+  .dtab{width:100%;border-collapse:collapse;}
+  .dtab th,.dtab td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:top;}
+  .dtab th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);background:var(--bg);}
+  .dtab tr:last-child td{border-bottom:none;}
+  .dn{font-weight:700;color:var(--t1);margin-bottom:2px;}
+  .ds{font-size:11px;color:var(--t3);}
+
+  /* ── FLOW STEPS ── */
+  .flow{display:flex;flex-direction:column;gap:0;}
+  .fl-row{display:flex;gap:0;}
+  .fl-left{width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+  .fl-dot{width:13px;height:13px;border-radius:50%;margin-top:3px;flex-shrink:0;border:2px solid var(--bg);}
+  .fl-line{width:2px;flex:1;min-height:14px;}
+  .fl-row:last-child .fl-line{display:none;}
+  .fl-content{padding:0 0 18px 10px;flex:1;}
+  .fl-phase{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;}
+  .fl-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:5px;}
+  .fl-body{font-size:12px;color:var(--t3);line-height:1.7;}
+  .fl-body strong{color:var(--t1);}
+  .fl-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+  .fl-tag{font-size:11px;padding:2px 9px;border-radius:10px;border:1px solid var(--bd);color:var(--t3);}
+
+  /* ── RULE CARD ── */
+  .rule-list{display:flex;flex-direction:column;gap:10px;}
+  .rule-item{border-radius:10px;border:1px solid var(--bd);padding:13px 16px;}
+  .rule-name{font-weight:700;color:var(--t1);font-size:13px;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+  .rule-desc{font-size:12px;color:var(--t3);line-height:1.7;}
+  .rule-desc strong{color:var(--t1);}
+  .rule-example{margin-top:8px;font-size:11px;padding:8px 12px;border-radius:7px;
+    background:var(--bg);border:1px solid var(--bd);font-family:'Courier New',monospace;
+    color:var(--t3);line-height:1.7;}
+
+  /* ── KV ── */
+  .kv{display:flex;flex-direction:column;gap:8px;}
+  .kv-row{display:flex;gap:10px;align-items:flex-start;}
+  .kv-lbl{font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;
+    background:var(--bg);border:1px solid var(--bd);color:var(--t3);
+    white-space:nowrap;flex-shrink:0;margin-top:1px;}
+  .kv-v{font-size:12px;color:var(--t3);line-height:1.7;}
+  .kv-v strong{color:var(--t1);}
+
+  /* ── IMPACT MAP ── */
+  .impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .impact-box{border-radius:10px;border:1px solid var(--bd);padding:13px 15px;}
+  .impact-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;}
+  .impact-formula{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+  .impact-note{font-size:11px;color:var(--t3);line-height:1.6;}
+
+  /* ── PRIVACY MATRIX ── */
+  .priv-table{width:100%;border-collapse:collapse;}
+  .priv-table th,.priv-table td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px;vertical-align:middle;}
+  .priv-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);background:var(--bg);}
+  .priv-table tr:last-child td{border-bottom:none;}
+
+  @media(max-width:560px){
+    main{padding:14px;}header{padding:12px 14px;}nav{padding:0 14px;}
+    .g2,.g3,.impact-grid{grid-template-columns:1fr;}
+    .pol-body{grid-template-columns:1fr;}
+    .tb{padding:10px 11px;font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <div class="logo">My<span>ROI</span></div>
+    <span class="badge bv">v1.0</span>
+    <span class="badge bt">Core Logic & Policy</span>
+    <span class="badge bs">데이터 정책 & 로직</span>
+  </div>
+  <button id="tbtn" onclick="tog()">🌙 다크</button>
+</header>
+
+<nav>
+  <button class="tb active" onclick="sw('overview',this)">🗺️ 로직 전체 흐름</button>
+  <button class="tb" onclick="sw('scoring',this)">🧮 임팩트 산정 로직</button>
+  <button class="tb" onclick="sw('data',this)">🗄️ 데이터 모델</button>
+  <button class="tb" onclick="sw('privacy',this)">🔒 개인정보 정책</button>
+  <button class="tb" onclick="sw('access',this)">🚦 접근 제어</button>
+  <button class="tb" onclick="sw('retention',this)">🗑️ 데이터 보존 정책</button>
+</nav>
+
+<main>
+
+  <!-- ── TAB 1: 로직 전체 흐름 ── -->
+  <div id="page-overview" class="page active">
+    <p class="stitle">핵심 로직 전체 흐름</p>
+    <p class="ssub">사용자 입력 → AI 처리 → 피치덱 생성 → 데이터 저장의 엔드-투-엔드 정책 개요</p>
+
+    <div class="card">
+      <div class="ct">5단계 핵심 로직 파이프라인</div>
+      <div class="flow">
+
+        <div class="fl-row">
+          <div class="fl-left">
+            <div class="fl-dot" style="background:var(--blue);"></div>
+            <div class="fl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="fl-content">
+            <div class="fl-phase" style="color:var(--blue);">STEP 1 — 컨텍스트 수집</div>
+            <div class="fl-title">온보딩 데이터로 AI 산정 기반 구성</div>
+            <div class="fl-body">가입 시 수집한 <strong>직군·회사 규모·재직기간</strong>이 모든 AI 호출의 시스템 컨텍스트로 주입된다. 이 데이터 없이는 금액 산정이 불가능하므로 온보딩 3문항은 <strong>필수(Required)</strong>로 처리된다. 직군별 M/M 단가 추정 테이블을 내부적으로 유지하며 프롬프트에 반영한다.</div>
+            <div class="fl-tags">
+              <span class="fl-tag">필수 3문항</span><span class="fl-tag">MM 단가 매핑</span><span class="fl-tag">프롬프트 컨텍스트 주입</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fl-row">
+          <div class="fl-left">
+            <div class="fl-dot" style="background:var(--purple);"></div>
+            <div class="fl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="fl-content">
+            <div class="fl-phase" style="color:var(--purple);">STEP 2 — 이슈 입력 & 검증</div>
+            <div class="fl-title">텍스트 입력 유효성 검사 및 전처리</div>
+            <div class="fl-body">이슈 텍스트는 <strong>최소 50자 / 최대 500자</strong> 제한으로 LLM 컨텍스트 낭비와 빈 입력을 동시에 방지한다. 입력 저장 시 개인식별정보(이름·연락처) 패턴을 감지해 <strong>마스킹 경고</strong>를 표시한다. 임시저장은 30초마다 자동 실행해 데이터 유실을 방지한다.</div>
+            <div class="fl-tags">
+              <span class="fl-tag">50~500자 검증</span><span class="fl-tag">PII 패턴 감지</span><span class="fl-tag">30초 자동저장</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fl-row">
+          <div class="fl-left">
+            <div class="fl-dot" style="background:var(--amber);"></div>
+            <div class="fl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="fl-content">
+            <div class="fl-phase" style="color:var(--amber);">STEP 3 — AI 구조화 & 금액 환산</div>
+            <div class="fl-title">LLM 호출 → JSON 파싱 → 스키마 검증</div>
+            <div class="fl-body">LLM 응답은 반드시 <strong>Zod 스키마로 검증</strong>한다. 필수 필드(impact_low, impact_high, type, calc_basis) 중 하나라도 누락 또는 타입 불일치 시 <strong>자동 1회 재시도</strong>. 2회 연속 실패 시 사용자에게 재시도 UI 표시. AI 원본값은 <strong>절대 덮어쓰지 않고 별도 컬럼에 보존</strong>한다.</div>
+            <div class="fl-tags">
+              <span class="fl-tag">Zod 스키마 검증</span><span class="fl-tag">원본값 불변 보존</span><span class="fl-tag">재시도 1회 자동</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fl-row">
+          <div class="fl-left">
+            <div class="fl-dot" style="background:var(--green);"></div>
+            <div class="fl-line" style="background:var(--bd);"></div>
+          </div>
+          <div class="fl-content">
+            <div class="fl-phase" style="color:var(--green);">STEP 4 — Human-in-the-loop 수정</div>
+            <div class="fl-title">사용자 수정값 저장 & 편차 로깅</div>
+            <div class="fl-body">사용자가 금액을 수정하면 <strong>ai_impact_low/high(원본)</strong>와 <strong>user_impact_low/high(수정값)</strong>를 분리 저장한다. 수정 시마다 <code style="font-family:monospace;font-size:11px;color:var(--amber);">edit_delta_pct</code>를 계산해 이벤트로 로깅한다. 이 데이터가 <strong>H2 가설(AI 수용률) 검증의 핵심 근거</strong>가 된다.</div>
+            <div class="fl-tags">
+              <span class="fl-tag">원본/수정값 분리 저장</span><span class="fl-tag">delta_pct 로깅</span><span class="fl-tag">H2 가설 근거</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fl-row">
+          <div class="fl-left">
+            <div class="fl-dot" style="background:var(--red);"></div>
+          </div>
+          <div class="fl-content">
+            <div class="fl-phase" style="color:var(--red);">STEP 5 — 피치덱 생성 & 공유</div>
+            <div class="fl-title">스냅샷 저장 → PDF 렌더 → 공유 토큰 발급</div>
+            <div class="fl-body">피치덱 생성 시점의 데이터를 <strong>불변 스냅샷(immutable snapshot)</strong>으로 저장한다. 이후 원본 이슈를 수정해도 생성된 피치덱은 변경되지 않는다. 공유 링크에는 <strong>UUID 기반 share_token</strong>을 발급해 추측 불가 URL을 보장한다. 공유 뷰어에서는 <strong>이름·회사명 등 민감 정보를 마스킹</strong>할 수 있는 옵션을 제공한다.</div>
+            <div class="fl-tags">
+              <span class="fl-tag">불변 스냅샷</span><span class="fl-tag">UUID share_token</span><span class="fl-tag">민감정보 마스킹 옵션</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">로직 설계의 3대 원칙</div>
+      <div class="g3">
+        <div style="padding:14px;border:1px solid rgba(79,128,255,.25);border-radius:10px;background:rgba(79,128,255,.04);">
+          <div style="font-size:20px;margin-bottom:8px;">🔒</div>
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:5px;">원칙 1 — AI 원본 불변성</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">AI가 산출한 원본값은 절대 덮어쓰지 않는다. 사용자 수정값은 별도 컬럼에 저장. 이것이 <strong style="color:var(--t1);">H2 가설 측정</strong>의 데이터 무결성 기반.</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(16,185,129,.25);border-radius:10px;background:rgba(16,185,129,.04);">
+          <div style="font-size:20px;margin-bottom:8px;">👤</div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:5px;">원칙 2 — 데이터 주권은 사용자에게</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">이슈 텍스트·금액은 본인만 볼 수 있다. 피치덱 공유는 사용자의 명시적 행동으로만 발생. <strong style="color:var(--t1);">기본값은 비공개</strong>.</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(251,191,36,.25);border-radius:10px;background:rgba(251,191,36,.04);">
+          <div style="font-size:20px;margin-bottom:8px;">📊</div>
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:5px;">원칙 3 — 행동 데이터 완전 수집</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6;">가설 검증에 필요한 행동 이벤트는 서버·클라이언트 <strong style="color:var(--t1);">이중 수집</strong>으로 누락률 0% 목표. 텍스트 내용은 수집하지 않음.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: 임팩트 산정 로직 ── -->
+  <div id="page-scoring" class="page">
+    <p class="stitle">임팩트 금액 산정 로직</p>
+    <p class="ssub">비공식 기여를 재무적 절감액으로 변환하는 핵심 알고리즘</p>
+
+    <div class="card">
+      <div class="ct">이슈 유형별 산정 공식</div>
+      <div class="impact-grid">
+        <div class="impact-box" style="border-color:rgba(248,113,113,.25);">
+          <div class="impact-type" style="color:var(--red);">🛡️ 사전 예방 (Proactive Prevention)</div>
+          <div class="impact-formula">방어액 = M/M 단가 × 예상 지연 기간(일) × 팀 규모 보정</div>
+          <div class="impact-note">사고가 발생했을 경우의 <strong>기회비용·재작업 비용</strong>을 역산. 예: "2주 일정 지연을 막았다" → 팀 5인 × 2주 M/M 비용. Confidence: 이슈 구체성에 따라 high/medium/low.</div>
+        </div>
+        <div class="impact-box" style="border-color:rgba(251,191,36,.25);">
+          <div class="impact-type" style="color:var(--amber);">🔥 위기 수습 (Reactive Resolution)</div>
+          <div class="impact-formula">방어액 = 장애 영향 규모 × 시간당 손실 단가 × 수습 시간</div>
+          <div class="impact-note">실제 발생한 문제를 해결한 경우. <strong>서비스 중단 시간·매출 손실·페널티 회피</strong> 기준. 서비스 규모·업종별 단가 테이블 참조. 구체적 수치 언급 시 Confidence 상승.</div>
+        </div>
+        <div class="impact-box" style="border-color:rgba(79,128,255,.25);">
+          <div class="impact-type" style="color:var(--blue);">🧩 역할 중첩 (Role Overlap)</div>
+          <div class="impact-formula">방어액 = (해당 직무 외주 단가 - 현 M/M 비용 분) × 기간</div>
+          <div class="impact-note">본업 외 업무를 수행한 기여. <strong>외주·채용 대비 비용 절감액</strong>으로 환산. 예: "CS를 3개월 겸직" → CS 담당자 채용 또는 외주 비용 대비 절감분.</div>
+        </div>
+        <div class="impact-box" style="border-color:rgba(167,139,250,.25);">
+          <div class="impact-type" style="color:var(--purple);">🤝 관계·조율 (Coordination Value)</div>
+          <div class="impact-formula">방어액 = 협상 성과 금액 × 기여 기여도 추정 (30~70%)</div>
+          <div class="impact-note">계약 성사·파트너십·갈등 해소 등 <strong>간접 재무 기여</strong>. 기여도 추정에 불확실성이 높아 항상 Confidence: medium 이하. 범위(하한~상한)를 넓게 제시.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">직군별 M/M 단가 추정 테이블 (내부 기준 · 국내 SME 50인 미만)</div>
+      <table class="dtab">
+        <thead><tr><th>직군</th><th>월 평균 인건비 범위</th><th>일 단가 환산</th><th>시간 단가 환산</th><th>적용 기준</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="dn">PM / 기획자</div></td>
+            <td style="color:var(--t3);">350~550만원</td>
+            <td style="color:var(--amber);font-weight:700;">16~25만원/일</td>
+            <td style="color:var(--t3);">2~3만원/시간</td>
+            <td style="color:var(--t3);font-size:11px;">프로젝트 단위 리스크 헷징 기준</td>
+          </tr>
+          <tr>
+            <td><div class="dn">프론트/백엔드 개발자</div></td>
+            <td style="color:var(--t3);">400~650만원</td>
+            <td style="color:var(--amber);font-weight:700;">18~30만원/일</td>
+            <td style="color:var(--t3);">2.5~4만원/시간</td>
+            <td style="color:var(--t3);font-size:11px;">서버 장애·버그 수습 기준</td>
+          </tr>
+          <tr>
+            <td><div class="dn">마케터 / 콘텐츠</div></td>
+            <td style="color:var(--t3);">300~450만원</td>
+            <td style="color:var(--amber);font-weight:700;">14~21만원/일</td>
+            <td style="color:var(--t3);">1.7~2.5만원/시간</td>
+            <td style="color:var(--t3);font-size:11px;">캠페인·영업 지원 기여 기준</td>
+          </tr>
+          <tr>
+            <td><div class="dn">디자이너</div></td>
+            <td style="color:var(--t3);">320~480만원</td>
+            <td style="color:var(--amber);font-weight:700;">15~22만원/일</td>
+            <td style="color:var(--t3);">1.9~2.7만원/시간</td>
+            <td style="color:var(--t3);font-size:11px;">UX 개선·브랜드 리스크 방어 기준</td>
+          </tr>
+          <tr>
+            <td><div class="dn">운영 / CS</div></td>
+            <td style="color:var(--t3);">280~380만원</td>
+            <td style="color:var(--amber);font-weight:700;">13~17만원/일</td>
+            <td style="color:var(--t3);">1.6~2.2만원/시간</td>
+            <td style="color:var(--t3);font-size:11px;">고객 이탈 방어·VOC 처리 기준</td>
+          </tr>
+          <tr>
+            <td><div class="dn">기타 (온보딩 미선택)</div></td>
+            <td style="color:var(--t3);">300~450만원</td>
+            <td style="color:var(--amber);font-weight:700;">14~21만원/일</td>
+            <td style="color:var(--t3);">1.7~2.5만원/시간</td>
+            <td style="color:var(--t3);font-size:11px;">전직군 중앙값 사용, Confidence 강제 low</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;font-size:11px;color:var(--t3);padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--bd);">
+        ⚠️ <strong style="color:var(--t1);">이 테이블은 AI 산정의 초기 기준값</strong>이며, 실사용자 수정 데이터(edit_delta_pct)가 축적될수록 직군별 보정계수가 고도화된다. v1.0은 보수적 하한값을 기본으로 사용해 과장 위험을 줄인다.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Confidence 레벨 판정 기준</div>
+      <div class="rule-list">
+        <div class="rule-item" style="border-color:rgba(16,185,129,.25);">
+          <div class="rule-name"><span class="tag t-ok">HIGH</span> 높은 신뢰도</div>
+          <div class="rule-desc">이슈 텍스트에 <strong>구체적 수치</strong>(금액·기간·팀 규모)가 포함되어 있거나, <strong>명확한 결과</strong>(계약 성사·장애 복구 시간)가 언급된 경우.</div>
+          <div class="rule-example">예: "A 클라이언트 계약 해지 위기를 2일 내 조율해 3천만원 계약 유지"<br>→ impact_low: 2,500만, impact_high: 3,000만, confidence: "high"</div>
+        </div>
+        <div class="rule-item" style="border-color:rgba(251,191,36,.25);">
+          <div class="rule-name"><span class="tag t-warn">MEDIUM</span> 중간 신뢰도</div>
+          <div class="rule-desc">이슈 유형은 명확하나 <strong>수치 근거가 간접적</strong>인 경우. "몇 주", "팀 전체" 등 상대적 표현만 있어 M/M 단가 추정이 필요한 상황.</div>
+          <div class="rule-example">예: "출시 2주 전 치명적 버그를 발견해 일정 지연을 막음"<br>→ impact_low: 300만, impact_high: 800만, confidence: "medium"</div>
+        </div>
+        <div class="rule-item" style="border-color:rgba(248,113,113,.25);">
+          <div class="rule-name"><span class="tag t-risk">LOW</span> 낮은 신뢰도</div>
+          <div class="rule-desc">이슈 설명이 추상적이거나, <strong>임팩트 규모를 추론하기 어려운</strong> 경우. 또는 직군 미선택으로 M/M 단가 기준값이 없는 경우. 사용자 직접 수정을 적극 유도.</div>
+          <div class="rule-example">예: "팀 분위기가 나빠질 뻔한 상황을 잘 중재했다"<br>→ impact_low: 50만, impact_high: 300만, confidence: "low" + 수정 유도 배너 표시</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: 데이터 모델 ── -->
+  <div id="page-data" class="page">
+    <p class="stitle">데이터 모델 & 필드 정책</p>
+    <p class="ssub">각 테이블의 역할·필드 의미·불변성 규칙</p>
+
+    <div class="pol-list">
+
+      <div class="pol-item p-blue">
+        <div class="pol-head">
+          <div class="pol-icon">👤</div>
+          <div class="pol-title">users — 사용자 프로필</div>
+          <span class="tag t-blue">Clerk 연동</span>
+        </div>
+        <div class="pol-body">
+          <div>
+            <div class="pb-label">핵심 필드</div>
+            <div class="pb-val"><strong>id</strong> (UUID PK)<br><strong>clerk_id</strong> (외부 인증 ID)<br><strong>job_role</strong> (직군)<br><strong>company_size</strong> (규모)<br><strong>tenure</strong> (재직기간)<br><strong>created_at</strong></div>
+          </div>
+          <div>
+            <div class="pb-label">업데이트 정책</div>
+            <div class="pb-val">job_role·company_size·tenure는 <strong>사용자가 언제든 수정 가능</strong>. 단, 수정 전 기존 이슈들의 AI 산정값은 재계산하지 않음 (스냅샷 불변 원칙). 수정 이후 신규 이슈부터 새 컨텍스트 적용.</div>
+          </div>
+          <div>
+            <div class="pb-label">수집 근거 & 최소화</div>
+            <div class="pb-val">이름·이메일은 Clerk에서만 관리, DB에 저장하지 않음. <strong>AI 프롬프트 컨텍스트에 필요한 최소 정보</strong>만 수집. 탈퇴 시 즉시 삭제.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pol-item p-red">
+        <div class="pol-head">
+          <div class="pol-icon">📝</div>
+          <div class="pol-title">issues — 이슈 입력 & AI 결과</div>
+          <span class="tag t-risk">핵심 민감 데이터</span>
+        </div>
+        <div class="pol-body">
+          <div>
+            <div class="pb-label">AI 원본 필드 (불변)</div>
+            <div class="pb-val"><strong>raw_text</strong> (입력 원문)<br><strong>ai_summary</strong> (AI 요약)<br><strong>ai_type</strong> (유형 분류)<br><strong>ai_impact_low</strong> / <strong>ai_impact_high</strong><br><strong>ai_calc_basis</strong> (산정 근거)<br><strong>ai_confidence</strong></div>
+          </div>
+          <div>
+            <div class="pb-label">사용자 수정 필드 (가변)</div>
+            <div class="pb-val"><strong>user_impact_low</strong> / <strong>user_impact_high</strong><br><strong>user_summary</strong> (요약 수정)<br><strong>evidence_urls[]</strong> (증빙 이미지)<br><strong>edit_delta_pct</strong> (수정 편차율)<br><strong>is_ai_accepted</strong> (수용 여부)<br><strong>updated_at</strong></div>
+          </div>
+          <div>
+            <div class="pb-label">불변성 규칙</div>
+            <div class="pb-val">ai_ 접두사 필드는 <strong>INSERT 후 UPDATE 불가</strong> (DB 트리거로 강제). LLM을 다시 돌려도 새 레코드로 생성. H2 가설 측정의 무결성 보장이 목적.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pol-item p-green">
+        <div class="pol-head">
+          <div class="pol-icon">📄</div>
+          <div class="pol-title">pitchdecks — 생성된 피치덱</div>
+          <span class="tag t-ok">불변 스냅샷</span>
+        </div>
+        <div class="pol-body">
+          <div>
+            <div class="pb-label">핵심 필드</div>
+            <div class="pb-val"><strong>id</strong> (UUID PK)<br><strong>user_id</strong><br><strong>issue_ids[]</strong> (포함된 이슈 목록)<br><strong>snapshot_data</strong> (생성 시점 전체 데이터 JSON)<br><strong>share_token</strong> (UUID v4)<br><strong>is_shared</strong> (공유 활성화 여부)</div>
+          </div>
+          <div>
+            <div class="pb-label">스냅샷 정책</div>
+            <div class="pb-val">생성 시점의 이슈 데이터를 <strong>snapshot_data에 통째로 JSON 저장</strong>. 이후 원본 이슈 수정·삭제와 무관하게 피치덱 내용은 고정. "협상 당일 제출한 문서"의 신뢰성 보장이 목적.</div>
+          </div>
+          <div>
+            <div class="pb-label">공유 정책</div>
+            <div class="pb-val">기본값 <strong>is_shared = false</strong>. 사용자가 명시적으로 공유 활성화 시에만 share_token으로 접근 가능. 공유 해제 즉시 링크 접근 차단. 공유 뷰어에서 민감 정보 마스킹 옵션 제공.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pol-item p-amber">
+        <div class="pol-head">
+          <div class="pol-icon">📊</div>
+          <div class="pol-title">events — 행동 이벤트 로그</div>
+          <span class="tag t-warn">가설 검증 인프라</span>
+        </div>
+        <div class="pol-body">
+          <div>
+            <div class="pb-label">저장 필드</div>
+            <div class="pb-val"><strong>user_id</strong> (익명화 가능)<br><strong>event_name</strong><br><strong>properties</strong> (JSON: delta_pct 등)<br><strong>session_id</strong><br><strong>created_at</strong><br><strong>utm_source</strong> / <strong>utm_campaign</strong></div>
+          </div>
+          <div>
+            <div class="pb-label">이중 수집 정책</div>
+            <div class="pb-val">클라이언트 SDK(Mixpanel) + <strong>서버 사이드 API(/api/track)</strong> 동시 전송. 광고 차단기로 클라이언트 수집 실패 시 서버 수집이 백업. 중요 이벤트(pitchdeck_generated, signup)는 서버 필수.</div>
+          </div>
+          <div>
+            <div class="pb-label">프라이버시 경계</div>
+            <div class="pb-val">이벤트 properties에 <strong>텍스트 내용·금액 절대값 저장 금지</strong>. edit_delta_pct(%)처럼 <strong>상대값·메타데이터만</strong> 수집. 분석 목적 최소화 원칙.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:4px;">
+      <div class="ct">DB 트리거 & 제약 조건 명세</div>
+      <div class="code">
+<span class="cc">-- 1. AI 원본 필드 불변 트리거</span>
+<span class="ck">CREATE OR REPLACE FUNCTION</span> prevent_ai_field_update()
+<span class="ck">RETURNS TRIGGER AS</span> $$
+<span class="ck">BEGIN</span>
+  <span class="ck">IF</span> OLD.ai_impact_low <span class="ck">IS NOT NULL AND</span>
+     (NEW.ai_impact_low != OLD.ai_impact_low <span class="ck">OR</span>
+      NEW.ai_impact_high != OLD.ai_impact_high) <span class="ck">THEN</span>
+    <span class="cr">RAISE EXCEPTION</span> <span class="cs">'AI original fields are immutable'</span>;
+  <span class="ck">END IF;</span>
+  <span class="ck">RETURN NEW;</span>
+<span class="ck">END;</span> $$ <span class="ck">LANGUAGE</span> plpgsql;
+
+<span class="cc">-- 2. edit_delta_pct 자동 계산 트리거</span>
+<span class="ck">CREATE OR REPLACE FUNCTION</span> calc_edit_delta()
+<span class="ck">RETURNS TRIGGER AS</span> $$
+<span class="ck">BEGIN</span>
+  <span class="ck">IF</span> NEW.user_impact_low <span class="ck">IS NOT NULL THEN</span>
+    NEW.edit_delta_pct := <span class="cc">-- (user_mid - ai_mid) / ai_mid * 100</span>
+      ROUND(((NEW.user_impact_low + NEW.user_impact_high) / <span class="cv">2.0</span> -
+             (OLD.ai_impact_low + OLD.ai_impact_high) / <span class="cv">2.0</span>) /
+            NULLIF((OLD.ai_impact_low + OLD.ai_impact_high) / <span class="cv">2.0</span>, <span class="cv">0</span>) * <span class="cv">100</span>, <span class="cv">1</span>);
+    NEW.is_ai_accepted := <span class="ck">FALSE</span>;
+  <span class="ck">END IF;</span>
+  <span class="ck">RETURN NEW;</span>
+<span class="ck">END;</span> $$ <span class="ck">LANGUAGE</span> plpgsql;
+
+<span class="cc">-- 3. RLS: 본인 데이터만 접근</span>
+<span class="ck">ALTER TABLE</span> issues <span class="ck">ENABLE ROW LEVEL SECURITY</span>;
+<span class="ck">CREATE POLICY</span> own_issues <span class="ck">ON</span> issues
+  <span class="ck">USING</span> (user_id = auth.uid());
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: 개인정보 정책 ── -->
+  <div id="page-privacy" class="page">
+    <p class="stitle">개인정보 보호 정책</p>
+    <p class="ssub">수집 최소화 원칙 · PIPA(개인정보보호법) 준수 기반 설계</p>
+
+    <div class="card">
+      <div class="ct">데이터 수집 범위 & 법적 근거</div>
+      <table class="priv-table">
+        <thead><tr><th>데이터 항목</th><th>수집 목적</th><th>법적 근거</th><th>보존 기간</th><th>제3자 제공</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">이메일 (Clerk 관리)</td>
+            <td style="color:var(--t3);">본인 확인·알림 발송</td>
+            <td><span class="tag t-blue">계약 이행</span></td>
+            <td style="color:var(--t3);">탈퇴 즉시 삭제</td>
+            <td><span class="tag t-ok">없음</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">직군·규모·재직기간</td>
+            <td style="color:var(--t3);">AI 산정 컨텍스트</td>
+            <td><span class="tag t-blue">서비스 제공</span></td>
+            <td style="color:var(--t3);">탈퇴 즉시 삭제</td>
+            <td><span class="tag t-ok">없음</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">이슈 텍스트 (raw_text)</td>
+            <td style="color:var(--t3);">AI 분석·피치덱 생성</td>
+            <td><span class="tag t-blue">서비스 제공</span></td>
+            <td style="color:var(--t3);">탈퇴 후 30일</td>
+            <td><span class="tag t-ok">없음</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">임팩트 금액</td>
+            <td style="color:var(--t3);">피치덱 생성</td>
+            <td><span class="tag t-blue">서비스 제공</span></td>
+            <td style="color:var(--t3);">탈퇴 후 30일</td>
+            <td><span class="tag t-ok">없음</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">행동 이벤트 (메타데이터)</td>
+            <td style="color:var(--t3);">가설 검증·서비스 개선</td>
+            <td><span class="tag t-warn">정당한 이익</span></td>
+            <td style="color:var(--t3);">수집 후 1년</td>
+            <td style="color:var(--t3);font-size:11px;">Mixpanel (처리위탁)</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">증빙 이미지</td>
+            <td style="color:var(--t3);">피치덱 첨부</td>
+            <td><span class="tag t-blue">서비스 제공</span></td>
+            <td style="color:var(--t3);">피치덱 삭제 시</td>
+            <td><span class="tag t-ok">없음</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">LLM 전송 데이터 처리 정책</div>
+      <div style="background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">⚠️ 핵심 위험: 이슈 텍스트가 OpenAI API로 전송된다</div>
+        <div style="font-size:12px;color:var(--t3);line-height:1.7;">실무자가 기술한 이슈 내용이 <strong style="color:var(--t1);">OpenAI 서버로 전송</strong>된다. 개인정보처리방침에 이 사실을 명시하고, 이슈 입력창 하단에 <strong style="color:var(--t1);">"AI 분석을 위해 OpenAI로 전송됩니다"</strong> 고지 문구를 반드시 표시해야 한다.</div>
+      </div>
+      <div class="g2">
+        <div class="kv">
+          <div class="kv-row"><span class="kv-lbl">전송 범위</span><span class="kv-v">이슈 raw_text + 직군·규모 컨텍스트. <strong>이름·회사명·연락처는 전송 금지</strong> (입력 전 PII 감지 경고).</span></div>
+          <div class="kv-row"><span class="kv-lbl">OpenAI 정책</span><span class="kv-v">OpenAI API 사용 시 데이터를 모델 학습에 사용하지 않음 (Zero Data Retention 옵션 활성화 권장).</span></div>
+          <div class="kv-row"><span class="kv-lbl">고지 방식</span><span class="kv-v">입력창 하단 상시 표시 + 첫 분석 시 명시적 동의 체크박스 (opt-in).</span></div>
+        </div>
+        <div class="kv">
+          <div class="kv-row"><span class="kv-lbl">민감 정보 필터</span><span class="kv-v">전송 전 이름(홍길동 패턴)·전화번호·주민번호·계좌번호 정규식 감지 후 <strong>[개인정보]</strong>로 마스킹.</span></div>
+          <div class="kv-row"><span class="kv-lbl">서버 로그</span><span class="kv-v">Edge Function 서버 로그에 raw_text를 기록하지 않음. request_id와 메타데이터(토큰 수·레이턴시)만 로깅.</span></div>
+          <div class="kv-row"><span class="kv-lbl">위반 시 대응</span><span class="kv-v">개인정보 침해 신고 시 72시간 내 KISA 신고 의무. 개인정보처리방침에 DPO 연락처 명시.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">사용자 권리 보장 (PIPA 제35~39조)</div>
+      <div class="rule-list">
+        <div class="rule-item" style="border-color:rgba(79,128,255,.2);">
+          <div class="rule-name">📥 열람권 · 이동권</div>
+          <div class="rule-desc">사용자는 언제든 자신의 이슈 데이터·피치덱·이벤트 메타데이터를 <strong>JSON 형태로 내보내기(Export)</strong> 요청 가능. 요청 후 3영업일 내 제공.</div>
+        </div>
+        <div class="rule-item" style="border-color:rgba(16,185,129,.2);">
+          <div class="rule-name">🗑️ 삭제권 (잊힐 권리)</div>
+          <div class="rule-desc">탈퇴 또는 개별 이슈 삭제 요청 시 <strong>30일 내 완전 삭제</strong> (백업 포함). 단, 법령 의무 보존 데이터(결제 기록 등) 제외. 삭제 완료 시 이메일 통보.</div>
+        </div>
+        <div class="rule-item" style="border-color:rgba(251,191,36,.2);">
+          <div class="rule-name">✏️ 정정권</div>
+          <div class="rule-desc">온보딩 정보(직군·규모·재직기간) 및 수정 가능한 이슈 필드는 <strong>앱 내에서 직접 수정</strong> 가능. AI 원본 필드는 불변 정책으로 수정 불가 (단, 해당 이슈 전체 삭제 후 재입력 가능).</div>
+        </div>
+        <div class="rule-item" style="border-color:rgba(248,113,113,.2);">
+          <div class="rule-name">🚫 처리 정지권</div>
+          <div class="rule-desc">행동 이벤트 수집에 대해 <strong>동의 철회 가능</strong>. 철회 시 이후 이벤트 수집 중단 (단, 핵심 서비스 기능은 유지). 설정 페이지에서 온/오프 토글 제공.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 5: 접근 제어 ── -->
+  <div id="page-access" class="page">
+    <p class="stitle">접근 제어 & 인가 정책</p>
+    <p class="ssub">누가 어떤 데이터에 접근할 수 있는가 — 최소 권한 원칙</p>
+
+    <div class="card">
+      <div class="ct">역할별 접근 권한 매트릭스</div>
+      <table class="priv-table">
+        <thead>
+          <tr>
+            <th>데이터 / 기능</th>
+            <th>본인 (End-User)</th>
+            <th>공유 링크 뷰어</th>
+            <th>서비스 운영자</th>
+            <th>B2B 경영진 (Phase 2)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">이슈 raw_text</td>
+            <td><span class="tag t-ok">읽기·쓰기</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">AI 산정 금액</td>
+            <td><span class="tag t-ok">읽기·수정</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">피치덱 (공유 전)</td>
+            <td><span class="tag t-ok">읽기·삭제</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">피치덱 (공유 활성화)</td>
+            <td><span class="tag t-ok">읽기·삭제</span></td>
+            <td><span class="tag t-warn">읽기 전용</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-warn">읽기 전용</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">행동 이벤트 (메타데이터)</td>
+            <td><span class="tag t-warn">집계만 열람</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-warn">집계·분석</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;color:var(--t1);">직군·규모 집계 (익명화)</td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-risk">접근 불가</span></td>
+            <td><span class="tag t-ok">읽기</span></td>
+            <td style="color:var(--t3);font-size:11px;">Phase 2 검토</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">공유 링크 보안 정책</div>
+      <div class="g2">
+        <div class="rule-list">
+          <div class="rule-item" style="border-color:rgba(79,128,255,.2);">
+            <div class="rule-name">🔑 UUID v4 토큰 발급</div>
+            <div class="rule-desc">share_token은 UUID v4 (128비트 랜덤). 추측·브루트포스 불가능. URL 형태: <code style="font-size:11px;font-family:monospace;color:var(--amber);">myroi.io/view/[uuid]</code></div>
+          </div>
+          <div class="rule-item" style="border-color:rgba(16,185,129,.2);">
+            <div class="rule-name">👁️ 뷰어 전용 마스킹</div>
+            <div class="rule-desc">공유 뷰어에서 이름·회사명 표시 여부를 사용자가 선택. 기본값은 <strong>이니셜+직군만 표시</strong> ("PM J씨, 3년차").</div>
+          </div>
+        </div>
+        <div class="rule-list">
+          <div class="rule-item" style="border-color:rgba(251,191,36,.2);">
+            <div class="rule-name">⏱️ 공유 만료 옵션</div>
+            <div class="rule-desc">선택적 만료 설정: 7일·30일·무기한. 만료 후 링크 접근 시 "만료된 링크입니다" 페이지 표시. 재발급 가능.</div>
+          </div>
+          <div class="rule-item" style="border-color:rgba(248,113,113,.2);">
+            <div class="rule-name">🚫 공유 즉시 해제</div>
+            <div class="rule-desc">is_shared = false 설정 즉시 링크 접근 불가. 토큰 자체는 유지 (재활성화 가능). <strong>DB 레코드 삭제가 아닌 플래그 전환</strong>.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">API 레벨 Rate Limit & 남용 방지</div>
+      <div class="g3">
+        <div style="padding:13px;border:1px solid rgba(79,128,255,.2);border-radius:9px;">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">/api/analyze (LLM 호출)</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.7;"><strong style="color:var(--t1);">유저당 일 10회</strong> 상한. 초과 시 429 응답 + "내일 리셋" 안내. Freemium: 월 3회 무료, 초과 시 유료 유도.</div>
+        </div>
+        <div style="padding:13px;border:1px solid rgba(251,191,36,.2);border-radius:9px;">
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px;">/api/pitchdeck (PDF 생성)</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.7;"><strong style="color:var(--t1);">유저당 월 1회</strong> 무료 (Freemium 정책). 동일 데이터 재생성은 횟수 차감 없음. 신규 이슈 추가 후 생성만 차감.</div>
+        </div>
+        <div style="padding:13px;border:1px solid rgba(16,185,129,.2);border-radius:9px;">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">/view/:token (공유 뷰어)</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.7;"><strong style="color:var(--t1);">IP당 시간 100회</strong> 상한. 무인증 접근이므로 DDoS 방어 목적. Vercel Edge에서 처리.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 6: 데이터 보존 정책 ── -->
+  <div id="page-retention" class="page">
+    <p class="stitle">데이터 보존 & 삭제 정책</p>
+    <p class="ssub">목적 달성 후 최소 보존 · 자동 삭제 파이프라인 설계</p>
+
+    <div class="card">
+      <div class="ct">데이터 유형별 보존 기간 & 삭제 정책</div>
+      <div class="pol-list">
+
+        <div class="pol-item p-blue">
+          <div class="pol-head">
+            <div class="pol-icon">👤</div>
+            <div class="pol-title">사용자 계정 & 프로필</div>
+            <span class="tag t-blue">탈퇴 즉시 삭제</span>
+          </div>
+          <div class="pol-body">
+            <div>
+              <div class="pb-label">보존 기간</div>
+              <div class="pb-val">활성 계정: 무기한<br>탈퇴 요청 후: <strong>즉시 삭제</strong><br>비활성(12개월 미접속): 삭제 전 이메일 경고 후 30일 대기</div>
+            </div>
+            <div>
+              <div class="pb-label">삭제 범위</div>
+              <div class="pb-val">users 테이블 레코드 삭제 → <strong>CASCADE로 issues·pitchdecks 전부 삭제</strong>. Clerk에서 계정 삭제. Supabase Storage 이미지 삭제.</div>
+            </div>
+            <div>
+              <div class="pb-label">삭제 불가 예외</div>
+              <div class="pb-val">익명화된 행동 이벤트(user_id 제거)는 <strong>서비스 개선 목적</strong>으로 1년간 보존 가능. 개인 식별 불가 수준으로 처리.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pol-item p-red">
+          <div class="pol-head">
+            <div class="pol-icon">📝</div>
+            <div class="pol-title">이슈 텍스트 & AI 산정값</div>
+            <span class="tag t-risk">민감 · 탈퇴 후 30일</span>
+          </div>
+          <div class="pol-body">
+            <div>
+              <div class="pb-label">보존 기간</div>
+              <div class="pb-val">계정 활성 중: 무기한 (사용자 직접 삭제 가능)<br>탈퇴 후: <strong>30일 내 완전 삭제</strong><br>개별 삭제 요청: 요청 즉시 논리 삭제 → 7일 후 물리 삭제</div>
+            </div>
+            <div>
+              <div class="pb-label">논리 삭제 정책</div>
+              <div class="pb-val">is_deleted = true 플래그 후 <strong>7일 내 물리 삭제</strong>. 7일 유예기간은 실수 삭제 복구 목적. 유예기간 내 복구 가능, 이후 불가.</div>
+            </div>
+            <div>
+              <div class="pb-label">LLM 전송 사본</div>
+              <div class="pb-val">OpenAI API 전송 데이터는 당사 서버에 저장하지 않음. OpenAI 측 정책에 따르며, ZDR(Zero Data Retention) 계약 체결 권장.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pol-item p-amber">
+          <div class="pol-head">
+            <div class="pol-icon">🖼️</div>
+            <div class="pol-title">증빙 이미지 (Supabase Storage)</div>
+            <span class="tag t-warn">피치덱 삭제 시 연동 삭제</span>
+          </div>
+          <div class="pol-body">
+            <div>
+              <div class="pb-label">보존 기간</div>
+              <div class="pb-val">연결된 이슈가 삭제되면 <strong>이미지도 즉시 삭제</strong>. 피치덱 스냅샷에 포함된 이미지는 피치덱 삭제 시 함께 삭제.</div>
+            </div>
+            <div>
+              <div class="pb-label">자동 정리 정책</div>
+              <div class="pb-val">orphan 이미지(연결된 이슈 없음) <strong>주 1회 자동 스캔 후 삭제</strong>. Supabase Edge Function으로 크론 구현.</div>
+            </div>
+            <div>
+              <div class="pb-label">용량 관리</div>
+              <div class="pb-val">업로드 시 WebP 변환 + 1MB 압축. 유저당 총 <strong>50MB 상한</strong>. 초과 시 오래된 이미지 삭제 권고.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pol-item p-green">
+          <div class="pol-head">
+            <div class="pol-icon">📊</div>
+            <div class="pol-title">행동 이벤트 & 분석 데이터</div>
+            <span class="tag t-ok">1년 보존 · 익명화</span>
+          </div>
+          <div class="pol-body">
+            <div>
+              <div class="pb-label">보존 기간</div>
+              <div class="pb-val">원본 이벤트(user_id 포함): <strong>수집 후 1년</strong><br>익명화 집계 데이터: 무기한 (서비스 개선 목적)<br>Mixpanel 내 데이터: Mixpanel 정책 따름</div>
+            </div>
+            <div>
+              <div class="pb-label">탈퇴 시 처리</div>
+              <div class="pb-val">탈퇴 즉시 user_id를 <strong>익명 UUID로 교체</strong>. 이벤트 내용은 보존하되 개인 식별 불가 처리. 집계 통계 무결성 유지.</div>
+            </div>
+            <div>
+              <div class="pb-label">가설 검증 데이터</div>
+              <div class="pb-val">H1~H5 가설 검증에 사용되는 집계값(CVR, 수용률 등)은 <strong>익명화 후 무기한 보존</strong>. 제품 의사결정의 역사적 근거로 활용.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">자동 삭제 파이프라인 (Supabase Cron)</div>
+      <div class="code">
+<span class="cc">-- 매일 03:00 실행: 논리 삭제 후 7일 경과 이슈 물리 삭제</span>
+<span class="ck">SELECT</span> cron.schedule(
+  <span class="cs">'cleanup-deleted-issues'</span>,
+  <span class="cs">'0 3 * * *'</span>,
+  $$
+    <span class="ck">DELETE FROM</span> issues
+    <span class="ck">WHERE</span> is_deleted = <span class="ck">TRUE</span>
+      <span class="ck">AND</span> deleted_at < NOW() - <span class="ck">INTERVAL</span> <span class="cs">'7 days'</span>;
+
+    <span class="cc">-- 연결 없는 orphan 이미지 삭제 (Storage 정리)</span>
+    <span class="ck">DELETE FROM</span> storage.objects
+    <span class="ck">WHERE</span> bucket_id = <span class="cs">'evidence'</span>
+      <span class="ck">AND</span> name <span class="ck">NOT IN</span> (
+        <span class="ck">SELECT UNNEST</span>(evidence_urls) <span class="ck">FROM</span> issues
+        <span class="ck">WHERE</span> is_deleted = <span class="ck">FALSE</span>
+      );
+  $$
+);
+
+<span class="cc">-- 매주 월 04:00: 비활성 계정(12개월) 경고 이메일 트리거</span>
+<span class="ck">SELECT</span> cron.schedule(
+  <span class="cs">'warn-inactive-users'</span>,
+  <span class="cs">'0 4 * * 1'</span>,
+  $$
+    <span class="ck">SELECT</span> send_warning_email(id)
+    <span class="ck">FROM</span> users
+    <span class="ck">WHERE</span> last_login < NOW() - <span class="ck">INTERVAL</span> <span class="cs">'12 months'</span>
+      <span class="ck">AND</span> warned_at <span class="ck">IS NULL</span>;
+  $$
+);
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function sw(id,btn){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function tog(){
+    const l=document.body.classList.toggle('light');
+    document.getElementById('tbtn').textContent=l?'☀️ 라이트':'🌙 다크';
+  }
+</script>
+</body>
+</html>
