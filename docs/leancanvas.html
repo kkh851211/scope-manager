@@ -3,250 +3,628 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyROI 린 캔버스 v6.0</title>
+<title>MyROI — 린 캔버스 v6.0</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; min-width: 900px; }
-
-  .header { text-align: center; margin-bottom: 20px; }
-  .header h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
-  .header .badge { display: inline-block; background: #4f46e5; color: white; font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-top: 6px; }
-  .header .sub { font-size: 12px; color: #666; margin-top: 4px; }
-
-  .canvas { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; grid-template-rows: auto auto auto; gap: 8px; }
-
-  .cell {
-    background: white;
-    border-radius: 10px;
-    padding: 14px;
-    border-top: 4px solid #e2e8f0;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    position: relative;
+  :root {
+    --bg: #0f1117;
+    --s1: #1a1f2e;
+    --t1: #e8eaf0;
+    --t3: #8c95aa;
+    --bd: #232b3e;
+    --blue: #4f80ff;
+    --green: #10b981;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+  }
+  body.light {
+    --bg: #f5f7fa;
+    --s1: #ffffff;
+    --t1: #1a1f2e;
+    --t3: #5a6478;
+    --bd: #d1d9e6;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--t1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    transition: background 0.2s, color 0.2s;
+    min-height: 100vh;
   }
 
-  .cell-num {
-    position: absolute; top: 10px; right: 10px;
-    font-size: 10px; font-weight: 700; color: #cbd5e1;
+  /* HEADER */
+  header {
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .logo { font-size: 18px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; }
+  .logo span { color: var(--t1); }
+  .badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px; letter-spacing: 0.3px;
+  }
+  .badge-ver  { background: var(--blue); color: #fff; }
+  .badge-mvp  { background: rgba(16,185,129,0.15); color: var(--green); }
+  .badge-type { background: transparent; border: 1px solid var(--bd); color: var(--t3); }
+
+  #toggle-btn {
+    background: var(--bg); border: 1px solid var(--bd); color: var(--t1);
+    border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 14px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s; white-space: nowrap;
+  }
+  #toggle-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* NAV */
+  nav {
+    background: var(--s1); border-bottom: 1px solid var(--bd);
+    padding: 0 24px; display: flex; overflow-x: auto; scrollbar-width: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--t3); cursor: pointer; font-size: 13px; font-weight: 600;
+    padding: 12px 16px; white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active { border-bottom: 2px solid var(--blue); color: var(--blue); }
+  .tab-btn:hover:not(.active) { color: var(--t1); }
+
+  /* CONTENT */
+  main { padding: 24px; max-width: 1000px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .section-title { font-size: 20px; font-weight: 800; color: var(--t1); margin-bottom: 5px; }
+  .section-sub { font-size: 13px; color: var(--t3); margin-bottom: 20px; }
+
+  /* CARD */
+  .card {
+    background: var(--s1); border-radius: 12px; padding: 18px;
+    border: 1px solid var(--bd); margin-bottom: 16px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 700; color: var(--t3);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before {
+    content: ''; display: inline-block; width: 3px; height: 14px;
+    background: var(--blue); border-radius: 2px;
   }
 
-  .cell h3 {
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* LEAN CANVAS OVERVIEW GRID */
+  .lc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr auto;
+    gap: 10px;
+  }
+  .lc-cell {
+    background: var(--s1); border: 1px solid var(--bd); border-radius: 10px;
+    padding: 14px; font-size: 12px; transition: background 0.2s, border-color 0.2s;
+  }
+  .lc-cell-title {
     font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 8px;
+    letter-spacing: 0.7px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
   }
-  .cell h4 { font-size: 11px; font-weight: 700; color: #334155; margin: 8px 0 4px; }
-  .cell p, .cell li { font-size: 11.5px; color: #475569; line-height: 1.6; }
-  .cell ul { padding-left: 14px; }
-  .cell li { margin-bottom: 4px; }
-
-  .tag {
-    display: inline-block; font-size: 10px; font-weight: 600;
-    padding: 2px 7px; border-radius: 4px; margin-bottom: 6px;
+  .lc-cell-num {
+    width: 18px; height: 18px; border-radius: 50%; font-size: 10px;
+    font-weight: 800; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
-  .tag-user { background: #ede9fe; color: #6d28d9; }
-  .tag-buyer { background: #fce7f3; color: #be185d; }
-  .tag-mvp { background: #dcfce7; color: #15803d; }
-  .tag-roadmap { background: #fef9c3; color: #92400e; }
-  .tag-end { background: #dbeafe; color: #1d4ed8; }
+  .lc-text { color: var(--t3); line-height: 1.6; }
 
-  /* color coding */
-  .c-problem { border-top-color: #f87171; }
-  .c-solution { border-top-color: #34d399; }
-  .c-uvp     { border-top-color: #818cf8; }
-  .c-adv     { border-top-color: #fb923c; }
-  .c-segment { border-top-color: #38bdf8; }
-  .c-alt     { border-top-color: #a78bfa; }
-  .c-metrics { border-top-color: #f472b6; }
-  .c-channel { border-top-color: #4ade80; }
-  .c-cost    { border-top-color: #94a3b8; }
-  .c-revenue { border-top-color: #fbbf24; }
+  /* span helpers */
+  .col-span-2 { grid-column: span 2; }
+  .row-span-2 { grid-row: span 2; }
 
-  /* grid layout */
-  .problem  { grid-column: 1; grid-row: 1 / 3; }
-  .solution { grid-column: 2; grid-row: 1 / 3; }
-  .uvp      { grid-column: 3; grid-row: 1 / 3; }
-  .adv      { grid-column: 4; grid-row: 1 / 3; }
-  .segment  { grid-column: 5; grid-row: 1 / 3; }
-  .alt      { grid-column: 1; grid-row: 3; }
-  .metrics  { grid-column: 2; grid-row: 3; }
-  .channel  { grid-column: 3 / 4; grid-row: 3; }
-  .cost     { grid-column: 4; grid-row: 3; }
-  .revenue  { grid-column: 5; grid-row: 3; }
+  /* colored accent borders */
+  .accent-blue  { border-color: rgba(79,128,255,0.35); }
+  .accent-green { border-color: rgba(16,185,129,0.35); }
+  .accent-amber { border-color: rgba(251,191,36,0.35); }
+  .accent-red   { border-color: rgba(248,113,113,0.35); }
+  .accent-purple{ border-color: rgba(167,139,250,0.35); }
 
-  .divider { border: none; border-top: 1px dashed #e2e8f0; margin: 8px 0; }
+  .num-blue   { background: rgba(79,128,255,0.2); color: var(--blue); }
+  .num-green  { background: rgba(16,185,129,0.2); color: var(--green); }
+  .num-amber  { background: rgba(251,191,36,0.2); color: var(--amber); }
+  .num-red    { background: rgba(248,113,113,0.2); color: var(--red); }
+  .num-purple { background: rgba(167,139,250,0.2); color: var(--purple); }
 
-  .metric-item {
-    background: #f8fafc; border-radius: 6px; padding: 6px 8px;
-    margin-bottom: 5px; border-left: 3px solid #818cf8;
+  /* UVP HERO */
+  .uvp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .uvp-box {
+    border-radius: 12px; padding: 20px;
+    border: 1px solid var(--bd);
   }
-  .metric-item .label { font-size: 10px; font-weight: 700; color: #6d28d9; }
-  .metric-item .val { font-size: 11px; color: #475569; }
+  .uvp-box.user { border-color: rgba(79,128,255,0.3); background: rgba(79,128,255,0.05); }
+  .uvp-box.buyer { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+  .uvp-role { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .uvp-box.user .uvp-role { color: var(--blue); }
+  .uvp-box.buyer .uvp-role { color: var(--green); }
+  .uvp-quote { font-size: 14px; font-weight: 700; color: var(--t1); line-height: 1.6; }
 
-  .revenue-item {
-    background: #fffbeb; border-radius: 6px; padding: 6px 8px;
-    margin-bottom: 5px; border-left: 3px solid #fbbf24;
+  /* FEATURE LIST */
+  .feature-list { display: flex; flex-direction: column; gap: 12px; }
+  .feature-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    border: 1px solid var(--bd); border-radius: 10px; padding: 14px;
+    transition: border-color 0.2s;
   }
+  .feature-item.mvp { border-color: rgba(79,128,255,0.3); }
+  .feature-item.roadmap { border-color: rgba(251,191,36,0.2); }
+  .feature-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .feature-title { font-weight: 700; color: var(--t1); font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .feature-desc { font-size: 12px; color: var(--t3); line-height: 1.6; }
+  .f-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .f-badge.mvp { background: rgba(79,128,255,0.15); color: var(--blue); }
+  .f-badge.soon { background: rgba(251,191,36,0.15); color: var(--amber); }
 
-  footer { text-align: center; margin-top: 12px; font-size: 11px; color: #94a3b8; }
+  /* METRICS */
+  .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .metric-box {
+    background: var(--s1); border: 1px solid var(--bd); border-radius: 12px;
+    padding: 18px; text-align: center; transition: background 0.2s, border-color 0.2s;
+  }
+  .metric-val { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+  .metric-label { font-size: 11px; color: var(--t3); line-height: 1.5; }
+
+  /* CHANNEL LIST */
+  .ch-list { display: flex; flex-direction: column; gap: 10px; }
+  .ch-item {
+    display: flex; gap: 12px; align-items: center;
+    border: 1px solid var(--bd); border-radius: 10px; padding: 12px 14px;
+  }
+  .ch-tag { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; flex-shrink: 0; white-space: nowrap; }
+  .ch-tag.viral   { background: rgba(79,128,255,0.15); color: var(--blue); }
+  .ch-tag.comm    { background: rgba(16,185,129,0.15); color: var(--green); }
+  .ch-tag.b2b     { background: rgba(251,191,36,0.15); color: var(--amber); }
+  .ch-desc { font-size: 12px; color: var(--t3); }
+
+  /* REVENUE */
+  .rev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .rev-box { border-radius: 12px; padding: 18px; border: 1px solid var(--bd); }
+  .rev-box.b2c { border-color: rgba(79,128,255,0.3); background: rgba(79,128,255,0.05); }
+  .rev-box.b2b { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+  .rev-title { font-weight: 700; font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .rev-box.b2c .rev-title { color: var(--blue); }
+  .rev-box.b2b .rev-title { color: var(--green); }
+  .rev-item { font-size: 12px; color: var(--t3); line-height: 1.7; display: flex; gap: 8px; }
+  .rev-item::before { content: '·'; flex-shrink: 0; }
+
+  /* COST LIST */
+  .cost-list { display: flex; flex-direction: column; gap: 10px; }
+  .cost-item { display: flex; gap: 12px; align-items: flex-start; font-size: 12px; padding: 10px 14px; border: 1px solid var(--bd); border-radius: 8px; color: var(--t3); }
+  .cost-item strong { color: var(--t1); }
+  .cost-item::before { content: '₩'; color: var(--amber); font-weight: 800; flex-shrink: 0; }
+
+  /* TUNING POINTS */
+  .tuning-list { display: flex; flex-direction: column; gap: 12px; }
+  .tuning-item { border-radius: 10px; padding: 16px; border: 1px solid var(--bd); }
+  .tuning-head { font-weight: 700; color: var(--t1); font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .tuning-body { font-size: 12px; color: var(--t3); line-height: 1.7; }
+
+  /* SEGMENT */
+  .seg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .seg-box { border-radius: 12px; padding: 18px; border: 1px solid var(--bd); }
+  .seg-title { font-weight: 700; font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .seg-item { font-size: 12px; color: var(--t3); line-height: 1.7; padding: 6px 0; border-bottom: 1px solid var(--bd); }
+  .seg-item:last-child { border-bottom: none; }
+  .seg-item strong { color: var(--t1); }
+
+  /* ALTERNATIVE */
+  .alt-list { display: flex; flex-direction: column; gap: 10px; }
+  .alt-item { border: 1px solid var(--bd); border-radius: 10px; padding: 13px 16px; }
+  .alt-name { font-weight: 700; color: var(--t1); font-size: 13px; margin-bottom: 4px; }
+  .alt-lim { font-size: 12px; color: var(--t3); line-height: 1.6; }
+  .alt-lim strong { color: var(--t1); }
+
+  @media (max-width: 560px) {
+    main { padding: 14px; }
+    header { padding: 12px 14px; }
+    nav { padding: 0 14px; }
+    .grid-2, .grid-3, .uvp-grid, .metrics-grid, .rev-grid, .seg-grid { grid-template-columns: 1fr; }
+    .lc-grid { grid-template-columns: 1fr 1fr; }
+    .lc-cell.col-span-2 { grid-column: span 1; }
+    .tab-btn { padding: 10px 11px; font-size: 12px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>📊 MyROI 린 캔버스</h1>
-  <div class="badge">v6.0 · MVP 집중형</div>
-  <div class="sub">B2B HR/성과관리 SaaS · 일반 중소기업(SME) 타겟</div>
-</div>
-
-<div class="canvas">
-
-  <!-- 1. Problem -->
-  <div class="cell c-problem problem">
-    <div class="cell-num">1</div>
-    <h3>🔥 Problem</h3>
-    <span class="tag tag-user">End-User · 실무자</span>
-    <ul>
-      <li>사전 방어·위기 수습 등 공식 KPI에 없는 헌신을 <strong>객관적으로 증명할 방법 부재</strong></li>
-      <li>평소 기록 누락으로 연말 평가 시 <strong>증빙 자료 급조 및 무력감</strong> 경험</li>
-    </ul>
-    <hr class="divider">
-    <span class="tag tag-buyer">Buyer · 경영진</span>
-    <ul>
-      <li>진짜 에이스 식별 불가 및 <strong>리소스 누수(블라인드 스팟)</strong></li>
-    </ul>
-    <hr class="divider">
-    <h4>기존 대안</h4>
-    <ul>
-      <li><strong>Jira/Asana:</strong> 계획된 Task만 추적</li>
-      <li><strong>MBO/KPI:</strong> 정적 목표만 평가</li>
-      <li><strong>Notion/Excel:</strong> 파편화·금액 환산 불가</li>
-    </ul>
+<header>
+  <div class="header-left">
+    <div class="logo">My<span>ROI</span></div>
+    <span class="badge badge-ver">v6.0</span>
+    <span class="badge badge-mvp">MVP 집중형</span>
+    <span class="badge badge-type">린 캔버스</span>
   </div>
+  <button id="toggle-btn" onclick="toggleMode()">🌙 다크</button>
+</header>
 
-  <!-- 4. Solution -->
-  <div class="cell c-solution solution">
-    <div class="cell-num">4</div>
-    <h3>⚙️ Solution</h3>
-    <span class="tag tag-mvp">초기 MVP 핵심 기능</span>
-    <h4>① 자유 텍스트 AI 환산기</h4>
-    <p>복잡한 연동 없이 과거 이슈 3가지를 자유 텍스트로 입력 → AI가 구조화 및 예상 방어 금액(M/M) <strong>초안 자동 산출</strong></p>
-    <hr class="divider">
-    <h4>② Human-in-the-Loop 검토</h4>
-    <p>실무자가 최종 금액 조정 + 캡처본 첨부 → <strong>연봉 피치덱(PDF) 원클릭 생성</strong></p>
-    <hr class="divider">
-    <span class="tag tag-roadmap">추후 검증 로드맵</span>
-    <h4>③ B2B 블라인드 대시보드</h4>
-    <p>트렌드 데이터만으로 Buyer가 결제할지 <strong>IDI 검증 후 개발 결정</strong></p>
-  </div>
+<nav>
+  <button class="tab-btn active" onclick="switchTab('overview', this)">🗺️ 캔버스 전체</button>
+  <button class="tab-btn" onclick="switchTab('problem', this)">🔴 문제 &amp; 고객</button>
+  <button class="tab-btn" onclick="switchTab('solution', this)">⚡ 솔루션 &amp; UVP</button>
+  <button class="tab-btn" onclick="switchTab('biz', this)">💰 채널 &amp; 수익</button>
+  <button class="tab-btn" onclick="switchTab('metrics', this)">📊 지표 &amp; 비용</button>
+  <button class="tab-btn" onclick="switchTab('tuning', this)">🛠️ 핵심 튜닝 포인트</button>
+</nav>
 
-  <!-- 3. UVP -->
-  <div class="cell c-uvp uvp">
-    <div class="cell-num">3</div>
-    <h3>💎 Unique Value Proposition</h3>
-    <span class="tag tag-user">End-User</span>
-    <p style="font-size:13px; font-weight:600; color:#4f46e5; line-height:1.5; margin-bottom:10px;">
-      "내 숨은 헌신을 즉시<br>재무적 성과로 변환해 주는<br>연봉 협상 무기"
-    </p>
-    <hr class="divider">
-    <span class="tag tag-buyer">Buyer</span>
-    <p style="font-size:13px; font-weight:600; color:#be185d; line-height:1.5;">
-      "직관이 아닌 데이터로<br>숨은 에이스를 찾아내는<br>조직 ROI 대시보드"
-    </p>
-    <hr class="divider">
-    <p style="font-size:10px; color:#94a3b8; margin-top:6px;">High-Level Concept</p>
-    <p style="font-size:11px; font-style:italic; color:#64748b;">직장인을 위한 연봉 협상용 재무 영수증</p>
-  </div>
+<main>
 
-  <!-- 9. Unfair Advantage -->
-  <div class="cell c-adv adv">
-    <div class="cell-num">9</div>
-    <h3>🛡️ Unfair Advantage</h3>
-    <div style="background:#fef2f2; border-radius:6px; padding:8px; margin-bottom:10px; border-left:3px solid #f87171;">
-      <p style="font-size:12px; font-weight:700; color:#dc2626;">현재: 없음</p>
-    </div>
-    <h4>초기 확보 계획</h4>
-    <p>실무자들의 비정형 '문제 해결/방어 텍스트'를 <strong>재무적 절감액(Cost Saving)</strong>으로 변환하는 특화 프롬프트 및 매핑 데이터셋 <strong>선점</strong></p>
-    <hr class="divider">
-    <p style="font-size:10.5px; color:#94a3b8;">→ 경쟁사가 따라올 수 없는 비공식 기여 환산 알고리즘 구축 (중기 목표)</p>
-  </div>
+  <!-- TAB 1: 캔버스 전체 -->
+  <div id="page-overview" class="page active">
+    <p class="section-title">린 캔버스 한눈에 보기</p>
+    <p class="section-sub">MyROI MVP 집중형 · 9개 블록 요약 뷰</p>
 
-  <!-- 2. Customer Segments -->
-  <div class="cell c-segment segment">
-    <div class="cell-num">2</div>
-    <h3>👥 Customer Segments</h3>
-    <h4>초기 거점 시장 (SOM)</h4>
-    <p>직원 수 <strong>50인 미만</strong> 성장기<br>IT / 웹에이전시 / 컨설팅 기업</p>
-    <hr class="divider">
-    <h4>얼리어답터</h4>
-    <span class="tag tag-user">실무자</span>
-    <p>프로젝트 파행을 막아냈지만 주관적 평가에 실망해 <strong>이직·협상을 준비 중인 PM/기획자</strong></p>
-    <hr class="divider">
-    <span class="tag tag-buyer">경영진</span>
-    <p>핵심 인재 퇴사로 <strong>프로젝트 마진율에 타격</strong>을 입은 CEO</p>
-  </div>
+    <div class="lc-grid">
+      <!--
+        정확한 린 캔버스 레이아웃:
+        col:  1        2        3      4        5
+        row1: 문제(1)  솔루션(4) UVP(3) 경쟁우위(9) 고객군(2)
+        row2: 문제(1)  지표(8)   UVP(3) 채널(5)     고객군(2)
+        row3: 비용구조(7) ×2.5   |      수익원(6) ×2.5
+      -->
 
-  <!-- 8. Key Metrics -->
-  <div class="cell c-metrics metrics">
-    <div class="cell-num">8</div>
-    <h3>📈 Key Metrics</h3>
-    <div class="metric-item">
-      <div class="label">습관 형성 (WAU)</div>
-      <div class="val">주 1회 이상 로깅 유저 비율<br>초기 목표 <strong>15%</strong> → 6개월 후 <strong>30%</strong></div>
-    </div>
-    <div class="metric-item">
-      <div class="label">활성화 (Activation · Aha Moment)</div>
-      <div class="val">소급 입력 후 <strong>피치덱 최초 생성</strong> 완료 유저 비율</div>
-    </div>
-    <div class="metric-item">
-      <div class="label">무료→유료 전환 (CVR)</div>
-      <div class="val">B2B 결제 전환율 <strong>(Buyer WTP 검증용)</strong></div>
+      <!-- 문제(1): col1, row1-2 -->
+      <div class="lc-cell accent-red" style="grid-column:1;grid-row:1/3;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-red">1</span><span style="color:var(--red)">문제</span></div>
+        <div class="lc-text">
+          <strong style="color:var(--t1)">[실무자]</strong><br>
+          사전 방어·위기 수습을 증명할 방법 부재<br>
+          평가 시 증빙 급조 및 무력감<br><br>
+          <strong style="color:var(--t1)">[경영진]</strong><br>
+          에이스 식별 불가 & 리소스 누수<br><br>
+          <span style="font-size:10px;color:var(--t3);">기존 대안: Jira·MBO·Notion 모두 비공식 기여 측정 불가</span>
+        </div>
+      </div>
+
+      <!-- 솔루션(4): col2, row1 -->
+      <div class="lc-cell accent-blue" style="grid-column:2;grid-row:1;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-blue">4</span><span style="color:var(--blue)">솔루션</span></div>
+        <div class="lc-text">① AI 자유 텍스트 환산기<br>(과거 이슈 3건 → 예상 방어 금액 초안)<br><br>② Human-in-the-loop 검토 → 연봉 피치덱 PDF 원클릭</div>
+      </div>
+
+      <!-- UVP(3): col3, row1-2 -->
+      <div class="lc-cell accent-purple" style="grid-column:3;grid-row:1/3;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-purple">3</span><span style="color:var(--purple)">고유 가치 제안</span></div>
+        <div class="lc-text">
+          <strong style="color:var(--blue)">[실무자]</strong><br>"숨은 헌신을 즉시 재무 성과로 변환하는 연봉 협상 무기"<br><br>
+          <strong style="color:var(--green)">[경영진]</strong><br>"직관이 아닌 데이터로 숨은 에이스를 찾는 ROI 대시보드"
+        </div>
+      </div>
+
+      <!-- 경쟁우위(9): col4, row1 -->
+      <div class="lc-cell accent-amber" style="grid-column:4;grid-row:1;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-amber">9</span><span style="color:var(--amber)">경쟁 우위</span></div>
+        <div class="lc-text">현재: 없음<br><br>확보 계획: 비정형 텍스트 → 재무 절감액 변환 특화 프롬프트 & 매핑 데이터셋 선점</div>
+      </div>
+
+      <!-- 고객군(2): col5, row1-2 -->
+      <div class="lc-cell accent-green" style="grid-column:5;grid-row:1/3;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-green">2</span><span style="color:var(--green)">고객군</span></div>
+        <div class="lc-text">
+          <strong style="color:var(--t1)">SOM:</strong> 50인 미만<br>IT·에이전시·컨설팅<br><br>
+          <strong style="color:var(--t1)">얼리어답터:</strong><br>
+          [실무자] 이직/협상 준비 중인 PM·기획자<br><br>
+          [경영진] 에이스 퇴사로 마진 타격 입은 CEO
+        </div>
+      </div>
+
+      <!-- 핵심지표(8): col2, row2 -->
+      <div class="lc-cell" style="grid-column:2;grid-row:2;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-blue">8</span><span style="color:var(--blue)">핵심 지표</span></div>
+        <div class="lc-text">WAU 15% → 30%<br>Activation: 첫 피치덱 생성<br>CVR: Free → Paid</div>
+      </div>
+
+      <!-- 채널(5): col4, row2 -->
+      <div class="lc-cell" style="grid-column:4;grid-row:2;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-green">5</span><span style="color:var(--green)">채널</span></div>
+        <div class="lc-text">블라인드/브런치 바이럴<br>단톡방 무료 리포트 배포<br>CEO 콜드 메일</div>
+      </div>
+
+      <!-- 비용구조(7): col1-3, row3 -->
+      <div class="lc-cell" style="grid-column:1/3;grid-row:3;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-amber">7</span><span style="color:var(--amber)">비용 구조</span></div>
+        <div class="lc-text">플랫폼/서버 유지비 · LLM API <strong style="color:var(--green)">(유저당 월 50~100원)</strong> · 고객 획득 비용(CAC)</div>
+      </div>
+
+      <!-- 수익원(6): col3-6, row3 -->
+      <div class="lc-cell" style="grid-column:3/6;grid-row:3;">
+        <div class="lc-cell-title"><span class="lc-cell-num num-green">6</span><span style="color:var(--green)">수익원</span></div>
+        <div class="lc-text">
+          <strong style="color:var(--blue)">B2C Freemium</strong> — 월 1회 요약 피치덱 무료 / 심층 리포트 유료 &nbsp;|&nbsp;
+          <strong style="color:var(--green)">B2B SaaS</strong> — 전사 ROI 대시보드 Per-seat 월 구독 (WTP 검증 후 개발)
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 5. Channels -->
-  <div class="cell c-channel channel">
-    <div class="cell-num">5</div>
-    <h3>📣 Channels</h3>
-    <h4>콘텐츠 바이럴</h4>
-    <p>블라인드 / 브런치<br>"기획자 사전 방어 성과" 공감 아티클</p>
-    <hr class="divider">
-    <h4>커뮤니티</h4>
-    <p>타겟 실무자 오픈 단톡방<br>'무료 연봉 리포트' 배포 이벤트</p>
-    <hr class="divider">
-    <h4>B2B 다이렉트 세일즈</h4>
-    <p>타겟 기업 CEO 대상 콜드 메일</p>
-  </div>
+  <!-- TAB 2: 문제 & 고객 -->
+  <div id="page-problem" class="page">
+    <p class="section-title">문제 & 고객군</p>
+    <p class="section-sub">Block 1 · 2 — 핵심 페인포인트와 초기 거점 시장</p>
 
-  <!-- 7. Cost Structure -->
-  <div class="cell c-cost cost">
-    <div class="cell-num">7</div>
-    <h3>💸 Cost Structure</h3>
-    <ul>
-      <li><strong>플랫폼 / 서버 유지비</strong></li>
-      <li>
-        <strong>LLM API 비용</strong><br>
-        <span style="font-size:10.5px; color:#16a34a;">GPT-4o-mini 등 경량화 모델<br>유저당 월 <strong>50~100원</strong> 수준</span>
-      </li>
-      <li><strong>고객 획득 비용 (CAC)</strong><br>콘텐츠 마케팅, 다이렉트 세일즈</li>
-    </ul>
-  </div>
-
-  <!-- 6. Revenue Streams -->
-  <div class="cell c-revenue revenue">
-    <div class="cell-num">6</div>
-    <h3>💰 Revenue Streams</h3>
-    <div class="revenue-item">
-      <span class="tag tag-user" style="margin-bottom:4px; display:inline-block;">B2C · Freemium</span>
-      <p>방어 내역 로깅 + <strong>월 1회 요약 피치덱 무료</strong><br>심층 리포트는 유료 전환 유도</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="--blue:var(--red)">🧑‍💻 End-User 페인포인트 (실무자)</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:12px;color:var(--t3);line-height:1.7;border-left:3px solid var(--red);">
+            사전 방어·위기 수습 등 공식 KPI에 없는 헌신을 <strong style="color:var(--t1)">객관적으로 증명할 방법이 없다</strong>.
+          </div>
+          <div style="border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:12px;color:var(--t3);line-height:1.7;border-left:3px solid var(--red);">
+            평소 기록 누락 → 연말 평가 시 <strong style="color:var(--t1)">증빙 자료 급조 및 무력감</strong> 경험.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="--blue:var(--amber)">👔 Economic Buyer 페인포인트 (경영진)</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:12px;color:var(--t3);line-height:1.7;border-left:3px solid var(--amber);">
+            <strong style="color:var(--t1)">진짜 에이스 식별 불가</strong> — 퇴사 후에야 빈자리의 크기를 체감함.
+          </div>
+          <div style="border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:12px;color:var(--t3);line-height:1.7;border-left:3px solid var(--amber);">
+            리소스 누수(블라인드 스팟)로 인한 <strong style="color:var(--t1)">프로젝트 마진율 타격</strong>.
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="revenue-item">
-      <span class="tag tag-buyer" style="margin-bottom:4px; display:inline-block;">B2B · SaaS 구독</span>
-      <p>기업용 전사 ROI 대시보드<br><strong>Per-seat 월 과금</strong><br><em style="font-size:10px; color:#92400e;">※ IDI 검증 후 개발 결정</em></p>
+
+    <div class="seg-grid">
+      <div class="seg-box" style="border-color:rgba(79,128,255,0.3);">
+        <div class="seg-title" style="color:var(--blue)">🎯 초기 거점 시장 (SOM)</div>
+        <div class="seg-item"><strong>대상:</strong> 직원 수 50인 미만의 성장기 IT·웹에이전시·컨설팅 기업</div>
+        <div class="seg-item"><strong>선정 이유:</strong> 프로젝트 마진율에 가장 민감, 에이스 1인 이탈 시 조직 전체 파행 — 구조적 취약성 극대화 구간</div>
+      </div>
+      <div class="seg-box" style="border-color:rgba(16,185,129,0.3);">
+        <div class="seg-title" style="color:var(--green)">⭐ 얼리어답터</div>
+        <div class="seg-item"><strong>[실무자]</strong> 프로젝트 파행을 막아냈지만 주관적 평가에 실망해 이직/협상을 준비 중인 PM/기획자</div>
+        <div class="seg-item"><strong>[경영진]</strong> 핵심 인재 퇴사로 프로젝트 마진율에 타격을 입은 CEO</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">기존 대안 & 한계</div>
+      <div class="alt-list">
+        <div class="alt-item"><div class="alt-name">📋 Jira / Asana</div><div class="alt-lim"><strong>제품 철학의 한계:</strong> '계획된 결과(Task)'만 추적 — 비공식 설득, 갈등 조율, 방어적 성과를 담을 구조 없음.</div></div>
+        <div class="alt-item"><div class="alt-name">📊 전통적 MBO / KPI</div><div class="alt-lim"><strong>환경 불일치:</strong> 연초 정적(Static) 목표 체계 → 수시로 소방수가 되어야 하는 중소기업 동적(Dynamic) 환경 부적합.</div></div>
+        <div class="alt-item"><div class="alt-name">📝 Excel / Notion</div><div class="alt-lim"><strong>데이터 사일로:</strong> 개인 기록은 전사 표준 지표로 통합 불가 → 파편화된 메모에 불과, 금액 환산도 불가능.</div></div>
+      </div>
     </div>
   </div>
 
-</div>
+  <!-- TAB 3: 솔루션 & UVP -->
+  <div id="page-solution" class="page">
+    <p class="section-title">솔루션 & 고유 가치 제안</p>
+    <p class="section-sub">Block 3 · 4 · 9 — MVP 핵심 기능과 이중 UVP</p>
 
-<footer>MyROI Lean Canvas v6.0 · MVP 집중형 · 데스크 리서치 기반 가설 단계</footer>
+    <div class="uvp-grid">
+      <div class="uvp-box user">
+        <div class="uvp-role">🧑‍💻 End-User · 실무자 UVP</div>
+        <div class="uvp-quote">"내 숨은 헌신을 즉시 재무적 성과로 변환해 주는 연봉 협상 무기"</div>
+      </div>
+      <div class="uvp-box buyer">
+        <div class="uvp-role">👔 Buyer · 경영진 UVP</div>
+        <div class="uvp-quote">"직관이 아닌 데이터로 숨은 에이스를 찾아내는 조직 투자 수익률(ROI) 대시보드"</div>
+      </div>
+    </div>
 
+    <div class="card">
+      <div class="card-title">MVP 핵심 기능 (Block 4)</div>
+      <div class="feature-list">
+        <div class="feature-item mvp">
+          <div class="feature-icon">🤖</div>
+          <div>
+            <div class="feature-title">자유 텍스트 AI 환산기 <span class="f-badge mvp">MVP 우선</span></div>
+            <div class="feature-desc">복잡한 연동 없이, 과거 큼직한 이슈 3가지를 자유 텍스트로 입력하면 AI가 구조화 및 예상 방어 금액(M/M) 초안 산출. <strong style="color:var(--blue)">'소급 텍스트 입력' 단일 실험</strong>으로 개발 기간 수 주 단축.</div>
+          </div>
+        </div>
+        <div class="feature-item mvp">
+          <div class="feature-icon">✍️</div>
+          <div>
+            <div class="feature-title">Human-in-the-loop 검토 <span class="f-badge mvp">MVP 포함</span></div>
+            <div class="feature-desc">실무자가 AI 산출 금액을 직접 조정하고 캡처본을 첨부 → <strong style="color:var(--blue)">'연봉 피치덱(PDF)' 원클릭 생성</strong>. 최종 신뢰도를 유저가 보장하는 구조.</div>
+          </div>
+        </div>
+        <div class="feature-item roadmap">
+          <div class="feature-icon">🏢</div>
+          <div>
+            <div class="feature-title">B2B 블라인드 대시보드 <span class="f-badge soon">검증 후 개발</span></div>
+            <div class="feature-desc">피치덱이 경영진에게 제출될 때 "이 트렌드 데이터를 전사적으로 보고 싶다"는 <strong style="color:var(--amber)">WTP 신호를 먼저 확인</strong>한 뒤 개발. 매몰 비용 방지.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">경쟁 우위 (Block 9)</div>
+      <div style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:14px;font-size:12px;color:var(--t3);line-height:1.7;">
+        <strong style="color:var(--purple)">현재: 없음</strong> (솔직한 현황)<br><br>
+        <strong style="color:var(--t1)">초기 확보 계획 →</strong> 실무자들의 비정형 '문제 해결/방어 텍스트'를 '재무적 절감액(Cost Saving)'으로 변환하는 <strong style="color:var(--purple)">특화 프롬프트 및 매핑 데이터셋 선점</strong>을 통해 경쟁 우위 구축 예정.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: 채널 & 수익 -->
+  <div id="page-biz" class="page">
+    <p class="section-title">채널 & 수익원</p>
+    <p class="section-sub">Block 5 · 6 — 고객 획득 경로와 수익 모델</p>
+
+    <div class="card">
+      <div class="card-title">채널 (Block 5)</div>
+      <div class="ch-list">
+        <div class="ch-item">
+          <span class="ch-tag viral">콘텐츠 바이럴</span>
+          <span class="ch-desc">블라인드 / 브런치 — "기획자 사전 방어 성과" 아티클 배포. 페인포인트 공감 기반 자연 유입.</span>
+        </div>
+        <div class="ch-item">
+          <span class="ch-tag comm">커뮤니티</span>
+          <span class="ch-desc">타겟 실무자 단톡방에 '무료 연봉 리포트' 배포 → 제품 체험 & 바이럴 루프 형성.</span>
+        </div>
+        <div class="ch-item">
+          <span class="ch-tag b2b">B2B 세일즈</span>
+          <span class="ch-desc">타겟 기업 CEO 콜드 메일 — "에이스 이탈 비용" 프레임으로 문제 인식 환기 및 WTP 탐색.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rev-grid">
+      <div class="rev-box b2c">
+        <div class="rev-title">💙 B2C · Freemium</div>
+        <div class="rev-item">방어 내역 로깅 + 월 1회 요약 피치덱 <strong style="color:var(--blue)">무료</strong></div>
+        <div class="rev-item">심층 리포트 / 추가 피치덱 생성 <strong style="color:var(--blue)">유료</strong></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--t3);">✓ 낮은 진입 장벽으로 얼리어답터 확보 후 전환 유도</div>
+      </div>
+      <div class="rev-box b2b">
+        <div class="rev-title">💚 B2B · SaaS 구독</div>
+        <div class="rev-item">기업용 전사 ROI 대시보드</div>
+        <div class="rev-item"><strong style="color:var(--green)">Per-seat 월 과금</strong> 모델</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--t3);">✓ WTP 검증 완료 후 개발 진행 (매몰 비용 방지)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: 지표 & 비용 -->
+  <div id="page-metrics" class="page">
+    <p class="section-title">핵심 지표 & 비용 구조</p>
+    <p class="section-sub">Block 7 · 8 — 성과 측정 기준과 재무 지속가능성</p>
+
+    <div class="card">
+      <div class="card-title">핵심 지표 (Block 8)</div>
+      <div class="metrics-grid">
+        <div class="metric-box" style="border-color:rgba(79,128,255,0.3);">
+          <div class="metric-val" style="color:var(--blue)">15%<br><span style="font-size:14px;color:var(--t3)">→ 30%</span></div>
+          <div class="metric-label">WAU (습관 형성)<br>초기 목표 → 6개월 후</div>
+        </div>
+        <div class="metric-box" style="border-color:rgba(16,185,129,0.3);">
+          <div class="metric-val" style="color:var(--green)">첫<br>피치덱</div>
+          <div class="metric-label">Activation 지표<br>소급 입력 모드 최초 생성 유저 비율</div>
+        </div>
+        <div class="metric-box" style="border-color:rgba(251,191,36,0.3);">
+          <div class="metric-val" style="color:var(--amber)">CVR</div>
+          <div class="metric-label">Free → Paid 전환율<br>B2B Buyer WTP 검증 핵심 지표</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">비용 구조 (Block 7)</div>
+      <div class="cost-list">
+        <div class="cost-item"><div><strong>플랫폼 / 서버 유지비</strong> — GitHub Pages + CDN 기반 초기 운영으로 고정비 최소화</div></div>
+        <div class="cost-item"><div><strong>LLM API 비용</strong> — GPT-4o-mini 등 경량화 모델 활용. <span style="color:var(--green);font-weight:700;">유저당 월 50~100원 수준</span>으로 통제 & Freemium 재무 지속가능성 확보</div></div>
+        <div class="cost-item"><div><strong>고객 획득 비용 (CAC)</strong> — 초기 콘텐츠 바이럴 중심으로 CAC 최소화, B2B 전환 후 ARPU로 회수</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">LLM 비용 스케일업 시뮬레이션</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center;">
+        <div style="padding:14px;border:1px solid var(--bd);border-radius:10px;">
+          <div style="font-size:18px;font-weight:800;color:var(--blue)">100명</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">월 5,000~10,000원</div>
+        </div>
+        <div style="padding:14px;border:1px solid var(--bd);border-radius:10px;">
+          <div style="font-size:18px;font-weight:800;color:var(--green)">1,000명</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">월 5~10만원</div>
+        </div>
+        <div style="padding:14px;border:1px solid var(--bd);border-radius:10px;">
+          <div style="font-size:18px;font-weight:800;color:var(--amber)">10,000명</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">월 50~100만원</div>
+        </div>
+        <div style="padding:14px;border:1px solid rgba(79,128,255,0.3);border-radius:10px;background:rgba(79,128,255,0.05);">
+          <div style="font-size:18px;font-weight:800;color:var(--blue)">유저당</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px;">월 50~100원 고정</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: 핵심 튜닝 포인트 -->
+  <div id="page-tuning" class="page">
+    <p class="section-title">v6.0 핵심 튜닝 포인트</p>
+    <p class="section-sub">MVP 극한 압축을 위한 3가지 전략적 의사결정</p>
+
+    <div class="tuning-list">
+      <div class="tuning-item" style="border-color:rgba(79,128,255,0.3);">
+        <div class="tuning-head">
+          <span style="background:rgba(79,128,255,0.15);color:var(--blue);font-size:11px;padding:2px 10px;border-radius:10px;font-weight:700;">튜닝 1</span>
+          🚫 기능 팽창(Scope Creep) 차단 — '소급 텍스트 입력' 단일 실험
+        </div>
+        <div class="tuning-body">
+          비용과 개발 리소스가 기하급수적으로 늘어나는 <strong style="color:var(--t1)">이메일/메신저 자동 파싱 기능을 삭제</strong>했습니다. 대신 유저가 "기억나는 과거 이슈 3가지"를 메모장처럼 적어 넣으면 AI가 구조화해 주는 형태를 최초의 단일 실험(MVP)으로 좁혔습니다. 이 기능 하나만으로 피치덱 생성이 가능해지며, 개발 기간을 몇 주 단위로 단축할 수 있습니다.
+        </div>
+      </div>
+
+      <div class="tuning-item" style="border-color:rgba(251,191,36,0.3);">
+        <div class="tuning-head">
+          <span style="background:rgba(251,191,36,0.15);color:var(--amber);font-size:11px;padding:2px 10px;border-radius:10px;font-weight:700;">튜닝 2</span>
+          🔄 경영진 대시보드를 '개발'에서 '검증'의 영역으로 이동
+        </div>
+        <div class="tuning-body">
+          B2B 대시보드를 당장 개발하는 대신 <strong style="color:var(--t1)">'추후 검증 로드맵'으로 이동</strong>했습니다. 실무자(End-User)들이 만든 피치덱이 경영진에게 제출되었을 때, 경영진이 "이런 데이터 트렌드를 전사적으로 보려면 얼마를 내야 하나요?"라고 묻는지(<strong style="color:var(--amber)">WTP 검증</strong>)를 먼저 확인한 뒤 개발해야 매몰 비용을 막을 수 있습니다.
+        </div>
+      </div>
+
+      <div class="tuning-item" style="border-color:rgba(16,185,129,0.3);">
+        <div class="tuning-head">
+          <span style="background:rgba(16,185,129,0.15);color:var(--green);font-size:11px;padding:2px 10px;border-radius:10px;font-weight:700;">튜닝 3</span>
+          📈 지표와 비용의 스케일업 현실화
+        </div>
+        <div class="tuning-body">
+          WAU 목표를 <strong style="color:var(--t1)">'초기 15% → 6개월 후 30%'</strong>로 단계화하여 벤치마크 현실성을 높였고, LLM 비용 역시 총액이 아닌 <strong style="color:var(--green)">'유저당 월 50~100원'</strong> 수준으로 치환하여 Freemium 모델의 재무적 지속 가능성을 증명했습니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:4px;">
+      <div class="card-title">v6.0 이전 버전 대비 주요 변경점</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px;">
+        <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;">
+          <div style="color:var(--red);font-weight:700;margin-bottom:6px;">❌ 삭제된 것</div>
+          <div style="color:var(--t3);line-height:1.8;">이메일/메신저 자동 파싱<br>B2B 대시보드 즉시 개발<br>단일 WAU 목표 (현실성 부족)</div>
+        </div>
+        <div style="padding:12px;border:1px solid var(--bd);border-radius:8px;">
+          <div style="color:var(--green);font-weight:700;margin-bottom:6px;">✅ 추가/변경된 것</div>
+          <div style="color:var(--t3);line-height:1.8;">소급 텍스트 입력 단일 실험<br>B2B는 WTP 검증 후 개발<br>WAU 단계 목표 + 유저당 LLM 비용</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleMode() {
+    const light = document.body.classList.toggle('light');
+    document.getElementById('toggle-btn').textContent = light ? '☀️ 라이트' : '🌙 다크';
+  }
+</script>
 </body>
 </html>
