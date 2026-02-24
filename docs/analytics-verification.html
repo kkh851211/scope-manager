@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MyROI — Analytics Verification</title>
+<style>
+:root{
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2538;--s3:#232b3e;
+  --t1:#e8eaf0;--t2:#b0b8cc;--t3:#8c95aa;--bd:#232b3e;
+  --blue:#4f80ff;--green:#10b981;--purple:#7c5cfc;
+  --orange:#f59e0b;--red:#ef4444;--cyan:#06b6d4;
+}
+body.light{
+  --bg:#f5f7fa;--s1:#ffffff;--s2:#eef1f7;--s3:#e2e8f0;
+  --t1:#1a1f2e;--t2:#3a4258;--t3:#5a6478;--bd:#d1d9e6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--t1);transition:background .2s,color .2s;
+  min-height:100vh;font-size:14px;line-height:1.6;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:var(--s1);
+  border-bottom:1px solid var(--bd);padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;transition:background .2s;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;color:#fff;}
+.logo-text{font-size:18px;font-weight:700;color:var(--t1);}
+.logo-text span{color:var(--blue);}
+.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.bdg-blue{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);
+  border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);}
+.bdg-green{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);
+  border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
+.toggle-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  padding:5px 11px;cursor:pointer;font-size:13px;color:var(--t1);transition:background .2s;}
+.toggle-btn:hover{background:var(--bd);}
+
+/* NAV */
+nav{background:var(--s1);border-bottom:1px solid var(--bd);
+  padding:0 24px;display:flex;overflow-x:auto;transition:background .2s;}
+nav::-webkit-scrollbar{height:0;}
+.tab{padding:14px 16px;cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .15s,border-color .15s;user-select:none;}
+.tab:hover{color:var(--t2);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* MAIN */
+main{padding:28px 24px;max-width:1160px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.span2{grid-column:span 2;}
+.gap{height:14px;}
+
+/* CARD */
+.card{background:var(--s1);border-radius:12px;padding:18px;
+  border:1px solid var(--bd);transition:background .2s,border-color .2s;}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--t3);margin-bottom:12px;}
+.sec-hd{margin-bottom:20px;}
+.sec-hd h2{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.sec-hd p{font-size:13px;color:var(--t3);}
+
+/* TAG */
+.tag{display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;}
+.tbl{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue);}
+.tgr{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);}
+.tor{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange);}
+.trd{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red);}
+.tpu{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple);}
+.tcy{background:color-mix(in srgb,var(--cyan) 18%,transparent);color:var(--cyan);}
+.tgray{background:var(--s3);color:var(--t3);}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--s2);color:var(--t3);font-weight:600;
+  padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd);}
+td{padding:9px 12px;border-bottom:1px solid var(--bd);
+  color:var(--t2);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:color-mix(in srgb,var(--blue) 4%,transparent);}
+code{background:var(--s3);color:var(--cyan);padding:2px 6px;
+  border-radius:4px;font-family:'Courier New',monospace;font-size:11px;}
+
+/* CODE BLOCK */
+.code-block{background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  padding:14px 16px;font-family:'Courier New',monospace;font-size:12px;
+  color:var(--t2);line-height:1.8;overflow-x:auto;position:relative;
+  white-space:pre;}
+.code-block .ck{color:var(--blue);}
+.code-block .cv{color:var(--green);}
+.code-block .cs{color:var(--orange);}
+.code-block .cn{color:var(--purple);}
+.code-block .cc{color:var(--t3);}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--s3);
+  border:1px solid var(--bd);border-radius:6px;padding:3px 9px;
+  font-size:10px;cursor:pointer;color:var(--t3);font-family:inherit;
+  transition:color .15s;}
+.copy-btn:hover{color:var(--t1);}
+
+/* SPEC */
+.spec{border-left:3px solid var(--blue);padding:10px 14px;
+  background:var(--s2);border-radius:0 8px 8px 0;margin-bottom:8px;}
+.spec.sg{border-color:var(--green);}
+.spec.so{border-color:var(--orange);}
+.spec.sr{border-color:var(--red);}
+.spec.sp{border-color:var(--purple);}
+.spec.sc{border-color:var(--cyan);}
+.spec-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.spec p,.spec li{font-size:12px;color:var(--t2);}
+.spec ul{padding-left:16px;}
+
+/* VERIFY CARD (accordion) */
+.vcard{border:1px solid var(--bd);border-radius:12px;
+  overflow:hidden;margin-bottom:10px;}
+.vcard-head{background:var(--s2);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  user-select:none;transition:background .15s;}
+.vcard-head:hover{background:var(--s3);}
+.vcard-head.open .varrow{transform:rotate(180deg);}
+.v-id{font-family:'Courier New',monospace;font-size:11px;
+  color:var(--cyan);font-weight:700;min-width:72px;}
+.v-title{font-size:13px;font-weight:600;color:var(--t1);flex:1;}
+.varrow{color:var(--t3);font-size:13px;transition:transform .2s;flex-shrink:0;}
+.vcard-body{display:none;padding:16px;border-top:1px solid var(--bd);}
+.vcard-body.open{display:block;}
+
+/* STATUS BADGE */
+.sb{display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;
+  cursor:pointer;user-select:none;transition:opacity .15s;}
+.sb:hover{opacity:.8;}
+.sb-todo{background:var(--s3);color:var(--t3);border:1px solid var(--bd);}
+.sb-pass{background:color-mix(in srgb,var(--green) 18%,transparent);
+  color:var(--green);border:1px solid color-mix(in srgb,var(--green) 35%,transparent);}
+.sb-fail{background:color-mix(in srgb,var(--red) 18%,transparent);
+  color:var(--red);border:1px solid color-mix(in srgb,var(--red) 35%,transparent);}
+.sb-warn{background:color-mix(in srgb,var(--orange) 18%,transparent);
+  color:var(--orange);border:1px solid color-mix(in srgb,var(--orange) 35%,transparent);}
+
+/* VERIFY STEP TABLE */
+.vstep{width:100%;border-collapse:collapse;font-size:12px;}
+.vstep th{background:var(--s3);color:var(--t3);font-weight:600;
+  padding:8px 12px;text-align:left;border-bottom:1px solid var(--bd);}
+.vstep td{padding:8px 12px;border-bottom:1px solid var(--bd);
+  color:var(--t2);vertical-align:top;}
+.vstep tr:last-child td{border-bottom:none;}
+.vstep .sn{width:32px;font-family:'Courier New',monospace;
+  font-size:11px;color:var(--t3);font-weight:700;}
+.vstep .rc{width:68px;text-align:center;}
+.ep{color:var(--green);font-weight:600;font-size:11px;}
+.ef{color:var(--red);font-weight:600;font-size:11px;}
+.ew{color:var(--orange);font-weight:600;font-size:11px;}
+
+/* TOGGLE RESULT */
+.rbtn{display:inline-block;padding:3px 8px;border-radius:4px;
+  font-size:10px;font-weight:700;cursor:pointer;user-select:none;
+  transition:opacity .15s;min-width:40px;text-align:center;}
+.rbtn:hover{opacity:.75;}
+.rb-skip{background:var(--s3);color:var(--t3);border:1px solid var(--bd);}
+.rb-pass{background:color-mix(in srgb,var(--green) 20%,transparent);
+  color:var(--green);border:1px solid color-mix(in srgb,var(--green) 40%,transparent);}
+.rb-fail{background:color-mix(in srgb,var(--red) 20%,transparent);
+  color:var(--red);border:1px solid color-mix(in srgb,var(--red) 40%,transparent);}
+
+/* PROGRESS */
+.prog-wrap{background:var(--s3);border-radius:6px;height:8px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:6px;transition:width .3s;}
+
+/* PAYLOAD DIFF */
+.payload{background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  padding:12px;font-family:'Courier New',monospace;font-size:11px;
+  line-height:1.7;overflow-x:auto;}
+.pk{color:var(--blue);}
+.pv{color:var(--green);}
+.ps{color:var(--orange);}
+.pn{color:var(--purple);}
+.p-ok{background:color-mix(in srgb,var(--green) 12%,transparent);
+  display:block;border-radius:3px;padding:0 4px;margin:1px 0;}
+.p-err{background:color-mix(in srgb,var(--red) 12%,transparent);
+  display:block;border-radius:3px;padding:0 4px;margin:1px 0;}
+.p-warn{background:color-mix(in srgb,var(--orange) 10%,transparent);
+  display:block;border-radius:3px;padding:0 4px;margin:1px 0;}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:14px;padding-bottom:16px;position:relative;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.tl-line{width:2px;flex:1;background:var(--bd);margin-top:4px;}
+.tl-item:last-child .tl-line{display:none;}
+.tl-content{flex:1;padding-bottom:4px;}
+.tl-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:2px;}
+.tl-sub{font-size:11px;color:var(--t3);}
+
+/* MATRIX */
+.matrix{width:100%;border-collapse:collapse;}
+.matrix th,.matrix td{padding:8px 10px;text-align:center;
+  border:1px solid var(--bd);font-size:11px;}
+.matrix th{background:var(--s2);color:var(--t3);font-weight:600;}
+.matrix .mhl{text-align:left;font-weight:600;color:var(--t1);}
+.cell-ok{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green);font-weight:700;}
+.cell-fail{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red);font-weight:700;}
+.cell-warn{background:color-mix(in srgb,var(--orange) 14%,transparent);color:var(--orange);font-weight:700;}
+.cell-na{background:var(--s3);color:var(--t3);}
+
+/* SUMMARY STAT */
+.stat-num{font-size:30px;font-weight:800;}
+.stat-lbl{font-size:11px;color:var(--t3);margin-top:2px;}
+
+/* CHECKLIST */
+.chk-row{display:flex;align-items:flex-start;gap:8px;
+  padding:6px 0;border-bottom:1px solid var(--bd);}
+.chk-row:last-child{border-bottom:none;}
+.chk-box{width:16px;height:16px;border-radius:3px;border:2px solid var(--bd);
+  flex-shrink:0;margin-top:2px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;transition:background .15s,border-color .15s;}
+.chk-box.on{background:var(--green);border-color:var(--green);color:#fff;}
+.chk-lbl{font-size:12px;color:var(--t2);}
+
+@media(max-width:700px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  main{padding:14px 12px;}
+  .tab{padding:12px 10px;font-size:11px;}
+}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">M</div>
+    <div class="logo-text">My<span>ROI</span></div>
+    <div style="display:flex;gap:6px;">
+      <span class="bdg bdg-blue">Analytics Verification</span>
+      <span class="bdg bdg-green">트래킹 연동 검증</span>
+    </div>
+  </div>
+  <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+</header>
+
+<nav>
+  <div class="tab active">🗺️ 전략 & 스택</div>
+  <div class="tab">🔌 연동 설치 검증</div>
+  <div class="tab">📡 이벤트 페이로드 검증</div>
+  <div class="tab">🔬 퍼널 시뮬레이션</div>
+  <div class="tab">📊 대시보드 & 알림 설정</div>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════
+     TAB 0 — 전략 & 스택
+══════════════════════════════ -->
+<div class="page active" id="page-0">
+  <div class="sec-hd">
+    <h2>Analytics Verification 전략 & 스택</h2>
+    <p>인터뷰 대신 행동 데이터로 가설 검증 — 트래킹 연동 정확성이 MVP의 눈</p>
+  </div>
+
+  <!-- 왜 검증이 핵심인가 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">왜 Analytics Verification이 MVP 배포의 전제 조건인가</div>
+    <div class="g3">
+      <div class="spec">
+        <div class="spec-title">🎯 가설 검증 = 이벤트 데이터</div>
+        <p>인터뷰를 생략하고 MVP를 즉시 배포하는 전략에서, <strong style="color:var(--t1);">트래킹 이벤트가 발화되지 않으면 가설 검증 자체가 불가능</strong>하다. 트래킹 오류 = 제품이 눈 먼 채로 운영되는 것.</p>
+      </div>
+      <div class="spec sg">
+        <div class="spec-title">📊 "측정 불가 = 개선 불가"</div>
+        <p>Activation 율, WAU, AI 정확도 등 린 캔버스 Key Metrics는 모두 이벤트 기반. <strong style="color:var(--t1);">이벤트 속성 하나가 누락되면 어느 단계에서 이탈하는지 알 수 없다.</strong></p>
+      </div>
+      <div class="spec so">
+        <div class="spec-title">⚡ 배포 전 반드시 검증</div>
+        <p>배포 후 트래킹 오류 발견 시 <strong style="color:var(--t1);">이미 수집된 데이터는 복구 불가</strong>. W1 데이터가 오염되면 4주 의사결정 타임라인 전체가 무효화된다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 툴 스택 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Analytics 툴 스택 — MVP 4주 구성</div>
+    <table>
+      <thead><tr><th>도구</th><th>역할</th><th>사용 목적</th><th>검증 방법</th><th>비용</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--t1);">Mixpanel Free</strong></td>
+          <td><span class="tag tbl">핵심</span></td>
+          <td>이벤트 퍼널 분석, Activation 추적, 사용자 속성</td>
+          <td>Events 탭 실시간 확인 + Live View</td>
+          <td>무료 (20M events/월)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--t1);">Google Analytics 4</strong></td>
+          <td><span class="tag tbl">핵심</span></td>
+          <td>UTM 채널 분석, 랜딩 이탈율, CAC 산출</td>
+          <td>DebugView 실시간 확인</td>
+          <td>무료</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--t1);">Hotjar Free</strong></td>
+          <td><span class="tag tor">보조</span></td>
+          <td>스크롤 뎁스, 히트맵, 세션 레코딩</td>
+          <td>Recordings에서 실제 클릭 패턴 확인</td>
+          <td>무료 (35 sessions/day)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--t1);">Browser DevTools</strong></td>
+          <td><span class="tag tgr">검증</span></td>
+          <td>Network 탭으로 API 호출 페이로드 직접 확인</td>
+          <td>Network → XHR → Request Payload 검사</td>
+          <td>무료</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--t1);">Mixpanel Debugger</strong></td>
+          <td><span class="tag tgr">검증</span></td>
+          <td>이벤트 실시간 발화 확인, 속성값 검증</td>
+          <td>브라우저 콘솔 + Mixpanel Live View</td>
+          <td>무료</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--t1);">Slack Webhook</strong></td>
+          <td><span class="tag tpu">알림</span></td>
+          <td>B2B 데모 요청, 일일 Activation 리포트</td>
+          <td>테스트 이벤트 발송 후 수신 확인</td>
+          <td>무료</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- P0 이벤트 3종 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">P0 핵심 이벤트 — 배포 전 반드시 검증</div>
+    <div class="g3">
+      <div style="border:2px solid var(--green);border-radius:10px;padding:14px;">
+        <div style="font-size:20px;margin-bottom:6px;">🌟</div>
+        <div class="tag tgr" style="margin-bottom:6px;">P0 · AHA MOMENT</div>
+        <div style="font-family:'Courier New',monospace;font-size:13px;color:var(--cyan);font-weight:700;margin-bottom:6px;">ai_result_displayed</div>
+        <p style="font-size:12px;color:var(--t2);">AI 금액 산출 결과 화면 노출. 핵심 가설 H-2 검증의 시작점. 속성 5종 전부 수집 필수.</p>
+        <div style="margin-top:8px;font-size:11px;color:var(--t3);">속성: category · estimated_amount_krw · confidence_pct · ai_response_time_ms · issue_count</div>
+      </div>
+      <div style="border:2px solid var(--blue);border-radius:10px;padding:14px;">
+        <div style="font-size:20px;margin-bottom:6px;">✏️</div>
+        <div class="tag tbl" style="margin-bottom:6px;">P0 · AI 정확도</div>
+        <div style="font-family:'Courier New',monospace;font-size:13px;color:var(--cyan);font-weight:700;margin-bottom:6px;">issue_confirmed</div>
+        <p style="font-size:12px;color:var(--t2);">Human-in-loop 최종 확정. was_edited + edit_pct가 프롬프트 개선 데이터의 원료.</p>
+        <div style="margin-top:8px;font-size:11px;color:var(--t3);">속성: final_amount_krw · ai_amount_krw · was_edited · edit_direction · edit_pct · evidence_count</div>
+      </div>
+      <div style="border:2px solid var(--purple);border-radius:10px;padding:14px;">
+        <div style="font-size:20px;margin-bottom:6px;">✅</div>
+        <div class="tag tpu" style="margin-bottom:6px;">P0 · ACTIVATION</div>
+        <div style="font-family:'Courier New',monospace;font-size:13px;color:var(--cyan);font-weight:700;margin-bottom:6px;">pitchdeck_generated</div>
+        <p style="font-size:12px;color:var(--t2);">피치덱 PDF 생성 완료 = Activated User 판정. time_to_activate가 UX 개선 기준.</p>
+        <div style="margin-top:8px;font-size:11px;color:var(--t3);">속성: issue_count · total_amount_krw · time_to_activate_min · session_number · is_first_pitchdeck</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 검증 타임라인 -->
+  <div class="card">
+    <div class="card-title">배포 전 Analytics 검증 타임라인</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--blue);"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-title">D-7 · 연동 설치</div><div class="tl-sub">Mixpanel SDK, GA4 gtag, Hotjar 스크립트 삽입. 초기화 확인.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--blue);"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-title">D-5 · 이벤트 코드 삽입</div><div class="tl-sub">전체 26개 이벤트 track() 함수 삽입. 속성 매핑 완료.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--orange);"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-title">D-3 · 페이로드 검증</div><div class="tl-sub">DevTools Network 탭으로 이벤트별 속성값 정확성 검증. P0 3종 집중 확인.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--orange);"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-title">D-2 · 퍼널 시뮬레이션</div><div class="tl-sub">실제 사용자 여정 완주 시뮬레이션. Mixpanel Funnel에서 7단계 전환 확인.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--green);"></div><div class="tl-line"></div></div>
+        <div class="tl-content"><div class="tl-title">D-1 · 알림 & 대시보드 세팅</div><div class="tl-sub">Slack Webhook, Mixpanel 자동 리포트, GA4 목표 전환 설정.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:var(--green);"></div></div>
+        <div class="tl-content"><div class="tl-title">D-Day · 배포 + 실시간 모니터링</div><div class="tl-sub">첫 실사용자 유입 → Mixpanel Live View 실시간 감시. 첫 1시간 집중 관찰.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 1 — 연동 설치 검증
+══════════════════════════════ -->
+<div class="page" id="page-1">
+  <div class="sec-hd">
+    <h2>연동 설치 검증</h2>
+    <p>SDK 초기화 · 공통 속성 설정 · 연동 상태 확인 체크리스트</p>
+  </div>
+
+  <!-- Mixpanel 설치 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Mixpanel SDK 설치 & 초기화 코드</div>
+    <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">복사</button><span class="cc">// ① HTML &lt;head&gt;에 Mixpanel SDK 로드</span>
+<span class="ck">&lt;script&gt;</span>
+  (function(f,b){if(!b.__SV){var e,g,i,h;window.mixpanel=b;
+  b._i=[];b.init=function(e,f,c){/* ... */};
+  b.__SV=1.2;/* Mixpanel 압축 스니펫 */}})
+  (document,window.mixpanel||[]);
+  
+  <span class="cc">// ② 프로젝트 토큰으로 초기화</span>
+  mixpanel.init(<span class="cs">'YOUR_PROJECT_TOKEN'</span>, {
+    debug: <span class="cn">true</span>,          <span class="cc">// 개발 시 true → 콘솔 로그 활성화</span>
+    track_pageview: <span class="cn">true</span>,  <span class="cc">// 자동 페이지뷰 트래킹</span>
+    persistence: <span class="cs">'localStorage'</span>
+  });
+<span class="ck">&lt;/script&gt;</span>
+
+<span class="cc">// ③ 공통 track 래퍼 함수 — 모든 이벤트는 이 함수 통해 발화</span>
+<span class="ck">function</span> <span class="cv">track</span>(eventName, props = {}) {
+  <span class="ck">const</span> baseProps = {
+    <span class="cv">timestamp</span>:   <span class="ck">new</span> Date().toISOString(),
+    <span class="cv">session_id</span>:  getSessionId(),
+    <span class="cv">user_role</span>:   currentUser?.role || <span class="cs">'unknown'</span>,
+    <span class="cv">platform</span>:    isMobile() ? <span class="cs">'mobile'</span> : <span class="cs">'desktop'</span>,
+    <span class="cv">app_version</span>: <span class="cs">'1.0.0'</span>
+  };
+  mixpanel.track(eventName, { ...baseProps, ...props });
+  gtag(<span class="cs">'event'</span>, eventName, { ...baseProps, ...props }); <span class="cc">// GA4 동시 발화</span>
+}
+
+<span class="cc">// ④ 사용자 식별 — 로그인 완료 시 호출</span>
+<span class="ck">function</span> <span class="cv">identifyUser</span>(userId, userProps) {
+  mixpanel.identify(userId);
+  mixpanel.people.set({
+    <span class="cv">$email</span>:      userProps.email,
+    <span class="cv">$name</span>:       userProps.name,
+    <span class="cv">role</span>:        userProps.role,
+    <span class="cv">plan</span>:        <span class="cs">'free'</span>,
+    <span class="cv">created_at</span>:  <span class="ck">new</span> Date().toISOString()
+  });
+}</div>
+  </div>
+
+  <!-- GA4 설치 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Google Analytics 4 설치 코드</div>
+    <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">복사</button><span class="cc">// ① GA4 gtag 스크립트 — &lt;head&gt; 최상단</span>
+<span class="ck">&lt;script</span> async src=<span class="cs">"https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"</span><span class="ck">&gt;&lt;/script&gt;</span>
+<span class="ck">&lt;script&gt;</span>
+  window.dataLayer = window.dataLayer || [];
+  <span class="ck">function</span> <span class="cv">gtag</span>(){dataLayer.push(arguments);}
+  gtag(<span class="cs">'js'</span>, <span class="ck">new</span> Date());
+  gtag(<span class="cs">'config'</span>, <span class="cs">'G-XXXXXXXXXX'</span>, {
+    send_page_view: <span class="cn">false</span>  <span class="cc">// 수동 page_viewed 이벤트로 통일</span>
+  });
+<span class="ck">&lt;/script&gt;</span>
+
+<span class="cc">// ② UTM 파라미터 파싱 — 채널 추적용</span>
+<span class="ck">function</span> <span class="cv">getUTMParams</span>() {
+  <span class="ck">const</span> p = <span class="ck">new</span> URLSearchParams(window.location.search);
+  <span class="ck">return</span> {
+    <span class="cv">utm_source</span>:   p.get(<span class="cs">'utm_source'</span>)   || <span class="cs">'direct'</span>,
+    <span class="cv">utm_medium</span>:   p.get(<span class="cs">'utm_medium'</span>)   || <span class="cs">'none'</span>,
+    <span class="cv">utm_campaign</span>: p.get(<span class="cs">'utm_campaign'</span>) || <span class="cs">'none'</span>
+  };
+}
+<span class="cc">// 세션 시작 시 UTM을 sessionStorage에 저장 → 이후 이벤트에 자동 병합</span>
+<span class="ck">const</span> utm = getUTMParams();
+<span class="ck">if</span> (utm.utm_source !== <span class="cs">'direct'</span>) {
+  sessionStorage.setItem(<span class="cs">'utm'</span>, JSON.stringify(utm));
+}</div>
+  </div>
+
+  <!-- 연동 상태 체크리스트 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Mixpanel 연동 상태 검증 체크리스트</div>
+      <div id="mp-chk" style="display:flex;flex-direction:column;gap:2px;">
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">브라우저 콘솔에서 <code>mixpanel</code> 객체 확인 (undefined ✗)</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">콘솔에 "Mixpanel initialized" 메시지 출력</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Network 탭 → <code>api.mixpanel.com</code> 요청 200 응답 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Mixpanel Live View에서 테스트 이벤트 실시간 수신 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl"><code>identifyUser()</code> 호출 후 Mixpanel People에 유저 프로필 생성 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">공통 속성 (session_id, user_role, platform) 이벤트마다 포함 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">프로덕션 토큰 / 개발 토큰 분리 설정 확인</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">GA4 & Hotjar 연동 체크리스트</div>
+      <div id="ga-chk" style="display:flex;flex-direction:column;gap:2px;">
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">GA4 DebugView에서 이벤트 실시간 수신 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">UTM 파라미터 (<code>?utm_source=blind</code>) 포함 URL 진입 → GA4 Traffic Source 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">GA4 세션 기준 이탈율 (Bounce Rate) 데이터 수집 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Hotjar 스크립트 로드 확인 (<code>window.hj</code> 객체 존재)</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Hotjar Recordings에서 랜딩 페이지 세션 1건 이상 수신</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Hotjar Heatmap — 랜딩 Hero CTA 클릭 영역 히트 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Slack Webhook URL 테스트 발송 → 채널 수신 확인</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 2 — 이벤트 페이로드 검증
+══════════════════════════════ -->
+<div class="page" id="page-2">
+  <div class="sec-hd">
+    <h2>이벤트 페이로드 검증</h2>
+    <p>DevTools Network 탭 + Mixpanel Live View로 이벤트별 속성값 정확성 검증</p>
+  </div>
+
+  <!-- 검증 방법 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">검증 방법 — DevTools Network 탭</div>
+    <div class="g3">
+      <div class="spec sc">
+        <div class="spec-title">① Network 탭 열기</div>
+        <p><code>F12</code> → Network 탭 → Filter: <code>api.mixpanel.com</code> 입력 → 이벤트 트리거 후 요청 클릭</p>
+      </div>
+      <div class="spec sg">
+        <div class="spec-title">② Payload 확인</div>
+        <p>Request URL → Payload 탭 → <code>data</code> 파라미터 Base64 디코딩 → JSON 속성값 육안 검증</p>
+      </div>
+      <div class="spec so">
+        <div class="spec-title">③ Live View 대조</div>
+        <p>Mixpanel → Live View → 해당 이벤트 클릭 → Properties 패널에서 속성값 최종 확인</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- P0 이벤트 검증 카드 -->
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">EV-P0-01</span>
+      <span class="v-title">ai_result_displayed — 페이로드 상세 검증</span>
+      <span class="tag tgr">P0 · AHA</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <div class="g2">
+        <div>
+          <div class="card-title" style="margin-bottom:8px;">예상 페이로드 (Expected)</div>
+          <div class="payload">{
+  <span class="pk">"event"</span>: <span class="ps">"ai_result_displayed"</span>,
+  <span class="pk">"properties"</span>: {
+<span class="p-ok">    <span class="pk">"category"</span>:              <span class="ps">"crisis_response"</span>,</span>
+<span class="p-ok">    <span class="pk">"estimated_amount_krw"</span>:  <span class="pn">24000000</span>,</span>
+<span class="p-ok">    <span class="pk">"confidence_pct"</span>:         <span class="pn">87</span>,</span>
+<span class="p-ok">    <span class="pk">"ai_response_time_ms"</span>:    <span class="pn">8200</span>,</span>
+<span class="p-ok">    <span class="pk">"issue_count"</span>:            <span class="pn">2</span>,</span>
+    <span class="pk">"timestamp"</span>:             <span class="ps">"2025-xx-xxTxx:xx:xxZ"</span>,
+    <span class="pk">"session_id"</span>:            <span class="ps">"sess_abc123"</span>,
+    <span class="pk">"user_role"</span>:             <span class="ps">"pm_planner"</span>,
+    <span class="pk">"platform"</span>:              <span class="ps">"desktop"</span>
+  }
+}</div>
+          <div style="margin-top:6px;font-size:11px;"><span style="color:var(--green);">■</span> 녹색 = 핵심 검증 속성 (누락 시 P0 FAIL)</div>
+        </div>
+        <div>
+          <div class="card-title" style="margin-bottom:8px;">검증 스텝</div>
+          <table class="vstep">
+            <thead><tr><th class="sn">#</th><th>검증 항목</th><th>기준</th><th class="rc">결과</th></tr></thead>
+            <tbody>
+              <tr><td class="sn">01</td><td>이벤트명 일치</td><td class="ep">정확히 "ai_result_displayed"</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">02</td><td>category 값 유효</td><td class="ep">5개 카테고리 중 하나</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">03</td><td>estimated_amount_krw 양수</td><td class="ep">0 초과 정수</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">04</td><td>confidence_pct 범위</td><td class="ep">0~100 정수</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">05</td><td>ai_response_time_ms 기록</td><td class="ep">양수 밀리초</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">06</td><td>session_id 존재</td><td class="ep">null 아닌 문자열</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="gap"></div>
+      <div class="spec so"><div class="spec-title">⚠️ 흔한 오류 패턴</div><ul><li>AI 응답 시간 측정 시점 오류: API 호출 시작이 아닌 결과 렌더링 완료 시점으로 측정 → 실제 UX 지연보다 작게 기록됨</li><li>issue_count가 항상 1로 기록됨 → 이슈 배열 length 대신 고정값 하드코딩 버그</li></ul></div>
+    </div>
+  </div>
+
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">EV-P0-02</span>
+      <span class="v-title">issue_confirmed — was_edited / edit_pct 정확성 검증</span>
+      <span class="tag tgr">P0 · AI정확도</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <div class="g2">
+        <div>
+          <div class="card-title" style="margin-bottom:8px;">시나리오별 예상 페이로드</div>
+          <div style="margin-bottom:8px;font-size:11px;color:var(--orange);font-weight:600;">케이스 A: 수정 없이 확정</div>
+          <div class="payload" style="margin-bottom:10px;">{
+  <span class="pk">"event"</span>: <span class="ps">"issue_confirmed"</span>,
+  <span class="pk">"properties"</span>: {
+<span class="p-ok">    <span class="pk">"was_edited"</span>:      <span class="pn">false</span>,</span>
+<span class="p-ok">    <span class="pk">"edit_direction"</span>:  <span class="ps">"none"</span>,</span>
+<span class="p-ok">    <span class="pk">"edit_pct"</span>:        <span class="pn">0</span>,</span>
+    <span class="pk">"final_amount_krw"</span>: <span class="pn">24000000</span>,
+    <span class="pk">"ai_amount_krw"</span>:    <span class="pn">24000000</span>,
+    <span class="pk">"evidence_count"</span>:   <span class="pn">0</span>
+  }
+}</div>
+          <div style="margin-bottom:8px;font-size:11px;color:var(--blue);font-weight:600;">케이스 B: 금액 하향 수정</div>
+          <div class="payload">{
+  <span class="pk">"event"</span>: <span class="ps">"issue_confirmed"</span>,
+  <span class="pk">"properties"</span>: {
+<span class="p-ok">    <span class="pk">"was_edited"</span>:       <span class="pn">true</span>,</span>
+<span class="p-ok">    <span class="pk">"edit_direction"</span>:   <span class="ps">"down"</span>,</span>
+<span class="p-ok">    <span class="pk">"edit_pct"</span>:         <span class="pn">-16.7</span>,</span>
+    <span class="pk">"final_amount_krw"</span>:  <span class="pn">20000000</span>,
+    <span class="pk">"ai_amount_krw"</span>:     <span class="pn">24000000</span>,
+    <span class="pk">"evidence_count"</span>:    <span class="pn">1</span>
+  }
+}</div>
+        </div>
+        <div>
+          <div class="card-title" style="margin-bottom:8px;">케이스별 검증 스텝</div>
+          <table class="vstep">
+            <thead><tr><th class="sn">#</th><th>검증 항목</th><th>기준</th><th class="rc">결과</th></tr></thead>
+            <tbody>
+              <tr><td class="sn">01</td><td>수정 없음 → was_edited:false</td><td class="ep">boolean false</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">02</td><td>수정 없음 → edit_pct:0</td><td class="ep">정확히 0</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">03</td><td>하향 수정 → edit_direction:"down"</td><td class="ep">"down" 문자열</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">04</td><td>edit_pct 소수점 계산</td><td class="ep">(20M-24M)/24M×100 = -16.7</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">05</td><td>evidence_count 정확</td><td class="ep">첨부 파일 수와 일치</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+            </tbody>
+          </table>
+          <div class="gap"></div>
+          <div class="spec sr"><div class="spec-title">🔴 FAIL 시 영향</div><p>was_edited가 항상 false → AI 정확도 지표 완전 무효화. 프롬프트 개선 불가.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">EV-P0-03</span>
+      <span class="v-title">pitchdeck_generated — Activation 판정 속성 검증</span>
+      <span class="tag tpu">P0 · Activation</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <div class="g2">
+        <div>
+          <div class="card-title" style="margin-bottom:8px;">예상 페이로드</div>
+          <div class="payload">{
+  <span class="pk">"event"</span>: <span class="ps">"pitchdeck_generated"</span>,
+  <span class="pk">"properties"</span>: {
+<span class="p-ok">    <span class="pk">"is_first_pitchdeck"</span>:    <span class="pn">true</span>,</span>
+<span class="p-ok">    <span class="pk">"time_to_activate_min"</span>:  <span class="pn">12</span>,</span>
+<span class="p-ok">    <span class="pk">"total_amount_krw"</span>:      <span class="pn">42000000</span>,</span>
+    <span class="pk">"issue_count"</span>:           <span class="pn">2</span>,
+    <span class="pk">"session_number"</span>:        <span class="pn">1</span>,
+    <span class="pk">"timestamp"</span>: <span class="ps">"2025-xx-xxTxx:xx:xxZ"</span>
+  }
+}</div>
+          <div style="margin-top:8px;" class="spec sg"><div class="spec-title">time_to_activate_min 측정 기준</div><p>user_signed_up 이벤트 timestamp → pitchdeck_generated timestamp 차이를 분(min)으로 환산. 세션 저장소에 가입 시각 저장 필수.</p></div>
+        </div>
+        <div>
+          <div class="card-title" style="margin-bottom:8px;">검증 스텝</div>
+          <table class="vstep">
+            <thead><tr><th class="sn">#</th><th>검증 항목</th><th>기준</th><th class="rc">결과</th></tr></thead>
+            <tbody>
+              <tr><td class="sn">01</td><td>첫 PDF → is_first_pitchdeck:true</td><td class="ep">boolean true</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">02</td><td>두 번째 PDF → false</td><td class="ep">boolean false</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">03</td><td>time_to_activate_min 양수</td><td class="ep">0 초과 정수</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">04</td><td>total_amount_krw 이슈 합계</td><td class="ep">개별 금액의 합과 일치</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+              <tr><td class="sn">05</td><td>session_number 정확</td><td class="ep">로그인 횟수와 일치</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P1/P2 이벤트 요약 -->
+  <div class="card" style="margin-top:10px;">
+    <div class="card-title">P1/P2 이벤트 페이로드 검증 요약</div>
+    <table>
+      <thead><tr><th>이벤트</th><th>핵심 검증 속성</th><th>흔한 오류</th><th>우선순위</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td><code>page_viewed</code></td><td>page, utm_source, referrer</td><td>utm_source가 항상 "direct"로 기록 (파싱 오류)</td><td><span class="tag tbl">P1</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>cta_clicked</code></td><td>location, cta_text, scroll_depth_pct</td><td>scroll_depth_pct가 0으로 기록</td><td><span class="tag tbl">P1</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>user_signed_up</code></td><td>method, utm_source, time_to_signup_sec</td><td>소셜 로그인 시 method가 "email"로 기록</td><td><span class="tag tbl">P1</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>onboarding_completed</code></td><td>role_selected, used_example, steps_completed</td><td>"건너뛰기" 시 이벤트 미발화</td><td><span class="tag tbl">P1</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>vault_viewed</code></td><td>total_amount_krw, days_since_last_visit</td><td>days 계산 시 시간대(timezone) 오류</td><td><span class="tag tor">P2</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>demo_request_submitted</code></td><td>budget_range, company_size, utm_source</td><td>budget_range 미입력 시 null 대신 "" 기록</td><td><span class="tag tpu">P2</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>ai_analysis_failed</code></td><td>error_type, response_time_ms, retry_attempted</td><td>retry 클릭 후 성공 시 failed 이벤트 중복 발화</td><td><span class="tag trd">오류처리</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        <tr><td><code>funnel_dropped</code></td><td>drop_stage, time_on_stage_sec, last_action</td><td>drop_stage 값이 undefined로 기록</td><td><span class="tag trd">이탈감지</span></td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 3 — 퍼널 시뮬레이션
+══════════════════════════════ -->
+<div class="page" id="page-3">
+  <div class="sec-hd">
+    <h2>퍼널 시뮬레이션 검증</h2>
+    <p>실제 사용자 여정을 단계별로 직접 수행하며 Mixpanel Funnel 데이터 수집 검증</p>
+  </div>
+
+  <!-- 시뮬레이션 방법 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">시뮬레이션 방법 & 환경 설정</div>
+    <div class="g3">
+      <div class="spec sc"><div class="spec-title">📱 테스트 계정 3종 준비</div><ul><li><strong style="color:var(--t1);">신규 유저:</strong> 처음 가입 (is_first_pitchdeck:true 검증)</li><li><strong style="color:var(--t1);">기존 유저:</strong> 2회차 접속 (WAU 패턴 검증)</li><li><strong style="color:var(--t1);">Buyer 유저:</strong> B2B 플랜 탐색 (WTP 검증)</li></ul></div>
+      <div class="spec sg"><div class="spec-title">🔍 모니터링 창 분리 설정</div><ul><li>창 1: 서비스 페이지 (사용자 행동)</li><li>창 2: Mixpanel Live View (이벤트 수신)</li><li>창 3: DevTools Network 탭 (페이로드 확인)</li></ul></div>
+      <div class="spec so"><div class="spec-title">📊 Mixpanel Funnel 설정</div><ul><li>Funnel 이름: "MVP Activation Funnel v1"</li><li>단계: page_viewed → user_signed_up → issue_input_completed → ai_result_displayed → issue_confirmed → pitchdeck_generated</li><li>전환 기간: 24시간</li></ul></div>
+    </div>
+  </div>
+
+  <!-- 시뮬레이션 시나리오 1: 완주 -->
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">SIM-01</span>
+      <span class="v-title">완주 시뮬레이션 — 신규 유저 Activation 전체 경로</span>
+      <span class="tag tgr">P0 · 전체 퍼널</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <table class="vstep">
+        <thead><tr><th class="sn">#</th><th>수행 액션</th><th>Mixpanel 확인 사항</th><th>DevTools 확인</th><th class="rc">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="sn">01</td><td>랜딩 페이지 진입 (<code>?utm_source=blind</code> 포함)</td><td class="ep">page_viewed 발화, utm_source:"blind"</td><td>api.mixpanel.com 200</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">02</td><td>Hero "무료로 시작하기" CTA 클릭</td><td class="ep">cta_clicked {location:"hero", scroll_depth_pct: 값}</td><td>payload 속성 확인</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">03</td><td>구글 소셜 로그인 완료</td><td class="ep">user_signed_up {method:"google", utm_source:"blind"}</td><td>identifyUser 호출 확인</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">04</td><td>온보딩 — PM 선택 + 예시 사용</td><td class="ep">role_selected, onboarding_completed {used_example:true}</td><td>-</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">05</td><td>이슈 텍스트 2개 입력 후 AI 분석 클릭</td><td class="ep">issue_input_completed {issue_count:2, total_char_length: 값}</td><td>-</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">06</td><td>AI 결과 화면 확인</td><td class="ep">ai_result_displayed — 5개 속성 전부 기록</td><td>estimated_amount_krw 양수</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">07</td><td>금액 수정 (₩24M → ₩20M) 후 확정</td><td class="ep">issue_confirmed {was_edited:true, edit_pct:-16.7}</td><td>edit_pct 소수점 확인</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">08</td><td>피치덱 PDF 생성 완료</td><td class="ep">pitchdeck_generated {is_first_pitchdeck:true, time_to_activate_min: 값}</td><td>-</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">09</td><td>Mixpanel Funnel 확인</td><td class="ep">7단계 퍼널에서 전환율 데이터 시각화됨</td><td>-</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 시뮬레이션 2: 이탈 감지 -->
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">SIM-02</span>
+      <span class="v-title">이탈 감지 시뮬레이션 — AI 결과 화면에서 이탈</span>
+      <span class="tag tor">P1 · 이탈 감지</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <table class="vstep">
+        <thead><tr><th class="sn">#</th><th>수행 액션</th><th>Mixpanel 확인 사항</th><th>기대 결과</th><th class="rc">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="sn">01</td><td>가입 → 이슈 입력 → AI 결과 화면 진입</td><td class="ep">ai_result_displayed 발화 확인</td><td>정상 발화</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">02</td><td>AI 결과 화면에서 5분 비활성 상태 유지</td><td class="ep">funnel_dropped {drop_stage:"ai_result"} 발화</td><td>5분 타이머 후 이벤트 발화</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">03</td><td>Mixpanel에서 이탈 유저 세그먼트 확인</td><td class="ep">ai_result_displayed 후 issue_confirmed 없는 유저 식별</td><td>Funnel 전환율에 이탈 반영</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">04</td><td>이탈 후 재방문 시뮬레이션</td><td class="ep">vault_viewed {days_since_last_visit:0}</td><td>재방문 이벤트 별도 카운트</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 시뮬레이션 3: AI 오류 -->
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">SIM-03</span>
+      <span class="v-title">AI 오류 시뮬레이션 — 타임아웃 이벤트 발화 검증</span>
+      <span class="tag trd">P0 · 오류처리</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <table class="vstep">
+        <thead><tr><th class="sn">#</th><th>수행 액션</th><th>Mixpanel 확인 사항</th><th>기대 결과</th><th class="rc">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="sn">01</td><td>DevTools → Network → Throttling: "Offline" 설정</td><td>-</td><td>네트워크 차단 준비</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">02</td><td>이슈 입력 후 "AI 분석 시작" 클릭</td><td class="ef">ai_analysis_failed {error_type:"timeout"} 발화</td><td>15초 후 오류 화면</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">03</td><td>Throttling 해제 → "재시도" 클릭</td><td class="ep">ai_analysis_triggered 재발화, 성공 시 ai_result_displayed</td><td>이중 failed 이벤트 없음</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">04</td><td>Mixpanel에서 failed 이벤트 횟수 확인</td><td class="ep">재시도 성공 시 failed:1, result_displayed:1</td><td>중복 카운팅 없음</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 시뮬레이션 4: Buyer WTP -->
+  <div class="vcard">
+    <div class="vcard-head" onclick="toggleV(this)">
+      <span class="v-id">SIM-04</span>
+      <span class="v-title">Buyer WTP 시뮬레이션 — B2B 데모 요청 추적</span>
+      <span class="tag tpu">P2 · WTP</span>
+      <span class="sb sb-todo" onclick="cycleSB(event,this)">⬜ TODO</span>
+      <span class="varrow">▼</span>
+    </div>
+    <div class="vcard-body">
+      <table class="vstep">
+        <thead><tr><th class="sn">#</th><th>수행 액션</th><th>Mixpanel 확인 사항</th><th>Slack 알림 확인</th><th class="rc">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="sn">01</td><td>콜드 메일 UTM 링크로 Pricing 진입 (<code>?utm_source=cold_email</code>)</td><td class="ep">pricing_viewed {visitor_type:"buyer", utm_source:"cold_email"}</td><td>-</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">02</td><td>B2B 플랜 섹션까지 스크롤</td><td class="ep">b2b_plan_clicked, scroll_depth_pct &gt; 70%</td><td>-</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">03</td><td>데모 요청 폼 필수 항목 입력 후 제출</td><td class="ep">demo_request_submitted — 모든 속성 확인</td><td>Slack #b2b-leads 채널 수신</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+          <tr><td class="sn">04</td><td>예산 미입력 후 제출</td><td class="ep">budget_range: null (빈 문자열 아님)</td><td>알림 정상 수신</td><td><div class="rbtn rb-skip" onclick="cycleR(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 퍼널 시각화 설정 가이드 -->
+  <div class="card" style="margin-top:10px;">
+    <div class="card-title">Mixpanel Funnel 설정 가이드</div>
+    <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">복사</button><span class="cc">// Mixpanel Funnel 설정 (UI에서 직접 설정)</span>
+
+<span class="ck">Funnel Name:</span> <span class="cs">"MVP Activation Funnel v1"</span>
+<span class="ck">Steps:</span>
+  <span class="cn">1.</span> page_viewed          <span class="cc">(where page = "landing")</span>
+  <span class="cn">2.</span> user_signed_up
+  <span class="cn">3.</span> onboarding_completed
+  <span class="cn">4.</span> issue_input_completed
+  <span class="cn">5.</span> ai_result_displayed   <span class="cc">← AHA Moment</span>
+  <span class="cn">6.</span> issue_confirmed
+  <span class="cn">7.</span> pitchdeck_generated   <span class="cc">← Activated</span>
+
+<span class="ck">Conversion Window:</span> <span class="cv">24 hours</span>
+<span class="ck">Counting Method:</span>   <span class="cv">Unique Users</span>
+<span class="ck">Date Range:</span>        <span class="cv">Last 7 days (rolling)</span>
+
+<span class="cc">// 추가 세그먼트 분석</span>
+<span class="ck">Breakdown by:</span>
+  - utm_source       <span class="cc">// 채널별 전환율 비교</span>
+  - user_role        <span class="cc">// 직무별 완주율</span>
+  - used_example     <span class="cc">// 예시 사용 vs 직접 입력</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 4 — 대시보드 & 알림 설정
+══════════════════════════════ -->
+<div class="page" id="page-4">
+  <div class="sec-hd">
+    <h2>대시보드 & 알림 설정</h2>
+    <p>Mixpanel 대시보드 구성 · 슬랙 알림 · 일일 리포트 자동화 · 이상 감지</p>
+  </div>
+
+  <!-- 대시보드 구성 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Mixpanel 운영 대시보드 — 패널 구성</div>
+    <div class="g3">
+      <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;">
+        <div style="background:color-mix(in srgb,var(--green) 12%,transparent);padding:10px 12px;border-bottom:1px solid var(--bd);">
+          <div class="tag tgr">Panel 1</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-top:4px;">Activation 퍼널</div>
+        </div>
+        <div style="padding:10px 12px;">
+          <ul style="font-size:11px;color:var(--t2);padding-left:14px;display:flex;flex-direction:column;gap:3px;">
+            <li>7단계 Funnel 차트</li>
+            <li>단계별 전환율 & 이탈율</li>
+            <li>utm_source별 분기 비교</li>
+            <li>갱신: 매일 자동</li>
+          </ul>
+        </div>
+      </div>
+      <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;">
+        <div style="background:color-mix(in srgb,var(--blue) 12%,transparent);padding:10px 12px;border-bottom:1px solid var(--bd);">
+          <div class="tag tbl">Panel 2</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-top:4px;">AI 정확도 모니터</div>
+        </div>
+        <div style="padding:10px 12px;">
+          <ul style="font-size:11px;color:var(--t2);padding-left:14px;display:flex;flex-direction:column;gap:3px;">
+            <li>was_edited:false 비율 (AI 수용률)</li>
+            <li>edit_pct 분포 히스토그램</li>
+            <li>카테고리별 평균 신뢰도</li>
+            <li>갱신: 매일 자동</li>
+          </ul>
+        </div>
+      </div>
+      <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;">
+        <div style="background:color-mix(in srgb,var(--purple) 12%,transparent);padding:10px 12px;border-bottom:1px solid var(--bd);">
+          <div class="tag tpu">Panel 3</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-top:4px;">Retention & WAU</div>
+        </div>
+        <div style="padding:10px 12px;">
+          <ul style="font-size:11px;color:var(--t2);padding-left:14px;display:flex;flex-direction:column;gap:3px;">
+            <li>WAU 추이 (목표: 15%→30%)</li>
+            <li>vault_viewed 재방문 패턴</li>
+            <li>7일/14일/30일 Retention 곡선</li>
+            <li>갱신: 매일 자동</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slack 알림 코드 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Slack Webhook 알림 구현 코드</div>
+    <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">복사</button><span class="cc">// 공통 Slack 발송 함수</span>
+<span class="ck">async function</span> <span class="cv">sendSlackAlert</span>(channel, message, emoji = <span class="cs">'📊'</span>) {
+  <span class="ck">await</span> fetch(<span class="cs">'YOUR_SLACK_WEBHOOK_URL'</span>, {
+    method: <span class="cs">'POST'</span>,
+    headers: { <span class="cs">'Content-Type'</span>: <span class="cs">'application/json'</span> },
+    body: JSON.stringify({
+      text: <span class="cs">`${emoji} *[MyROI] ${message}*`</span>,
+      channel: channel
+    })
+  });
+}
+
+<span class="cc">// ① Activation 발생 시 즉시 알림</span>
+<span class="ck">function</span> <span class="cv">onPitchdeckGenerated</span>(props) {
+  track(<span class="cs">'pitchdeck_generated'</span>, props);
+  <span class="ck">if</span> (props.is_first_pitchdeck) {
+    sendSlackAlert(
+      <span class="cs">'#activations'</span>,
+      <span class="cs">`새 Activation 🎉 | 직무:${currentUser.role} | 금액:₩${props.total_amount_krw.toLocaleString()} | 소요:${props.time_to_activate_min}분`</span>,
+      <span class="cs">'🎯'</span>
+    );
+  }
+}
+
+<span class="cc">// ② B2B 데모 요청 즉시 알림</span>
+<span class="ck">function</span> <span class="cv">onDemoRequestSubmitted</span>(formData) {
+  track(<span class="cs">'demo_request_submitted'</span>, formData);
+  sendSlackAlert(
+    <span class="cs">'#b2b-leads'</span>,
+    <span class="cs">`B2B 데모 요청 🏢 | 회사:${formData.company} | 직함:${formData.role} | 예산:${formData.budget_range || '미응답'} | 채널:${formData.utm_source}`</span>,
+    <span class="cs">'💼'</span>
+  );
+}
+
+<span class="cc">// ③ 일일 리포트 (서버 Cron: 매일 오전 9시)</span>
+<span class="ck">async function</span> <span class="cv">sendDailyReport</span>() {
+  <span class="ck">const</span> stats = <span class="ck">await</span> getMixpanelStats(); <span class="cc">// Mixpanel API 조회</span>
+  sendSlackAlert(
+    <span class="cs">'#analytics-daily'</span>,
+    <span class="cs">`📈 일일 리포트\n• 신규 가입: ${stats.signups}명\n• Activation: ${stats.activations}건 (${stats.activation_rate}%)\n• AI 수용률: ${stats.ai_acceptance_rate}%\n• B2B 데모 요청: ${stats.demo_requests}건`</span>,
+    <span class="cs">'📅'</span>
+  );
+}</div>
+  </div>
+
+  <!-- 이상 감지 알림 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">이상 감지 (Anomaly Alert) 설정</div>
+    <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">복사</button><span class="cc">// AI API 오류율 급증 감지 — 5분 롤링 윈도우</span>
+<span class="ck">const</span> errorWindow = { errors: <span class="cn">0</span>, total: <span class="cn">0</span>, windowStart: Date.now() };
+
+<span class="ck">function</span> <span class="cv">trackAICall</span>(success, responseTimeMs) {
+  <span class="ck">const</span> now = Date.now();
+  <span class="cc">// 5분 윈도우 리셋</span>
+  <span class="ck">if</span> (now - errorWindow.windowStart > <span class="cn">5 * 60 * 1000</span>) {
+    errorWindow.errors = <span class="cn">0</span>; errorWindow.total = <span class="cn">0</span>;
+    errorWindow.windowStart = now;
+  }
+  errorWindow.total++;
+  <span class="ck">if</span> (!success) errorWindow.errors++;
+
+  <span class="cc">// 오류율 30% 초과 + 최소 10건 이상 시 알림</span>
+  <span class="ck">const</span> errorRate = errorWindow.errors / errorWindow.total;
+  <span class="ck">if</span> (errorWindow.total >= <span class="cn">10</span> && errorRate > <span class="cn">0.3</span>) {
+    sendSlackAlert(<span class="cs">'#alerts-critical'</span>,
+      <span class="cs">`🚨 AI API 오류율 ${(errorRate*100).toFixed(1)}% — 즉시 확인 필요`</span>, <span class="cs">'🔴'</span>);
+  }
+
+  <span class="cc">// 응답 시간 이상 감지 (p95 > 12초)</span>
+  <span class="ck">if</span> (responseTimeMs > <span class="cn">12000</span>) {
+    sendSlackAlert(<span class="cs">'#alerts-warn'</span>,
+      <span class="cs">`⚠️ AI 응답 지연 ${responseTimeMs}ms — LLM 상태 확인`</span>, <span class="cs">'🟡'</span>);
+  }
+}</div>
+  </div>
+
+  <!-- 검증 완료 매트릭스 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Analytics 연동 최종 검증 매트릭스</div>
+    <div style="overflow-x:auto;">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="mhl">검증 항목</th>
+            <th>설치</th>
+            <th>페이로드</th>
+            <th>퍼널</th>
+            <th>알림</th>
+            <th>대시보드</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="mhl">Mixpanel SDK</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-ok" onclick="cycleCell(this)">✅</td></tr>
+          <tr><td class="mhl">GA4</td><td class="cell-warn" onclick="cycleCell(this)">⚠️</td><td class="cell-warn" onclick="cycleCell(this)">⚠️</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-warn" onclick="cycleCell(this)">⚠️</td></tr>
+          <tr><td class="mhl">ai_result_displayed (P0)</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-fail" onclick="cycleCell(this)">❌</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-ok" onclick="cycleCell(this)">✅</td></tr>
+          <tr><td class="mhl">issue_confirmed (P0)</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-ok" onclick="cycleCell(this)">✅</td></tr>
+          <tr><td class="mhl">pitchdeck_generated (P0)</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td></tr>
+          <tr><td class="mhl">demo_request_submitted</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-warn" onclick="cycleCell(this)">⚠️</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-ok" onclick="cycleCell(this)">✅</td></tr>
+          <tr><td class="mhl">Slack 알림 (Activation)</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-ok" onclick="cycleCell(this)">✅</td><td class="cell-na" onclick="cycleCell(this)">N/A</td></tr>
+          <tr><td class="mhl">이상 감지 알림</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-na" onclick="cycleCell(this)">N/A</td><td class="cell-warn" onclick="cycleCell(this)">⚠️</td><td class="cell-na" onclick="cycleCell(this)">N/A</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-size:11px;">
+      <span>셀 클릭으로 상태 변경 →</span>
+      <span class="cell-ok" style="padding:2px 8px;border-radius:4px;">✅ 검증 완료</span>
+      <span class="cell-warn" style="padding:2px 8px;border-radius:4px;">⚠️ 부분 완료</span>
+      <span class="cell-fail" style="padding:2px 8px;border-radius:4px;">❌ 미완료</span>
+      <span class="cell-na" style="padding:2px 8px;border-radius:4px;">N/A 해당없음</span>
+    </div>
+  </div>
+
+  <!-- 배포 전 최종 체크리스트 -->
+  <div class="card">
+    <div class="card-title">🚀 배포 전 Analytics 최종 체크리스트</div>
+    <div class="g2">
+      <div id="final-chk1" style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:6px;">🔴 P0 — 배포 불가 조건 (미통과 시 No-Go)</div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Mixpanel Live View에서 <code>ai_result_displayed</code> 속성 5종 모두 수신 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl"><code>issue_confirmed</code>의 <code>was_edited</code> boolean 정확 기록 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl"><code>pitchdeck_generated</code>의 <code>is_first_pitchdeck</code> 첫/재생성 분기 정확 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl"><code>time_to_activate_min</code> 양수 값 기록 확인 (0 또는 null ✗)</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">AI 타임아웃 시 <code>ai_analysis_failed</code> 발화 확인 (무한 로딩 ✗)</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Mixpanel Funnel 7단계 데이터 정상 수집 확인</span></div>
+      </div>
+      <div id="final-chk2" style="display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px;">🟡 P1 — 배포 후 1주 내 통과 목표</div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">GA4 UTM 파라미터 채널 분류 정확성 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Hotjar 세션 레코딩 정상 수집 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Slack #activations 채널 첫 Activation 알림 수신</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Slack #b2b-leads 채널 데모 요청 알림 수신</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">일일 리포트 Cron 정상 동작 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">AI 오류율 이상 감지 알림 테스트 발송 확인</span></div>
+        <div class="chk-row"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-lbl">Mixpanel 운영 대시보드 3개 패널 정상 표시</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── 탭 전환
+const TABS = ['page-0','page-1','page-2','page-3','page-4'];
+document.querySelectorAll('.tab').forEach((tab,i) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(TABS[i]).classList.add('active');
+  });
+});
+
+// ── 아코디언 (vcard)
+function toggleV(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// ── 결과 토글 (- → PASS → FAIL)
+function cycleR(el) {
+  const s = [{t:'-',c:'rb-skip'},{t:'PASS',c:'rb-pass'},{t:'FAIL',c:'rb-fail'}];
+  const cur = s.findIndex(x => el.classList.contains(x.c));
+  const nxt = (cur+1)%s.length;
+  s.forEach(x => el.classList.remove(x.c));
+  el.classList.add(s[nxt].c);
+  el.textContent = s[nxt].t;
+}
+
+// ── 상태 뱃지 토글
+function cycleSB(e, el) {
+  e.stopPropagation();
+  const s = [
+    {t:'⬜ TODO',c:'sb-todo'},
+    {t:'✅ PASS',c:'sb-pass'},
+    {t:'❌ FAIL',c:'sb-fail'},
+    {t:'⚠️ WARN',c:'sb-warn'}
+  ];
+  const cur = s.findIndex(x => el.classList.contains(x.c));
+  const nxt = (cur+1)%s.length;
+  s.forEach(x => el.classList.remove(x.c));
+  el.classList.add(s[nxt].c);
+  el.textContent = s[nxt].t;
+}
+
+// ── 매트릭스 셀 토글
+function cycleCell(td) {
+  const states = [
+    {t:'✅',c:'cell-ok'},
+    {t:'⚠️',c:'cell-warn'},
+    {t:'❌',c:'cell-fail'},
+    {t:'N/A',c:'cell-na'}
+  ];
+  const cur = states.findIndex(x => td.classList.contains(x.c));
+  const nxt = (cur+1)%states.length;
+  states.forEach(x => td.classList.remove(x.c));
+  td.classList.add(states[nxt].c);
+  td.textContent = states[nxt].t;
+}
+
+// ── 체크박스
+function toggleChk(el) {
+  el.classList.toggle('on');
+  el.textContent = el.classList.contains('on') ? '✓' : '';
+}
+
+// ── 코드 복사
+function copyCode(btn) {
+  const text = btn.parentElement.innerText.replace('복사','').trim();
+  navigator.clipboard?.writeText(text).then(() => {
+    btn.textContent = '✓ 복사됨';
+    setTimeout(() => btn.textContent = '복사', 1500);
+  });
+}
+
+// ── 테마
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent =
+    document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+}
+</script>
+</body>
+</html>
