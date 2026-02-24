@@ -3,475 +3,775 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>시장 문제 정의서 | Scope Manager</title>
+<title>Scope Manager — 시장 문제 정의서</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f1117; color:#e8eaf0; font-size:14px; line-height:1.6; }
+:root {
+  --bg: #0f1117;
+  --s1: #1a1f2e;
+  --t1: #e8eaf0;
+  --t3: #8c95aa;
+  --bd: #232b3e;
+  --blue: #4f80ff;
+  --green: #10b981;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --s2: #212840;
+  transition: background 0.2s, color 0.2s;
+}
+body.light {
+  --bg: #f5f7fa;
+  --s1: #ffffff;
+  --t1: #1a1f2e;
+  --t3: #5a6478;
+  --bd: #d1d9e6;
+  --s2: #eef1f7;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: background 0.2s, color 0.2s;
+  min-height: 100vh;
+}
 
-  /* ── Nav ── */
-  .nav { display:flex; align-items:center; justify-content:space-between; padding:18px 48px; border-bottom:1px solid #1e2533; position:sticky; top:0; background:#0f1117; z-index:100; }
-  .nav-logo { font-size:18px; font-weight:800; letter-spacing:-0.5px; }
-  .nav-logo b { color:#4f80ff; }
-  .nav-tabs { display:flex; gap:4px; background:#1e2533; border-radius:10px; padding:4px; }
-  .nav-tab { padding:6px 16px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; color:#8c95aa; transition:.15s; border:none; background:none; }
-  .nav-tab.active { background:#4f80ff; color:#fff; }
-  .nav-tab:hover:not(.active) { color:#fff; }
+/* HEADER */
+header {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.logo {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+.logo span { color: var(--t1); }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  color: var(--t3);
+  white-space: nowrap;
+}
+.badge.blue { border-color: var(--blue); color: var(--blue); background: transparent; }
+.badge.green { border-color: var(--green); color: var(--green); background: transparent; }
+.badge.yellow { border-color: var(--yellow); color: var(--yellow); background: transparent; }
+.toggle-btn {
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  color: var(--t1);
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.toggle-btn:hover { background: var(--bd); }
 
-  /* ── Page sections ── */
-  .page { display:none; }
-  .page.active { display:block; }
+/* NAV TABS */
+nav {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding: 0 24px;
+  scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--t3);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 16px;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.tab-btn:hover { color: var(--t1); }
+.tab-btn.active { border-bottom: 2px solid var(--blue); color: var(--blue); font-weight: 600; }
 
-  /* ── Common ── */
-  .container { max-width:900px; margin:0 auto; padding:48px 24px 80px; }
-  .section { margin-bottom:64px; }
-  .section-label { font-size:11px; font-weight:700; color:#4f80ff; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
-  .section-title { font-size:28px; font-weight:800; color:#fff; letter-spacing:-1px; margin-bottom:12px; line-height:1.2; }
-  .section-sub { font-size:15px; color:#8c95aa; line-height:1.7; max-width:640px; }
+/* MAIN */
+main { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+.page { display: none; }
+.page.active { display: block; }
 
-  /* ── Hero ── */
-  .hero { text-align:center; padding:72px 24px 56px; position:relative; overflow:hidden; }
-  .hero::before { content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:600px; height:600px; background:radial-gradient(circle, rgba(79,128,255,.12) 0%, transparent 70%); pointer-events:none; }
-  .hero-eyebrow { display:inline-flex; align-items:center; gap:8px; background:#1e2533; border:1px solid #2e3748; border-radius:20px; padding:6px 16px; font-size:12px; color:#8c95aa; margin-bottom:24px; }
-  .hero-dot { width:8px; height:8px; border-radius:50%; background:#4f80ff; animation:pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
-  .hero h1 { font-size:42px; font-weight:900; color:#fff; letter-spacing:-2px; line-height:1.15; margin-bottom:20px; }
-  .hero h1 em { color:#4f80ff; font-style:normal; }
-  .hero p { font-size:16px; color:#8c95aa; max-width:560px; margin:0 auto 36px; line-height:1.8; }
-  .hero-quote { background:#1e2533; border:1px solid #2e3748; border-left:4px solid #4f80ff; border-radius:10px; padding:18px 24px; max-width:560px; margin:0 auto; font-size:15px; color:#d0d4de; line-height:1.7; font-style:italic; }
-  .hero-quote cite { display:block; margin-top:8px; font-size:12px; color:#5a6478; font-style:normal; }
+/* CARDS */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: background 0.2s;
+}
+.card + .card { margin-top: 14px; }
 
-  /* ── Stats row ── */
-  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:64px; }
-  .stat-card { background:#1e2533; border:1px solid #2e3748; border-radius:12px; padding:24px 20px; text-align:center; transition:.2s; }
-  .stat-card:hover { border-color:#4f80ff; transform:translateY(-2px); }
-  .stat-num { font-size:32px; font-weight:900; color:#4f80ff; letter-spacing:-1px; margin-bottom:4px; }
-  .stat-num span { font-size:18px; }
-  .stat-label { font-size:12px; color:#8c95aa; line-height:1.5; }
-  .stat-source { font-size:10px; color:#3d4556; margin-top:6px; }
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 
-  /* ── Problem cards ── */
-  .prob-grid { display:flex; flex-direction:column; gap:20px; }
-  .prob-card { background:#1e2533; border:1px solid #2e3748; border-radius:14px; padding:28px 28px 28px 0; display:flex; gap:0; overflow:hidden; transition:.2s; }
-  .prob-card:hover { border-color:#4f80ff30; box-shadow:0 8px 32px rgba(79,128,255,.08); }
-  .prob-num-col { width:80px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; padding-top:4px; gap:12px; }
-  .prob-num { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; flex-shrink:0; }
-  .prob-num.n1 { background:rgba(239,68,68,.15); color:#ef4444; }
-  .prob-num.n2 { background:rgba(251,146,60,.15); color:#fb923c; }
-  .prob-num.n3 { background:rgba(168,85,247,.15); color:#a855f7; }
-  .prob-line { flex:1; width:2px; background:#2e3748; }
-  .prob-body { flex:1; }
-  .prob-tag { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; margin-bottom:12px; }
-  .prob-tag.t1 { background:rgba(239,68,68,.1); color:#ef4444; border:1px solid rgba(239,68,68,.2); }
-  .prob-tag.t2 { background:rgba(251,146,60,.1); color:#fb923c; border:1px solid rgba(251,146,60,.2); }
-  .prob-tag.t3 { background:rgba(168,85,247,.1); color:#a855f7; border:1px solid rgba(168,85,247,.2); }
-  .prob-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:10px; line-height:1.3; }
-  .prob-desc { font-size:13px; color:#8c95aa; line-height:1.8; margin-bottom:16px; }
-  .prob-quote { background:#0f1117; border-radius:8px; padding:12px 16px; font-size:13px; color:#d0d4de; line-height:1.7; border-left:3px solid #2e3748; font-style:italic; }
+/* SECTION TITLE */
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--t3);
+  margin-bottom: 12px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 6px;
+}
+.page-desc {
+  color: var(--t3);
+  font-size: 13px;
+  margin-bottom: 22px;
+  line-height: 1.7;
+}
 
-  /* ── Target ── */
-  .target-wrap { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  .target-main { background:linear-gradient(135deg,#1a2540,#1e2533); border:1px solid #4f80ff40; border-radius:14px; padding:28px; }
-  .target-main-badge { display:inline-flex; align-items:center; gap:6px; background:#4f80ff20; color:#4f80ff; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
-  .target-main h3 { font-size:20px; font-weight:800; color:#fff; margin-bottom:8px; }
-  .target-main p { font-size:13px; color:#8c95aa; line-height:1.8; }
-  .target-range { margin-top:20px; }
-  .range-bar-wrap { display:flex; align-items:center; gap:12px; margin-top:12px; }
-  .range-bar { flex:1; height:10px; background:#2e3748; border-radius:10px; overflow:hidden; position:relative; }
-  .range-fill { position:absolute; left:20%; width:45%; height:100%; background:linear-gradient(90deg,#4f80ff,#60a5fa); border-radius:10px; }
-  .range-labels { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:#5a6478; }
-  .range-labels .hl { color:#4f80ff; font-weight:700; }
-  .target-side { display:flex; flex-direction:column; gap:12px; }
-  .target-side-card { background:#1e2533; border:1px solid #2e3748; border-radius:10px; padding:16px 18px; display:flex; align-items:flex-start; gap:14px; }
-  .target-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-  .target-icon.pain { background:rgba(239,68,68,.1); }
-  .target-icon.opp { background:rgba(79,128,255,.1); }
-  .target-text h4 { font-size:13px; font-weight:700; color:#fff; margin-bottom:4px; }
-  .target-text p { font-size:12px; color:#8c95aa; line-height:1.6; }
+/* STAT CARDS */
+.stat-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-num.green { color: var(--green); }
+.stat-num.yellow { color: var(--yellow); }
+.stat-num.red { color: var(--red); }
+.stat-label { font-size: 12px; color: var(--t3); font-weight: 500; }
+.stat-desc { font-size: 11px; color: var(--t3); margin-top: 6px; }
 
-  /* ── Solution ── */
-  .solution-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
-  .sol-card { background:#1e2533; border:1px solid #2e3748; border-radius:14px; padding:24px 20px; transition:.2s; }
-  .sol-card:hover { border-color:#4f80ff50; transform:translateY(-3px); }
-  .sol-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#4f80ff,#3d6ee8); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:16px; }
-  .sol-num { font-size:11px; font-weight:700; color:#4f80ff; margin-bottom:6px; }
-  .sol-title { font-size:15px; font-weight:800; color:#fff; margin-bottom:8px; }
-  .sol-desc { font-size:12px; color:#8c95aa; line-height:1.7; }
-  .sol-before-after { display:grid; grid-template-columns:1fr auto 1fr; gap:0; background:#1e2533; border:1px solid #2e3748; border-radius:14px; overflow:hidden; }
-  .ba-col { padding:24px 24px; }
-  .ba-col.before { background:#1e2533; }
-  .ba-col.after { background:linear-gradient(135deg,#1a2540,#1e2533); border-left:1px solid #2e3748; }
-  .ba-divider { display:flex; align-items:center; justify-content:center; background:#0f1117; width:48px; }
-  .ba-arrow { color:#4f80ff; font-size:20px; }
-  .ba-label { font-size:10px; font-weight:700; letter-spacing:1px; margin-bottom:12px; }
-  .ba-label.before { color:#ef4444; }
-  .ba-label.after { color:#4f80ff; }
-  .ba-item { display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; font-size:13px; color:#8c95aa; line-height:1.5; }
-  .ba-item::before { content:''; width:6px; height:6px; border-radius:50%; margin-top:6px; flex-shrink:0; }
-  .ba-col.before .ba-item::before { background:#ef4444; }
-  .ba-col.after .ba-item::before { background:#4f80ff; }
-  .ba-col.after .ba-item { color:#d0d4de; }
+/* TAG */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--s2);
+  color: var(--t3);
+  margin-right: 4px;
+  margin-bottom: 4px;
+  border: 1px solid var(--bd);
+}
+.tag.blue { background: rgba(79,128,255,0.12); color: var(--blue); border-color: rgba(79,128,255,0.25); }
+.tag.green { background: rgba(16,185,129,0.12); color: var(--green); border-color: rgba(16,185,129,0.25); }
+.tag.red { background: rgba(248,113,113,0.12); color: var(--red); border-color: rgba(248,113,113,0.25); }
+.tag.yellow { background: rgba(251,191,36,0.12); color: var(--yellow); border-color: rgba(251,191,36,0.25); }
 
-  /* ── Unknowns ── */
-  .unknown-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .unknown-card { background:#1e2533; border:1px solid #2e3748; border-radius:10px; padding:18px 20px; display:flex; gap:14px; align-items:flex-start; }
-  .q-icon { width:28px; height:28px; border-radius:8px; background:#4f80ff15; color:#4f80ff; font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-  .unknown-card p { font-size:13px; color:#8c95aa; line-height:1.6; }
+/* PROBLEM CARD */
+.problem-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+.problem-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+.problem-title { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 8px; }
+.problem-body { font-size: 13px; color: var(--t3); line-height: 1.75; }
+.problem-body strong { color: var(--t1); }
+.quote-block {
+  background: var(--s2);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 10px 0;
+  font-size: 13px;
+  color: var(--t3);
+  font-style: italic;
+  line-height: 1.7;
+}
 
-  /* ── Flow diagram ── */
-  .flow { display:flex; align-items:center; gap:0; justify-content:center; flex-wrap:nowrap; margin:32px 0; }
-  .flow-node { background:#1e2533; border:1px solid #2e3748; border-radius:10px; padding:14px 16px; text-align:center; min-width:120px; flex-shrink:0; }
-  .flow-node.highlight { background:linear-gradient(135deg,#1a2540,#1e2533); border-color:#4f80ff60; }
-  .flow-node .fn-icon { font-size:22px; margin-bottom:6px; }
-  .flow-node .fn-label { font-size:12px; font-weight:700; color:#fff; }
-  .flow-node .fn-sub { font-size:10px; color:#5a6478; margin-top:3px; }
-  .flow-arrow { color:#3d4556; font-size:20px; padding:0 6px; flex-shrink:0; }
-  .flow-arrow.red { color:#ef4444; }
-  .flow-arrow.blue { color:#4f80ff; }
+/* FLOW */
+.flow { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+.flow-item {
+  flex: 1;
+  min-width: 120px;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--t3);
+}
+.flow-item strong { display: block; font-size: 13px; color: var(--t1); margin-bottom: 3px; }
+.flow-arrow { color: var(--t3); font-size: 18px; align-self: center; flex-shrink: 0; }
 
-  /* ── Responsive ── */
-  @media(max-width:640px) {
-    .stats-row { grid-template-columns:1fr 1fr; }
-    .solution-grid { grid-template-columns:1fr; }
-    .target-wrap, .unknown-grid { grid-template-columns:1fr; }
-    .hero h1 { font-size:28px; }
-    .nav { padding:14px 20px; }
-    .nav-tabs { display:none; }
-    .container { padding:32px 16px 60px; }
-  }
+/* COMPARISON TABLE */
+.compare-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.compare-table th, .compare-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--bd);
+  font-size: 13px;
+}
+.compare-table th { color: var(--t3); font-weight: 600; font-size: 12px; }
+.compare-table td { color: var(--t1); }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .highlight { color: var(--blue); font-weight: 600; }
+.compare-table .muted { color: var(--t3); }
+
+/* PROGRESS BAR */
+.progress-row { margin-bottom: 12px; }
+.progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; color: var(--t3); }
+.progress-label span:first-child { color: var(--t1); }
+.progress-bar { background: var(--bd); border-radius: 4px; height: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; }
+.fill-blue { background: var(--blue); }
+.fill-green { background: var(--green); }
+.fill-yellow { background: var(--yellow); }
+.fill-red { background: var(--red); }
+
+/* Q LIST */
+.q-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--bd);
+}
+.q-item:last-child { border-bottom: none; }
+.q-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.q-text { font-size: 13px; color: var(--t3); line-height: 1.65; }
+.q-text strong { color: var(--t1); display: block; margin-bottom: 2px; font-size: 13px; }
+
+/* SOLUTION CARDS */
+.sol-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.sol-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.sol-card.c1::before { background: var(--blue); }
+.sol-card.c2::before { background: var(--green); }
+.sol-card.c3::before { background: var(--yellow); }
+.sol-icon { font-size: 22px; margin-bottom: 8px; }
+.sol-title { font-size: 14px; font-weight: 700; color: var(--t1); margin-bottom: 6px; }
+.sol-body { font-size: 13px; color: var(--t3); line-height: 1.7; }
+
+/* STRATEGY PAGE */
+.strategy-callout {
+  background: rgba(79,128,255,0.08);
+  border: 1px solid rgba(79,128,255,0.25);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.strategy-callout .s-title { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+.strategy-callout p { font-size: 13px; color: var(--t3); line-height: 1.75; }
+.strategy-callout p strong { color: var(--t1); }
+
+.vs-block {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: start;
+  margin: 16px 0;
+}
+.vs-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.vs-card.old { border-color: rgba(248,113,113,0.3); }
+.vs-card.new { border-color: rgba(16,185,129,0.3); }
+.vs-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.vs-card.old .vs-label { color: var(--red); }
+.vs-card.new .vs-label { color: var(--green); }
+.vs-list { font-size: 12px; color: var(--t3); line-height: 2; }
+.vs-list li { list-style: none; }
+.vs-list li::before { margin-right: 6px; }
+.vs-card.old .vs-list li::before { content: '✕'; color: var(--red); }
+.vs-card.new .vs-list li::before { content: '✓'; color: var(--green); }
+.vs-center { display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--t3); padding-top: 40px; }
+
+/* MOBILE */
+@media (max-width: 560px) {
+  header { padding: 12px 14px; }
+  main { padding: 18px 14px 50px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .vs-block { grid-template-columns: 1fr; }
+  .vs-center { display: none; }
+  nav { padding: 0 14px; }
+  .tab-btn { padding: 11px 12px; font-size: 12px; }
+  .flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); align-self: center; }
+}
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--bd); margin: 20px 0; }
+.mt-14 { margin-top: 14px; }
+.mt-20 { margin-top: 20px; }
+.mb-14 { margin-bottom: 14px; }
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-logo"><b>Scope</b>Manager</div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('overview')">개요</button>
-    <button class="nav-tab" onclick="showPage('problem')">문제 원인</button>
-    <button class="nav-tab" onclick="showPage('target')">타겟</button>
-    <button class="nav-tab" onclick="showPage('solution')">솔루션</button>
-    <button class="nav-tab" onclick="showPage('unknown')">가설 검증</button>
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo">Scope<span>Manager</span></div>
+    <div class="badges">
+      <span class="badge blue">B2B SaaS</span>
+      <span class="badge green">MVP 검증 단계</span>
+      <span class="badge yellow">시장 문제 정의서 v1.0</span>
+      <span class="badge">5~20인 웹 에이전시</span>
+    </div>
   </div>
+  <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
+</header>
+
+<!-- NAV TABS -->
+<nav>
+  <button class="tab-btn active" onclick="showTab('overview')">📋 개요</button>
+  <button class="tab-btn" onclick="showTab('problem')">🔍 문제 분석</button>
+  <button class="tab-btn" onclick="showTab('market')">📊 시장 규모</button>
+  <button class="tab-btn" onclick="showTab('solution')">💡 솔루션</button>
+  <button class="tab-btn" onclick="showTab('strategy')">🚀 검증 전략</button>
+  <button class="tab-btn" onclick="showTab('unknowns')">❓ 미검증 가설</button>
 </nav>
 
-<div class="page active" id="page-overview">
-  <div class="hero">
-    <div class="hero-eyebrow"><div class="hero-dot"></div>시장 문제 정의서 v1.1</div>
-    <h1>에이전시는 왜<br><em>"돈 달라는 말"</em>을<br>못 꺼낼까</h1>
-    <p>도구의 부재가 아닌 <strong style="color:#fff;">구조의 부재</strong>.<br>Scope Manager는 PM이 혼자 감당해온 그 구조를 대신한다.</p>
-    <div class="hero-quote">
-      "클라이언트들은 AI를 사용하기 때문에 더 낮은 금액을 기대하지만, 그 기대치는 고품질 결과물을 위해 여전히 필요한 실제 인력(공수)을 반영하지 않는다."
-      <cite>— 시니어 어카운트 매니저 (Productive.io 2025 글로벌 에이전시 실태 조사)</cite>
+<main>
+
+<!-- TAB 1: 개요 -->
+<div id="page-overview" class="page active">
+  <div class="page-title">우리가 해결하는 문제</div>
+  <div class="page-desc">국내 웹 에이전시 PM들은 클라이언트의 추가 요구가 발생해도 비용을 청구하지 못하고 감수한다.<br>이유는 단순하다 — <strong style="color:var(--t1)">"돈 달라는 말을 꺼내기 어려워서"</strong>. 이것은 도구의 부재가 아니라 <strong style="color:var(--t1)">구조의 부재</strong>다.</div>
+
+  <div class="grid-3 mb-14">
+    <div class="stat-card">
+      <div class="stat-num">52%</div>
+      <div class="stat-label">전 세계 프로젝트 스코프 크리프 경험률</div>
+      <div class="stat-desc">5년 전 43%에서 지속 상승 중 (PMI 2018)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">85%</div>
+      <div class="stat-label">스코프 크리프 프로젝트 예산 초과율</div>
+      <div class="stat-desc">평균 비용 초과율 27%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num yellow">0</div>
+      <div class="stat-label">소규모 에이전시 전용 변경관리 도구</div>
+      <div class="stat-desc">5~20인 규모에 맞는 솔루션이 없는 공백 시장</div>
     </div>
   </div>
 
-  <div class="container" style="padding-top:0;">
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-num">52<span>%</span></div>
-        <div class="stat-label">전 세계 프로젝트가<br>과업 범위 초과 경험</div>
-        <div class="stat-source">PMI Pulse of the Profession</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">85<span>%</span></div>
-        <div class="stat-label">과업 범위 초과 발생 시<br>초기 예산 초과</div>
-        <div class="stat-source">PMI 조사</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">27<span>%</span></div>
-        <div class="stat-label">평균 비용<br>초과율</div>
-        <div class="stat-source">PMI 조사</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num">52<span>%</span></div>
-        <div class="stat-label">에이전시 PM이 AI를<br>주요 트렌드로 지목</div>
-        <div class="stat-source">Promethean Research 2024</div>
-      </div>
+  <div class="card">
+    <div class="section-title">핵심 타겟</div>
+    <div class="flow">
+      <div class="flow-item"><strong>5인 미만</strong>체계 자체가 불필요한 단계</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item" style="border-color:var(--blue);background:rgba(79,128,255,0.08)"><strong style="color:var(--blue)">5~20인 ★</strong>고통이 가장 집중된 구간</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item"><strong>20인 초과</strong>자체 해결책 보유 경향</div>
     </div>
+    <p style="font-size:13px;color:var(--t3);margin-top:10px">이 규모는 프로젝트 하나의 적자가 회사 현금흐름에 직접 영향을 미치지만, 전담 PM 조직과 체계적 계약 관리 프로세스를 갖추기 어려운 구간이다.</p>
+  </div>
 
-    <div class="section">
-      <div class="section-label">핵심 구조</div>
-      <div class="section-title">문제가 반복되는 이유</div>
-      <div class="section-sub">PM 개인의 역량 문제가 아닌, 구조적으로 손실이 발생할 수밖에 없는 환경이다.</div>
+  <div class="card mt-14">
+    <div class="section-title">문제 구조 요약</div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>현상</th><th>원인</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AI 도구 대중화</td><td>클라이언트 기대치 상승</td><td class="highlight">인식 격차 심화</td></tr>
+        <tr><td>변경 관리 단가 기준 없음</td><td>PM 개인 담력에 의존</td><td class="highlight">감정노동 집중</td></tr>
+        <tr><td>기존 PM 도구의 목적 불일치</td><td>카톡+엑셀로 공백 채움</td><td class="highlight">일관성 없는 손실 반복</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-      <div class="flow" style="margin-top:32px;">
-        <div class="flow-node">
-          <div class="fn-icon">🤖</div>
-          <div class="fn-label">AI 도구 확산</div>
-          <div class="fn-sub">개발 속도 상승</div>
-        </div>
-        <div class="flow-arrow red">→</div>
-        <div class="flow-node">
-          <div class="fn-icon">💭</div>
-          <div class="fn-label">클라이언트 기대</div>
-          <div class="fn-sub">"더 빠르고 싸야 함"</div>
-        </div>
-        <div class="flow-arrow red">→</div>
-        <div class="flow-node highlight">
-          <div class="fn-icon">⚡</div>
-          <div class="fn-label">인식 격차 발생</div>
-          <div class="fn-sub">기대 vs 현실 괴리</div>
-        </div>
-        <div class="flow-arrow red">→</div>
-        <div class="flow-node">
-          <div class="fn-icon">😶</div>
-          <div class="fn-label">추가 청구 포기</div>
-          <div class="fn-sub">관계 악화 우려</div>
-        </div>
-        <div class="flow-arrow red">→</div>
-        <div class="flow-node">
-          <div class="fn-icon">📉</div>
-          <div class="fn-label">프로젝트 적자</div>
-          <div class="fn-sub">반복 손실</div>
-        </div>
+<!-- TAB 2: 문제 분석 -->
+<div id="page-problem" class="page">
+  <div class="page-title">근본 원인 분석</div>
+  <div class="page-desc">스코프 크리프가 반복되는 데는 세 가지 구조적 원인이 있다.</div>
+
+  <div class="problem-card">
+    <div class="problem-num">원인 01</div>
+    <div class="problem-title">AI 도입이 만들어낸 새로운 인식 격차</div>
+    <div class="problem-body">
+      AI 코딩 도구의 대중화 이후 클라이언트의 기대치가 실제 개발 비용과 벌어지기 시작했다.<br><br>
+      <span class="tag blue">Promethean Research 2024</span> 응답자 52%가 AI를 주요 트렌드로 꼽으면서, 이 효율화가 클라이언트의 <strong>속도·가격 기대치 상승</strong>으로 이어졌다고 밝혔다.
+      <div class="quote-block">
+        "클라이언트들은 AI를 사용하기 때문에 더 낮은 금액을 기대하지만, 그 기대치는 고품질 결과물을 위해 실제로 필요한 인력 감소분을 반영하지 않는다."<br>
+        <span style="font-size:11px;margin-top:4px;display:block">— 시니어 어카운트 매니저, Productive.io 180개 에이전시 조사 (2025)</span>
+      </div>
+      구조는 이렇다: 클라이언트는 <strong>"AI가 다 해주니까 싸야 한다"</strong>고 인식하고, 에이전시는 <strong>"AI 결과물 검증·커스텀 비용이 새로 생겼다"</strong>는 현실에 처한다.
+    </div>
+  </div>
+
+  <div class="problem-card">
+    <div class="problem-num">원인 02</div>
+    <div class="problem-title">'변경 관리 단가'의 업계 표준 공백</div>
+    <div class="problem-body">
+      국내 에이전시 시장에는 기능별 초기 견적 기준은 있지만, <strong>범위 변경 발생 시 어떻게 청구하는가에 대한 표준이 없다.</strong> 기준이 없으니 협상은 PM 개인의 관계력과 담력에 전적으로 의존한다.
+      <div class="quote-block">
+        "제가 그러는 게 아니라, 원래 계약 범위를 벗어난 거라서요."<br>
+        <span style="font-size:11px;margin-top:4px;display:block">— PM들이 반복적으로 하는 말. 혼자 하면 아쉬운 소리, 시스템이 판정하면 협상의 성격이 바뀐다.</span>
+      </div>
+      이것이 감정 노동이 PM에게 집중되는 구조적 이유다.
+    </div>
+  </div>
+
+  <div class="problem-card">
+    <div class="problem-num">원인 03</div>
+    <div class="problem-title">기존 프로젝트 관리 도구는 이 문제를 해결하지 않는다</div>
+    <div class="problem-body">
+      Jira, Asana, Notion 같은 도구들은 과업을 <strong>'관리'</strong>하기 위해 만들어졌다. 범위 초과를 <strong>판정</strong>하고 청구 근거를 <strong>생성</strong>하는 것은 이들의 설계 목적이 아니다.
+      <br><br>
+      현재 PM들은 <span class="tag">카카오톡</span><span class="tag">엑셀</span><span class="tag">기억</span>에 의존해 이 공백을 채운다. 결과는 일관성 없는 협상과 반복되는 손실이다.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: 시장 규모 -->
+<div id="page-market" class="page">
+  <div class="page-title">시장 규모 및 현황</div>
+  <div class="page-desc">스코프 크리프는 국내만의 문제가 아닌 글로벌 산업 전반의 구조적 문제다.</div>
+
+  <div class="grid-2 mb-14">
+    <div class="stat-card">
+      <div class="stat-num">52%</div>
+      <div class="stat-label">전 세계 프로젝트 스코프 크리프 경험률</div>
+      <div class="stat-desc">PMI Pulse of the Profession, 2018</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num red">+9%p</div>
+      <div class="stat-label">5년간 경험률 상승폭 (43% → 52%)</div>
+      <div class="stat-desc">AI 도입 이후 가속 추세</div>
+    </div>
+  </div>
+
+  <div class="card mb-14">
+    <div class="section-title">스코프 크리프 피해 데이터</div>
+    <div class="progress-row mt-14">
+      <div class="progress-label"><span>예산 초과 발생률</span><span>85%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-red" style="width:85%"></div></div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label"><span>평균 비용 초과율</span><span>27%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:27%"></div></div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label"><span>AI를 주요 트렌드로 인식하는 에이전시</span><span>52%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-blue" style="width:52%"></div></div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label"><span>PM 도구로 범위 협상까지 해결 가능한 비율</span><span>~0%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-green" style="width:2%"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">경쟁 솔루션 지형</div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>카테고리</th><th>예시 도구</th><th>범위 초과 판정</th><th>청구 근거 생성</th><th>소규모 에이전시 적합성</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>엔터프라이즈 PM</td>
+          <td>MS Project, Primavera</td>
+          <td class="muted">부분 가능</td>
+          <td class="muted">수동</td>
+          <td class="muted" style="color:var(--red)">낮음 (고비용·복잡)</td>
+        </tr>
+        <tr>
+          <td>협업 PM 도구</td>
+          <td>Jira, Asana, Notion</td>
+          <td class="muted">불가</td>
+          <td class="muted">불가</td>
+          <td class="muted">중간 (목적 불일치)</td>
+        </tr>
+        <tr>
+          <td>견적/계약 도구</td>
+          <td>PandaDoc, Proposify</td>
+          <td class="muted">불가</td>
+          <td class="muted">부분 가능</td>
+          <td class="muted">중간 (사후 처리)</td>
+        </tr>
+        <tr>
+          <td><strong>Scope Manager</strong></td>
+          <td><span class="tag blue">목표 포지션</span></td>
+          <td class="highlight">자동 판정</td>
+          <td class="highlight">자동 생성</td>
+          <td class="highlight" style="color:var(--green)">높음 (특화 설계)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: 솔루션 -->
+<div id="page-solution" class="page">
+  <div class="page-title">Scope Manager가 제안하는 구조</div>
+  <div class="page-desc">PM이 "아쉬운 소리"를 하지 않아도 되는 구조를 만든다. 세 가지 핵심 역할로 작동한다.</div>
+
+  <div class="grid-3 mb-14">
+    <div class="sol-card c1">
+      <div class="sol-icon">⚖️</div>
+      <div class="sol-title">범위 초과의 판정자</div>
+      <div class="sol-body">클라이언트의 요구가 계약 범위를 벗어났는지 시스템이 기록하고 판정한다. PM의 주관이 아닌 <strong style="color:var(--t1)">데이터</strong>가 말한다.</div>
+    </div>
+    <div class="sol-card c2">
+      <div class="sol-icon">📄</div>
+      <div class="sol-title">청구 근거의 생성자</div>
+      <div class="sol-body">"시스템상 과업 범위를 초과한 것으로 기록되었습니다"라는 문장을, PM이 아니라 <strong style="color:var(--t1)">도구</strong>가 만들어 준다.</div>
+    </div>
+    <div class="sol-card c3">
+      <div class="sol-icon">📈</div>
+      <div class="sol-title">수익성의 가시화 도구</div>
+      <div class="sol-body">프로젝트별 실제 손익을 누적 기록하여, 다음 견적과 계약의 기준을 <strong style="color:var(--t1)">데이터</strong>로 만든다.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">핵심 가치 제안</div>
+    <div class="quote-block" style="border-left-color:var(--green);font-style:normal;font-size:14px;color:var(--t1);font-weight:600">
+      "시스템이 판정한 결과를 보여주면 협상의 성격 자체가 바뀐다."
+    </div>
+    <p style="font-size:13px;color:var(--t3);line-height:1.75;margin-top:10px">
+      기존 도구들이 과업 '관리'에 집중한 반면, Scope Manager는 <strong style="color:var(--t1)">관계 보호</strong>와 <strong style="color:var(--t1)">수익 방어</strong>에 집중한다. PM의 감정 소모 없이 계약 범위를 지킬 수 있는 구조적 장치를 제공한다.
+    </p>
+  </div>
+
+  <div class="card mt-14">
+    <div class="section-title">사용 시나리오</div>
+    <div class="flow" style="flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div style="font-size:13px;color:var(--t3)"><strong style="color:var(--t1)">계약 범위 등록</strong> — 프로젝트 시작 시 합의된 기능 목록을 등록</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div style="font-size:13px;color:var(--t3)"><strong style="color:var(--t1)">추가 요구 기록</strong> — 클라이언트의 추가 요구를 실시간 기록 및 자동 분류</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+        <div style="font-size:13px;color:var(--t3)"><strong style="color:var(--t1)">범위 초과 판정</strong> — 시스템이 계약 내/외를 자동 판정하여 리포트 생성</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+        <div style="font-size:13px;color:var(--t3)"><strong style="color:var(--t1)">청구 근거 전달</strong> — 감정 없이, 데이터로 추가 비용 협상 가능</div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="page" id="page-problem">
-  <div class="container">
-    <div class="section-label" style="margin-top:8px;">근본 원인 분석</div>
-    <div class="section-title" style="margin-bottom:8px;">왜 이 문제는 반복되는가</div>
-    <div class="section-sub" style="margin-bottom:40px;">세 가지 구조적 원인이 PM을 무력하게 만든다.</div>
+<!-- TAB 5: 검증 전략 -->
+<div id="page-strategy" class="page">
+  <div class="page-title">MVP 우선 검증 전략</div>
+  <div class="page-desc">전통적인 린 스타트업 방법론을 AI 시대에 맞게 재설계했다.</div>
 
-    <div class="prob-grid">
-      <div class="prob-card">
-        <div class="prob-num-col">
-          <div class="prob-num n1">1</div>
-          <div class="prob-line"></div>
-        </div>
-        <div class="prob-body">
-          <div class="prob-tag t1">🤖 AI 인식 격차</div>
-          <div class="prob-title">AI 도입이 만들어낸 새로운 기대치 충돌</div>
-          <div class="prob-desc">AI 코딩 도구 대중화 이후, 클라이언트는 "AI가 다 해주니까 싸야 한다"고 인식한다. 에이전시는 반대로 "AI 결과물을 검증·커스텀하는 비용이 새로 생겼다"는 현실에 처한다. 이 인식 불일치가 과업 범위 협상을 더 어렵게 만드는 새로운 마찰의 원천이다.</div>
-          <div class="prob-quote">
-            "클라이언트들은 AI를 사용하기 때문에 더 낮은 금액을 기대하지만, 그 기대치는 실제로 필요한 인력 감소분을 반영하지 않는다."
-          </div>
-        </div>
+  <div class="strategy-callout">
+    <div class="s-title">⚡ 전략적 선택: 인터뷰 → MVP 순서 역전</div>
+    <p>AI 개발 도구의 발달로 MVP 제작 비용과 시간이 극적으로 낮아졌다. 이에 따라 불확실성이 높은 고객 인터뷰 단계를 생략하고, <strong>MVP를 즉시 배포하여 실제 사용자의 행동 데이터로 가설을 검증</strong>하는 전략을 선택했다.</p>
+  </div>
+
+  <div class="vs-block mb-14">
+    <div class="vs-card old">
+      <div class="vs-label">전통적 린 스타트업</div>
+      <ul class="vs-list">
+        <li>고객 인터뷰 설계·진행</li>
+        <li>문제 검증 (말에 의존)</li>
+        <li>솔루션 검증</li>
+        <li>MVP 개발·배포</li>
+        <li>행동 데이터 수집</li>
+      </ul>
+    </div>
+    <div class="vs-center">→</div>
+    <div class="vs-card new">
+      <div class="vs-label">AI 시대 역전 전략</div>
+      <ul class="vs-list">
+        <li>MVP 즉시 개발·배포</li>
+        <li>실제 사용/이탈 패턴 관찰</li>
+        <li>행동 데이터로 가설 검증</li>
+        <li>데이터 기반 인터뷰 (선택적)</li>
+        <li>검증된 기능 확장</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card mb-14">
+    <div class="section-title">전략의 핵심 논리</div>
+    <div class="q-item" style="border-bottom:1px solid var(--bd);padding:12px 0">
+      <div class="q-icon">🗣️</div>
+      <div class="q-text"><strong>고객 인터뷰의 한계</strong>말(intention)과 행동(behavior)이 불일치하는 경우가 많다. "쓸 것 같다"와 "실제로 쓴다"는 다르다.</div>
+    </div>
+    <div class="q-item" style="border-bottom:1px solid var(--bd);padding:12px 0">
+      <div class="q-icon">📊</div>
+      <div class="q-text"><strong>MVP 행동 데이터의 우위</strong>실제 사용/이탈 패턴이 인터뷰보다 더 정직한 신호를 제공한다.</div>
+    </div>
+    <div class="q-item" style="border-bottom:1px solid var(--bd);padding:12px 0">
+      <div class="q-icon">💰</div>
+      <div class="q-text"><strong>비용 역전 현상</strong>AI 덕분에 MVP 개발 비용이 인터뷰 설계/진행 비용보다 낮아진 역전 현상이 발생했다.</div>
+    </div>
+    <div class="q-item" style="padding:12px 0">
+      <div class="q-icon">⚡</div>
+      <div class="q-text"><strong>결론</strong>"만들어서 보여주는" 것이 "물어보는" 것보다 더 빠르고 정확한 검증 방법이 되었다.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">MVP 검증 지표</div>
+    <div class="grid-2" style="margin-top:10px">
+      <div style="background:var(--s2);border-radius:10px;padding:14px;border:1px solid var(--bd)">
+        <div style="font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px">활성화 지표</div>
+        <div style="font-size:13px;color:var(--t3);line-height:1.8">✓ 회원가입 후 첫 프로젝트 등록률<br>✓ 범위 등록 완료율<br>✓ 첫 추가 요구 기록까지의 시간</div>
       </div>
-
-      <div class="prob-card">
-        <div class="prob-num-col">
-          <div class="prob-num n2">2</div>
-          <div class="prob-line"></div>
-        </div>
-        <div class="prob-body">
-          <div class="prob-tag t2">📋 업계 표준 부재</div>
-          <div class="prob-title">변경 관리 단가의 공백</div>
-          <div class="prob-desc">국내 에이전시 시장에 기능별 초기 견적 기준은 있지만, 범위 변경 발생 시 어떻게 청구하는가에 대한 업계 표준이 없다. 기준이 없으니 협상은 PM 개인의 능력에 전적으로 의존한다. 이것이 감정 노동이 PM에게 집중되는 구조적 이유다.</div>
-          <div class="prob-quote">
-            "제가 그러는 게 아니라, 원래 계약 범위를 벗어난 거라서요." — 이 말을 혼자 하면 아쉬운 소리가 되지만, 시스템이 판정한 결과를 보여주면 협상의 성격 자체가 바뀐다.
-          </div>
-        </div>
-      </div>
-
-      <div class="prob-card">
-        <div class="prob-num-col">
-          <div class="prob-num n3">3</div>
-        </div>
-        <div class="prob-body">
-          <div class="prob-tag t3">🛠 도구 미스매치</div>
-          <div class="prob-title">기존 PM 도구는 이 문제를 해결하지 않는다</div>
-          <div class="prob-desc">Jira, Asana, Notion 같은 기존 도구들은 과업을 '관리'하기 위해 만들어졌다. 범위 초과를 판정하고 청구 근거를 생성하는 것은 이들의 설계 목적이 아니다. 현재 PM들은 카카오톡 대화와 엑셀, 그리고 기억에 의존해 이 공백을 채운다.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
-            <div style="background:#0f1117;border-radius:8px;padding:10px 12px;font-size:12px;color:#5a6478;">
-              <div style="color:#8c95aa;font-weight:700;margin-bottom:4px;">기존 도구</div>
-              Jira · Asana · Notion<br>과업 관리만 가능
-            </div>
-            <div style="background:#1a2540;border:1px solid #4f80ff30;border-radius:8px;padding:10px 12px;font-size:12px;color:#8c95aa;">
-              <div style="color:#4f80ff;font-weight:700;margin-bottom:4px;">필요한 것</div>
-              범위 초과 판정<br>청구 근거 자동 생성
-            </div>
-          </div>
-        </div>
+      <div style="background:var(--s2);border-radius:10px;padding:14px;border:1px solid var(--bd)">
+        <div style="font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px">리텐션 지표</div>
+        <div style="font-size:13px;color:var(--t3);line-height:1.8">✓ 2주 후 재방문율<br>✓ 두 번째 프로젝트 생성 여부<br>✓ 청구 근거 리포트 생성 횟수</div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="page" id="page-target">
-  <div class="container">
-    <div class="section-label" style="margin-top:8px;">타겟 정의</div>
-    <div class="section-title" style="margin-bottom:8px;">누구의 문제인가</div>
-    <div class="section-sub" style="margin-bottom:40px;">고통이 가장 집중된 구간, 직원 5~20인 웹 에이전시.</div>
+<!-- TAB 6: 미검증 가설 -->
+<div id="page-unknowns" class="page">
+  <div class="page-title">미검증 가설 — 열린 질문들</div>
+  <div class="page-desc">이 문서는 현재까지 확인된 사실과 구조적 논리를 바탕으로 작성되었다. 아래 질문들은 MVP 행동 데이터와 선택적 인터뷰를 통해 반드시 검증해야 할 열린 과제다.</div>
 
-    <div class="target-wrap">
-      <div class="target-main">
-        <div class="target-main-badge">🎯 핵심 타겟</div>
-        <h3>직원 5~20인<br>웹 에이전시 PM</h3>
-        <p style="margin-top:8px;">PM을 겸하는 대표 포함. 프로젝트 하나가 적자로 돌아서면 회사 전체 현금 흐름이 직접 영향을 받는 규모.</p>
-        <div class="target-range" style="margin-top:24px;">
-          <div style="font-size:12px;font-weight:700;color:#8c95aa;margin-bottom:8px;">규모별 특성</div>
-          <div class="range-bar-wrap">
-            <div class="range-bar"><div class="range-fill"></div></div>
-          </div>
-          <div class="range-labels">
-            <span>1~4인<br><span style="font-size:10px;">체계 불필요</span></span>
-            <span class="hl">5~20인<br><span style="font-size:10px;">고통 집중 구간</span></span>
-            <span>20인+<br><span style="font-size:10px;">자체 해결책</span></span>
-          </div>
-        </div>
-        <div style="margin-top:24px;padding:16px;background:#0f1117;border-radius:10px;">
-          <div style="font-size:11px;font-weight:700;color:#5a6478;margin-bottom:10px;">시장 규모</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div>
-              <div style="font-size:22px;font-weight:900;color:#4f80ff;">2,500<span style="font-size:14px;">개</span></div>
-              <div style="font-size:11px;color:#5a6478;">국내 타겟 에이전시</div>
-            </div>
-            <div>
-              <div style="font-size:22px;font-weight:900;color:#60a5fa;">591,400<span style="font-size:14px;">개</span></div>
-              <div style="font-size:11px;color:#5a6478;">글로벌 타겟 에이전시</div>
-            </div>
-          </div>
-        </div>
+  <div class="card mb-14">
+    <div class="section-title">검증 우선순위 — 핵심 가설</div>
+    <div class="q-item">
+      <div class="q-icon">❓</div>
+      <div class="q-text">
+        <strong>추가 비용 청구 포기율</strong>
+        5~20인 에이전시 PM 중 실제로 추가 비용 청구를 포기하는 비율은 얼마인가?
+        <span class="tag yellow" style="margin-top:6px;display:inline-block">행동 데이터로 검증 가능</span>
       </div>
-      <div class="target-side">
-        <div class="target-side-card">
-          <div class="target-icon pain">😓</div>
-          <div class="target-text">
-            <h4>왜 고통받는가</h4>
-            <p>문제는 인식하지만 해결할 여력이 없다. 전담 PM 조직도, 체계화된 계약 관리 프로세스도 없다.</p>
-          </div>
-        </div>
-        <div class="target-side-card">
-          <div class="target-icon pain">💸</div>
-          <div class="target-text">
-            <h4>손실의 구조</h4>
-            <p>추가 요구를 감수하고, 기록하지 않고, 청구 못 한다. 다음 프로젝트에서 같은 실수가 반복된다.</p>
-          </div>
-        </div>
-        <div class="target-side-card">
-          <div class="target-icon opp">📈</div>
-          <div class="target-text">
-            <h4>확장 기회</h4>
-            <p>PM 역할자는 에이전시 외에도 기업 내부 부서, 프리랜서 PM으로 확장 가능한 구조다.</p>
-          </div>
-        </div>
-        <div class="target-side-card">
-          <div class="target-icon opp">🌏</div>
-          <div class="target-text">
-            <h4>글로벌 확장성</h4>
-            <p>국내 2,500개 → 글로벌 591,400개. 동일한 문제 구조가 전 세계에 존재한다.</p>
-          </div>
-        </div>
+    </div>
+    <div class="q-item">
+      <div class="q-icon">❓</div>
+      <div class="q-text">
+        <strong>포기의 실제 이유</strong>
+        포기의 주요 이유는 증거 부족인가, 아니면 관계 악화에 대한 우려인가?
+        <span class="tag blue" style="margin-top:6px;display:inline-block">이탈 지점 분석 필요</span>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-icon">❓</div>
+      <div class="q-text">
+        <strong>시스템 판정 수용도</strong>
+        클라이언트는 'AI 또는 시스템 판정 결과'를 수용하는가, 아니면 반발하는가?
+        <span class="tag green" style="margin-top:6px;display:inline-block">리포트 전달 후 피드백 추적</span>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-icon">❓</div>
+      <div class="q-text">
+        <strong>경쟁 위협 — 기존 도구의 확장</strong>
+        기존 협업 도구(Jira, Notion 등)가 이 기능을 추가할 경우 차별점이 유지되는가?
+        <span class="tag red" style="margin-top:6px;display:inline-block">시장 감시 필요</span>
       </div>
     </div>
   </div>
-</div>
 
-<div class="page" id="page-solution">
-  <div class="container">
-    <div class="section-label" style="margin-top:8px;">솔루션 정의</div>
-    <div class="section-title" style="margin-bottom:8px;">Scope Manager가 만드는 구조</div>
-    <div class="section-sub" style="margin-bottom:40px;">PM이 "아쉬운 소리"를 하지 않아도 되는 구조. 시스템이 판정하고, 데이터가 말한다.</div>
-
-    <div class="solution-grid" style="margin-bottom:32px;">
-      <div class="sol-card">
-        <div class="sol-icon">⚖️</div>
-        <div class="sol-num">역할 01</div>
-        <div class="sol-title">범위 초과<br>판정자</div>
-        <div class="sol-desc">클라이언트의 요구가 계약 범위를 벗어났는지 시스템이 기록하고 판정한다. PM의 주관이 아닌 데이터가 말한다.</div>
-      </div>
-      <div class="sol-card">
-        <div class="sol-icon">📄</div>
-        <div class="sol-num">역할 02</div>
-        <div class="sol-title">청구 근거<br>생성자</div>
-        <div class="sol-desc">"시스템상 과업 범위를 초과한 것으로 기록되었습니다"라는 문장을, PM이 아니라 도구가 만들어 준다.</div>
-      </div>
-      <div class="sol-card">
-        <div class="sol-icon">📊</div>
-        <div class="sol-num">역할 03</div>
-        <div class="sol-title">수익성<br>가시화 도구</div>
-        <div class="sol-desc">프로젝트별 실제 손익을 누적 기록함으로써, 다음 견적과 계약의 기준을 데이터로 만든다.</div>
-      </div>
-    </div>
-
-    <div class="sol-before-after">
-      <div class="ba-col before">
-        <div class="ba-label before">BEFORE — 지금</div>
-        <div class="ba-item">카카오톡 대화로 요구사항 파악</div>
-        <div class="ba-item">엑셀과 기억으로 변경 추적</div>
-        <div class="ba-item">PM이 직접 "돈 달라"고 말해야 함</div>
-        <div class="ba-item">청구 포기 → 반복 손실</div>
-        <div class="ba-item">어떤 프로젝트가 적자인지 모름</div>
-      </div>
-      <div class="ba-divider"><div class="ba-arrow">→</div></div>
-      <div class="ba-col after">
-        <div class="ba-label after">AFTER — Scope Manager</div>
-        <div class="ba-item">요청 등록 → AI 범위 판정 자동화</div>
-        <div class="ba-item">변경 이력 시스템에 자동 기록</div>
-        <div class="ba-item">시스템 생성 근거로 협상 구조 전환</div>
-        <div class="ba-item">견적서 자동 생성 → 추가 청구 실행</div>
-        <div class="ba-item">프로젝트별 실시간 수익성 대시보드</div>
-      </div>
-    </div>
+  <div class="card">
+    <div class="section-title">검증 계획 매핑</div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>가설</th><th>검증 방법</th><th>목표 기준</th><th>우선순위</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>PM의 청구 포기 경험 비율</td>
+          <td>MVP 온보딩 설문</td>
+          <td class="highlight">&gt; 60% 응답 시 검증</td>
+          <td><span class="tag blue">높음</span></td>
+        </tr>
+        <tr>
+          <td>포기 이유 (증거 vs 관계)</td>
+          <td>이탈 지점 히트맵</td>
+          <td class="highlight">리포트 생성 후 이탈 패턴</td>
+          <td><span class="tag blue">높음</span></td>
+        </tr>
+        <tr>
+          <td>클라이언트 판정 수용도</td>
+          <td>사용자 인터뷰 (선택적)</td>
+          <td class="highlight">수용률 &gt; 50%</td>
+          <td><span class="tag yellow">중간</span></td>
+        </tr>
+        <tr>
+          <td>기존 도구 확장 가능성</td>
+          <td>시장 모니터링</td>
+          <td class="muted">분기별 점검</td>
+          <td><span class="tag">낮음</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:var(--t3);margin-top:12px;font-style:italic">* 본 문서는 시장 문제 정의 단계의 초안이며, MVP 행동 데이터 및 인터뷰 결과에 따라 내용이 업데이트됩니다.</p>
   </div>
 </div>
 
-<div class="page" id="page-unknown">
-  <div class="container">
-    <div class="section-label" style="margin-top:8px;">가설 검증 전략</div>
-    <div class="section-title" style="margin-bottom:8px;">말이 아닌 제품으로 검증한다</div>
-    <div class="section-sub" style="margin-bottom:40px;">AI 도구를 활용해 개발 비용이 극단적으로 낮아진 현재, 불확실한 사전 인터뷰 대신 6주 내 완성된 MVP를 직접 시장에 던져 실제 반응을 확인한다.</div>
-
-    <div class="unknown-grid">
-      <div class="unknown-card">
-        <div class="q-icon">Q1</div>
-        <p>5~20인 에이전시 PM 중 실제로 추가 비용 청구를 <strong style="color:#fff;">포기하는 비율</strong>은 얼마인가?</p>
-      </div>
-      <div class="unknown-card">
-        <div class="q-icon">Q2</div>
-        <p>포기의 주요 이유는 <strong style="color:#fff;">증거 부족</strong>인가, <strong style="color:#fff;">관계 악화</strong>에 대한 우려인가?</p>
-      </div>
-      <div class="unknown-card">
-        <div class="q-icon">Q3</div>
-        <p>클라이언트는 시스템이 생성한 '객관적 판정 결과'를 <strong style="color:#fff;">수용</strong>하는가, 아니면 <strong style="color:#fff;">반발</strong>하는가?</p>
-      </div>
-      <div class="unknown-card">
-        <div class="q-icon">Q4</div>
-        <p>실제 MVP를 도입한 후, 에이전시의 <strong style="color:#fff;">추가 청구 성공률</strong>은 유의미하게 상승하는가?</p>
-      </div>
-    </div>
-
-    <div style="margin-top:40px;background:#1e2533;border:1px solid #2e3748;border-radius:14px;padding:28px;">
-      <div style="font-size:13px;font-weight:700;color:#8c95aa;margin-bottom:16px;">행동 중심 검증 방법론 (AI-Driven)</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-        <div style="text-align:center;">
-          <div style="font-size:28px;margin-bottom:8px;">⚡</div>
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">초고속 MVP 빌드</div>
-          <div style="font-size:12px;color:#5a6478;">AI 통합 IDE 기반<br>6주 내 핵심 기능 배포</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:28px;margin-bottom:8px;">🧪</div>
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">클로즈드 베타 테스트</div>
-          <div style="font-size:12px;color:#5a6478;">타겟 에이전시 5~10곳<br>실제 실무 적용 및 관찰</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:28px;margin-bottom:8px;">📈</div>
-          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">사용 데이터 분석</div>
-          <div style="font-size:12px;color:#5a6478;">판정 기능 사용 빈도 및<br>실제 이탈률 트래킹</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:20px;background:#1a2540;border:1px solid #4f80ff30;border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;">
-      <div style="font-size:24px;">📌</div>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">전략 피벗 완료</div>
-        <div style="font-size:12px;color:#8c95aa;">개념 검증(PoC)을 위한 사전 인터뷰를 생략하고, MVP 실사용 피드백을 통해 Product-Market Fit을 찾습니다.</div>
-      </div>
-    </div>
-  </div>
-</div>
+</main>
 
 <script>
-  function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    event.target.classList.add('active');
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
+function showTab(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function toggleMode() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+}
 </script>
 </body>
 </html>
