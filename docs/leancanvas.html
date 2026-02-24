@@ -3,388 +3,840 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — 린 캔버스 2026.02</title>
+<title>Scope Manager — 린캔버스</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Apple SD Gothic Neo','Pretendard',sans-serif; background:#0f1117; color:#e8eaf0; font-size:13px; }
-
-/* ── Header ── */
-.header { padding:20px 24px 16px; border-bottom:1px solid #1e2533; display:flex; align-items:center; justify-content:space-between; }
-.logo { font-size:16px; font-weight:800; }
-.logo b { color:#4f80ff; }
-.header-meta { font-size:11px; color:#5a6478; display:flex; align-items:center; gap:16px; }
-.header-meta span { display:flex; align-items:center; gap:5px; }
-.dot { width:7px; height:7px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.view-btns { display:flex; gap:4px; }
-.vbtn { padding:5px 12px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid #2e3748; background:none; color:#8c95aa; transition:.15s; }
-.vbtn.active { background:#4f80ff; border-color:#4f80ff; color:#fff; }
-.vbtn:hover:not(.active) { color:#fff; border-color:#4f80ff; }
-
-/* ── Canvas grid ── */
-.canvas-wrap { padding:16px 20px 24px; overflow-x:auto; }
-.canvas { display:grid; min-width:1100px;
-  grid-template-columns: 180px 180px 200px 180px 180px;
-  grid-template-rows: auto auto auto;
-  gap:8px;
+:root {
+  --bg: #0f1117;
+  --s1: #1a1f2e;
+  --s2: #212840;
+  --t1: #e8eaf0;
+  --t3: #8c95aa;
+  --bd: #232b3e;
+  --blue: #4f80ff;
+  --green: #10b981;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --purple: #a78bfa;
+  --orange: #fb923c;
+}
+body.light {
+  --bg: #f5f7fa;
+  --s1: #ffffff;
+  --s2: #eef1f7;
+  --t1: #1a1f2e;
+  --t3: #5a6478;
+  --bd: #d1d9e6;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: background 0.2s, color 0.2s;
+  min-height: 100vh;
 }
 
-/* cell base */
-.cell {
-  background:#1a1f2e;
-  border:1px solid #232b3e;
-  border-radius:10px;
-  padding:14px 14px 16px;
-  position:relative;
-  transition:.2s;
-  cursor:pointer;
+/* ── HEADER ── */
+header {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 13px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  transition: background 0.2s;
 }
-.cell:hover { border-color:#4f80ff50; box-shadow:0 4px 20px rgba(79,128,255,.1); }
-.cell.active-cell { border-color:#4f80ff !important; box-shadow:0 0 0 2px #4f80ff30; }
-
-/* grid placement */
-.c-problem     { grid-column:1; grid-row:1/3; }
-.c-solution    { grid-column:2; grid-row:1; }
-.c-uvp         { grid-column:3; grid-row:1/3; }
-.c-advantage   { grid-column:4; grid-row:1; }
-.c-segment     { grid-column:5; grid-row:1/3; }
-.c-metrics     { grid-column:2; grid-row:2; }
-.c-channels    { grid-column:4; grid-row:2; }
-.c-cost        { grid-column:1/4; grid-row:3; }
-.c-revenue     { grid-column:4/6; grid-row:3; }
-
-/* cell label */
-.cell-label {
-  font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
-  color:#5a6478; margin-bottom:10px; display:flex; align-items:center; gap:6px;
+.header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.logo { font-size: 17px; font-weight: 700; color: var(--blue); letter-spacing: -0.3px; white-space: nowrap; }
+.logo span { color: var(--t1); }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+  border: 1px solid var(--bd);
+  background: var(--s2); color: var(--t3);
+  white-space: nowrap;
 }
-.cell-label-icon { font-size:13px; }
+.badge.blue  { border-color: var(--blue);   color: var(--blue);   background: transparent; }
+.badge.green { border-color: var(--green);  color: var(--green);  background: transparent; }
+.badge.yellow{ border-color: var(--yellow); color: var(--yellow); background: transparent; }
+.toggle-btn {
+  background: var(--s2); border: 1px solid var(--bd);
+  color: var(--t1); border-radius: 8px;
+  padding: 7px 12px; cursor: pointer;
+  font-size: 14px; white-space: nowrap;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.toggle-btn:hover { background: var(--bd); }
 
-/* accent lines */
-.c-problem   { border-top:3px solid #ef4444; }
-.c-solution  { border-top:3px solid #4f80ff; }
-.c-uvp       { border-top:3px solid #a855f7; }
-.c-advantage { border-top:3px solid #f59e0b; }
-.c-segment   { border-top:3px solid #10b981; }
-.c-metrics   { border-top:3px solid #06b6d4; }
-.c-channels  { border-top:3px solid #f97316; }
-.c-cost      { border-top:3px solid #ef4444; }
-.c-revenue   { border-top:3px solid #10b981; }
+/* ── NAV ── */
+nav {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  display: flex; overflow-x: auto;
+  padding: 0 24px;
+  scrollbar-width: none;
+  transition: background 0.2s;
+}
+nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--t3); cursor: pointer;
+  font-size: 13px; font-weight: 500;
+  padding: 12px 16px; white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.tab-btn:hover { color: var(--t1); }
+.tab-btn.active { border-bottom: 2px solid var(--blue); color: var(--blue); font-weight: 600; }
 
-/* items */
-.items { display:flex; flex-direction:column; gap:7px; }
-.item { display:flex; align-items:flex-start; gap:7px; line-height:1.5; }
-.item-dot { width:5px; height:5px; border-radius:50%; margin-top:5px; flex-shrink:0; }
-.item-text { font-size:12px; color:#c5cbd8; }
-.item-text b { color:#fff; font-weight:700; }
-.item-text .sub { font-size:11px; color:#5a6478; display:block; margin-top:1px; }
+/* ── MAIN ── */
+main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+.page { display: none; }
+.page.active { display: block; }
 
-/* color dots */
-.c-problem   .item-dot { background:#ef4444; }
-.c-solution  .item-dot { background:#4f80ff; }
-.c-uvp       .item-dot { background:#a855f7; }
-.c-advantage .item-dot { background:#f59e0b; }
-.c-segment   .item-dot { background:#10b981; }
-.c-metrics   .item-dot { background:#06b6d4; }
-.c-channels  .item-dot { background:#f97316; }
-.c-cost      .item-dot { background:#ef4444; }
-.c-revenue   .item-dot { background:#10b981; }
+/* ── TYPOGRAPHY ── */
+.page-title  { font-size: 20px; font-weight: 700; color: var(--t1); margin-bottom: 6px; }
+.page-desc   { color: var(--t3); font-size: 13px; margin-bottom: 22px; line-height: 1.75; }
+.sec-label   {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 8px;
+}
+.card-title  { font-size: 14px; font-weight: 700; color: var(--t1); margin-bottom: 8px; }
+.card-body   { font-size: 13px; color: var(--t3); line-height: 1.75; }
+.card-body strong { color: var(--t1); }
+
+/* ── CARD ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: background 0.2s;
+}
+
+/* ── TAG / BADGE ── */
+.tag {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 6px;
+  background: var(--s2); color: var(--t3);
+  border: 1px solid var(--bd);
+  margin: 2px 3px 2px 0;
+}
+.tag.blue   { background: rgba(79,128,255,.12); color: var(--blue);   border-color: rgba(79,128,255,.25); }
+.tag.green  { background: rgba(16,185,129,.12); color: var(--green);  border-color: rgba(16,185,129,.25); }
+.tag.red    { background: rgba(248,113,113,.12);color: var(--red);    border-color: rgba(248,113,113,.25); }
+.tag.yellow { background: rgba(251,191,36,.12); color: var(--yellow); border-color: rgba(251,191,36,.25); }
+.tag.purple { background: rgba(167,139,250,.12);color: var(--purple); border-color: rgba(167,139,250,.25); }
+.tag.orange { background: rgba(251,146,60,.12); color: var(--orange); border-color: rgba(251,146,60,.25); }
+
+/* ── BULLET LIST ── */
+.blist { list-style: none; padding: 0; }
+.blist li {
+  font-size: 13px; color: var(--t3);
+  padding: 5px 0; border-bottom: 1px solid var(--bd);
+  line-height: 1.65;
+}
+.blist li:last-child { border-bottom: none; }
+.blist li::before { content: '›'; color: var(--blue); margin-right: 8px; font-weight: 700; }
+.blist li strong { color: var(--t1); }
+
+/* ── ACCENT LINE ── */
+.accent-top { position: relative; }
+.accent-top::before {
+  content: '';
+  display: block; height: 3px;
+  border-radius: 12px 12px 0 0;
+  position: absolute; top: -1px; left: -1px; right: -1px;
+}
+.accent-blue::before   { background: var(--blue); }
+.accent-green::before  { background: var(--green); }
+.accent-red::before    { background: var(--red); }
+.accent-yellow::before { background: var(--yellow); }
+.accent-purple::before { background: var(--purple); }
+.accent-orange::before { background: var(--orange); }
+
+/* ─────────────────────────────────────────
+   TAB 1 — LEAN CANVAS (grid layout)
+───────────────────────────────────────── */
+.lc-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+/* Row 1 */
+.lc-problem   { grid-column: 1; grid-row: 1; }
+.lc-solution  { grid-column: 2; grid-row: 1; }
+.lc-uvp       { grid-column: 3; grid-row: 1 / 3; } /* spans 2 rows */
+.lc-advantage { grid-column: 4; grid-row: 1; }
+.lc-segments  { grid-column: 5; grid-row: 1; }
+/* Row 2 */
+.lc-metrics   { grid-column: 1 / 3; grid-row: 2; }  /* 2 cols */
+.lc-channels  { grid-column: 4 / 6; grid-row: 2; }  /* 2 cols */
+/* Row 3 — full width split */
+.lc-cost      { grid-column: 1 / 4; }
+.lc-revenue   { grid-column: 4 / 6; }
+.lc-bottom    {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.lc-cell {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 16px 18px;
+  min-height: 160px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.lc-cell-num {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.lc-cell-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--t1); margin-bottom: 10px;
+}
+.lc-item {
+  display: flex; gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--bd);
+  font-size: 12px; color: var(--t3);
+  line-height: 1.6;
+}
+.lc-item:last-child { border-bottom: none; }
+.lc-item-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 6px;
+}
+.lc-item strong { color: var(--t1); display: block; font-size: 12px; margin-bottom: 1px; }
 
 /* UVP special */
-.uvp-headline {
-  font-size:16px; font-weight:900; color:#fff; line-height:1.4;
-  letter-spacing:-0.5px; margin-bottom:12px;
-  background:linear-gradient(135deg,#a855f7,#4f80ff);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+.lc-uvp-main {
+  font-size: 15px; font-weight: 700;
+  color: var(--t1); line-height: 1.5;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bd);
 }
-.uvp-sub { font-size:12px; color:#8c95aa; line-height:1.7; margin-bottom:14px; }
-.uvp-tags { display:flex; flex-wrap:wrap; gap:5px; }
-.uvp-tag { padding:3px 9px; border-radius:12px; font-size:10px; font-weight:700; }
-.uvp-tag.p { background:rgba(168,85,247,.15); color:#a855f7; border:1px solid rgba(168,85,247,.3); }
-.uvp-tag.b { background:rgba(79,128,255,.15); color:#4f80ff; border:1px solid rgba(79,128,255,.3); }
+.lc-uvp-sub { font-size: 12px; color: var(--t3); line-height: 1.7; }
 
-/* Revenue highlight */
-.rev-highlight { background:linear-gradient(135deg,#0d2218,#0f2a1a); border:1px solid #16532a; border-radius:8px; padding:10px 12px; margin-bottom:10px; }
-.rev-main { font-size:15px; font-weight:800; color:#10b981; }
-.rev-desc { font-size:11px; color:#4b7a5c; margin-top:2px; }
-.rev-roi { background:#0f1117; border-radius:6px; padding:8px 10px; margin-top:8px; font-size:11px; color:#5a6478; line-height:1.6; }
-.rev-roi b { color:#10b981; }
+/* ── TAB 2 — DETAIL CARDS ── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.detail-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
 
-/* Metric cards */
-.metric-cards { display:flex; flex-direction:column; gap:6px; }
-.mc { background:#0f1117; border-radius:7px; padding:8px 10px; border-left:3px solid #06b6d4; }
-.mc-num { font-size:10px; font-weight:700; color:#06b6d4; margin-bottom:2px; }
-.mc-text { font-size:11px; color:#8c95aa; line-height:1.4; }
-.mc-text b { color:#d0d4de; }
+/* ── TAB 3 — STRATEGY ── */
+.callout {
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  border: 1px solid;
+}
+.callout.blue  { background: rgba(79,128,255,.07);  border-color: rgba(79,128,255,.3);  }
+.callout.green { background: rgba(16,185,129,.07);  border-color: rgba(16,185,129,.3);  }
+.callout-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.callout.blue  .callout-title { color: var(--blue); }
+.callout.green .callout-title { color: var(--green); }
+.callout p { font-size: 13px; color: var(--t3); line-height: 1.75; }
+.callout p strong { color: var(--t1); }
 
-/* alt view */
-.alt-view { display:none; }
-.alt-view.show { display:block; }
-.canvas-wrap.hide { display:none; }
+.vs-wrap { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 10px; align-items: start; margin-bottom: 18px; }
+.vs-card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 12px; padding: 16px 18px;
+}
+.vs-card.old { border-color: rgba(248,113,113,.35); }
+.vs-card.new { border-color: rgba(16,185,129,.35); }
+.vs-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+.vs-card.old .vs-label { color: var(--red); }
+.vs-card.new .vs-label { color: var(--green); }
+.vs-items li {
+  list-style: none; font-size: 12px;
+  color: var(--t3); padding: 4px 0;
+  border-bottom: 1px solid var(--bd);
+  line-height: 1.6;
+}
+.vs-items li:last-child { border-bottom: none; }
+.vs-card.old .vs-items li::before { content: '✕ '; color: var(--red); }
+.vs-card.new .vs-items li::before { content: '✓ '; color: var(--green); }
+.vs-center { display: flex; align-items: center; justify-content: center; color: var(--t3); font-size: 20px; padding-top: 50px; }
 
-/* cards view */
-.cards-wrap { padding:16px 20px 40px; }
-.cards-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:900px; margin:0 auto; }
-.card-big { background:#1a1f2e; border:1px solid #232b3e; border-radius:12px; padding:20px; }
-.card-big.span2 { grid-column:span 2; }
-.cb-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#5a6478; margin-bottom:6px; }
-.cb-title { font-size:15px; font-weight:800; color:#fff; margin-bottom:12px; }
-.cb-items { display:flex; flex-direction:column; gap:7px; }
-.cb-item { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:#c5cbd8; line-height:1.5; }
-.cb-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+/* stat row */
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+.stat-card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 12px; padding: 16px 18px;
+}
+.stat-num { font-size: 26px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.stat-num.blue   { color: var(--blue); }
+.stat-num.green  { color: var(--green); }
+.stat-num.yellow { color: var(--yellow); }
+.stat-num.red    { color: var(--red); }
+.stat-lbl  { font-size: 12px; color: var(--t3); font-weight: 500; }
+.stat-sub  { font-size: 11px; color: var(--t3); margin-top: 4px; }
 
-/* responsive */
-@media(max-width:700px) {
-  .cards-grid { grid-template-columns:1fr; }
-  .card-big.span2 { grid-column:span 1; }
-  .header { flex-wrap:wrap; gap:10px; }
+/* progress */
+.prog-row { margin-bottom: 12px; }
+.prog-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+.prog-label span:first-child { color: var(--t1); }
+.prog-label span:last-child  { color: var(--t3); }
+.prog-bar { background: var(--bd); border-radius: 4px; height: 7px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; }
+.fill-blue   { background: var(--blue); }
+.fill-green  { background: var(--green); }
+.fill-yellow { background: var(--yellow); }
+.fill-red    { background: var(--red); }
+
+/* divider */
+hr { border: none; border-top: 1px solid var(--bd); margin: 18px 0; }
+.mt12 { margin-top: 12px; }
+.mt18 { margin-top: 18px; }
+.mb14 { margin-bottom: 14px; }
+.mb18 { margin-bottom: 18px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .lc-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: unset;
+  }
+  .lc-problem, .lc-solution, .lc-uvp,
+  .lc-advantage, .lc-segments,
+  .lc-metrics, .lc-channels { grid-column: unset; grid-row: unset; }
+  .lc-uvp { min-height: auto; }
+  .lc-bottom { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .detail-grid.triple { grid-template-columns: 1fr; }
+  .vs-wrap { grid-template-columns: 1fr; }
+  .vs-center { display: none; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  header { padding: 11px 14px; }
+  main   { padding: 16px 12px 60px; }
+  nav    { padding: 0 12px; }
+  .tab-btn { padding: 11px 11px; font-size: 12px; }
+  .lc-grid { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: 1fr; }
+  .lc-cell { min-height: auto; }
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:#5a6478;font-weight:400;">린 캔버스 v1.1</span></div>
+<!-- ╔══ HEADER ══╗ -->
+<header>
+  <div class="header-left">
+    <div class="logo">Scope<span>Manager</span></div>
+    <div class="badges">
+      <span class="badge blue">B2B SaaS</span>
+      <span class="badge green">MVP 검증 단계</span>
+      <span class="badge yellow">린캔버스 v1.0</span>
+      <span class="badge">5~20인 웹 에이전시</span>
+    </div>
   </div>
-  <div class="header-meta">
-    <span><div class="dot"></div>초고속 MVP 빌드 및 클로즈드 베타 전환</span>
-  </div>
-  <div class="view-btns">
-    <button class="vbtn active" onclick="switchView('canvas',this)">캔버스</button>
-    <button class="vbtn" onclick="switchView('cards',this)">카드뷰</button>
-  </div>
-</div>
+  <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
+</header>
 
-<div class="canvas-wrap" id="view-canvas">
-  <div class="canvas">
+<!-- ╔══ NAV ══╗ -->
+<nav>
+  <button class="tab-btn active"  onclick="showTab('canvas',this)">🗂 린캔버스</button>
+  <button class="tab-btn"         onclick="showTab('detail',this)">🔍 블록 상세</button>
+  <button class="tab-btn"         onclick="showTab('strategy',this)">🚀 검증 전략</button>
+  <button class="tab-btn"         onclick="showTab('metrics',this)">📊 핵심 지표</button>
+</nav>
 
-    <div class="cell c-problem" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">⚡</span> 문제</div>
-      <div class="items">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>AI 도입으로 기대치 역전</b><span class="sub">클라이언트 기대치↑ vs 실제 비용↑</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>추가 과업 청구 포기</b><span class="sub">PM이 비용을 감수하고 넘어감</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>청구 실패 = 심리적 장벽</b><span class="sub">증거 부족이 아닌 구조 부재</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>변경 관리 단가 표준 없음</b><span class="sub">업계 기준 자체가 존재하지 않음</span></div></div>
+<main>
+
+<!-- ══════════════════════════════════════════
+     TAB 1 — 린캔버스 (시각적 그리드)
+══════════════════════════════════════════ -->
+<div id="page-canvas" class="page active">
+  <div class="page-title">린캔버스</div>
+  <div class="page-desc">Scope Manager의 비즈니스 모델을 9개 블록으로 요약한 린캔버스입니다.<br>각 블록을 클릭하면 <strong style="color:var(--t1)">블록 상세</strong> 탭에서 심화 내용을 확인할 수 있습니다.</div>
+
+  <div class="lc-grid">
+
+    <!-- 1. PROBLEM -->
+    <div class="lc-cell lc-problem accent-top accent-red" onclick="showTab('detail',null,'problem')">
+      <div class="lc-cell-num" style="color:var(--red)">01 — Problem</div>
+      <div class="lc-cell-title">해결할 문제</div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--red)"></div><div>추가 요구 발생 시 <strong>비용 청구를 포기</strong>하는 구조</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--red)"></div><div>AI 도입으로 벌어진 <strong>클라이언트 기대치 격차</strong></div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--red)"></div><div><strong>변경 관리 단가</strong>의 업계 표준 부재</div></div>
+      <div style="margin-top:10px"><span class="tag red">기존 대안</span><span class="tag">카카오톡</span><span class="tag">엑셀</span><span class="tag">기억</span></div>
+    </div>
+
+    <!-- 2. SOLUTION -->
+    <div class="lc-cell lc-solution accent-top accent-blue" onclick="showTab('detail',null,'solution')">
+      <div class="lc-cell-num" style="color:var(--blue)">02 — Solution</div>
+      <div class="lc-cell-title">솔루션</div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--blue)"></div><div><strong>범위 초과 자동 판정</strong> — 계약 범위 대비 자동 비교</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--blue)"></div><div><strong>청구 근거 자동 생성</strong> — 시스템이 리포트 작성</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--blue)"></div><div><strong>프로젝트 손익 누적 기록</strong> — 다음 견적 데이터화</div></div>
+    </div>
+
+    <!-- 3. UVP (spans 2 rows) -->
+    <div class="lc-cell lc-uvp accent-top accent-purple" onclick="showTab('detail',null,'uvp')">
+      <div class="lc-cell-num" style="color:var(--purple)">03 — Unique Value Proposition</div>
+      <div class="lc-cell-title">핵심 가치 제안</div>
+      <div class="lc-uvp-main">"PM이 아쉬운 소리 하지 않아도<br>범위 초과 비용을 받아낼 수 있는 구조"</div>
+      <div class="lc-uvp-sub">
+        기존 PM 도구가 <strong style="color:var(--t1)">과업 관리</strong>에 집중했다면,<br>
+        Scope Manager는 <strong style="color:var(--t1)">관계 보호 + 수익 방어</strong>에 집중한다.<br><br>
+        "제가 그러는 게 아니라, 시스템이 범위를 벗어났다고 판정했습니다"<br><br>
+        — PM의 감정 노동 없이 데이터가 협상한다.
       </div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #2e3748;">
-        <div class="cell-label" style="margin-bottom:8px;"><span class="cell-label-icon">🔎</span> 기존 대안</div>
-        <div class="items">
-          <div class="item"><div class="item-dot"></div><div class="item-text">카카오톡 + 엑셀 + 기억</div></div>
-          <div class="item"><div class="item-dot"></div><div class="item-text">Jira·노션 <span class="sub">청구 근거 생성 기능 없음</span></div></div>
-        </div>
+      <div style="margin-top:14px">
+        <span class="tag purple">관계 보호</span>
+        <span class="tag blue">수익 방어</span>
+        <span class="tag green">데이터 협상</span>
       </div>
     </div>
 
-    <div class="cell c-solution" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">🛠</span> 솔루션</div>
-      <div class="items">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>'범위 초과 리포트'</b> 자동 생성</div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text">범위 초과를 <b>시스템이 판정</b><span class="sub">PM 아닌 '기계'가 말하는 구조</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>3버튼·1분</b> 일일 입력으로<span class="sub">과업 변경 이력 자동 누적</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text">프로젝트별 <b>실제 손익 가시화</b></div></div>
-      </div>
+    <!-- 4. UNFAIR ADVANTAGE -->
+    <div class="lc-cell lc-advantage accent-top accent-orange" onclick="showTab('detail',null,'advantage')">
+      <div class="lc-cell-num" style="color:var(--orange)">04 — Unfair Advantage</div>
+      <div class="lc-cell-title">경쟁 우위</div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--orange)"></div><div><strong>PM 현장 경험 기반</strong> 도메인 전문성</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--orange)"></div><div>스코프 크리프 <strong>전용 설계</strong> — 범용 도구 불가 영역</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--orange)"></div><div>누적 데이터로 강화되는 <strong>업계 단가 기준</strong></div></div>
     </div>
 
-    <div class="cell c-uvp" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">💜</span> 핵심 가치 제안</div>
-      <div class="uvp-headline">💬 '돈 달라는<br>아쉬운 소리를,<br>기계가 대신해 준다'</div>
-      <div class="uvp-sub">PM의 심리적 부담 없이<br>정당한 비용을 청구할 수 있는 구조</div>
-      <div class="uvp-tags">
-        <span class="uvp-tag p">심리적 장벽 제거</span>
-        <span class="uvp-tag b">청구 근거 생성</span>
-        <span class="uvp-tag p">시스템 판정</span>
-        <span class="uvp-tag b">손익 가시화</span>
-      </div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #2e3748;">
-        <div class="cell-label" style="margin-bottom:8px;"><span class="cell-label-icon">🎯</span> 전달 목표</div>
-        <div class="items">
-          <div class="item"><div class="item-dot" style="background:#a855f7;"></div><div class="item-text">반복 프로젝트 연 10건 이상 운영</div></div>
-        </div>
-      </div>
+    <!-- 5. CUSTOMER SEGMENTS -->
+    <div class="lc-cell lc-segments accent-top accent-green" onclick="showTab('detail',null,'segments')">
+      <div class="lc-cell-num" style="color:var(--green)">05 — Customer Segments</div>
+      <div class="lc-cell-title">고객 세그먼트</div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--green)"></div><div><strong>핵심</strong>: 5~20인 웹 에이전시 PM</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--green)"></div><div><strong>얼리어답터</strong>: PM 겸직 대표</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--green)"></div><div><strong>확장</strong>: 프리랜서 개발자/디자이너</div></div>
+      <div style="margin-top:10px"><span class="tag green">B2B</span><span class="tag">국내 우선</span></div>
     </div>
 
-    <div class="cell c-advantage" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">⚡</span> 경쟁 우위</div>
-      <div class="items">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>초고속 MVP 실행력</b><span class="sub">AI 통합 IDE 기반 6주 배포</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>현직 PM 실무 경험</b> 기반 설계<span class="sub">감정 노동 구조를 정확히 이해</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>'청구 근거 생성' 도구</b>로<br>명확한 포지셔닝</div></div>
-      </div>
-    </div>
-
-    <div class="cell c-segment" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">👥</span> 고객 세그먼트</div>
-      <div class="items">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>국내 웹 에이전시 PM</b><span class="sub">직원 5~20인 규모</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>PM을 겸하는 에이전시 대표</b></div></div>
-      </div>
-      <div style="margin-top:12px;padding-top:10px;border-top:1px solid #2e3748;">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#10b981;margin-bottom:7px;">🌱 얼리어답터 (CBT 타겟)</div>
-        <div class="items">
-          <div class="item"><div class="item-dot"></div><div class="item-text">PM 커뮤니티 활동 참여자</div></div>
-          <div class="item"><div class="item-dot"></div><div class="item-text">추가 청구 실패 경험이 있는 실무자</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cell c-metrics" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">📊</span> 핵심 지표 (베타 검증용)</div>
-      <div class="metric-cards">
-        <div class="mc"><div class="mc-num">지표 01</div><div class="mc-text"><b>실제 추가 청구 시도 건수</b></div></div>
-        <div class="mc"><div class="mc-num">지표 02</div><div class="mc-text"><b>일 평균 입력 완료율</b> — 습관 형성 지표</div></div>
-        <div class="mc"><div class="mc-num">지표 03</div><div class="mc-text"><b>범위 초과 감지 건수</b> / 월</div></div>
-        <div class="mc" style="border-left-color:#a855f7;"><div class="mc-num" style="color:#a855f7;">핵심</div><div class="mc-text"><b>청구 성공률</b> — 핵심 가치 검증</div></div>
-      </div>
-    </div>
-
-    <div class="cell c-channels" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">📣</span> 채널</div>
-      <div class="items">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>클로즈드 베타 섭외 (콜드메일)</b><span class="sub">작동하는 MVP로 직접 제안</span></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>링크드인 콘텐츠 마케팅</b></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>PM 오픈채팅방·커뮤니티</b></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>'Anti-Gaslighting Sheet'</b><span class="sub">리드 마그넷</span></div></div>
-      </div>
-    </div>
-
-    <div class="cell c-cost" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">💸</span> 비용 구조</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>클로즈드 베타 운영 및 리워드</b></div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>초고속 MVP 빌드</b> (AI IDE 활용)</div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>AI API 토큰 비용</b> (Full Context)</div></div>
-        <div class="item"><div class="item-dot"></div><div class="item-text"><b>인프라 호스팅 비용</b> (Supabase)</div></div>
-      </div>
-    </div>
-
-    <div class="cell c-revenue" onclick="toggleCell(this)">
-      <div class="cell-label"><span class="cell-label-icon">💰</span> 수익 구조</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;">
+    <!-- 6. KEY METRICS -->
+    <div class="lc-cell lc-metrics accent-top accent-blue" onclick="showTab('metrics',null)">
+      <div class="lc-cell-num" style="color:var(--blue)">06 — Key Metrics</div>
+      <div class="lc-cell-title">핵심 지표</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
         <div>
-          <div class="rev-highlight">
-            <div class="rev-main">월 5만원 / 팀</div>
-            <div class="rev-desc">B2B SaaS 월 구독 모델</div>
-          </div>
-          <div class="item" style="margin-top:8px;"><div class="item-dot" style="background:#10b981;"></div><div class="item-text">(추후) 표준 계약서 템플릿 유료 제공</div></div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">활성화</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--blue)"></div><div>첫 프로젝트 등록률</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--blue)"></div><div>범위 등록 완료율</div></div>
         </div>
-        <div class="rev-roi">
-          <div style="font-size:11px;font-weight:700;color:#d0d4de;margin-bottom:5px;">📌 손익분기 논리</div>
-          연 1건 청구 성공 시<br>구독료 <b>완전 회수</b><br><br>
-          <span style="color:#4f80ff;">→ 해결 가치가 비용을<br>직접 정당화함</span>
+        <div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">리텐션</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--green)"></div><div>2주 후 재방문율</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--green)"></div><div>리포트 생성 횟수</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. CHANNELS -->
+    <div class="lc-cell lc-channels accent-top accent-green" onclick="showTab('detail',null,'channels')">
+      <div class="lc-cell-num" style="color:var(--green)">07 — Channels</div>
+      <div class="lc-cell-title">채널</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">인바운드</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--green)"></div><div>SEO (스코프 크리프 키워드)</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--green)"></div><div>PM 커뮤니티 콘텐츠</div></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">아웃바운드</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--blue)"></div><div>에이전시 네트워크</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--blue)"></div><div>LinkedIn 직접 접근</div></div>
         </div>
       </div>
     </div>
 
   </div>
-</div>
 
-<div class="alt-view cards-wrap" id="view-cards">
-  <div class="cards-grid">
-    <div class="card-big">
-      <div class="cb-label">⚡ 문제</div>
-      <div class="cb-title">PM은 왜 청구를 못 하는가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">🤖</span>AI 도입 → 클라이언트 기대치 ↑ vs 실제 비용 ↑</div>
-        <div class="cb-item"><span class="cb-icon">😶</span>추가 과업 비용, 청구하지 못하고 감수</div>
-        <div class="cb-item"><span class="cb-icon">💭</span>청구 실패 원인 = 증거 부족 ❌, 심리적 장벽 ✅</div>
-        <div class="cb-item"><span class="cb-icon">📋</span>변경 관리 단가 — 업계 표준 없음</div>
-        <div class="cb-item"><span class="cb-icon">🛠</span>기존 대안: 카카오톡 + 엑셀 + 기억, Jira·노션</div>
+  <!-- Bottom row: Cost / Revenue -->
+  <div class="lc-bottom">
+    <div class="lc-cell accent-top accent-red" onclick="showTab('detail',null,'cost')">
+      <div class="lc-cell-num" style="color:var(--red)">08 — Cost Structure</div>
+      <div class="lc-cell-title">비용 구조</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+        <div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">고정비</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--red)"></div><div>서버/인프라 (AWS)</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--red)"></div><div>AI API (Claude/GPT)</div></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">변동비</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--yellow)"></div><div>고객 지원</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--yellow)"></div><div>마케팅/획득</div></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:6px">초기 투자</div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--t3)"></div><div>MVP 개발 (AI 활용)</div></div>
+          <div class="lc-item" style="padding:3px 0"><div class="lc-item-dot" style="background:var(--t3)"></div><div>도메인/SaaS 도구</div></div>
+        </div>
       </div>
     </div>
-    <div class="card-big">
-      <div class="cb-label">💜 핵심 가치 제안</div>
-      <div class="cb-title" style="font-size:18px;line-height:1.4;">'돈 달라는 아쉬운 소리를, 기계가 대신해 준다'</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">🎯</span>PM의 심리적 부담 없이 정당한 비용을 청구할 수 있는 구조</div>
-        <div class="cb-item"><span class="cb-icon">📌</span>전달 목표: 반복 프로젝트 연 10건 이상 운영</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">👥 고객 세그먼트</div>
-      <div class="cb-title">누구를 위한 제품인가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">🏢</span>국내 웹 에이전시 PM (5~20인 규모)</div>
-        <div class="cb-item"><span class="cb-icon">👤</span>PM을 겸하는 에이전시 대표</div>
-        <div class="cb-item"><span class="cb-icon">🌱</span>CBT 타겟: PM 커뮤니티 활동 참여자</div>
-        <div class="cb-item"><span class="cb-icon">🌱</span>CBT 타겟: 추가 청구 실패 경험이 있는 실무자</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">🛠 솔루션</div>
-      <div class="cb-title">어떻게 해결하는가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">📄</span>'범위 초과 리포트' 자동 생성</div>
-        <div class="cb-item"><span class="cb-icon">⚖️</span>범위 초과를 시스템이 판정 — PM 아닌 '기계'가 말하는 구조</div>
-        <div class="cb-item"><span class="cb-icon">⏱</span>3버튼·1분 일일 입력으로 과업 변경 이력 자동 누적</div>
-        <div class="cb-item"><span class="cb-icon">📊</span>프로젝트별 실제 손익 가시화</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">📊 핵심 지표</div>
-      <div class="cb-title">무엇으로 검증하는가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">📈</span>실제 추가 청구 시도 건수 (베타 검증)</div>
-        <div class="cb-item"><span class="cb-icon">🔁</span>일 평균 입력 완료율 (습관 형성 지표)</div>
-        <div class="cb-item"><span class="cb-icon">🔍</span>범위 초과 감지 건수 / 월</div>
-        <div class="cb-item"><span class="cb-icon">⭐</span>청구 성공률 (핵심 가치 검증)</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">⚡ 경쟁 우위</div>
-      <div class="cb-title">왜 우리인가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">🚀</span>초고속 MVP 실행력 (AI 통합 IDE 기반 6주 배포)</div>
-        <div class="cb-item"><span class="cb-icon">💼</span>현직 PM 실무 경험 기반 설계 — 감정 노동 구조를 정확히 이해</div>
-        <div class="cb-item"><span class="cb-icon">🎯</span>'청구 근거 생성' 도구로 명확한 포지셔닝</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">📣 채널</div>
-      <div class="cb-title">어떻게 고객에게 닿는가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">✉️</span>클로즈드 베타 직접 섭외 (작동하는 MVP로 콜드메일 제안)</div>
-        <div class="cb-item"><span class="cb-icon">🔗</span>링크드인 콘텐츠 마케팅</div>
-        <div class="cb-item"><span class="cb-icon">💬</span>PM 오픈채팅방·커뮤니티</div>
-        <div class="cb-item"><span class="cb-icon">🎁</span>'Anti-Gaslighting Sheet' 리드 마그넷</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">💸 비용 구조</div>
-      <div class="cb-title">무엇에 돈이 드는가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">🧪</span>클로즈드 베타 테스트 운영 및 리워드</div>
-        <div class="cb-item"><span class="cb-icon">💻</span>초고속 MVP 빌드 (AI IDE 활용)</div>
-        <div class="cb-item"><span class="cb-icon">🤖</span>AI 판정 엔진 API 토큰 비용 (Full Context 주입)</div>
-        <div class="cb-item"><span class="cb-icon">⚙️</span>인프라 호스팅 비용 (Supabase 등)</div>
-      </div>
-    </div>
-    <div class="card-big">
-      <div class="cb-label">💰 수익 구조</div>
-      <div class="cb-title">어떻게 돈을 버는가</div>
-      <div class="cb-items">
-        <div class="cb-item"><span class="cb-icon">💳</span>B2B SaaS 월 구독 모델 — 월 5만원 / 팀</div>
-        <div class="cb-item"><span class="cb-icon">📄</span>(추후) 표준 계약서 템플릿 유료 제공</div>
-        <div class="cb-item"><span class="cb-icon">📌</span>손익분기: 연 1건 청구 성공 시 구독료 완전 회수</div>
-      </div>
+    <div class="lc-cell accent-top accent-green" onclick="showTab('detail',null,'revenue')">
+      <div class="lc-cell-num" style="color:var(--green)">09 — Revenue Streams</div>
+      <div class="lc-cell-title">수익 모델</div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--green)"></div><div><strong>Free</strong> — 프로젝트 1개, 기본 판정</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--green)"></div><div><strong>Starter 29,000원/월</strong> — 프로젝트 5개, 리포트</div></div>
+      <div class="lc-item"><div class="lc-item-dot" style="background:var(--green)"></div><div><strong>Pro 69,000원/월</strong> — 무제한 + 손익 분석</div></div>
+      <div style="margin-top:10px"><span class="tag green">구독 SaaS</span><span class="tag">Freemium</span></div>
     </div>
   </div>
 </div>
+
+
+<!-- ══════════════════════════════════════════
+     TAB 2 — 블록 상세
+══════════════════════════════════════════ -->
+<div id="page-detail" class="page">
+  <div class="page-title">블록 상세 분석</div>
+  <div class="page-desc">린캔버스 9개 블록의 심화 내용입니다. 각 블록의 근거와 가설을 확인하세요.</div>
+
+  <!-- Problem -->
+  <div id="detail-problem" class="card mb18 accent-top accent-red">
+    <div class="sec-label" style="color:var(--red)">01 — Problem · 해결할 문제</div>
+    <div class="detail-grid">
+      <div>
+        <div class="card-title">핵심 문제 3가지</div>
+        <ul class="blist">
+          <li><strong>청구 포기 구조</strong> — "돈 달라는 말을 꺼내기 어렵다"는 심리적 장벽이 반복적 손실로 이어짐</li>
+          <li><strong>AI 인식 격차</strong> — 클라이언트는 "AI가 다 해주니 싸야 한다", 에이전시는 "AI 검증 비용이 새로 생겼다"</li>
+          <li><strong>표준 부재</strong> — 변경 관리 단가의 업계 표준이 없어 협상이 PM 개인의 담력에 의존</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card-title">기존 대안과 한계</div>
+        <ul class="blist">
+          <li><strong>카카오톡 + 엑셀</strong> — 기록은 있으나 판정·근거 생성 불가</li>
+          <li><strong>Jira / Asana / Notion</strong> — 과업 관리 목적, 범위 초과 청구 설계 없음</li>
+          <li><strong>엔터프라이즈 CM 도구</strong> — 고비용·복잡, 5~20인 에이전시 현실과 괴리</li>
+        </ul>
+        <div style="margin-top:10px">
+          <span class="tag red">PMI: 프로젝트 52% 스코프 크리프 경험</span>
+          <span class="tag yellow">예산 초과율 85% / 평균 초과 27%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Solution -->
+  <div id="detail-solution" class="card mb18 accent-top accent-blue">
+    <div class="sec-label" style="color:var(--blue)">02 — Solution · 솔루션</div>
+    <div class="detail-grid triple">
+      <div>
+        <div class="card-title">⚖️ 범위 초과 판정자</div>
+        <div class="card-body">클라이언트의 요구가 계약 범위를 벗어났는지 시스템이 자동 기록·판정한다. PM의 주관이 아닌 <strong>데이터</strong>가 말한다.</div>
+      </div>
+      <div>
+        <div class="card-title">📄 청구 근거 생성자</div>
+        <div class="card-body">"시스템상 과업 범위를 초과한 것으로 기록되었습니다"라는 문장을 <strong>도구가 자동 생성</strong>한다. PM은 전달만 한다.</div>
+      </div>
+      <div>
+        <div class="card-title">📈 수익성 가시화</div>
+        <div class="card-body">프로젝트별 실제 손익을 누적 기록하여 다음 견적·계약의 기준을 <strong>데이터</strong>로 만든다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UVP -->
+  <div id="detail-uvp" class="card mb18 accent-top accent-purple">
+    <div class="sec-label" style="color:var(--purple)">03 — UVP · 핵심 가치 제안</div>
+    <div class="detail-grid">
+      <div>
+        <div class="card-title">한 줄 포지셔닝</div>
+        <div style="background:var(--s2);border-left:3px solid var(--purple);border-radius:0 8px 8px 0;padding:12px 14px;margin:8px 0;font-size:14px;color:var(--t1);font-weight:600;font-style:italic;line-height:1.6">
+          "PM이 아쉬운 소리 하지 않아도<br>범위 초과 비용을 받아낼 수 있는 구조"
+        </div>
+        <div class="card-body" style="margin-top:10px">기존 도구가 과업 <strong>'관리'</strong>에 집중했다면, Scope Manager는 <strong>관계 보호 + 수익 방어</strong>에 집중한다.</div>
+      </div>
+      <div>
+        <div class="card-title">포지셔닝 차별화</div>
+        <ul class="blist">
+          <li><strong>타겟 특화</strong> — 5~20인 에이전시 PM만을 위한 전용 설계</li>
+          <li><strong>역할 전환</strong> — PM의 감정 노동을 시스템의 데이터 판정으로 대체</li>
+          <li><strong>협상 구조 변화</strong> — "개인 요청"에서 "시스템 판정 결과"로 프레임 전환</li>
+          <li><strong>누적 가치</strong> — 사용할수록 더 정확한 업계 단가 기준 형성</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unfair Advantage + Segments -->
+  <div class="detail-grid mb18">
+    <div id="detail-advantage" class="card accent-top accent-orange">
+      <div class="sec-label" style="color:var(--orange)">04 — Unfair Advantage · 경쟁 우위</div>
+      <div class="card-title">복제하기 어려운 우위</div>
+      <ul class="blist">
+        <li><strong>도메인 전문성</strong> — PM 현장 경험에서 나온 페인포인트 설계</li>
+        <li><strong>전용 포지셔닝</strong> — 범용 PM 도구가 진입하기 어려운 "청구 협상" 특화</li>
+        <li><strong>데이터 네트워크 효과</strong> — 누적 프로젝트 데이터 → 업계 단가 기준 → 신규 고객 유인</li>
+        <li><strong>First Mover</strong> — 국내 에이전시 변경 관리 SaaS 공백 시장 선점</li>
+      </ul>
+    </div>
+    <div id="detail-segments" class="card accent-top accent-green">
+      <div class="sec-label" style="color:var(--green)">05 — Customer Segments · 고객</div>
+      <div class="card-title">타겟 세그먼트</div>
+      <ul class="blist">
+        <li><strong>핵심 (MVP)</strong> — 5~20인 웹 에이전시 PM. 프로젝트 1개 적자가 회사 현금흐름에 직접 영향</li>
+        <li><strong>얼리어답터</strong> — PM 겸직 대표. 문제 인식 + 결제 권한 모두 보유</li>
+        <li><strong>확장 (Phase 2)</strong> — 프리랜서 개발자·디자이너, 소규모 IT 컨설팅사</li>
+        <li><strong>제외</strong> — 5인 미만(체계 불필요), 20인 초과(자체 해결책 보유)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Channels -->
+  <div id="detail-channels" class="card mb18 accent-top accent-green">
+    <div class="sec-label" style="color:var(--green)">07 — Channels · 채널</div>
+    <div class="detail-grid triple">
+      <div>
+        <div class="card-title">인바운드</div>
+        <ul class="blist">
+          <li><strong>SEO</strong> — "스코프 크리프", "추가 요금 청구", "PM 도구" 키워드</li>
+          <li><strong>콘텐츠</strong> — PM 커뮤니티 (디스콰이엇, 퍼블리) 실무 아티클</li>
+          <li><strong>YouTube</strong> — "에이전시 PM 실수" 사례 중심 교육 콘텐츠</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card-title">아웃바운드</div>
+        <ul class="blist">
+          <li><strong>LinkedIn</strong> — 에이전시 PM·대표 직접 접근</li>
+          <li><strong>네트워크</strong> — 에이전시 협회·커뮤니티 파트너십</li>
+          <li><strong>레퍼럴</strong> — 사용자 초대 인센티브 (추가 프로젝트 슬롯)</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card-title">전환 퍼널</div>
+        <ul class="blist">
+          <li>콘텐츠 → <strong>Free 가입</strong></li>
+          <li>첫 프로젝트 등록 → <strong>AHA 모멘트</strong></li>
+          <li>첫 리포트 생성 → <strong>Paid 전환</strong></li>
+          <li>2개 이상 프로젝트 → <strong>Pro 업그레이드</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost + Revenue -->
+  <div class="detail-grid mb18">
+    <div id="detail-cost" class="card accent-top accent-red">
+      <div class="sec-label" style="color:var(--red)">08 — Cost Structure · 비용 구조</div>
+      <div class="card-title">주요 비용 항목</div>
+      <ul class="blist">
+        <li><strong>서버/인프라</strong> — AWS (초기 월 5~15만원 수준, 사용량 비례 증가)</li>
+        <li><strong>AI API</strong> — Claude/GPT 범위 판정 자동화 비용</li>
+        <li><strong>MVP 개발</strong> — AI 활용으로 최소화 (기존 대비 90% 절감 추정)</li>
+        <li><strong>고객 지원</strong> — 초기 창업자 직접 대응, 이후 자동화</li>
+        <li><strong>마케팅</strong> — 콘텐츠 제작비, 광고 (MVP 단계 최소화)</li>
+      </ul>
+    </div>
+    <div id="detail-revenue" class="card accent-top accent-green">
+      <div class="sec-label" style="color:var(--green)">09 — Revenue Streams · 수익 모델</div>
+      <div class="card-title">Freemium 구독 모델</div>
+      <ul class="blist">
+        <li><strong>Free</strong> — 프로젝트 1개, 기본 범위 판정, 제한적 리포트</li>
+        <li><strong>Starter 29,000원/월</strong> — 프로젝트 5개, 전체 리포트 생성, 이메일 발송</li>
+        <li><strong>Pro 69,000원/월</strong> — 무제한 프로젝트, 손익 분석, 팀 멤버 공유</li>
+        <li><strong>목표 MRR</strong> — 6개월 내 Starter 30개 = 87만원 → 손익분기점 설정</li>
+      </ul>
+      <div style="margin-top:10px"><span class="tag green">구독 SaaS</span><span class="tag blue">Freemium → Paid</span></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TAB 3 — 검증 전략
+══════════════════════════════════════════ -->
+<div id="page-strategy" class="page">
+  <div class="page-title">MVP 우선 검증 전략</div>
+  <div class="page-desc">전통적인 린 스타트업 방법론을 AI 시대에 맞게 재설계했다.</div>
+
+  <div class="callout blue mb18">
+    <div class="callout-title">⚡ 전략적 선택 — 고객 인터뷰 → MVP 순서 역전</div>
+    <p>AI 개발 도구의 발달로 MVP 제작 비용과 시간이 극적으로 낮아졌다. 이에 따라 불확실성이 높은 인터뷰를 생략하고 <strong>MVP를 즉시 배포하여 실제 행동 데이터로 가설을 검증</strong>하는 전략을 선택했다.</p>
+  </div>
+
+  <div class="vs-wrap mb18">
+    <div class="vs-card old">
+      <div class="vs-label">전통적 린 스타트업</div>
+      <ul class="vs-items">
+        <li>고객 인터뷰 설계·진행</li>
+        <li>문제 검증 (말에 의존)</li>
+        <li>솔루션 검증</li>
+        <li>MVP 개발 (고비용)</li>
+        <li>배포 → 행동 데이터 수집</li>
+      </ul>
+    </div>
+    <div class="vs-center">→</div>
+    <div class="vs-card new">
+      <div class="vs-label">AI 시대 역전 전략</div>
+      <ul class="vs-items">
+        <li>MVP 즉시 개발·배포 (AI 활용)</li>
+        <li>실제 사용/이탈 패턴 관찰</li>
+        <li>행동 데이터로 가설 검증</li>
+        <li>데이터 기반 인터뷰 (선택적)</li>
+        <li>검증된 기능 확장</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="detail-grid mb18">
+    <div class="card">
+      <div class="sec-label">역전 전략의 논리</div>
+      <ul class="blist">
+        <li><strong>말 vs 행동 불일치</strong> — 인터뷰의 intention과 실제 behavior는 다르다</li>
+        <li><strong>비용 역전</strong> — AI 덕분에 MVP 개발 비용 &lt; 인터뷰 설계/진행 비용</li>
+        <li><strong>신호의 정직성</strong> — 사용/이탈 패턴이 인터뷰보다 더 정직한 검증 신호</li>
+        <li><strong>속도 우위</strong> — "만들어서 보여주는" 것이 "물어보는" 것보다 빠름</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="sec-label">검증할 핵심 가설</div>
+      <ul class="blist">
+        <li>PM의 추가 비용 청구 포기율 <strong>&gt; 60%</strong></li>
+        <li>시스템 판정 결과를 클라이언트가 <strong>수용</strong>한다</li>
+        <li>Free → Paid 전환을 유발하는 <strong>AHA 모멘트</strong>는 "첫 리포트 생성"</li>
+        <li>29,000원/월 가격에 <strong>지불 의향</strong>이 존재한다</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-title">✅ MVP 검증 성공 기준 (6주 내)</div>
+    <p>
+      회원가입 후 첫 프로젝트 등록률 <strong>&gt; 40%</strong> &nbsp;|&nbsp;
+      2주 재방문율 <strong>&gt; 30%</strong> &nbsp;|&nbsp;
+      리포트 생성 1회 이상 유저 <strong>&gt; 20%</strong> &nbsp;|&nbsp;
+      Paid 전환율 <strong>&gt; 5%</strong>
+    </p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TAB 4 — 핵심 지표
+══════════════════════════════════════════ -->
+<div id="page-metrics" class="page">
+  <div class="page-title">핵심 지표 — Pirate Metrics (AARRR)</div>
+  <div class="page-desc">MVP 단계에서 추적할 지표를 AARRR 프레임워크로 정의했다. 현재 수치는 가설 목표값이다.</div>
+
+  <div class="stat-row mb18">
+    <div class="stat-card">
+      <div class="stat-num blue">40%</div>
+      <div class="stat-lbl">첫 프로젝트 등록률 (목표)</div>
+      <div class="stat-sub">가입 후 24시간 내</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">30%</div>
+      <div class="stat-lbl">2주 재방문율 (목표)</div>
+      <div class="stat-sub">리텐션 핵심 지표</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num yellow">5%</div>
+      <div class="stat-lbl">Paid 전환율 (목표)</div>
+      <div class="stat-sub">Free → Starter</div>
+    </div>
+  </div>
+
+  <div class="card mb18">
+    <div class="sec-label">AARRR 단계별 지표</div>
+    <div class="mt12">
+      <div class="prog-row">
+        <div class="prog-label"><span>Acquisition — 유입 (콘텐츠/SEO)</span><span>목표 월 200 가입</span></div>
+        <div class="prog-bar"><div class="prog-fill fill-blue" style="width:60%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Activation — 첫 프로젝트 등록률</span><span>목표 40%</span></div>
+        <div class="prog-bar"><div class="prog-fill fill-blue" style="width:40%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Retention — 2주 재방문율</span><span>목표 30%</span></div>
+        <div class="prog-bar"><div class="prog-fill fill-green" style="width:30%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Revenue — Free → Paid 전환율</span><span>목표 5%</span></div>
+        <div class="prog-bar"><div class="prog-fill fill-yellow" style="width:5%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Referral — 초대 레퍼럴율</span><span>목표 15%</span></div>
+        <div class="prog-bar"><div class="prog-fill fill-red" style="width:15%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="card">
+      <div class="sec-label">수익 목표 (MRR)</div>
+      <ul class="blist">
+        <li><strong>1개월</strong> — Starter 5개 = 145,000원 (생존 검증)</li>
+        <li><strong>3개월</strong> — Starter 15개 = 435,000원 (채널 검증)</li>
+        <li><strong>6개월</strong> — Starter 30개 = 870,000원 (손익분기점)</li>
+        <li><strong>12개월</strong> — Starter 80 + Pro 20 = 3,700,000원 (성장 궤도)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="sec-label">AHA 모멘트 가설</div>
+      <ul class="blist">
+        <li><strong>1차 AHA</strong> — 계약 범위 등록 후 첫 추가 요구 자동 분류 확인</li>
+        <li><strong>2차 AHA</strong> — 첫 "범위 초과 리포트" 생성 완료 순간</li>
+        <li><strong>전환 트리거</strong> — 리포트 1회 생성 유저의 Paid 전환율 &gt; 25% 가설</li>
+        <li><strong>이탈 위험 구간</strong> — 가입 후 48시간 내 프로젝트 미등록</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</main>
 
 <script>
-function switchView(type, btn) {
-  document.querySelectorAll('.vbtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (type === 'canvas') {
-    document.getElementById('view-canvas').style.display = '';
-    document.getElementById('view-cards').classList.remove('show');
-  } else {
-    document.getElementById('view-canvas').style.display = 'none';
-    document.getElementById('view-cards').classList.add('show');
+function showTab(id, btn, anchor) {
+  // hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('page-' + id).classList.add('active');
+
+  // activate correct tab button
+  const tabs = { canvas: 0, detail: 1, strategy: 2, metrics: 3 };
+  const idx = tabs[id];
+  if (idx !== undefined) {
+    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  }
+
+  // scroll to anchor if provided
+  if (anchor) {
+    setTimeout(() => {
+      const el = document.getElementById('detail-' + anchor);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   }
 }
-function toggleCell(el) {
-  el.classList.toggle('active-cell');
+
+function toggleMode() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
 }
 </script>
 </body>
