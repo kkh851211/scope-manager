@@ -3,455 +3,832 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — Core Logic & Policy</title>
+<title>Scope Manager — 핵심 데이터 정책 & 로직 설계</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2438;--s3:#222840;
-  --bd:#232b3e;--bd2:#2e3748;
-  --blue:#4f80ff;--purple:#a855f7;--green:#10b981;
-  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--yellow:#f59e0b;
-  --t1:#e8eaf0;--t2:#c5cbd8;--t3:#8c95aa;--t4:#5a6478;
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2538;
+  --t1:#e8eaf0;--t3:#8c95aa;--bd:#232b3e;
+  --blue:#4f80ff;--green:#10b981;
+  --red:#f87171;--yellow:#fbbf24;
+  --purple:#a78bfa;--orange:#fb923c;--cyan:#22d3ee;
 }
-body{background:var(--bg);color:var(--t1);font-family:'Apple SD Gothic Neo','Pretendard','Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+body.light{
+  --bg:#f5f7fa;--s1:#ffffff;--s2:#eef1f7;
+  --t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:'Segoe UI','Apple SD Gothic Neo',Consolas,sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh}
 
-header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;gap:12px;flex-wrap:wrap}
-.logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
-.hbadge{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
-.b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
-.b-orange{background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.25)}
-.b-green{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+/* HEADER */
+header{background:var(--s1);border-bottom:1px solid var(--bd);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:200;transition:background .2s}
+.hl{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-size:17px;font-weight:700;color:var(--blue);letter-spacing:-.3px;white-space:nowrap}
+.logo span{color:var(--t1)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);white-space:nowrap}
+.bdg.b{border-color:var(--blue);color:var(--blue);background:transparent}
+.bdg.g{border-color:var(--green);color:var(--green);background:transparent}
+.bdg.y{border-color:var(--yellow);color:var(--yellow);background:transparent}
+.bdg.p{border-color:var(--purple);color:var(--purple);background:transparent}
+.tog{background:var(--s2);border:1px solid var(--bd);color:var(--t1);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;white-space:nowrap;transition:background .15s;flex-shrink:0}
+.tog:hover{background:var(--bd)}
 
-nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
-.tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
-.tab:hover{color:var(--t2)}.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+/* NAV */
+nav{background:var(--s1);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;padding:0 24px;scrollbar-width:none;transition:background .2s}
+nav::-webkit-scrollbar{display:none}
+.tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);cursor:pointer;font-size:13px;font-weight:500;padding:12px 16px;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0}
+.tb:hover{color:var(--t1)}
+.tb.active{border-bottom:2px solid var(--blue);color:var(--blue);font-weight:600}
 
-.page{display:none;padding:24px 28px 72px}.page.on{display:block}
-.sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
-.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb28{margin-bottom:28px}.mb32{margin-bottom:32px}
+/* MAIN */
+main{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+.page{display:none}.page.active{display:block}
 
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.g2,.g3{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:16px 16px 72px}}
+/* TYPE */
+.ptitle{font-size:20px;font-weight:700;margin-bottom:6px}
+.pdesc{color:var(--t3);font-size:13px;margin-bottom:22px;line-height:1.75}
+.pdesc strong{color:var(--t1)}
+.slabel{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
 
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
-.card-sm{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px}
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;transition:background .2s}
 
-.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
-.tag-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
-.tag-yellow{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
-.tag-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.tag-blue{background:rgba(79,128,255,.12);color:var(--blue)}
-.tag-purple{background:rgba(168,85,247,.12);color:var(--purple)}
-.tag-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
-.tag-orange{background:rgba(249,115,22,.12);color:var(--orange)}
-.tag-gray{background:rgba(90,100,120,.15);color:var(--t3)}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mt14{margin-top:14px}.mt18{margin-top:18px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}.mb18{margin-bottom:18px}
 
-/* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-@media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr}}
-.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
-.kpi-l{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t4);margin-bottom:5px}
-.kpi-v{font-size:22px;font-weight:900;line-height:1;margin-bottom:3px}
-.kpi-s{font-size:11px;color:var(--t4)}
+/* ACCENT */
+.ac{position:relative;overflow:hidden}
+.ac::before{content:'';display:block;height:3px;position:absolute;top:-1px;left:-1px;right:-1px;border-radius:12px 12px 0 0}
+.ab::before{background:var(--blue)}.ag::before{background:var(--green)}
+.ar::before{background:var(--red)}.ay::before{background:var(--yellow)}
+.ap::before{background:var(--purple)}.ao::before{background:var(--orange)}.ac2::before{background:var(--cyan)}
 
-/* FLOW */
-.flow{display:flex;flex-direction:column;gap:0;margin-bottom:28px}
-.flow-step{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--bd)}
-.flow-step:last-child{border-bottom:none}
-.flow-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-.flow-body{flex:1}
-.flow-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
-.flow-desc{font-size:12px;color:var(--t3);line-height:1.7}
-.flow-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+/* TAGS */
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--s2);color:var(--t3);border:1px solid var(--bd);margin:2px 3px 2px 0}
+.tag.b{background:rgba(79,128,255,.12);color:var(--blue);border-color:rgba(79,128,255,.25)}
+.tag.g{background:rgba(16,185,129,.12);color:var(--green);border-color:rgba(16,185,129,.25)}
+.tag.r{background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.25)}
+.tag.y{background:rgba(251,191,36,.12);color:var(--yellow);border-color:rgba(251,191,36,.25)}
+.tag.p{background:rgba(167,139,250,.12);color:var(--purple);border-color:rgba(167,139,250,.25)}
+.tag.c{background:rgba(34,211,238,.12);color:var(--cyan);border-color:rgba(34,211,238,.25)}
+.tag.o{background:rgba(251,146,60,.12);color:var(--orange);border-color:rgba(251,146,60,.25)}
 
-/* DECISION TABLE */
-.dtable{width:100%;border-collapse:collapse;margin-bottom:28px}
-.dtable th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
-.dtable td{padding:12px 14px;border-bottom:1px solid var(--bd);vertical-align:top;font-size:12px}
-.dtable tr:last-child td{border-bottom:none}
-.dtable tr:hover td{background:rgba(79,128,255,.025)}
+/* BULLET LIST */
+.bl{list-style:none;padding:0}
+.bl li{font-size:13px;color:var(--t3);padding:6px 0;border-bottom:1px solid var(--bd);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
+.bl li:last-child{border-bottom:none}
+.bl li::before{content:'›';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
+.bl li strong{color:var(--t1)}
 
-/* POLICY BLOCK */
-.policy{background:var(--s2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:12px}
-.policy-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:7px}
-.policy-desc{font-size:12px;color:var(--t3);line-height:1.7}
-.policy-rule{font-size:11px;color:var(--t2);margin-top:8px;padding:8px 10px;background:var(--s3);border-radius:6px;font-family:monospace;line-height:1.8}
+/* STAT */
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
+.sn{font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
+.sn.b{color:var(--blue)}.sn.g{color:var(--green)}.sn.y{color:var(--yellow)}.sn.r{color:var(--red)}.sn.p{color:var(--purple)}.sn.c{color:var(--cyan)}
+.sl2{font-size:12px;color:var(--t3);font-weight:500}.ss2{font-size:11px;color:var(--t3);margin-top:4px}
 
-/* STATE MACHINE */
-.sm-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
-@media(max-width:700px){.sm-wrap{grid-template-columns:1fr 1fr}}
-.sm-state{border-radius:10px;padding:14px;text-align:center;position:relative}
-.sm-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
-.sm-name{font-size:14px;font-weight:800;margin-bottom:6px}
-.sm-desc{font-size:11px;line-height:1.6}
-.sm-transitions{margin-top:10px;display:flex;flex-direction:column;gap:4px}
-.sm-tr{font-size:10px;padding:3px 8px;border-radius:4px;text-align:left}
+/* CALLOUT */
+.callout{border-radius:12px;padding:16px 20px;margin-bottom:18px;border:1px solid}
+.callout.b{background:rgba(79,128,255,.07);border-color:rgba(79,128,255,.3)}
+.callout.g{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.3)}
+.callout.y{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.3)}
+.callout.r{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.3)}
+.cot{font-size:13px;font-weight:700;margin-bottom:7px}
+.callout.b .cot{color:var(--blue)}.callout.g .cot{color:var(--green)}
+.callout.y .cot{color:var(--yellow)}.callout.r .cot{color:var(--red)}
+.callout p{font-size:13px;color:var(--t3);line-height:1.75}
+.callout p strong{color:var(--t1)}
 
-/* SCORING */
-.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-@media(max-width:600px){.score-grid{grid-template-columns:1fr}}
-.score-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
-.score-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.score-bar-label{font-size:11px;color:var(--t3);width:90px;flex-shrink:0}
-.score-bar{flex:1;height:6px;background:var(--bd2);border-radius:3px;overflow:hidden}
-.score-bar-fill{height:100%;border-radius:3px}
-.score-val{font-size:11px;font-weight:700;color:var(--t2);width:36px;text-align:right;flex-shrink:0}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl td{font-size:12px;color:var(--t3);padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.t1{color:var(--t1);font-weight:600}.tbl td.bl2{color:var(--blue)}
 
-/* EXCEPTION */
-.exc-item{background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;padding:14px 16px}
-.exc-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.exc-title{font-size:12px;font-weight:700;color:#fff}
-.exc-body{font-size:12px;color:var(--t3);line-height:1.7}
-.exc-resolution{margin-top:8px;font-size:11px;color:var(--t2);padding:8px;background:var(--s2);border-radius:6px;display:flex;gap:6px}
-.exc-resolution::before{content:'→';color:var(--green);font-weight:700;flex-shrink:0}
+/* PILL */
+.pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
+.pill.g{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.pill.y{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3)}
+.pill.r{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.pill.b{background:rgba(79,128,255,.12);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
+.pill.p{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
 
-/* ALGO VIZ */
-.algo-box{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:16px;font-family:monospace;font-size:11px;line-height:2;color:var(--t2);margin-bottom:12px;overflow-x:auto}
-.ak{color:var(--cyan)}.av{color:var(--green)}.an{color:var(--yellow)}.ac{color:var(--t4)}.ao{color:var(--orange)}
+/* CODE BLOCK */
+.code{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;font-family:Consolas,'Courier New',monospace;font-size:12px;color:var(--t3);line-height:1.85;overflow-x:auto;white-space:pre}
+.code .kw{color:var(--blue)}.code .str{color:var(--green)}.code .cm{color:var(--t3);font-style:italic}
+.code .fn{color:var(--yellow)}.code .num{color:var(--orange)}.code .tp{color:var(--purple)}.code .op{color:var(--cyan)}
 
-/* MATRIX */
-.matrix{display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px}
-.mx-cell{padding:12px;background:var(--s1);font-size:11px;display:flex;align-items:center;justify-content:center;text-align:center}
-.mx-header{background:var(--s2);font-size:10px;font-weight:700;color:var(--t4);letter-spacing:.8px;text-transform:uppercase}
-.mx-row-label{background:var(--s2);font-size:10px;font-weight:700;color:var(--t4);text-align:right;padding-right:14px;justify-content:flex-end}
+/* FLOW STEP */
+.flow-steps{display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.fs{padding:11px 16px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--bd);font-size:13px}
+.fs:last-child{border-bottom:none}
+.fs-num{width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fs-body{color:var(--t3);line-height:1.65}
+.fs-body strong{color:var(--t1)}
 
-/* TIMELINE */
-.tl{position:relative;padding-left:28px;margin-bottom:28px}
-.tl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:var(--bd2)}
-.tl-item{position:relative;margin-bottom:20px}
-.tl-dot{width:17px;height:17px;border-radius:50%;position:absolute;left:-24px;top:2px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800}
-.tl-content{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
-.tl-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
-.tl-desc{font-size:11px;color:var(--t3);line-height:1.6}
+/* POLICY CARD */
+.pc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px 20px;margin-bottom:12px;transition:background .2s}
+.pc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.pc-id{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+.pc-title{font-size:14px;font-weight:700;color:var(--t1)}
+.pc-body{font-size:13px;color:var(--t3);line-height:1.75}
+.pc-body strong{color:var(--t1)}
+.rule-box{background:var(--s2);border-left:3px solid var(--blue);border-radius:0 6px 6px 0;padding:10px 14px;margin:8px 0;font-size:12px;color:var(--t3);line-height:1.7}
+.rule-box strong{color:var(--t1)}
+.rule-box.g{border-left-color:var(--green)}
+.rule-box.r{border-left-color:var(--red)}
+.rule-box.y{border-left-color:var(--yellow)}
+.rule-box.p{border-left-color:var(--purple)}
 
-code{font-size:10px;background:var(--s3);padding:1px 5px;border-radius:3px;font-family:monospace;color:var(--cyan)}
+/* DECISION TREE */
+.dt-wrap{margin-top:10px}
+.dt-node{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 14px;font-size:12px;display:inline-block;margin:3px 0}
+.dt-node.q{border-color:var(--blue);color:var(--blue);background:rgba(79,128,255,.07)}
+.dt-node.yes{border-color:var(--green);color:var(--green);background:rgba(16,185,129,.07)}
+.dt-node.no{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.07)}
+.dt-node.end{border-color:var(--yellow);color:var(--yellow);background:rgba(251,191,36,.07)}
+.dt-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 4px 16px}
+.dt-line{font-size:11px;color:var(--t3)}
+
+/* FORMULA BOX */
+.formula{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px 20px;margin:10px 0}
+.formula-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:10px}
+.formula-eq{font-size:15px;font-weight:700;color:var(--t1);font-family:Consolas,monospace;line-height:1.8}
+.formula-eq .var{color:var(--blue)}.formula-eq .op2{color:var(--t3)}.formula-eq .result{color:var(--green)}
+.formula-note{font-size:11px;color:var(--t3);margin-top:8px;line-height:1.6}
+
+/* PROGRESS */
+.prog-row{margin-bottom:11px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.prog-lbl span:first-child{color:var(--t1)}.prog-lbl span:last-child{color:var(--t3)}
+.prog-bar{background:var(--bd);border-radius:4px;height:7px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px}
+.fb{background:var(--blue)}.fg{background:var(--green)}.fy{background:var(--yellow)}.fr{background:var(--red)}.fp{background:var(--purple)}.fc{background:var(--cyan)}
+
+/* RESPONSIVE */
+@media(max-width:720px){.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){
+  header{padding:11px 14px}main{padding:16px 12px 60px}nav{padding:0 12px}
+  .tb{padding:11px 10px;font-size:12px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">Core Logic & Policy Design</span></div>
-  <div class="hbadge">
-    <span class="badge b-orange">데이터 & 로직 설계</span>
-    <span class="badge b-green">Lean MVP 최적화</span>
-    <span class="badge b-blue">v1.2</span>
+  <div class="hl">
+    <div class="logo">Scope<span>Manager</span></div>
+    <div class="badges">
+      <span class="bdg b">B2B SaaS</span>
+      <span class="bdg g">MVP 단계</span>
+      <span class="bdg y">핵심 로직 설계 v1.0</span>
+      <span class="bdg p">데이터 정책</span>
+    </div>
   </div>
+  <button class="tog" id="togBtn" onclick="toggleMode()">☀️ 라이트</button>
 </header>
 
 <nav>
-  <div class="tab on" onclick="go('judgment',this)">⚖️ 판정 로직</div>
-  <div class="tab" onclick="go('state',this)">🔄 상태 관리</div>
-  <div class="tab" onclick="go('cost',this)">💰 비용 계산</div>
-  <div class="tab" onclick="go('feedback',this)">🔁 가설 검증 루프</div>
-  <div class="tab" onclick="go('data',this)">🛡 데이터 정책</div>
-  <div class="tab" onclick="go('edge',this)">⚠️ 예외 처리</div>
+  <button class="tb active" onclick="showTab('overview',this)">📋 개요</button>
+  <button class="tb" onclick="showTab('verdict',this)">⚖️ 판정 로직</button>
+  <button class="tb" onclick="showTab('profit',this)">📈 손익 계산</button>
+  <button class="tb" onclick="showTab('plan',this)">🔒 플랜 정책</button>
+  <button class="tb" onclick="showTab('data',this)">🗄 데이터 정책</button>
+  <button class="tb" onclick="showTab('state',this)">🔄 상태 머신</button>
 </nav>
 
+<main>
 
-<div class="page on" id="page-judgment">
+<!-- ══════════════════════
+  TAB 1: 개요
+══════════════════════ -->
+<div id="page-overview" class="page active">
+  <div class="ptitle">핵심 데이터 정책 & 로직 설계</div>
+  <div class="pdesc">Scope Manager의 비즈니스 규칙과 데이터 처리 정책을 명확히 정의합니다.<br><strong>모호한 규칙이 없어야 개발 오류가 없고, 사용자 기대를 충족시킬 수 있습니다.</strong></div>
 
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-l">판정 결과 유형</div>
-      <div class="kpi-v" style="color:var(--blue)">3<span style="font-size:15px">가지</span></div>
-      <div class="kpi-s">in / out / unclear</div>
+  <div class="callout b mb18">
+    <div class="cot">⚡ 로직 설계 원칙 — 명확성과 예측 가능성</div>
+    <p>모든 판정·계산·상태 전이는 <strong>단일 진실 공급원(Single Source of Truth)</strong>을 기반으로 한다. 동일 입력에 대해 항상 동일 결과가 나와야 하며, PM이 "시스템이 왜 이렇게 판정했는가?"를 언제든 확인할 수 있어야 한다. 불명확한 경우는 시스템이 직접 판정하지 않고 <strong>PM에게 결정권을 돌려준다.</strong></p>
+  </div>
+
+  <div class="g4 mb18">
+    <div class="sc ac ab">
+      <div class="sn b">3단계</div>
+      <div class="sl2">범위 판정 결과값</div>
+      <div class="ss2">in / out / unclear</div>
     </div>
-    <div class="kpi">
-      <div class="kpi-l">최소 신뢰도 임계값</div>
-      <div class="kpi-v" style="color:var(--yellow)">0.70</div>
-      <div class="kpi-s">미만 시 unclear 처리</div>
+    <div class="sc ac ag">
+      <div class="sn g">5개</div>
+      <div class="sl2">핵심 비즈니스 로직</div>
+      <div class="ss2">판정·손익·플랜·데이터·상태</div>
     </div>
-    <div class="kpi">
-      <div class="kpi-l">재시도 횟수</div>
-      <div class="kpi-v" style="color:var(--orange)">1<span style="font-size:15px">회</span></div>
-      <div class="kpi-s">파싱 실패 시 폴백</div>
+    <div class="sc ac ay">
+      <div class="sn y">3개</div>
+      <div class="sl2">플랜 티어</div>
+      <div class="ss2">Free / Starter / Pro</div>
     </div>
-    <div class="kpi">
-      <div class="kpi-l">응답 목표 시간</div>
-      <div class="kpi-v" style="color:var(--green)">3<span style="font-size:15px">초</span></div>
-      <div class="kpi-s">Claude Sonnet 기준</div>
+    <div class="sc ac ap">
+      <div class="sn p">GDPR+</div>
+      <div class="sl2">데이터 보호 등급</div>
+      <div class="ss2">국내 개인정보보호법 준수</div>
     </div>
   </div>
 
-  <div class="sec mb20">범위 판정 의사결정 알고리즘</div>
-  <div class="g2 mb28">
-    <div>
-      <div class="algo-box">
-<span class="ak">function</span> <span class="ao">judgeRequest</span>(request, scopeSummary):
-
-  <span class="ac">// 1. 입력 타입 분기</span>
-  <span class="ak">if</span> input_type <span class="ak">in</span> [<span class="av">"none"</span>, <span class="av">"hold"</span>]:
-    <span class="ak">return</span> {judgment: <span class="av">"no_judgment"</span>, skip_ai: <span class="ak">true</span>}
-
-  <span class="ac">// 2. 명시적 포함 항목 빠른 매칭</span>
-  <span class="ak">if</span> <span class="ao">exactMatch</span>(request, scopeSummary.included):
-    <span class="ak">return</span> {judgment: <span class="av">"in_scope"</span>, confidence: <span class="an">0.98</span>, fast: <span class="ak">true</span>}
-
-  <span class="ac">// 3. 명시적 제외 항목 빠른 매칭</span>
-  <span class="ak">if</span> <span class="ao">exactMatch</span>(request, scopeSummary.excluded):
-    <span class="ak">return</span> {judgment: <span class="av">"out_of_scope"</span>, confidence: <span class="an">0.98</span>, fast: <span class="ak">true</span>}
-
-  <span class="ac">// 4. Claude API 판정 호출</span>
-  result = <span class="ak">await</span> <span class="ao">callClaudeAPI</span>(request, scopeSummary)
-
-  <span class="ac">// 5. 신뢰도 임계값 처리</span>
-  <span class="ak">if</span> result.confidence &lt; <span class="an">0.70</span>:
-    result.judgment = <span class="av">"unclear"</span>
-
-  <span class="ak">return</span> result
+  <div class="g2 mb14">
+    <div class="card">
+      <div class="slabel">5대 핵심 로직 영역</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:10px">
+        <div style="background:rgba(79,128,255,.08);border:1px solid rgba(79,128,255,.2);border-radius:8px;padding:10px 14px;cursor:pointer" onclick="showTab('verdict',document.querySelectorAll('.tb')[1])">
+          <div style="font-size:12px;font-weight:700;color:var(--blue)">⚖️ L1 — 범위 초과 판정 로직</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">AI 판정 + 신뢰도 임계값 + PM 오버라이드 규칙</div>
+        </div>
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 14px;cursor:pointer" onclick="showTab('profit',document.querySelectorAll('.tb')[2])">
+          <div style="font-size:12px;font-weight:700;color:var(--green)">📈 L2 — 손익 계산 로직</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">프로젝트 수익성 공식 + 실시간 업데이트 규칙</div>
+        </div>
+        <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px 14px;cursor:pointer" onclick="showTab('plan',document.querySelectorAll('.tb')[3])">
+          <div style="font-size:12px;font-weight:700;color:var(--yellow)">🔒 L3 — 플랜 & 기능 제한 정책</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">Free/Starter/Pro 기능 매트릭스 + 업그레이드 트리거</div>
+        </div>
+        <div style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px 14px;cursor:pointer" onclick="showTab('data',document.querySelectorAll('.tb')[4])">
+          <div style="font-size:12px;font-weight:700;color:var(--purple)">🗄 L4 — 데이터 보존 & 삭제 정책</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">데이터 보존 기간 + 탈퇴 처리 + 익명화 규칙</div>
+        </div>
+        <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:10px 14px;cursor:pointer" onclick="showTab('state',document.querySelectorAll('.tb')[5])">
+          <div style="font-size:12px;font-weight:700;color:var(--cyan)">🔄 L5 — 프로젝트 상태 머신</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">프로젝트·요구사항 생명주기 + 허용 전이 규칙</div>
+        </div>
       </div>
     </div>
-    <div>
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px">판정 흐름도</div>
-      <div class="flow">
-        <div class="flow-step">
-          <div class="flow-num" style="background:rgba(79,128,255,.2);color:var(--blue)">1</div>
-          <div class="flow-body">
-            <div class="flow-title">입력 타입 확인</div>
-            <div class="flow-desc">none/hold → AI 호출 없이 저장. request만 판정 대상.</div>
-            <div class="flow-tags"><span class="tag tag-gray">input_type check</span></div>
+    <div class="card">
+      <div class="slabel">로직 설계 원칙 6가지</div>
+      <ul class="bl mt10">
+        <li><strong>단일 진실 공급원</strong> — 동일 데이터는 한 곳에만 존재, 파생값은 계산으로 생성</li>
+        <li><strong>불변 이력</strong> — 판정 결과와 로그는 수정 불가, 오버라이드는 새 레코드로 추가</li>
+        <li><strong>명시적 상태</strong> — 암묵적 상태 없음, 모든 상태는 DB에 명시적으로 저장</li>
+        <li><strong>PM 최종 권한</strong> — AI는 제안, PM이 결정. 시스템이 PM의 판단을 막지 않음</li>
+        <li><strong>예측 가능한 계산</strong> — 손익 공식은 문서화되고 사용자에게 공개</li>
+        <li><strong>최소 데이터 수집</strong> — 기능에 필요한 최소한의 데이터만 수집·보존</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="slabel">로직 간 의존 관계</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px;text-align:center">
+      <div style="background:rgba(79,128,255,.08);border:1px solid rgba(79,128,255,.2);border-radius:8px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">⚖️</div>
+        <div style="font-size:11px;font-weight:700;color:var(--blue)">L1 판정</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px">→ L2, L5에 영향</div>
+      </div>
+      <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">📈</div>
+        <div style="font-size:11px;font-weight:700;color:var(--green)">L2 손익</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px">L1 결과를 입력으로</div>
+      </div>
+      <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">🔒</div>
+        <div style="font-size:11px;font-weight:700;color:var(--yellow)">L3 플랜</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px">L1·L2 접근 제어</div>
+      </div>
+      <div style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">🗄</div>
+        <div style="font-size:11px;font-weight:700;color:var(--purple)">L4 데이터</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px">전체 레이어 적용</div>
+      </div>
+      <div style="background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:10px 8px">
+        <div style="font-size:18px;margin-bottom:4px">🔄</div>
+        <div style="font-size:11px;font-weight:700;color:var(--cyan)">L5 상태</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px">L1 판정이 전이 유발</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════
+  TAB 2: 판정 로직
+══════════════════════ -->
+<div id="page-verdict" class="page">
+  <div class="ptitle">⚖️ L1 — 범위 초과 판정 로직</div>
+  <div class="pdesc">추가 요구가 계약 범위를 벗어났는지 판정하는 핵심 비즈니스 규칙을 정의합니다.<br>AI 판정과 PM 판단의 역할 분담, 신뢰도 임계값, 오버라이드 정책을 명확히 합니다.</div>
+
+  <!-- 판정 결과값 정의 -->
+  <div class="g3 mb14">
+    <div class="card ac ag">
+      <div style="font-size:22px;margin-bottom:6px">✅</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px">in_scope</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.65">추가 요구가 기존 계약 범위 내에 포함됨. 별도 청구 근거 없음. PM에게 "계약 범위 내" 알림.</div>
+    </div>
+    <div class="card ac ar">
+      <div style="font-size:22px;margin-bottom:6px">🚨</div>
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px">out_of_scope</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.65">추가 요구가 계약 범위를 초과함. 리포트 생성 버튼 활성화. PM에게 "범위 초과" 강조 알림.</div>
+    </div>
+    <div class="card ac ay">
+      <div style="font-size:22px;margin-bottom:6px">❓</div>
+      <div style="font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:4px">unclear</div>
+      <div style="font-size:12px;color:var(--t3);line-height:1.65">AI 신뢰도 &lt; 0.65 또는 계약 범위 공란. PM의 수동 판정 필수 요청. 자동 리포트 생성 불가.</div>
+    </div>
+  </div>
+
+  <!-- 판정 알고리즘 -->
+  <div class="card mb14">
+    <div class="slabel">판정 알고리즘 — 의사결정 트리</div>
+    <div class="dt-wrap mt12">
+      <div class="dt-node q">계약 범위(scope_items)가 1개 이상 존재하는가?</div>
+      <div class="dt-row">
+        <div class="dt-line">아니오 →</div>
+        <div class="dt-node end">→ unclear 반환 + "계약 범위를 먼저 등록해주세요" 안내</div>
+      </div>
+      <div class="dt-row">
+        <div class="dt-line">예 →</div>
+        <div class="dt-node q">Claude API 호출 → confidence 값 반환</div>
+      </div>
+      <div style="margin-left:32px">
+        <div class="dt-row">
+          <div class="dt-line">confidence ≥ 0.85 →</div>
+          <div class="dt-node yes">AI 판정 결과 자동 확정 (in_scope / out_of_scope)</div>
+        </div>
+        <div class="dt-row">
+          <div class="dt-line">0.65 ≤ confidence &lt; 0.85 →</div>
+          <div class="dt-node y" style="border-color:var(--yellow);color:var(--yellow);background:rgba(251,191,36,.07)">AI 결과 표시 + "확인 필요" 경고 + PM 확인 버튼</div>
+        </div>
+        <div class="dt-row">
+          <div class="dt-line">confidence &lt; 0.65 →</div>
+          <div class="dt-node end">→ unclear 강제 설정 + PM 수동 판정 요청</div>
+        </div>
+        <div class="dt-row">
+          <div class="dt-line">API 오류 →</div>
+          <div class="dt-node no">→ pending 상태 저장 + 재시도 안내</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2 mb14">
+    <div class="card">
+      <div class="slabel">신뢰도 임계값 정책</div>
+      <div class="code mt10"><span class="cm">// 판정 신뢰도 임계값 상수</span>
+<span class="kw">const</span> <span class="tp">VERDICT_THRESHOLDS</span> = {
+  AUTO_CONFIRM:  <span class="num">0.85</span>, <span class="cm">// 자동 확정</span>
+  WARN_CONFIRM:  <span class="num">0.65</span>, <span class="cm">// 경고 후 확인</span>
+  FORCE_UNCLEAR: <span class="num">0.00</span>, <span class="cm">// unclear 강제</span>
+} <span class="kw">as const</span>;
+
+<span class="cm">// 판정 결과 타입</span>
+<span class="kw">type</span> <span class="tp">Verdict</span> =
+  | <span class="str">'in_scope'</span>
+  | <span class="str">'out_of_scope'</span>
+  | <span class="str">'unclear'</span>
+  | <span class="str">'pending'</span>;   <span class="cm">// API 오류 시</span>
+
+<span class="cm">// 판정 결과 구조</span>
+<span class="kw">interface</span> <span class="tp">VerdictResult</span> {
+  verdict:     <span class="tp">Verdict</span>;
+  confidence:  <span class="num">number</span>;   <span class="cm">// 0.0 ~ 1.0</span>
+  reason:      <span class="num">string</span>;
+  related:     <span class="num">string</span>;   <span class="cm">// 관련 계약 항목</span>
+  source:      <span class="str">'ai'</span> | <span class="str">'pm'</span>; <span class="cm">// 판정 주체</span>
+  created_at:  <span class="num">Date</span>;
+}</div>
+    </div>
+    <div class="card">
+      <div class="slabel">PM 오버라이드 정책</div>
+      <div class="rule-box mt10"><strong>원칙:</strong> 모든 AI 판정은 PM이 변경 가능하다. 단, 오버라이드는 <strong>새 레코드</strong>를 생성하며 AI 원본 판정은 보존된다.</div>
+      <div class="rule-box g"><strong>오버라이드 허용 조건:</strong> 항상 허용 (플랜 무관). PM이 최종 결정권자.</div>
+      <div class="rule-box r"><strong>오버라이드 불가 조건:</strong> 이미 클라이언트에게 전송된 리포트의 판정값 소급 변경 불가. 새 리포트 생성 필요.</div>
+      <div class="rule-box y"><strong>오버라이드 로그:</strong> 변경 전/후 값, 변경 시각, 변경 이유(선택) 모두 기록. AI 정확도 개선에 활용.</div>
+      <div class="code mt10"><span class="cm">// 오버라이드 레코드 구조</span>
+<span class="kw">interface</span> <span class="tp">VerdictOverride</span> {
+  original_verdict_id: <span class="num">string</span>;
+  new_verdict: <span class="tp">Verdict</span>;
+  reason?: <span class="num">string</span>; <span class="cm">// PM 입력 (선택)</span>
+  overridden_by: <span class="num">string</span>; <span class="cm">// user_id</span>
+  overridden_at: <span class="num">Date</span>;
+}</div>
+    </div>
+  </div>
+
+  <div class="card ac ab">
+    <div class="slabel" style="color:var(--blue)">리포트 생성 허용 조건</div>
+    <table class="tbl mt10">
+      <thead><tr><th>판정 상태</th><th>source</th><th>리포트 생성</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td class="t1">out_of_scope</td><td>ai (confidence ≥ 0.85)</td><td><span class="pill g">허용</span></td><td>높은 신뢰도, 자동 확정</td></tr>
+        <tr><td class="t1">out_of_scope</td><td>pm (오버라이드)</td><td><span class="pill g">허용</span></td><td>PM 최종 확인 완료</td></tr>
+        <tr><td class="t1">out_of_scope</td><td>ai (0.65~0.85)</td><td><span class="pill y">PM 확인 후 허용</span></td><td>경고 후 PM 승인 필요</td></tr>
+        <tr><td class="t1">in_scope</td><td>ai / pm</td><td><span class="pill r">불허</span></td><td>청구 근거 없음</td></tr>
+        <tr><td class="t1">unclear</td><td>ai</td><td><span class="pill r">불허</span></td><td>PM 수동 판정 대기</td></tr>
+        <tr><td class="t1">pending</td><td>-</td><td><span class="pill r">불허</span></td><td>API 오류 재시도 필요</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ══════════════════════
+  TAB 3: 손익 계산
+══════════════════════ -->
+<div id="page-profit" class="page">
+  <div class="ptitle">📈 L2 — 손익 계산 로직</div>
+  <div class="pdesc">프로젝트 수익성을 실시간으로 계산하는 공식과 규칙을 정의합니다.<br>PM이 "지금 이 프로젝트가 얼마나 남는가?"를 언제든 정확히 파악할 수 있도록 설계합니다.</div>
+
+  <!-- 핵심 공식 -->
+  <div class="formula mb14">
+    <div class="formula-title">프로젝트 순이익 공식</div>
+    <div class="formula-eq">
+<span class="result">순이익</span> <span class="op2">=</span> <span class="var">contract_amount</span>
+        <span class="op2">+</span> <span class="var">additional_billed</span>    <span class="cm">// 추가 청구 성공 금액</span>
+        <span class="op2">-</span> <span class="var">actual_cost</span>            <span class="cm">// 실제 투입 비용</span>
+        <span class="op2">-</span> <span class="var">scope_loss</span>             <span class="cm">// 청구 포기 손실액</span>
+    </div>
+    <div class="formula-note">
+      <strong style="color:var(--t1)">actual_cost</strong> = invested_hours × hourly_rate (에이전시 설정값, 기본 5만원/시간)<br>
+      <strong style="color:var(--t1)">scope_loss</strong> = Σ(out_of_scope 요구 중 청구 포기된 항목의 추정 금액)<br>
+      <strong style="color:var(--t1)">profit_margin</strong> = 순이익 / (contract_amount + additional_billed) × 100%
+    </div>
+  </div>
+
+  <div class="g2 mb14">
+    <div class="card">
+      <div class="slabel">계산 필드 정의</div>
+      <div class="code mt10"><span class="kw">interface</span> <span class="tp">ProjectFinancials</span> {
+  <span class="cm">// 입력값 (PM이 직접 입력)</span>
+  contract_amount:   <span class="num">number</span>; <span class="cm">// 계약 금액</span>
+  hourly_rate:       <span class="num">number</span>; <span class="cm">// 시간당 인건비</span>
+
+  <span class="cm">// 자동 집계값 (시스템 계산)</span>
+  invested_hours:    <span class="num">number</span>; <span class="cm">// 실제 투입 시간</span>
+  additional_billed: <span class="num">number</span>; <span class="cm">// 추가 청구 성공</span>
+  scope_loss:        <span class="num">number</span>; <span class="cm">// 포기 손실 추정</span>
+
+  <span class="cm">// 파생값 (계산으로 생성)</span>
+  actual_cost:       <span class="num">number</span>; <span class="cm">// 계산: hours × rate</span>
+  net_profit:        <span class="num">number</span>; <span class="cm">// 최종 순이익</span>
+  profit_margin:     <span class="num">number</span>; <span class="cm">// 이익률 (%)</span>
+  roi:               <span class="num">number</span>; <span class="cm">// 투자 대비 수익</span>
+}</div>
+    </div>
+    <div class="card">
+      <div class="slabel">손익 계산 규칙</div>
+      <div class="rule-box mt10"><strong>계산 트리거:</strong> invested_hours, additional_billed, scope_loss 중 하나라도 변경될 때 net_profit 자동 재계산.</div>
+      <div class="rule-box g"><strong>파생값 저장 금지:</strong> net_profit, profit_margin, roi는 DB에 저장하지 않음. 항상 실시간 계산. 입력값만 저장.</div>
+      <div class="rule-box y"><strong>scope_loss 추정 방식:</strong> PM이 직접 금액 입력 (필수 아님). 미입력 시 "0"으로 처리. 계약 시간 기반 자동 추정 (Phase 2).</div>
+      <div class="rule-box r"><strong>음수 처리:</strong> net_profit이 음수 = 적자 프로젝트. UI에서 적자 경고 표시 (빨간색). 알림 발송 정책은 별도 설정.</div>
+    </div>
+  </div>
+
+  <div class="card mb14">
+    <div class="slabel">손익 계산 예시 — 실제 시나리오</div>
+    <div class="g3 mt12">
+      <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">✅ 흑자 프로젝트</div>
+        <div style="font-size:12px;color:var(--t3);line-height:2">
+          계약금: <strong style="color:var(--t1)">300만원</strong><br>
+          추가 청구 성공: <strong style="color:var(--t1)">+50만원</strong><br>
+          실제 비용: <strong style="color:var(--t1)">-200만원</strong> (40h × 5만원)<br>
+          청구 포기 손실: <strong style="color:var(--t1)">-20만원</strong><br>
+          <div style="border-top:1px solid var(--bd);margin-top:6px;padding-top:6px">
+            순이익: <strong style="color:var(--green);font-size:14px">+130만원</strong><br>
+            이익률: <strong style="color:var(--green)">37.1%</strong>
           </div>
         </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:rgba(16,185,129,.2);color:var(--green)">2</div>
-          <div class="flow-body">
-            <div class="flow-title">빠른 매칭 (Fast Path)</div>
-            <div class="flow-desc">계약서 포함/제외 항목과 유사 시 AI 호출 없이 즉시 판정.</div>
-            <div class="flow-tags"><span class="tag tag-green">비용 절감</span></div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">3</div>
-          <div class="flow-body">
-            <div class="flow-title">Claude API 판정</div>
-            <div class="flow-desc">애매한 케이스만 AI로 판정. JSON 응답 강제.</div>
-            <div class="flow-tags"><span class="tag tag-yellow">핵심 AI 호출</span></div>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:rgba(168,85,247,.2);color:var(--purple)">4</div>
-          <div class="flow-body">
-            <div class="flow-title">신뢰도 임계값 적용</div>
-            <div class="flow-desc">confidence &lt; 0.70 → автоматически unclear 처리.</div>
-            <div class="flow-tags"><span class="tag tag-purple">품질 게이트</span></div>
+      </div>
+      <div style="background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">❌ 적자 프로젝트</div>
+        <div style="font-size:12px;color:var(--t3);line-height:2">
+          계약금: <strong style="color:var(--t1)">200만원</strong><br>
+          추가 청구 성공: <strong style="color:var(--t1)">+0원</strong><br>
+          실제 비용: <strong style="color:var(--t1)">-220만원</strong> (44h × 5만원)<br>
+          청구 포기 손실: <strong style="color:var(--t1)">-80만원</strong><br>
+          <div style="border-top:1px solid var(--bd);margin-top:6px;padding-top:6px">
+            순이익: <strong style="color:var(--red);font-size:14px">-100만원</strong><br>
+            이익률: <strong style="color:var(--red)">-50%</strong>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="sec mb20">판정 결과 유형별 정책</div>
-  <div style="overflow-x:auto">
-  <table class="dtable">
-    <thead><tr>
-      <th>판정 결과</th>
-      <th>조건</th>
-      <th>UI 표시</th>
-      <th>후속 액션</th>
-      <th>비용 추정</th>
-    </tr></thead>
-    <tbody>
-    <tr>
-      <td><span class="tag tag-green">✅ in_scope</span></td>
-      <td style="color:var(--t3)">계약 포함 항목에 해당<br>confidence ≥ 0.70</td>
-      <td style="color:var(--t3)">녹색 뱃지 "계약 범위 내"<br>근거 문장 표시</td>
-      <td style="color:var(--t3)">추가 버튼 없음<br>히스토리에 기록</td>
-      <td><span class="tag tag-gray">미산출</span></td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-red">🚫 out_of_scope</span></td>
-      <td style="color:var(--t3)">계약 외 항목에 해당<br>confidence ≥ 0.70</td>
-      <td style="color:var(--t3)">빨간 뱃지 "범위 초과"<br>예상 비용 + 근거 표시</td>
-      <td style="color:var(--t3)">리포트 추가 버튼<br>청구 기록 연계</td>
-      <td><span class="tag tag-orange">자동 산출</span></td>
-    </tr>
-    <tr>
-      <td><span class="tag tag-yellow">❓ unclear</span></td>
-      <td style="color:var(--t3)">confidence &lt; 0.70<br>또는 AI 판단 불가</td>
-      <td style="color:var(--t3)">노란 뱃지 "검토 필요"<br>AI 판단 어려운 이유 표시</td>
-      <td style="color:var(--t3)">PM 직접 판단 유도<br>재판정 요청 가능</td>
-      <td><span class="tag tag-gray">PM 입력 대기</span></td>
-    </tr>
-    </tbody>
-  </table>
-  </div>
-</div>
-
-
-<div class="page" id="page-state">
-  <div class="sec mb20">프로젝트 상태 머신 (State Machine)</div>
-  <div class="sm-wrap mb28">
-    <div class="sm-state" style="background:rgba(79,128,255,.08);border:1px solid rgba(79,128,255,.25)">
-      <div class="sm-label" style="color:var(--blue)">초기 상태</div>
-      <div class="sm-name" style="color:var(--blue)">⚙️ setup</div>
-      <div class="sm-desc" style="color:var(--t3)">프로젝트 생성됨. 계약서 미입력 상태.</div>
-      <div class="sm-transitions">
-        <div class="sm-tr" style="background:rgba(79,128,255,.1);color:var(--blue)">→ active (계약서 등록 완료)</div>
-      </div>
-    </div>
-    <div class="sm-state" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25)">
-      <div class="sm-label" style="color:var(--green)">진행 중</div>
-      <div class="sm-name" style="color:var(--green)">🟢 active</div>
-      <div class="sm-desc" style="color:var(--t3)">AI 판정 가능. 일일 입력 활성화.</div>
-      <div class="sm-transitions">
-        <div class="sm-tr" style="background:rgba(245,158,11,.1);color:var(--yellow)">→ paused (일시정지)</div>
-        <div class="sm-tr" style="background:rgba(90,100,120,.15);color:var(--t3)">→ closed (프로젝트 종료)</div>
-      </div>
-    </div>
-    <div class="sm-state" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2)">
-      <div class="sm-label" style="color:var(--red)">종료</div>
-      <div class="sm-name" style="color:var(--red)">🔴 closed</div>
-      <div class="sm-desc" style="color:var(--t3)">최종 손익 리포트 생성. 수정 불가.</div>
-      <div class="sm-transitions">
-        <div class="sm-tr" style="background:rgba(90,100,120,.12);color:var(--t4)">← 되돌리기 불가</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="page" id="page-cost">
-  <div class="sec mb20">추가 비용 자동 산출 로직</div>
-  <div class="g2 mb28">
-    <div>
-      <div class="algo-box">
-<span class="ak">function</span> <span class="ao">estimateCost</span>(requestText, judgment, user):
-
-  <span class="ak">if</span> judgment != <span class="av">"out_of_scope"</span>:
-    <span class="ak">return</span> {hours: <span class="ak">null</span>, cost: <span class="ak">null</span>}
-
-  hours = <span class="ak">await</span> <span class="ao">estimateHours</span>(requestText)
-  hourly_rate = user.hourly_rate <span class="ac">// default: 50,000원</span>
-  base_cost = hours × hourly_rate
-  
-  <span class="ac">// 난이도 가중치</span>
-  complexity = <span class="ao">getComplexity</span>(requestText)
-  <span class="ak">if</span> complexity == <span class="av">"high"</span>: base_cost *= <span class="an">1.5</span>
-  
-  <span class="ak">return</span> { estimated_cost: <span class="ao">roundTo</span>(base_cost, <span class="an">1000</span>) }
-      </div>
-    </div>
-    <div>
-      <div class="policy" style="border-left-color:var(--cyan)">
-        <div class="policy-title">💡 프로젝트 손익 계산</div>
-        <div class="policy-rule">
-예상 매출  = contract_amount<br>
-예상 인건비 = Σ(daily_hours × hourly_rate)<br>
-예상 이익  = 예상 매출 - 예상 인건비<br>
-<br>
-추가 청구 가능액 = Σ(out_of_scope × estimated_cost)
+      <div style="background:rgba(79,128,255,.07);border:1px solid rgba(79,128,255,.25);border-radius:10px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">📊 Scope Manager 활용 시</div>
+        <div style="font-size:12px;color:var(--t3);line-height:2">
+          계약금: <strong style="color:var(--t1)">200만원</strong><br>
+          추가 청구 성공: <strong style="color:var(--t1)">+60만원</strong> ← 리포트 활용<br>
+          실제 비용: <strong style="color:var(--t1)">-220만원</strong><br>
+          청구 포기 손실: <strong style="color:var(--t1)">-20만원</strong> ← 감소<br>
+          <div style="border-top:1px solid var(--bd);margin-top:6px;padding-top:6px">
+            순이익: <strong style="color:var(--blue);font-size:14px">+20만원</strong><br>
+            이익률: <strong style="color:var(--blue)">+7.7%</strong> (흑자 전환)
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-
-<div class="page" id="page-feedback">
-  <div class="sec mb20">PMF 가설 검증 및 피드백 사이클 (사전 인터뷰 대체)</div>
-  <div class="policy mb20" style="border-left-color:var(--orange)">
-    <div class="policy-title">🚀 Lean Execution 원칙</div>
-    <div class="policy-desc">고객 인터뷰를 생략한 만큼, 현재의 AI 판정 로직과 UI 플로우는 '우리의 가설'입니다. 베타 유저의 행동 데이터와 수동 개입(Override) 패턴을 실시간으로 추적하여 제품의 방향이 현업 에이전시의 니즈와 맞는지 4주 내에 판별합니다.</div>
-  </div>
-
-  <div class="g2 mb28">
-    <div class="flow">
-      <div class="flow-step">
-        <div class="flow-num" style="background:rgba(16,185,129,.2);color:var(--green)">1</div>
-        <div class="flow-body">
-          <div class="flow-title">핵심 이탈 및 마찰 지점 수집 (Analytics)</div>
-          <div class="flow-desc">판정 결과(unclear 등)가 나왔을 때 사용자가 '재판정'을 누르는지, '수동 수정(Override)'을 하는지, 아니면 '이탈'하는지 Mixpanel 이벤트로 적재합니다.</div>
-          <div class="flow-tags"><span class="tag tag-green">이벤트 트래킹</span><span class="tag tag-gray">행동 기반 검증</span></div>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num" style="background:rgba(79,128,255,.2);color:var(--blue)">2</div>
-        <div class="flow-body">
-          <div class="flow-title">PM 수동 개입(Override) 패턴 분석</div>
-          <div class="flow-desc">AI가 판정한 결과를 PM이 얼마나 자주 뒤집는지 파악합니다. 수동 변경 비율이 30%를 넘는다면 판정 로직 가설이 틀렸다는 신호입니다.</div>
-          <div class="flow-tags"><span class="tag tag-blue">가설 기각 판별기</span></div>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num" style="background:rgba(245,158,11,.2);color:var(--yellow)">3</div>
-        <div class="flow-body">
-          <div class="flow-title">명시적 피드백 수집 (마이크로 서베이)</div>
-          <div class="flow-desc">인터뷰를 대체하기 위해 앱 내에 자연스러운 피드백 버튼("이 판정이 합리적인가요?")을 배치하여, 맥락에 맞는 구체적 이유(feedback_reason)를 수집합니다.</div>
-          <div class="flow-tags"><span class="tag tag-yellow">정성적 데이터 확보</span></div>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num" style="background:rgba(168,85,247,.2);color:var(--purple)">4</div>
-        <div class="flow-body">
-          <div class="flow-title">빠른 로직 피벗 (주 1회)</div>
-          <div class="flow-desc">수집된 행동 데이터와 정성 피드백을 바탕으로 Claude 시스템 프롬프트를 즉각 수정하거나, 불필요한 기능을 과감히 폐기(Drop)합니다.</div>
-          <div class="flow-tags"><span class="tag tag-purple">Prompt Update</span><span class="tag tag-gray">Feature Drop</span></div>
-        </div>
-      </div>
-    </div>
-    
-    <div>
-      <div class="card-sm mb12" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)">
-        <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">🚨 피드백 기반 치명적 경고 신호 (Red Flags)</div>
-        <div style="font-size:11px;color:var(--t3);line-height:1.7;margin-bottom:8px">다음 조건 충족 시 타겟 고객 또는 제품 핵심 가설의 전면 재검토가 필요합니다:</div>
-        <ul style="font-size:11px;color:var(--t2);line-height:1.6;padding-left:16px;margin-bottom:6px">
-          <li>계약서 입력 단계 이탈률 > 60% (입력 허들이 너무 높음)</li>
-          <li>판정 후 리포트 생성 전환율 &lt; 10% (판정 결과의 실무 활용도 낮음)</li>
-          <li>AI 판정에 대한 수동 Override 비율 > 40% (로직 신뢰성 붕괴)</li>
-        </ul>
-      </div>
+  <div class="card ac ag">
+    <div class="slabel" style="color:var(--green)">실시간 업데이트 정책</div>
+    <div class="flow-steps mt10">
+      <div class="fs"><div class="fs-num" style="background:var(--green)">1</div><div class="fs-body"><strong>입력값 변경 감지</strong> — invested_hours 또는 additional_billed 변경 시 이벤트 발생</div></div>
+      <div class="fs"><div class="fs-num" style="background:var(--blue)">2</div><div class="fs-body"><strong>디바운스 처리</strong> — 300ms 디바운스로 연속 입력 중 불필요한 재계산 방지</div></div>
+      <div class="fs"><div class="fs-num" style="background:var(--yellow)">3</div><div class="fs-body"><strong>클라이언트 계산</strong> — net_profit, profit_margin은 서버 왕복 없이 브라우저에서 즉시 계산</div></div>
+      <div class="fs"><div class="fs-num" style="background:var(--orange)">4</div><div class="fs-body"><strong>입력값 DB 저장</strong> — 1초 후 debounced save: 입력값(원본)만 Supabase에 저장</div></div>
+      <div class="fs"><div class="fs-num" style="background:var(--green)">5</div><div class="fs-body"><strong>적자 임계값 체크</strong> — profit_margin &lt; 0이면 UI 경고, &lt; -20%이면 이메일 알림 발송 (설정 시)</div></div>
     </div>
   </div>
 </div>
 
 
-<div class="page" id="page-data">
-  <div class="sec mb16">민감 데이터 및 이벤트 트래킹 정책</div>
-  <div class="policy mb12">
-    <div class="policy-title">🔐 MVP 행동 데이터 트래킹 (Analytics)</div>
-    <div class="policy-desc">사전 인터뷰 부재로 인한 블랙박스를 해소하기 위해, 사용자의 모든 주요 의사결정 지점을 이벤트로 기록합니다. (개인정보보호법을 준수하여 철저히 익명/비식별화 처리)</div>
-    <div class="policy-rule">
-- 트래킹 도구: Mixpanel 또는 Amplitude (클라이언트 사이드)<br>
-- 핵심 이벤트 로그:<br>
-  1. `project_created` (계약 금액, 입력 방식)<br>
-  2. `judgment_requested` (판정 소요 시간, 결과 상태 - in/out/unclear)<br>
-  3. `judgment_overridden` (AI 원본 값 vs PM 수정 값)<br>
-  4. `report_shared` (리포트 생성 및 공유 버튼 클릭 여부)
+<!-- ══════════════════════
+  TAB 4: 플랜 정책
+══════════════════════ -->
+<div id="page-plan" class="page">
+  <div class="ptitle">🔒 L3 — 플랜 & 기능 제한 정책</div>
+  <div class="pdesc">Free / Starter / Pro 플랜별 기능 접근 범위와 제한 정책을 정의합니다.<br>모든 제한은 <strong>서버 사이드(RLS + Edge Function)</strong>에서 강제되며 클라이언트 우회를 허용하지 않습니다.</div>
+
+  <!-- 플랜 기능 매트릭스 -->
+  <div class="card mb14">
+    <div class="slabel">플랜별 기능 매트릭스</div>
+    <table class="tbl mt10">
+      <thead>
+        <tr>
+          <th>기능</th>
+          <th style="color:var(--t3)">Free</th>
+          <th style="color:var(--yellow)">Starter 29K</th>
+          <th style="color:var(--green)">Pro 69K</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="t1">프로젝트 수</td><td>1개</td><td>5개</td><td>무제한</td></tr>
+        <tr><td class="t1">계약 범위 등록</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td class="t1">추가 요구 기록</td><td>프로젝트당 10건</td><td>무제한</td><td>무제한</td></tr>
+        <tr><td class="t1">AI 범위 판정</td><td>월 50회</td><td>월 200회</td><td>무제한</td></tr>
+        <tr><td class="t1">리포트 생성</td><td>월 3회</td><td>무제한</td><td>무제한</td></tr>
+        <tr><td class="t1">리포트 PDF 다운로드</td><td>워터마크 포함</td><td>워터마크 없음</td><td>커스텀 브랜딩</td></tr>
+        <tr><td class="t1">이메일 직접 발송</td><td>✗</td><td>✓</td><td>✓</td></tr>
+        <tr><td class="t1">손익 트래킹</td><td>✗</td><td>✓ (기본)</td><td>✓ (고급)</td></tr>
+        <tr><td class="t1">팀 멤버 초대</td><td>✗</td><td>✗</td><td>최대 5명</td></tr>
+        <tr><td class="t1">데이터 내보내기</td><td>✗</td><td>CSV</td><td>CSV + JSON</td></tr>
+        <tr><td class="t1">데이터 보존 기간</td><td>6개월</td><td>2년</td><td>무제한</td></tr>
+        <tr><td class="t1">API 직접 접근</td><td>✗</td><td>✗</td><td>✓ (Phase 3)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2 mb14">
+    <div class="card">
+      <div class="slabel">제한 초과 처리 정책</div>
+      <div class="rule-box mt10 r"><strong>하드 차단 (즉시):</strong> 프로젝트 수 초과, 결제 만료. API 요청 자체를 거부 (HTTP 403).</div>
+      <div class="rule-box y"><strong>소프트 경고 (80% 도달):</strong> 월 판정 횟수, 리포트 생성 횟수. 기능은 동작하되 "XX회 남았습니다" 배너 표시.</div>
+      <div class="rule-box b"><strong>기능 잠금 UI:</strong> 미제공 기능은 잠금 아이콘 + "Starter부터 사용 가능" 툴팁. 클릭 시 업그레이드 모달.</div>
+      <div class="code mt10"><span class="cm">// RLS 정책 — 프로젝트 수 제한</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"enforce_project_limit"</span>
+<span class="kw">ON</span> projects <span class="kw">FOR INSERT WITH CHECK</span> (
+  <span class="fn">get_plan_limit</span>(auth.<span class="fn">uid</span>()) = <span class="str">'pro'</span>
+  <span class="kw">OR</span> (
+    <span class="kw">SELECT COUNT</span>(*) <span class="kw">FROM</span> projects
+    <span class="kw">WHERE</span> user_id = auth.<span class="fn">uid</span>()
+      <span class="kw">AND</span> deleted_at <span class="kw">IS NULL</span>
+  ) &lt; <span class="fn">get_plan_project_limit</span>(auth.<span class="fn">uid</span>())
+);</div>
     </div>
+    <div class="card">
+      <div class="slabel">업그레이드 트리거 정책</div>
+      <div class="rule-box mt10 g"><strong>업그레이드 제안 타이밍:</strong> 판정 80% 소진, 리포트 2회 생성, 두 번째 프로젝트 등록 시도, 이메일 발송 버튼 클릭.</div>
+      <div class="rule-box b"><strong>업그레이드 모달 내용:</strong> 현재 사용 현황 + 업그레이드 시 해결되는 문제 1줄 + CTA 버튼. 공포 마케팅 금지.</div>
+      <div class="rule-box y"><strong>다운그레이드 정책:</strong> Paid → Free 전환 시 기존 데이터 읽기 전용 유지 (삭제 없음). 프로젝트 추가·수정만 제한.</div>
+      <div class="rule-box"><strong>환불 정책:</strong> 결제 후 7일 이내, 리포트 생성 0건인 경우 전액 환불. 이후는 해당 월 비례 환불.</div>
+    </div>
+  </div>
+
+  <div class="card ac ab">
+    <div class="slabel" style="color:var(--blue)">플랜 전환 로직 — 상태 전이</div>
+    <div class="code mt10"><span class="kw">type</span> <span class="tp">PlanStatus</span> =
+  | <span class="str">'free'</span>
+  | <span class="str">'starter_active'</span>
+  | <span class="str">'starter_past_due'</span>  <span class="cm">// 결제 실패</span>
+  | <span class="str">'pro_active'</span>
+  | <span class="str">'pro_past_due'</span>
+  | <span class="str">'cancelled'</span>;         <span class="cm">// 구독 취소</span>
+
+<span class="cm">// 허용 전이</span>
+<span class="tp">free</span>             → <span class="tp">starter_active</span> (결제 성공)
+<span class="tp">starter_active</span>  → <span class="tp">pro_active</span>     (업그레이드)
+<span class="tp">starter_active</span>  → <span class="tp">starter_past_due</span> (결제 실패)
+<span class="tp">starter_past_due</span> → <span class="tp">starter_active</span>  (재결제 성공)
+<span class="tp">starter_past_due</span> → <span class="tp">free</span>           (3일 후 자동)
+<span class="tp">cancelled</span>       → <span class="tp">free</span>           (구독 종료 즉시)</div>
   </div>
 </div>
 
 
-<div class="page" id="page-edge">
-  <div class="sec mb20">예외 케이스 & 처리 방법</div>
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-red">API 오류</span>
-      <div class="exc-title">Claude API 호출 실패 / 타임아웃</div>
+<!-- ══════════════════════
+  TAB 5: 데이터 정책
+══════════════════════ -->
+<div id="page-data" class="page">
+  <div class="ptitle">🗄 L4 — 데이터 보존 & 삭제 정책</div>
+  <div class="pdesc">사용자 데이터의 수집 범위, 보존 기간, 삭제·익명화 정책을 정의합니다.<br>개인정보보호법과 GDPR 원칙을 준수하며, <strong>최소 수집 원칙</strong>을 기반으로 합니다.</div>
+
+  <!-- 데이터 분류 -->
+  <div class="g3 mb14">
+    <div class="card ac ap">
+      <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier 1 — 개인식별정보 (PII)</div>
+      <ul class="bl">
+        <li>이메일 주소</li>
+        <li>결제 정보 (카드번호 — Toss에 위탁)</li>
+        <li>IP 주소 (로그인 로그)</li>
+      </ul>
+      <div style="margin-top:8px"><span class="tag p">암호화 저장</span><span class="tag r">최소 수집</span></div>
     </div>
-    <div class="exc-body">Claude API가 5초 이상 응답 없거나 HTTP 500 에러 반환 시.</div>
-    <div class="exc-resolution">1회 자동 재시도. 재시도도 실패 시 judgment = "unclear"로 저장. "일시적 오류" 안내 토스트 표시.</div>
+    <div class="card ac ab">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier 2 — 비즈니스 데이터</div>
+      <ul class="bl">
+        <li>프로젝트 정보</li>
+        <li>계약 범위 항목</li>
+        <li>추가 요구 기록</li>
+        <li>판정 결과 및 리포트</li>
+        <li>손익 수치</li>
+      </ul>
+      <div style="margin-top:8px"><span class="tag b">RLS 보호</span><span class="tag g">사용자 소유</span></div>
+    </div>
+    <div class="card ac ay">
+      <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tier 3 — 행동 분석 데이터</div>
+      <ul class="bl">
+        <li>페이지 방문 이벤트</li>
+        <li>기능 클릭 로그</li>
+        <li>이탈 지점</li>
+        <li>세션 시간</li>
+      </ul>
+      <div style="margin-top:8px"><span class="tag y">익명화 처리</span><span class="tag">PostHog 저장</span></div>
+    </div>
   </div>
-  <div class="exc-item">
-    <div class="exc-head">
-      <span class="tag tag-purple">PM 오버라이드</span>
-      <div class="exc-title">AI 판정과 다른 결정을 PM이 직접 내림</div>
+
+  <!-- 보존 기간 정책 -->
+  <div class="card mb14">
+    <div class="slabel">데이터 보존 기간 정책</div>
+    <table class="tbl mt10">
+      <thead><tr><th>데이터 종류</th><th>Free</th><th>Starter</th><th>Pro</th><th>탈퇴 후</th></tr></thead>
+      <tbody>
+        <tr><td class="t1">프로젝트·범위 데이터</td><td>6개월</td><td>2년</td><td>무제한</td><td>30일 후 삭제</td></tr>
+        <tr><td class="t1">판정 결과·이력</td><td>6개월</td><td>2년</td><td>무제한</td><td>30일 후 삭제</td></tr>
+        <tr><td class="t1">생성된 리포트</td><td>3개월</td><td>2년</td><td>무제한</td><td>즉시 삭제</td></tr>
+        <tr><td class="t1">이메일 주소</td><td colspan="3">탈퇴 즉시 익명화</td><td>즉시 익명화</td></tr>
+        <tr><td class="t1">결제 이력</td><td colspan="3">법적 의무: 5년 보존</td><td>5년 보존 (익명화)</td></tr>
+        <tr><td class="t1">행동 분석 로그</td><td colspan="3">90일 (PostHog 정책)</td><td>즉시 삭제 요청</td></tr>
+        <tr><td class="t1">AI 판정 피드백 데이터</td><td colspan="3">익명화 후 무기한 (모델 개선)</td><td>익명화 후 보존</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="g2 mb14">
+    <div class="card">
+      <div class="slabel">탈퇴 처리 로직</div>
+      <div class="flow-steps mt10">
+        <div class="fs"><div class="fs-num" style="background:var(--red)">1</div><div class="fs-body"><strong>탈퇴 요청 접수</strong> — "정말 탈퇴하시겠습니까?" 2단계 확인. 데이터 삭제 일정 명시.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--yellow)">2</div><div class="fs-body"><strong>30일 유예 기간</strong> — 탈퇴 후 30일은 복구 가능. "계정 복구" 이메일 발송.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--orange)">3</div><div class="fs-body"><strong>PII 즉시 익명화</strong> — 이메일 → hash값으로 대체. 이름 → "탈퇴사용자"로 변경.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--purple)">4</div><div class="fs-body"><strong>비즈니스 데이터 삭제</strong> — 30일 후 projects, scope_items, change_requests 영구 삭제.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--green)">5</div><div class="fs-body"><strong>익명 AI 피드백 보존</strong> — 판정 오버라이드 패턴만 익명화 후 AI 개선 데이터로 보존.</div></div>
+      </div>
     </div>
-    <div class="exc-body">AI가 "범위 내"로 판정했지만 PM 경험상 "범위 외"인 경우.</div>
-    <div class="exc-resolution">judgment_original 컬럼에 AI 원본값 보존. judgment 컬럼 업데이트. override_reason 기록하여 피드백 데이터 수집.</div>
+    <div class="card">
+      <div class="slabel">익명화 & 집계 데이터 정책</div>
+      <div class="rule-box mt10"><strong>AI 모델 개선 데이터:</strong> 판정 결과 + 오버라이드 여부만 수집. 실제 계약 내용·요구 텍스트는 제외. 사용자 동의 시에만 활용.</div>
+      <div class="rule-box g"><strong>업계 벤치마크 데이터 (Phase 3):</strong> 손익률·스코프 크리프 빈도를 업종·규모 기준으로 집계. k-익명성 원칙 적용 (최소 10개 데이터 포인트).</div>
+      <div class="rule-box b"><strong>제3자 데이터 공유 금지:</strong> PostHog·Hotjar에는 사용자 식별 정보 전달 없음. 이벤트명과 익명 세션 ID만 전송.</div>
+      <div class="rule-box y"><strong>데이터 이동권:</strong> 사용자 요청 시 72시간 내 본인 데이터 전체를 JSON 형태로 제공.</div>
+    </div>
+  </div>
+
+  <div class="card ac ap">
+    <div class="slabel" style="color:var(--purple)">개인정보 수집 고지 항목 (서비스 가입 시)</div>
+    <table class="tbl mt10">
+      <thead><tr><th>수집 항목</th><th>수집 목적</th><th>보존 기간</th><th>제3자 제공</th></tr></thead>
+      <tbody>
+        <tr><td class="t1">이메일</td><td>로그인·서비스 알림</td><td>탈퇴 즉시 익명화</td><td>없음</td></tr>
+        <tr><td class="t1">결제 정보</td><td>구독 결제</td><td>Toss 처리 (직접 미저장)</td><td>Toss Payments</td></tr>
+        <tr><td class="t1">서비스 이용 기록</td><td>서비스 제공·개선</td><td>탈퇴 후 30일</td><td>없음</td></tr>
+        <tr><td class="t1">행동 분석 데이터</td><td>UX 개선 (동의 시)</td><td>90일</td><td>PostHog (익명)</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+
+<!-- ══════════════════════
+  TAB 6: 상태 머신
+══════════════════════ -->
+<div id="page-state" class="page">
+  <div class="ptitle">🔄 L5 — 상태 머신 설계</div>
+  <div class="pdesc">프로젝트와 추가 요구 항목의 생명주기 상태를 정의합니다.<br>허용되지 않은 상태 전이를 시스템이 차단하여 <strong>데이터 일관성</strong>을 보장합니다.</div>
+
+  <!-- 프로젝트 상태 머신 -->
+  <div class="card mb14">
+    <div class="slabel">프로젝트 상태 머신</div>
+    <div class="code mt10"><span class="kw">type</span> <span class="tp">ProjectStatus</span> =
+  | <span class="str">'draft'</span>       <span class="cm">// 범위 미등록 상태</span>
+  | <span class="str">'active'</span>      <span class="cm">// 진행 중 (기본)</span>
+  | <span class="str">'on_hold'</span>     <span class="cm">// 일시 중단</span>
+  | <span class="str">'completed'</span>   <span class="cm">// 완료 (읽기 전용)</span>
+  | <span class="str">'cancelled'</span>   <span class="cm">// 취소</span>
+  | <span class="str">'archived'</span>;   <span class="cm">// 보관 (6개월 후 자동)</span>
+
+<span class="cm">// ✓ 허용 전이</span>
+draft      → active      <span class="cm">// 첫 scope_item 등록 시 자동</span>
+active     → on_hold     <span class="cm">// PM 수동</span>
+active     → completed   <span class="cm">// PM 수동</span>
+active     → cancelled   <span class="cm">// PM 수동</span>
+on_hold    → active      <span class="cm">// PM 수동</span>
+on_hold    → cancelled   <span class="cm">// PM 수동</span>
+completed  → archived    <span class="cm">// 6개월 후 자동</span>
+cancelled  → archived    <span class="cm">// 6개월 후 자동</span>
+
+<span class="cm">// ✗ 금지 전이 (시스템 차단)</span>
+completed  → active      <span class="cm">// 완료된 프로젝트 재개 불가</span>
+archived   → *           <span class="cm">// 보관된 데이터 변경 불가</span>
+cancelled  → active      <span class="cm">// 취소 후 재활성 불가</span></div>
+  </div>
+
+  <!-- 추가 요구 상태 머신 -->
+  <div class="card mb14">
+    <div class="slabel">추가 요구(Change Request) 상태 머신</div>
+    <div class="code mt10"><span class="kw">type</span> <span class="tp">ChangeRequestStatus</span> =
+  | <span class="str">'pending_verdict'</span>   <span class="cm">// AI 판정 대기 중</span>
+  | <span class="str">'verdict_unclear'</span>   <span class="cm">// PM 수동 판정 필요</span>
+  | <span class="str">'in_scope'</span>          <span class="cm">// 범위 내 판정 완료</span>
+  | <span class="str">'out_of_scope'</span>      <span class="cm">// 범위 초과 판정 완료</span>
+  | <span class="str">'report_generated'</span>  <span class="cm">// 리포트 생성됨</span>
+  | <span class="str">'report_sent'</span>       <span class="cm">// 클라이언트에게 전송됨</span>
+  | <span class="str">'billed'</span>            <span class="cm">// 추가 청구 성공</span>
+  | <span class="str">'waived'</span>            <span class="cm">// PM이 청구 포기</span>
+  | <span class="str">'disputed'</span>;         <span class="cm">// 클라이언트 이의 제기</span>
+
+<span class="cm">// ✓ 허용 전이</span>
+pending_verdict  → in_scope          <span class="cm">// AI confidence ≥ 0.85</span>
+pending_verdict  → out_of_scope      <span class="cm">// AI confidence ≥ 0.85</span>
+pending_verdict  → verdict_unclear   <span class="cm">// confidence &lt; 0.65</span>
+verdict_unclear  → in_scope          <span class="cm">// PM 수동 판정</span>
+verdict_unclear  → out_of_scope      <span class="cm">// PM 수동 판정</span>
+out_of_scope     → report_generated  <span class="cm">// 리포트 생성</span>
+report_generated → report_sent       <span class="cm">// 이메일 발송</span>
+report_sent      → billed            <span class="cm">// 추가 청구 성공 기록</span>
+report_sent      → waived            <span class="cm">// PM 포기 선택</span>
+report_sent      → disputed          <span class="cm">// 클라이언트 거부</span>
+disputed         → billed            <span class="cm">// 재협상 후 합의</span>
+disputed         → waived            <span class="cm">// 최종 포기</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="slabel">상태 전이 시 트리거되는 부수 효과</div>
+      <div class="flow-steps mt10">
+        <div class="fs"><div class="fs-num" style="background:var(--blue)">→</div><div class="fs-body"><strong>pending → out_of_scope</strong> — 프로젝트 대시보드 "범위 초과 N건" 카운터 증가. PM 알림.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--purple)">→</div><div class="fs-body"><strong>out_of_scope → report_generated</strong> — 리포트 PDF 생성 작업 큐 등록. 생성 완료 후 다운로드 링크 제공.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--green)">→</div><div class="fs-body"><strong>report_sent → billed</strong> — additional_billed 금액 합산. 손익 자동 재계산. 성공 통계 업데이트.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--red)">→</div><div class="fs-body"><strong>report_sent → waived</strong> — scope_loss 금액 합산. "포기 이유" 선택 수집 (선택). 손익 재계산.</div></div>
+        <div class="fs"><div class="fs-num" style="background:var(--orange)">→</div><div class="fs-body"><strong>project → completed</strong> — 최종 손익 요약 리포트 자동 생성. PM에게 "프로젝트 완료 요약" 이메일.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="slabel">불변 데이터 보장 정책</div>
+      <div class="rule-box mt10 r"><strong>판정 결과 수정 불가:</strong> 한번 verdict가 확정되면 직접 UPDATE 금지. 오버라이드는 새 레코드 INSERT로만 처리.</div>
+      <div class="rule-box r"><strong>전송된 리포트 소급 변경 불가:</strong> report_sent 이후 report의 내용 변경 금지. 수정 필요 시 새 리포트 생성.</div>
+      <div class="rule-box b"><strong>이력 추적:</strong> 모든 상태 전이는 status_history 테이블에 타임스탬프와 함께 기록.</div>
+      <div class="code mt10"><span class="cm">-- 상태 이력 테이블</span>
+<span class="kw">CREATE TABLE</span> status_history (
+  id          uuid <span class="kw">PRIMARY KEY</span>,
+  entity_type text, <span class="cm">-- 'project'|'change_req'</span>
+  entity_id   uuid,
+  from_status text,
+  to_status   text,
+  changed_by  uuid, <span class="cm">-- user_id or 'system'</span>
+  changed_at  timestamptz,
+  reason      text  <span class="cm">-- 선택적</span>
+);</div>
+    </div>
+  </div>
+</div>
+
+</main>
 
 <script>
-function go(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('page-' + id).classList.add('on');
-  el.classList.add('on');
+function showTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const map={overview:0,verdict:1,profit:2,plan:3,data:4,state:5};
+    const idx=map[id];
+    if(idx!==undefined) document.querySelectorAll('.tb')[idx].classList.add('active');
+  }
+}
+function toggleMode() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('togBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
 }
 </script>
 </body>
