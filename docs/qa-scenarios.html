@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MyROI — AC & QA 시나리오</title>
+<style>
+:root{
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2538;--s3:#232b3e;
+  --t1:#e8eaf0;--t2:#b0b8cc;--t3:#8c95aa;--bd:#232b3e;
+  --blue:#4f80ff;--green:#10b981;--purple:#7c5cfc;
+  --orange:#f59e0b;--red:#ef4444;--cyan:#06b6d4;
+}
+body.light{
+  --bg:#f5f7fa;--s1:#ffffff;--s2:#eef1f7;--s3:#e2e8f0;
+  --t1:#1a1f2e;--t2:#3a4258;--t3:#5a6478;--bd:#d1d9e6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--t1);transition:background .2s,color .2s;
+  min-height:100vh;font-size:14px;line-height:1.6;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:var(--s1);
+  border-bottom:1px solid var(--bd);padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;transition:background .2s;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;color:#fff;}
+.logo-text{font-size:18px;font-weight:700;color:var(--t1);}
+.logo-text span{color:var(--blue);}
+.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.bdg-blue{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);}
+.bdg-green{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
+.toggle-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;
+  padding:5px 11px;cursor:pointer;font-size:13px;color:var(--t1);transition:background .2s;}
+.toggle-btn:hover{background:var(--bd);}
+
+/* NAV */
+nav{background:var(--s1);border-bottom:1px solid var(--bd);
+  padding:0 24px;display:flex;overflow-x:auto;transition:background .2s;}
+nav::-webkit-scrollbar{height:0;}
+.tab{padding:14px 16px;cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .15s,border-color .15s;user-select:none;}
+.tab:hover{color:var(--t2);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* MAIN */
+main{padding:28px 24px;max-width:1140px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* LAYOUT */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.span2{grid-column:span 2;}
+.gap{height:14px;}
+
+/* CARD */
+.card{background:var(--s1);border-radius:12px;padding:18px;
+  border:1px solid var(--bd);transition:background .2s,border-color .2s;}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--t3);margin-bottom:12px;}
+.sec-hd{margin-bottom:20px;}
+.sec-hd h2{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.sec-hd p{font-size:13px;color:var(--t3);}
+
+/* TAG */
+.tag{display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;}
+.tbl{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue);}
+.tgr{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);}
+.tor{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange);}
+.trd{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red);}
+.tpu{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple);}
+.tcy{background:color-mix(in srgb,var(--cyan) 18%,transparent);color:var(--cyan);}
+.tgray{background:var(--s3);color:var(--t3);}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--s2);color:var(--t3);font-weight:600;
+  padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd);}
+td{padding:9px 12px;border-bottom:1px solid var(--bd);
+  color:var(--t2);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:color-mix(in srgb,var(--blue) 4%,transparent);}
+code{background:var(--s3);color:var(--cyan);padding:2px 6px;
+  border-radius:4px;font-family:'Courier New',monospace;font-size:11px;}
+
+/* AC CARD (Accordion) */
+.ac-block{border:1px solid var(--bd);border-radius:12px;
+  overflow:hidden;margin-bottom:10px;}
+.ac-head{background:var(--s2);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  user-select:none;transition:background .15s;}
+.ac-head:hover{background:var(--s3);}
+.ac-id{font-family:'Courier New',monospace;font-size:11px;
+  color:var(--blue);font-weight:700;min-width:68px;}
+.ac-title{font-size:13px;font-weight:600;color:var(--t1);flex:1;}
+.ac-arrow{color:var(--t3);font-size:13px;transition:transform .2s;flex-shrink:0;}
+.ac-head.open .ac-arrow{transform:rotate(180deg);}
+.ac-body{display:none;padding:16px;border-top:1px solid var(--bd);}
+.ac-body.open{display:block;}
+
+/* Given/When/Then */
+.gwt{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.gwt-row{display:flex;gap:10px;align-items:flex-start;}
+.gwt-kw{font-size:11px;font-weight:700;min-width:52px;padding-top:2px;}
+.gwt-given{color:var(--blue);}
+.gwt-when{color:var(--orange);}
+.gwt-then{color:var(--green);}
+.gwt-and{color:var(--t3);}
+.gwt-val{font-size:12px;color:var(--t2);flex:1;}
+
+/* CRITERIA LIST */
+.crit-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.crit-item{display:flex;gap:8px;align-items:flex-start;
+  padding:7px 10px;background:var(--s2);border-radius:7px;
+  border-left:3px solid var(--bd);}
+.crit-item.pass{border-color:var(--green);}
+.crit-item.fail{border-color:var(--red);}
+.crit-item.warn{border-color:var(--orange);}
+.crit-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.crit-text{font-size:12px;color:var(--t2);flex:1;}
+.crit-track{font-family:'Courier New',monospace;font-size:10px;
+  color:var(--cyan);margin-top:2px;}
+
+/* QA SCENARIO */
+.qa-block{border:1px solid var(--bd);border-radius:12px;
+  overflow:hidden;margin-bottom:10px;}
+.qa-head{background:var(--s2);padding:12px 16px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.qa-head:hover{background:var(--s3);}
+.qa-id{font-family:'Courier New',monospace;font-size:11px;
+  color:var(--purple);font-weight:700;min-width:72px;}
+.qa-title{font-size:13px;font-weight:600;color:var(--t1);flex:1;}
+.qa-arrow{color:var(--t3);font-size:13px;transition:transform .2s;flex-shrink:0;}
+.qa-head.open .qa-arrow{transform:rotate(180deg);}
+.qa-body{display:none;padding:0;border-top:1px solid var(--bd);}
+.qa-body.open{display:block;}
+
+/* STEP TABLE */
+.step-table{width:100%;border-collapse:collapse;font-size:12px;}
+.step-table th{background:var(--s3);color:var(--t3);font-weight:600;
+  padding:8px 12px;text-align:left;border-bottom:1px solid var(--bd);}
+.step-table td{padding:8px 12px;border-bottom:1px solid var(--bd);
+  color:var(--t2);vertical-align:top;}
+.step-table tr:last-child td{border-bottom:none;}
+.step-num{width:36px;font-family:'Courier New',monospace;
+  font-size:11px;color:var(--t3);font-weight:700;}
+.expected-pass{color:var(--green);font-weight:600;}
+.expected-fail{color:var(--red);font-weight:600;}
+.expected-warn{color:var(--orange);font-weight:600;}
+.result-cell{width:70px;}
+.result-box{display:inline-block;padding:3px 8px;border-radius:4px;
+  font-size:10px;font-weight:700;cursor:pointer;user-select:none;
+  transition:opacity .15s;}
+.result-box:hover{opacity:.8;}
+.rb-pass{background:color-mix(in srgb,var(--green) 20%,transparent);
+  color:var(--green);border:1px solid color-mix(in srgb,var(--green) 40%,transparent);}
+.rb-fail{background:color-mix(in srgb,var(--red) 20%,transparent);
+  color:var(--red);border:1px solid color-mix(in srgb,var(--red) 40%,transparent);}
+.rb-skip{background:var(--s3);color:var(--t3);border:1px solid var(--bd);}
+
+/* STATUS PILL */
+.status-pill{display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.sp-todo{background:var(--s3);color:var(--t3);border:1px solid var(--bd);}
+.sp-pass{background:color-mix(in srgb,var(--green) 15%,transparent);
+  color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
+.sp-fail{background:color-mix(in srgb,var(--red) 15%,transparent);
+  color:var(--red);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);}
+
+/* PROGRESS BAR */
+.prog-wrap{background:var(--s3);border-radius:6px;height:8px;overflow:hidden;margin:4px 0;}
+.prog-fill{height:100%;border-radius:6px;transition:width .4s;}
+.prog-blue{background:var(--blue);}
+.prog-green{background:var(--green);}
+.prog-red{background:var(--red);}
+
+/* SPEC BOX */
+.spec{border-left:3px solid var(--blue);padding:10px 14px;
+  background:var(--s2);border-radius:0 8px 8px 0;margin-bottom:8px;}
+.spec.sg{border-color:var(--green);}
+.spec.so{border-color:var(--orange);}
+.spec.sr{border-color:var(--red);}
+.spec.sp{border-color:var(--purple);}
+.spec-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.spec p,.spec li{font-size:12px;color:var(--t2);}
+.spec ul{padding-left:16px;}
+
+/* CHECKLIST */
+.chk-item{display:flex;align-items:flex-start;gap:8px;
+  padding:6px 0;border-bottom:1px solid var(--bd);}
+.chk-item:last-child{border-bottom:none;}
+.chk-box{width:16px;height:16px;border-radius:3px;
+  border:2px solid var(--bd);flex-shrink:0;margin-top:2px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:10px;transition:background .15s,border-color .15s;}
+.chk-box.checked{background:var(--green);border-color:var(--green);color:#fff;}
+.chk-label{font-size:12px;color:var(--t2);}
+
+/* MATRIX */
+.matrix{width:100%;border-collapse:collapse;}
+.matrix th,.matrix td{padding:8px 12px;text-align:center;
+  border:1px solid var(--bd);font-size:11px;}
+.matrix th{background:var(--s2);color:var(--t3);font-weight:600;}
+.matrix .mh{background:color-mix(in srgb,var(--blue) 10%,transparent);
+  color:var(--blue);font-weight:700;}
+.cell-high{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
+.cell-med{background:color-mix(in srgb,var(--orange) 15%,transparent);color:var(--orange);}
+.cell-low{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
+
+/* Summary stats */
+.stat-box{text-align:center;padding:12px 8px;}
+.stat-val{font-size:26px;font-weight:800;color:var(--blue);}
+.stat-lbl{font-size:11px;color:var(--t3);margin-top:2px;}
+
+@media(max-width:700px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  main{padding:14px 12px;}
+  .tab{padding:12px 10px;font-size:11px;}
+  th,td{padding:7px 8px;}
+}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">M</div>
+    <div class="logo-text">My<span>ROI</span></div>
+    <div style="display:flex;gap:6px;">
+      <span class="bdg bdg-blue">인수 조건</span>
+      <span class="bdg bdg-green">QA 시나리오</span>
+    </div>
+  </div>
+  <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+</header>
+
+<nav id="mainNav">
+  <div class="tab active" data-page="0">📋 개요 & 커버리지</div>
+  <div class="tab" data-page="1">✅ 인수 조건 (AC)</div>
+  <div class="tab" data-page="2">🔬 QA 시나리오 — 해피패스</div>
+  <div class="tab" data-page="3">💥 QA 시나리오 — 엣지케이스</div>
+  <div class="tab" data-page="4">📊 테스트 매트릭스</div>
+</nav>
+
+<main>
+
+<!-- ════════════════════════════════════
+     TAB 0 — 개요 & 커버리지
+════════════════════════════════════ -->
+<div class="page active" id="page-0">
+  <div class="sec-hd">
+    <h2>AC & QA 개요</h2>
+    <p>MyROI MVP · 린 캔버스 v6.0 기반 · MVP 즉시 배포 전략의 품질 기준 정의</p>
+  </div>
+
+  <!-- 전략 맥락 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">QA 전략 맥락 — 왜 이 기준이 필요한가</div>
+    <div class="g3">
+      <div class="spec">
+        <div class="spec-title">🎯 가설 검증 우선</div>
+        <p>인터뷰 대신 행동 데이터로 가설 검증. AC는 "기능이 동작하는가"를 넘어 <strong style="color:var(--t1);">"트래킹 이벤트가 올바르게 발화하는가"</strong>까지 포함한다.</p>
+      </div>
+      <div class="spec sg">
+        <div class="spec-title">✅ Activation 완주 보장</div>
+        <p>F-001→F-002→F-003→F-004 퍼널 완주가 MVP의 핵심. 이 경로에서 <strong style="color:var(--t1);">단 하나의 버그도 Activation 데이터를 오염</strong>시킨다.</p>
+      </div>
+      <div class="spec so">
+        <div class="spec-title">⚡ 4주 압축 배포</div>
+        <p>전체 커버리지보다 <strong style="color:var(--t1);">핵심 퍼널 P0 시나리오 100% 통과</strong>를 배포 기준으로 삼는다. 엣지케이스는 배포 후 행동 데이터로 우선순위 결정.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 커버리지 요약 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">테스트 커버리지 요약</div>
+    <div class="g3" style="margin-bottom:16px;">
+      <div class="stat-box">
+        <div class="stat-val">7</div>
+        <div class="stat-lbl">인수 조건 블록</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" style="color:var(--green);">18</div>
+        <div class="stat-lbl">해피패스 시나리오</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" style="color:var(--orange);">16</div>
+        <div class="stat-lbl">엣지케이스 시나리오</div>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>기능 ID</th><th>기능명</th><th>AC 블록</th><th>P0 시나리오</th><th>엣지케이스</th><th>배포 기준</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>F-001</code></td><td>자유 텍스트 이슈 입력</td><td><code>AC-001</code></td><td>QA-HP-01~03</td><td>QA-EC-01~03</td><td><span class="tag trd">P0 필수</span></td></tr>
+        <tr><td><code>F-002</code></td><td>AI 구조화 + 금액 산출</td><td><code>AC-002</code></td><td>QA-HP-04~06</td><td>QA-EC-04~06</td><td><span class="tag trd">P0 필수</span></td></tr>
+        <tr><td><code>F-003</code></td><td>Human-in-loop 수정</td><td><code>AC-003</code></td><td>QA-HP-07~09</td><td>QA-EC-07~08</td><td><span class="tag trd">P0 필수</span></td></tr>
+        <tr><td><code>F-004</code></td><td>피치덱 PDF 생성</td><td><code>AC-004</code></td><td>QA-HP-10~12</td><td>QA-EC-09~10</td><td><span class="tag tor">P1</span></td></tr>
+        <tr><td><code>F-005</code></td><td>이슈 보관함</td><td><code>AC-005</code></td><td>QA-HP-13~14</td><td>QA-EC-11~12</td><td><span class="tag tor">P1</span></td></tr>
+        <tr><td><code>F-006</code></td><td>온보딩 플로우</td><td><code>AC-006</code></td><td>QA-HP-15~16</td><td>QA-EC-13~14</td><td><span class="tag tor">P1</span></td></tr>
+        <tr><td><code>F-007</code></td><td>B2B 데모 요청</td><td><code>AC-007</code></td><td>QA-HP-17~18</td><td>QA-EC-15~16</td><td><span class="tag tpu">P2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 배포 기준 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">배포 Go / No-Go 기준</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="spec sg">
+          <div class="spec-title">🟢 Go — 배포 가능</div>
+          <ul>
+            <li>P0 시나리오 (QA-HP-01~09) 전체 PASS</li>
+            <li>트래킹 이벤트 P0 3종 발화 확인</li>
+            <li>AI 응답 시간 p95 &lt; 15초</li>
+            <li>PDF 생성 &lt; 5초</li>
+          </ul>
+        </div>
+        <div class="spec so">
+          <div class="spec-title">🟡 조건부 Go — 이슈 트래킹 후 배포</div>
+          <ul>
+            <li>P1 시나리오 FAIL 1건 이하 (Critical 아닌 경우)</li>
+            <li>엣지케이스 이슈는 Hotfix 티켓 등록 후 배포</li>
+          </ul>
+        </div>
+        <div class="spec sr">
+          <div class="spec-title">🔴 No-Go — 배포 불가</div>
+          <ul>
+            <li>P0 시나리오 어느 하나라도 FAIL</li>
+            <li>트래킹 이벤트 미발화 (가설 검증 불가)</li>
+            <li>AI 결과 JSON 파싱 오류 발생</li>
+            <li>PDF 생성 완전 실패</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">QA 환경 & 체크리스트</div>
+      <div style="margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:8px;">테스트 환경</div>
+        <table>
+          <thead><tr><th>환경</th><th>브라우저/OS</th><th>목적</th></tr></thead>
+          <tbody>
+            <tr><td>데스크탑</td><td>Chrome 최신, Safari</td><td>메인 시나리오</td></tr>
+            <tr><td>모바일</td><td>iOS Safari, Android Chrome</td><td>피치덱 제출 시나리오</td></tr>
+            <tr><td>태블릿</td><td>iPad Safari</td><td>Buyer 열람 시나리오</td></tr>
+            <tr><td>API Mock</td><td>Postman / MSW</td><td>AI 응답 엣지케이스</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="card-title" style="margin-bottom:8px;">사전 준비 체크리스트</div>
+        <div id="precheck" style="display:flex;flex-direction:column;gap:2px;">
+          <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label">테스트 계정 3개 생성 (신규/기존/Buyer)</span></div>
+          <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label">AI API Mock 서버 세팅 (정상/오류/지연 응답)</span></div>
+          <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label">Mixpanel 테스트 프로젝트 연결 확인</span></div>
+          <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label">테스트 이슈 텍스트 샘플 5종 준비</span></div>
+          <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label">모바일 디바이스 또는 반응형 에뮬레이터 준비</span></div>
+          <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label">PDF 렌더링 환경 확인 (브라우저 프린트 API)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     TAB 1 — 인수 조건
+════════════════════════════════════ -->
+<div class="page" id="page-1">
+  <div class="sec-hd">
+    <h2>인수 조건 (Acceptance Criteria)</h2>
+    <p>Given / When / Then 형식 · 트래킹 이벤트 연동 · 클릭하여 상세 펼치기</p>
+  </div>
+
+  <!-- AC-001 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-001</span>
+      <span class="ac-title">자유 텍스트 이슈 입력</span>
+      <span class="tag trd">P0 · F-001</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">사용자가 로그인 후 이슈 입력 화면에 진입했다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">자유 텍스트 필드에 입력을 시작한다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">실시간 글자 수 카운터가 업데이트된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val">직무에 맞는 예시 힌트가 텍스트 아래에 표시된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val"><code>issue_input_started</code> 이벤트가 발화된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">20자 이상 입력 시 "AI 분석 시작" 버튼이 활성화된다</div></div></div>
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">19자 이하 시 버튼이 비활성화되고 "좀 더 구체적으로 적어주세요" 인라인 문구 표시</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">500자 도달 시 추가 입력이 차단되고 카운터가 빨간색으로 변경된다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">이슈 2·3번 필드는 접힌 상태로 시작하며, 이슈 1 입력 후 "+ 이슈 추가" 버튼이 나타난다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">페이지 새로고침 전까지 입력 내용이 유지된다 (세션 임시 저장)</div></div></div>
+        <div class="crit-item warn"><span class="crit-icon">⚠️</span><div><div class="crit-text">"예시로 바로 시작하기" 클릭 시 예시 텍스트가 필드에 자동 삽입되고 <code>example_used: true</code> 속성이 기록된다</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>issue_input_started</code> · <code>issue_input_completed</code> · <code>ai_analysis_triggered</code></div>
+    </div>
+  </div>
+
+  <!-- AC-002 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-002</span>
+      <span class="ac-title">AI 이슈 구조화 + 재무 금액 산출</span>
+      <span class="tag trd">P0 · F-002</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">사용자가 20자 이상의 이슈 텍스트를 입력하고 "AI 분석 시작"을 클릭했다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">LLM API 호출이 완료된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">카테고리, 예상 금액(원), M/M 환산, 신뢰도(%), 근거 요약이 화면에 표시된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val"><code>ai_result_displayed</code> 이벤트가 모든 속성 값과 함께 발화된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val">로딩 화면에서 단계별 진행 상태가 시각적으로 업데이트된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">AI 응답이 유효한 JSON 형식이며 required 필드(category, estimated_amount_krw, confidence_pct, reasoning)를 모두 포함한다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">예상 금액이 0원 초과, 100억원 이하의 유효 범위 내에 있다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">신뢰도 50% 미만 시 "입력을 더 구체화하면 정확도가 높아집니다" 안내 배너가 노출된다</div></div></div>
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">15초 초과 타임아웃 시 에러 상태로 전환되고 "재시도" 버튼이 표시된다 (로딩 무한 루프 없음)</div></div></div>
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">JSON 파싱 실패 시 사용자에게 "분석 중 오류가 발생했습니다" 메시지를 표시하고 <code>ai_analysis_failed</code> 이벤트를 발화한다</div></div></div>
+        <div class="crit-item warn"><span class="crit-icon">⚠️</span><div><div class="crit-text">금액 범위(min~max)가 화면에 표시되어 AI 산출의 불확실성을 시각적으로 전달한다</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>ai_result_displayed</code> · <code>ai_analysis_failed</code></div>
+    </div>
+  </div>
+
+  <!-- AC-003 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-003</span>
+      <span class="ac-title">Human-in-the-loop 금액 검토 & 수정</span>
+      <span class="tag trd">P0 · F-003</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">AI 결과 화면에서 금액이 표시된 상태이다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">사용자가 금액 필드를 직접 수정하거나 +/- 스텝 버튼을 클릭한다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">수정된 금액이 즉시 화면에 반영된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val">원래 AI 산출 금액과 수정 금액이 나란히 표시된다 (Before/After)</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val"><code>amount_edited</code> 이벤트에 <code>was_edited:true</code>, <code>edit_direction</code>, <code>edit_pct</code>가 기록된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">수정 가능 범위: AI 산출 금액의 ±300% 이내. 범위 초과 입력 시 "현실적인 범위를 벗어났습니다" 확인 팝업 표시</div></div></div>
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">0원 또는 음수 입력 불가 — 입력 시 즉시 최소값(100만원)으로 자동 보정</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">이미지 첨부 시 파일 크기(5MB 초과), 형식(jpg/png/webp/pdf만 허용) 검증 후 에러 메시지 표시</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">첨부 이미지는 최대 3개까지 허용, 4번째 추가 시도 시 "최대 3개까지 첨부 가능합니다" 안내</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">"확정하기" 클릭 시 수정하지 않은 경우 <code>was_edited:false</code>로 기록되어 AI 정확도 추적에 활용</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>amount_edited</code> · <code>evidence_attached</code> · <code>issue_confirmed</code></div>
+    </div>
+  </div>
+
+  <!-- AC-004 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-004</span>
+      <span class="ac-title">연봉 피치덱 PDF 원클릭 생성</span>
+      <span class="tag tor">P1 · F-004</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">하나 이상의 이슈가 확정 상태이고 사용자가 "피치덱 생성" 버튼을 클릭했다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">PDF 렌더링이 완료된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">미리보기 화면에서 PDF 레이아웃이 표시되고 다운로드 / 링크 공유 버튼이 활성화된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val"><code>pitchdeck_generated</code> 이벤트에 <code>is_first_pitchdeck</code>, <code>total_amount_krw</code>, <code>time_to_activate_min</code>이 기록된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">PDF에 사용자 이름, 직무, 생성 날짜, 각 이슈(카테고리/설명/금액), 총합, 면책 문구가 모두 포함된다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">PDF 생성 시간 5초 이내 (p95 기준)</div></div></div>
+        <div class="crit-item warn"><span class="crit-icon">⚠️</span><div><div class="crit-text">월 1회 무료 한도 초과 시 "이번 달 무료 생성 횟수를 사용했습니다" 팝업 + 유료 플랜 유도 CTA 표시. <code>upgrade_prompt_shown</code> 이벤트 발화.</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">링크 공유 시 발급된 URL이 로그인 없이 열람 가능한 읽기 전용 페이지로 연결된다</div></div></div>
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">이슈가 0개인 상태에서 "피치덱 생성" 버튼 클릭 시 버튼이 비활성화되어 있거나 "먼저 이슈를 추가해주세요" 안내</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>pitchdeck_generated</code> · <code>pdf_downloaded</code> · <code>link_shared</code> · <code>upgrade_prompt_shown</code></div>
+    </div>
+  </div>
+
+  <!-- AC-005 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-005</span>
+      <span class="ac-title">이슈 보관함 CRUD</span>
+      <span class="tag tor">P1 · F-005</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">하나 이상의 이슈가 확정된 상태에서 보관함 화면에 진입했다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">보관함이 로드된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">누적 방어 금액 합계가 상단에 표시되고 이슈 목록이 최신순으로 정렬된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val"><code>vault_viewed</code> 이벤트에 <code>total_amount_krw</code>와 <code>days_since_last_visit</code>이 기록된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">이슈 수정: 금액/텍스트/카테고리 변경 후 저장 시 목록과 누적 금액이 즉시 업데이트된다</div></div></div>
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">이슈 삭제: 삭제 전 "삭제하면 되돌릴 수 없습니다" 확인 다이얼로그 표시 필수</div></div></div>
+        <div class="crit-item warn"><span class="crit-icon">⚠️</span><div><div class="crit-text">마지막 이슈 입력 후 7일 경과 시 "이번 주 새로운 이슈를 추가해보세요" 넛지 배너가 상단에 표시된다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">카테고리 필터 (전체/위기수습/사전방어/역할초과/지식이전/관계관리) 선택 시 해당 카테고리만 표시된다</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>vault_viewed</code> · <code>issue_edited</code> · <code>issue_deleted</code></div>
+    </div>
+  </div>
+
+  <!-- AC-006 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-006</span>
+      <span class="ac-title">온보딩 플로우</span>
+      <span class="tag tor">P1 · F-006</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">신규 사용자가 처음으로 가입을 완료했다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">가입 완료 직후 자동으로 온보딩 Step 1로 리디렉션된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">4단계 프로그레스 바가 표시되고 현재 단계가 강조된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val">직무 선택 시 해당 직무의 예시 이슈 3개가 즉시 표시된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">6가지 직무(PM/기획자, 개발자, 디자이너, 마케터, 세일즈, 기타) 선택지가 모두 표시된다</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">온보딩 중 "건너뛰기" 링크를 통해 이슈 보관함으로 바로 이동 가능 (강요 없음)</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">온보딩 완료 플래그가 저장되어 재로그인 시 온보딩을 다시 보여주지 않는다</div></div></div>
+        <div class="crit-item warn"><span class="crit-icon">⚠️</span><div><div class="crit-text">브라우저 뒤로가기로 이전 온보딩 단계로 돌아갈 수 있으며 입력 내용이 유지된다</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>onboarding_started</code> · <code>role_selected</code> · <code>example_used</code> · <code>onboarding_completed</code></div>
+    </div>
+  </div>
+
+  <!-- AC-007 -->
+  <div class="ac-block">
+    <div class="ac-head" onclick="toggleAC(this)">
+      <span class="ac-id">AC-007</span>
+      <span class="ac-title">B2B 데모 요청 폼</span>
+      <span class="tag tpu">P2 · F-007</span>
+      <span class="ac-arrow">▼</span>
+    </div>
+    <div class="ac-body">
+      <div class="gwt">
+        <div class="gwt-row"><span class="gwt-kw gwt-given">GIVEN</span><span class="gwt-val">방문자가 Pricing 페이지의 B2B 플랜 "데모 요청하기" 버튼을 클릭했다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-when">WHEN</span><span class="gwt-val">폼에 필수 항목(회사명, 직함)을 입력하고 제출한다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-then">THEN</span><span class="gwt-val">"데모 요청이 접수되었습니다" 확인 메시지가 표시된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val"><code>demo_request_submitted</code> 이벤트에 모든 속성이 기록된다</span></div>
+        <div class="gwt-row"><span class="gwt-kw gwt-and">AND</span><span class="gwt-val">슬랙/이메일 알림이 운영팀에 발송된다</span></div>
+      </div>
+      <div class="crit-list">
+        <div class="crit-item fail"><span class="crit-icon">🚫</span><div><div class="crit-text">필수 항목(회사명, 직함) 미입력 시 제출 불가 + 해당 필드에 인라인 에러 표시</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">예산 범위는 선택 항목 — 미입력 시에도 제출 가능하며 <code>budget_range: null</code>로 기록</div></div></div>
+        <div class="crit-item pass"><span class="crit-icon">✅</span><div><div class="crit-text">폼 제출 후 버튼이 "제출됨" 상태로 변경되어 중복 제출이 방지된다</div></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);">트래킹: <code>pricing_viewed</code> · <code>b2b_plan_clicked</code> · <code>demo_request_submitted</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     TAB 2 — QA 해피패스
+════════════════════════════════════ -->
+<div class="page" id="page-2">
+  <div class="sec-hd">
+    <h2>QA 시나리오 — 해피패스</h2>
+    <p>정상 흐름 · 클릭하여 스텝별 상세 펼치기 · 결과 체크 가능</p>
+  </div>
+
+  <!-- QA-HP-01 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-HP-01</span>
+      <span class="qa-title">신규 사용자 — 구글 소셜 로그인 가입 성공</span>
+      <span class="tag trd" style="font-size:10px;">P0</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>랜딩 페이지 진입 (UTM: blind)</td><td><span class="expected-pass">Hero 섹션 노출, <code>page_viewed {page:"landing"}</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>Hero "무료로 시작하기" CTA 클릭</td><td><span class="expected-pass">가입 페이지로 이동, <code>cta_clicked {location:"hero"}</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>"구글로 계속" 버튼 클릭</td><td><span class="expected-pass">구글 OAuth 팝업 노출</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">04</td><td>구글 계정 선택 및 인가</td><td><span class="expected-pass">가입 완료, <code>user_signed_up {method:"google"}</code> 발화, 온보딩 Step 1로 이동</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-HP-02 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-HP-02</span>
+      <span class="qa-title">온보딩 완료 — PM 직무 선택 + 예시 이슈 사용</span>
+      <span class="tag trd" style="font-size:10px;">P0</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>온보딩 Step 1 — "PM/기획자" 선택</td><td><span class="expected-pass">PM 직무 강조 표시, <code>role_selected</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>Step 2 — PM 예시 이슈 3개 확인</td><td><span class="expected-pass">PM 특화 예시 이슈 3종 노출 (개발자 예시 ✗)</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>"이 예시로 바로 시작하기" 클릭</td><td><span class="expected-pass">예시 텍스트가 이슈 입력 필드에 삽입, <code>example_used:true</code> 기록</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">04</td><td>프로그레스 바 4/4 완료 확인</td><td><span class="expected-pass"><code>onboarding_completed</code> 발화, 재로그인 시 온보딩 미노출</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-HP-03 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-HP-03</span>
+      <span class="qa-title">이슈 입력 — 직접 작성 (20자 이상)</span>
+      <span class="tag trd" style="font-size:10px;">P0</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>이슈 1 필드에 100자 텍스트 입력 시작</td><td><span class="expected-pass">글자 수 카운터 실시간 업데이트, <code>issue_input_started</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>20자 도달 시점 확인</td><td><span class="expected-pass">"AI 분석 시작" 버튼 활성화 (비활성 → 활성 전환)</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>이슈 2 "+" 버튼 클릭 후 텍스트 입력</td><td><span class="expected-pass">이슈 2 필드 펼침, 독립 카운터 표시</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">04</td><td>"AI 분석 시작" 클릭</td><td><span class="expected-pass">로딩 화면 전환, <code>issue_input_completed {issue_count:2}</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-HP-04 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-HP-04</span>
+      <span class="qa-title">AI 분석 — 정상 응답 및 결과 화면 표시</span>
+      <span class="tag trd" style="font-size:10px;">P0 · AHA Moment</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>로딩 화면에서 15초 이내 대기</td><td><span class="expected-pass">단계별 진행 상태 텍스트 업데이트 (분류→매핑→계산 순서)</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>AI 결과 화면 로드 확인</td><td><span class="expected-pass">카테고리, 금액(₩), M/M 환산, 신뢰도%, 근거 요약 모두 표시</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>트래킹 이벤트 확인</td><td><span class="expected-pass"><code>ai_result_displayed</code> 발화, category·amount·confidence 값 정상 기록</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">04</td><td>금액 범위(min~max) 표시 확인</td><td><span class="expected-pass">예상 금액 범위가 시각적으로 표현됨</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-HP-05 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-HP-05</span>
+      <span class="qa-title">Human-in-loop — 금액 수정 후 이슈 확정</span>
+      <span class="tag trd" style="font-size:10px;">P0</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>금액 필드에서 AI 값(₩24M) → ₩20M으로 직접 수정</td><td><span class="expected-pass">수정값 즉시 반영, Before/After 비교 표시</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>이미지 첨부 (PNG, 2MB)</td><td><span class="expected-pass">썸네일 미리보기 표시, <code>evidence_attached</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>"확정하기" 버튼 클릭</td><td><span class="expected-pass"><code>issue_confirmed {was_edited:true, edit_direction:"down", edit_pct:-16.7}</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">04</td><td>보관함으로 이동 후 확인</td><td><span class="expected-pass">이슈 목록에 확정된 항목 표시, 누적 금액 업데이트</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-HP-06 ~ 18 (요약 카드) -->
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">QA-HP-06 ~ 18 요약 (클릭하여 상세 확인)</div>
+    <table>
+      <thead><tr><th>ID</th><th>시나리오명</th><th>우선순위</th><th>핵심 검증 포인트</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td><code>QA-HP-06</code></td><td>AI 수정 없이 그대로 확정 (정확도 추적)</td><td><span class="tag trd">P0</span></td><td><code>was_edited:false</code> 정확히 기록</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-07</code></td><td>이슈 3개 입력 → 합산 피치덱 생성</td><td><span class="tag tor">P1</span></td><td>총합 금액 정확 계산, <code>is_first_pitchdeck:true</code></td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-08</code></td><td>PDF 다운로드 성공</td><td><span class="tag tor">P1</span></td><td>5초 이내, 모든 필드 포함, <code>pdf_downloaded</code></td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-09</code></td><td>링크 공유 → 비로그인 열람 확인</td><td><span class="tag tor">P1</span></td><td>공유 URL 읽기 전용, <code>link_shared</code></td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-10</code></td><td>보관함 이슈 편집</td><td><span class="tag tor">P1</span></td><td>수정 후 누적 금액 실시간 반영</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-11</code></td><td>보관함 이슈 삭제</td><td><span class="tag tor">P1</span></td><td>확인 다이얼로그 → 삭제 → 목록 갱신</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-12</code></td><td>카테고리 필터 동작</td><td><span class="tag tor">P1</span></td><td>선택 카테고리만 표시, 전체 복귀</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-13</code></td><td>온보딩 건너뛰기</td><td><span class="tag tor">P1</span></td><td>보관함 진입, 완료 플래그 저장</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-14</code></td><td>7일 경과 넛지 배너 표시</td><td><span class="tag tbl">P2</span></td><td>last_issue_date + 7d 조건 만족 시 노출</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-15</code></td><td>Pricing 페이지 방문 + 스크롤</td><td><span class="tag tbl">P2</span></td><td><code>pricing_viewed</code>, <code>scroll_depth_pct</code></td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-16</code></td><td>B2B 데모 요청 폼 제출</td><td><span class="tag tbl">P2</span></td><td><code>demo_request_submitted</code>, 슬랙 알림 도달</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-17</code></td><td>다크/라이트 모드 전환</td><td><span class="tag tgray">UX</span></td><td>모든 화면 변수 전환, 새로고침 후 유지</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-HP-18</code></td><td>모바일(375px) 전체 퍼널</td><td><span class="tag tgray">UX</span></td><td>레이아웃 깨짐 없음, 버튼 탭 영역 44px 이상</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     TAB 3 — QA 엣지케이스
+════════════════════════════════════ -->
+<div class="page" id="page-3">
+  <div class="sec-hd">
+    <h2>QA 시나리오 — 엣지케이스 & 오류 처리</h2>
+    <p>비정상 입력 · API 오류 · 경계값 · 동시성 · 보안</p>
+  </div>
+
+  <!-- QA-EC-01 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-EC-01</span>
+      <span class="qa-title">이슈 입력 — 19자 이하 입력 후 AI 분석 시도</span>
+      <span class="tag trd" style="font-size:10px;">P0 · 경계값</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>이슈 필드에 "버그 수정" (6자) 입력</td><td><span class="expected-fail">"AI 분석 시작" 버튼 비활성화 상태 유지</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>비활성 버튼을 JavaScript로 강제 클릭 시도</td><td><span class="expected-fail">API 호출 없이 차단, 인라인 에러 메시지 표시</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>19자까지 입력 후 20자째 추가</td><td><span class="expected-pass">20자 정확히 입력 시 버튼 즉시 활성화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-EC-02 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-EC-02</span>
+      <span class="qa-title">이슈 입력 — 501자 초과 입력 시도</span>
+      <span class="tag trd" style="font-size:10px;">P0 · 경계값</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>500자 정확히 입력</td><td><span class="expected-pass">카운터 "500/500" 표시, 빨간색 경고</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>501번째 문자 붙여넣기 시도</td><td><span class="expected-fail">추가 입력 차단, 500자 유지</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>500자 상태에서 AI 분석 실행</td><td><span class="expected-pass">정상 동작 — 500자는 허용 범위 내</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-EC-03 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-EC-03</span>
+      <span class="qa-title">이슈 입력 — XSS 스크립트 주입 시도</span>
+      <span class="tag trd" style="font-size:10px;">P0 · 보안</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td><code>&lt;script&gt;alert('xss')&lt;/script&gt;</code> 입력 후 분석</td><td><span class="expected-fail">스크립트 실행 없음. 텍스트로만 표시 (이스케이프 처리)</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>AI 결과 화면에서 입력값 표시 확인</td><td><span class="expected-fail">HTML 태그가 렌더링되지 않고 텍스트로 노출</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>PDF 생성 후 PDF 내 값 확인</td><td><span class="expected-fail">PDF에도 스크립트 미실행, 텍스트만 포함</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-EC-04 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-EC-04</span>
+      <span class="qa-title">AI API — 15초 타임아웃 오류</span>
+      <span class="tag trd" style="font-size:10px;">P0 · API 오류</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>Mock 서버를 20초 지연 응답으로 설정</td><td><span class="expected-pass">로딩 화면 표시 중</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>15초 경과 시점</td><td><span class="expected-fail">타임아웃 에러 상태 전환, "재시도" 버튼 표시. 무한 로딩 ✗</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>트래킹 확인</td><td><span class="expected-fail"><code>ai_analysis_failed {error_type:"timeout"}</code> 발화 확인</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">04</td><td>"재시도" 클릭 후 정상 응답 설정으로 전환</td><td><span class="expected-pass">재시도 성공, AI 결과 화면 정상 표시</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- QA-EC-05 -->
+  <div class="qa-block">
+    <div class="qa-head" onclick="toggleQA(this)">
+      <span class="qa-id">QA-EC-05</span>
+      <span class="qa-title">AI 응답 — JSON 파싱 오류 (잘못된 형식)</span>
+      <span class="tag trd" style="font-size:10px;">P0 · API 오류</span>
+      <span class="status-pill sp-todo">⬜ TODO</span>
+      <span class="qa-arrow">▼</span>
+    </div>
+    <div class="qa-body">
+      <table class="step-table">
+        <thead><tr><th class="step-num">#</th><th>액션</th><th>예상 결과</th><th class="result-cell">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="step-num">01</td><td>Mock 서버를 malformed JSON 응답으로 설정</td><td><span class="expected-pass">API 호출 완료</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">02</td><td>파싱 오류 발생 시점 확인</td><td><span class="expected-fail">"분석 중 오류 발생" 에러 화면 표시, 무한 로딩 ✗</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+          <tr><td class="step-num">03</td><td>트래킹 확인</td><td><span class="expected-fail"><code>ai_analysis_failed {error_type:"parse_error"}</code> 발화</span></td><td><div class="result-box rb-skip" onclick="cycleResult(this)">-</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 나머지 엣지케이스 요약 테이블 -->
+  <div class="card">
+    <div class="card-title">QA-EC-06 ~ 16 요약</div>
+    <table>
+      <thead><tr><th>ID</th><th>시나리오</th><th>분류</th><th>예상 결과 핵심</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td><code>QA-EC-06</code></td><td>AI 신뢰도 50% 미만 응답</td><td><span class="tag tor">경계값</span></td><td>안내 배너 표시, 재입력 유도</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-07</code></td><td>금액 수정 — 0원 입력</td><td><span class="tag trd">경계값</span></td><td>즉시 최소값(100만원) 보정</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-08</code></td><td>금액 수정 — AI 값의 400% 초과</td><td><span class="tag tor">경계값</span></td><td>확인 팝업 표시 후 진행</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-09</code></td><td>이미지 첨부 — 5MB 초과 파일</td><td><span class="tag tor">파일</span></td><td>업로드 차단, 에러 메시지</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-10</code></td><td>이미지 첨부 — 4번째 파일 추가 시도</td><td><span class="tag tor">경계값</span></td><td>추가 차단, "최대 3개" 안내</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-11</code></td><td>이슈 0개 상태에서 PDF 생성 버튼</td><td><span class="tag trd">상태</span></td><td>버튼 비활성화 또는 안내 메시지</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-12</code></td><td>월 2회 PDF 생성 시도 (무료 초과)</td><td><span class="tag tpu">비즈니스</span></td><td>업그레이드 유도 팝업, <code>upgrade_prompt_shown</code></td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-13</code></td><td>온보딩 중 브라우저 뒤로가기</td><td><span class="tag tbl">네비게이션</span></td><td>이전 단계로 이동, 입력 유지</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-14</code></td><td>온보딩 완료 후 재로그인</td><td><span class="tag tbl">상태</span></td><td>온보딩 미노출, 보관함 직접 진입</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-15</code></td><td>B2B 폼 — 필수항목 미입력 제출</td><td><span class="tag trd">유효성</span></td><td>인라인 에러, 제출 차단</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+        <tr><td><code>QA-EC-16</code></td><td>네트워크 오프라인 상태에서 AI 분석</td><td><span class="tag tor">네트워크</span></td><td>"인터넷 연결을 확인해주세요" 에러, 재시도 버튼</td><td><span class="status-pill sp-todo">⬜</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     TAB 4 — 테스트 매트릭스
+════════════════════════════════════ -->
+<div class="page" id="page-4">
+  <div class="sec-hd">
+    <h2>테스트 매트릭스</h2>
+    <p>기능 × 브라우저 · 우선순위 × 리스크 · 전체 진행률 대시보드</p>
+  </div>
+
+  <!-- 진행률 요약 -->
+  <div class="g3" style="margin-bottom:14px;">
+    <div class="card" style="text-align:center;">
+      <div class="card-title">전체 시나리오</div>
+      <div style="font-size:32px;font-weight:800;color:var(--blue);" id="totalCount">34</div>
+      <div style="font-size:12px;color:var(--t3);">해피패스 18 + 엣지케이스 16</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="card-title">P0 필수 통과</div>
+      <div style="font-size:32px;font-weight:800;color:var(--green);" id="p0Count">9</div>
+      <div style="font-size:12px;color:var(--t3);">배포 Go/No-Go 기준</div>
+      <div class="prog-wrap" style="margin-top:8px;"><div class="prog-fill prog-green" id="p0Bar" style="width:0%"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px;" id="p0Label">0 / 9 완료</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="card-title">전체 진행률</div>
+      <div style="font-size:32px;font-weight:800;color:var(--purple);" id="progressPct">0%</div>
+      <div class="prog-wrap" style="margin-top:8px;"><div class="prog-fill" id="progressBar" style="width:0%;background:var(--purple);"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px;" id="progressLabel">0 / 34 완료</div>
+    </div>
+  </div>
+
+  <!-- 기능 × 브라우저 매트릭스 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">기능 × 브라우저 호환성 매트릭스</div>
+    <div style="overflow-x:auto;">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th style="text-align:left;">기능</th>
+            <th>Chrome</th>
+            <th>Safari</th>
+            <th>iOS</th>
+            <th>Android</th>
+            <th>Firefox</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">이슈 입력 (F-001)</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-low">선택</td></tr>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">AI 분석 (F-002)</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-med">권장</td><td class="cell-low">선택</td></tr>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">Human-in-loop (F-003)</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-low">선택</td><td class="cell-low">선택</td></tr>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">PDF 생성 (F-004)</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-low">선택</td><td class="cell-low">선택</td><td class="cell-low">선택</td></tr>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">이슈 보관함 (F-005)</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-med">권장</td><td class="cell-low">선택</td></tr>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">온보딩 (F-006)</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-low">선택</td></tr>
+          <tr><td style="text-align:left;font-weight:600;color:var(--t1);">B2B 폼 (F-007)</td><td class="cell-high">필수</td><td class="cell-med">권장</td><td class="cell-low">선택</td><td class="cell-low">선택</td><td class="cell-low">선택</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">
+      <span class="cell-high" style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;">필수 — 배포 전 반드시 통과</span>
+      <span class="cell-med" style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;">권장 — 배포 후 1주 내 통과</span>
+      <span class="cell-low" style="padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;">선택 — 행동 데이터 기반 우선순위 결정</span>
+    </div>
+  </div>
+
+  <!-- 리스크 × 영향도 매트릭스 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">리스크 × 영향도 매트릭스</div>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th></th>
+            <th>영향 낮음</th>
+            <th>영향 중간</th>
+            <th>영향 높음</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mh">발생 높음</td>
+            <td class="cell-med">PDF 스타일 깨짐</td>
+            <td class="cell-high">AI 신뢰도 저하</td>
+            <td class="cell-high">AI API 타임아웃</td>
+          </tr>
+          <tr>
+            <td class="mh">발생 중간</td>
+            <td class="cell-low">필터 미동작</td>
+            <td class="cell-med">금액 계산 오류</td>
+            <td class="cell-high">트래킹 미발화</td>
+          </tr>
+          <tr>
+            <td class="mh">발생 낮음</td>
+            <td class="cell-low">다크모드 색상 이상</td>
+            <td class="cell-low">이미지 업로드 실패</td>
+            <td class="cell-med">JSON 파싱 오류</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">트래킹 이벤트 발화 검증 체크리스트</div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:8px;">배포 전 반드시 Mixpanel에서 실제 발화 확인</div>
+      <div id="trackChk" style="display:flex;flex-direction:column;gap:2px;">
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>page_viewed</code> — 랜딩 진입 시 utm 속성 포함</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>cta_clicked</code> — Hero 클릭 시 scroll_depth_pct 기록</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>user_signed_up</code> — method·utm_source 속성 포함</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>issue_input_completed</code> — issue_count·char_length 포함</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>ai_result_displayed</code> ⭐ — 모든 속성 5종 확인</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>issue_confirmed</code> ⭐ — was_edited·edit_pct 정확 기록</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>pitchdeck_generated</code> ⭐ — is_first_pitchdeck·time_to_activate</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>ai_analysis_failed</code> — error_type 구분 기록</span></div>
+        <div class="chk-item"><div class="chk-box" onclick="toggleChk(this)"></div><span class="chk-label"><code>demo_request_submitted</code> — budget_range null 허용 확인</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── Tab 전환
+const TABS = ['page-0','page-1','page-2','page-3','page-4'];
+document.querySelectorAll('.tab').forEach((tab, i) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(TABS[i]).classList.add('active');
+  });
+});
+
+// ── AC 아코디언
+function toggleAC(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// ── QA 아코디언
+function toggleQA(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// ── 결과 박스 사이클 (- → PASS → FAIL → -)
+function cycleResult(el) {
+  const states = [
+    { text: '-',    cls: 'rb-skip' },
+    { text: 'PASS', cls: 'rb-pass' },
+    { text: 'FAIL', cls: 'rb-fail' }
+  ];
+  const cur = states.findIndex(s => el.classList.contains(s.cls));
+  const next = (cur + 1) % states.length;
+  states.forEach(s => el.classList.remove(s.cls));
+  el.classList.add(states[next].cls);
+  el.textContent = states[next].text;
+  updateProgress();
+  updateStatus(el);
+}
+
+// ── 상태 뱃지 업데이트 (QA 헤더)
+function updateStatus(el) {
+  const qaBlock = el.closest('.qa-block');
+  if (!qaBlock) return;
+  const head = qaBlock.querySelector('.qa-head');
+  const pill = head.querySelector('.status-pill');
+  if (!pill) return;
+  const cells = qaBlock.querySelectorAll('.result-box');
+  const results = [...cells].map(c => c.textContent);
+  if (results.every(r => r === 'PASS')) {
+    pill.className = 'status-pill sp-pass';
+    pill.textContent = '✅ PASS';
+  } else if (results.some(r => r === 'FAIL')) {
+    pill.className = 'status-pill sp-fail';
+    pill.textContent = '❌ FAIL';
+  } else {
+    pill.className = 'status-pill sp-todo';
+    pill.textContent = '⬜ TODO';
+  }
+}
+
+// ── 진행률 계산
+function updateProgress() {
+  const all = document.querySelectorAll('.result-box');
+  const done = [...all].filter(el => el.textContent === 'PASS' || el.textContent === 'FAIL').length;
+  const pass = [...all].filter(el => el.textContent === 'PASS').length;
+  const total = 34;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = done + ' / ' + total + ' 완료';
+  // P0 (QA-HP-01~06, QA-EC-01~03 = 9 scenarios, simplified by counting P0-tagged scenarios)
+  const p0Done = Math.min(pass, 9);
+  document.getElementById('p0Bar').style.width = Math.round(p0Done / 9 * 100) + '%';
+  document.getElementById('p0Label').textContent = p0Done + ' / 9 완료';
+}
+
+// ── 체크박스 토글
+function toggleChk(el) {
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+// ── 테마 전환
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent =
+    document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+}
+</script>
+</body>
+</html>
