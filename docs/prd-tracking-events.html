@@ -3,581 +3,1191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — PRD for AI & Tracking Events v1.2</title>
+<title>Scope Manager — PRD & Tracking Events</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2438;--s3:#222840;--s4:#252c40;
-  --bd:#232b3e;--bd2:#2e3748;
-  --blue:#4f80ff;--purple:#a855f7;--green:#10b981;
-  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--yellow:#f59e0b;
-  --t1:#e8eaf0;--t2:#c5cbd8;--t3:#8c95aa;--t4:#5a6478;
+:root {
+  --bg:#0f1117;--s1:#1a1f2e;--t1:#e8eaf0;--t3:#8c95aa;
+  --bd:#232b3e;--blue:#4f80ff;--green:#10b981;
+  --red:#f87171;--yellow:#fbbf24;--purple:#a78bfa;--s2:#1e2536;
 }
-body{background:var(--bg);color:var(--t1);font-family:'Apple SD Gothic Neo','Pretendard','Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+body.light{--bg:#f5f7fa;--s1:#ffffff;--t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;--s2:#eef1f7;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
 
-header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;gap:12px;flex-wrap:wrap}
-.logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
-.hbadge{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
-.b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
-.b-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:background .2s;}
+.logo{font-weight:700;font-size:16px;color:var(--t1);letter-spacing:-.3px;}
+.logo span{color:var(--blue);}
+.badges{display:flex;gap:6px;margin-left:12px;flex-wrap:wrap;}
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--t3);}
+.badge.blue{border-color:var(--blue);color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,transparent);}
+.badge.green{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 10%,transparent);}
+.toggle-btn{background:var(--s1);border:1px solid var(--bd);border-radius:8px;color:var(--t1);cursor:pointer;padding:6px 12px;font-size:13px;transition:background .2s;}
+.toggle-btn:hover{border-color:var(--blue);}
 
-nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
-.tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
-.tab:hover{color:var(--t2)}.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+nav{background:var(--bg);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;overflow-x:auto;scrollbar-width:none;transition:background .2s;}
+nav::-webkit-scrollbar{display:none;}
+.tab-btn{background:none;border:none;color:var(--t3);padding:12px 16px;cursor:pointer;font-size:13px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;}
+.tab-btn:hover{color:var(--t1);}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
 
-.page{display:none;padding:24px 28px 80px}.page.on{display:block}
-.sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
-.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb28{margin-bottom:28px}
+main{padding:28px 24px;max-width:1120px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
 
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media(max-width:800px){.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.g2,.g3{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:16px 16px 80px}}
+.card{border-radius:12px;padding:18px;border:1px solid var(--bd);background:var(--s1);transition:background .2s,border-color .2s;margin-bottom:0;}
 
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
-.card-sm{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px}
+h2{font-size:18px;font-weight:700;margin-bottom:4px;}
+h3{font-size:14px;font-weight:600;margin-bottom:5px;}
+h4{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+p{color:var(--t3);font-size:13px;}
+.sec-hdr{margin-bottom:20px;}
+.sec-hdr p{margin-top:4px;}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+hr{border:none;border-top:1px solid var(--bd);margin:18px 0;}
+.mb{margin-bottom:16px;}
 
-.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
-.tag-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
-.tag-yellow{background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
-.tag-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.tag-blue{background:rgba(79,128,255,.12);color:var(--blue)}
-.tag-purple{background:rgba(168,85,247,.12);color:var(--purple)}
-.tag-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
-.tag-orange{background:rgba(249,115,22,.12);color:var(--orange)}
-.tag-gray{background:rgba(90,100,120,.15);color:var(--t3)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 
-/* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-@media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr}}
-.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
-.kpi-l{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t4);margin-bottom:5px}
-.kpi-v{font-size:22px;font-weight:900;line-height:1;margin-bottom:3px}
-.kpi-s{font-size:11px;color:var(--t4)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-right:3px;margin-bottom:3px;}
+.tb{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);}
+.tg{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
+.tr{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
+.ty{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
+.tp{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple);}
+.tgr{background:color-mix(in srgb,var(--t3) 15%,transparent);color:var(--t3);}
 
-/* ── FR TABLE ── */
-.fr-table{width:100%;border-collapse:collapse;margin-bottom:28px}
-.fr-table th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
-.fr-table td{padding:11px 14px;border-bottom:1px solid var(--bd);vertical-align:top}
-.fr-table tr:last-child td{border-bottom:none}
-.fr-table tr:hover td{background:rgba(79,128,255,.02)}
-.fr-id{font-family:monospace;font-size:11px;color:var(--cyan);font-weight:700}
-.fr-name{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
-.fr-desc{font-size:11px;color:var(--t3);line-height:1.6}
-.fr-ac{font-size:11px;color:var(--t2);line-height:1.7;border-left:2px solid var(--bd2);padding-left:8px;margin-top:5px}
-.fr-ac li{list-style:none;padding:1px 0}
-.fr-ac li::before{content:'✓ ';color:var(--green);font-weight:700}
+.cl{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.cl li{display:flex;align-items:flex-start;gap:7px;color:var(--t3);font-size:13px;}
+.cl li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
+.cl li.w::before{content:'⚠';color:var(--yellow);}
+.cl li.n::before{content:'✕';color:var(--red);}
+.cl li.p::before{content:'○';color:var(--purple);}
 
-/* ── AI CONTEXT BLOCK ── */
-.ai-block{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;margin-bottom:12px;overflow:hidden}
-.ai-block-head{padding:12px 16px;display:flex;align-items:center;gap:10px;background:var(--s3);border-bottom:1px solid var(--bd)}
-.ai-block-id{font-family:monospace;font-size:11px;font-weight:800;color:var(--yellow)}
-.ai-block-title{font-size:12px;font-weight:700;color:#fff;flex:1}
-.ai-block-body{padding:14px 16px}
-.ai-context-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t4);margin-bottom:6px;margin-top:10px}
-.ai-context-label:first-child{margin-top:0}
-.ai-context-val{font-size:11px;color:var(--t2);line-height:1.8;font-family:monospace;background:var(--s3);padding:8px 10px;border-radius:6px}
-.ai-note{font-size:11px;color:var(--t3);line-height:1.7;padding:8px 10px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);border-radius:6px;margin-top:8px}
+.fi{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--bd);}
+.fi:last-child{border-bottom:none;}
+.fn{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.fn.b{background:var(--blue);color:#fff;}
+.fn.g{background:var(--green);color:#fff;}
+.fn.y{background:var(--yellow);color:#1a1f2e;}
+.fn.r{background:var(--red);color:#fff;}
+.fn.gr{background:var(--t3);color:#fff;}
+.fn.p{background:var(--purple);color:#fff;}
 
-/* ── TRACKING EVENT TABLE ── */
-.ev-wrap{margin-bottom:28px}
-.ev-group-body{border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:8px}
-.ev-row{display:grid;grid-template-columns:220px 1fr 80px;border-bottom:1px solid var(--bd);padding:10px 16px;gap:12px;align-items:start}
-.ev-row:last-child{border-bottom:none}
-.ev-row-head{display:grid;grid-template-columns:220px 1fr 80px;padding:7px 16px;gap:12px;background:var(--s3)}
-.ev-name{font-family:monospace;font-size:11px;font-weight:700;color:var(--cyan)}
-.ev-desc{font-size:11px;color:var(--t3);line-height:1.6}
-.ev-props{margin-top:4px}
-.ev-prop{display:inline-block;font-size:9px;background:var(--s3);color:var(--t3);padding:1px 5px;border-radius:3px;margin:1px 2px 1px 0;font-family:monospace}
-.ev-when{font-size:10px;color:var(--t4);text-align:center}
+.kv{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;gap:8px;}
+.kv:last-child{margin-bottom:0;}
+.kk{color:var(--t3);font-size:13px;flex-shrink:0;}
+.kv-v{font-weight:600;font-size:13px;color:var(--t1);text-align:right;}
 
-/* ── FUNNEL METRICS ── */
-.metric-def{background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;padding:14px 16px}
-.metric-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.metric-id{font-family:monospace;font-size:11px;font-weight:800;min-width:60px;padding:3px 8px;border-radius:4px;text-align:center}
-.metric-name{font-size:13px;font-weight:700;color:#fff;flex:1}
-.metric-target{font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px}
-.metric-formula{font-family:monospace;font-size:11px;color:var(--t2);background:var(--s3);padding:8px 10px;border-radius:6px;margin-bottom:6px;line-height:1.8}
-.metric-events{font-size:11px;color:var(--t3);line-height:1.7}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);}
+td{padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);vertical-align:top;}
+td:first-child{color:var(--t1);font-weight:500;}
+tr:last-child td{border-bottom:none;}
+.tbl-wrap{overflow-x:auto;}
 
-/* ── POSTHOG CONFIG ── */
-.ph-code{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:16px;font-family:monospace;font-size:11px;line-height:1.9;overflow-x:auto;margin-bottom:12px}
-.kw{color:var(--cyan)}.str{color:var(--green)}.num{color:var(--yellow)}.cm{color:var(--t4)}.fn{color:var(--orange)}.pr{color:var(--purple)}
+.hl{border-left:3px solid var(--blue);padding-left:14px;}
+.hl.g{border-left-color:var(--green);}
+.hl.y{border-left-color:var(--yellow);}
+.hl.r{border-left-color:var(--red);}
+.hl.p{border-left-color:var(--purple);}
 
-/* ── NFR TABLE ── */
-.nfr-table{width:100%;border-collapse:collapse;margin-bottom:28px}
-.nfr-table th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1)}
-.nfr-table td{padding:11px 14px;border-bottom:1px solid var(--bd);font-size:11px;vertical-align:top}
-.nfr-table tr:last-child td{border-bottom:none}
-.nfr-table tr:hover td{background:rgba(79,128,255,.02)}
+.ann{background:color-mix(in srgb,var(--yellow) 8%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--t1);}
 
-/* ── PRIORITY MATRIX ── */
-.pm-wrap{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;background:var(--bd);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:28px;height:280px}
-.pm-q{padding:16px;background:var(--s1);position:relative;display:flex;flex-direction:column;gap:5px}
-.pm-q-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.pm-item{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px}
-.pm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.pm-axis-h{position:absolute;bottom:4px;right:8px;font-size:9px;color:var(--t4)}
-.pm-axis-v{position:absolute;top:4px;left:8px;font-size:9px;color:var(--t4)}
+/* CODE BLOCK */
+.code{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin-bottom:8px;}
+.code .k{color:var(--blue);}
+.code .s{color:var(--green);}
+.code .c{color:var(--t3);}
+.code .n{color:var(--yellow);}
+.code .v{color:var(--purple);}
+
+/* PRIORITY BADGE */
+.pri{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;}
+.p0{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
+.p1{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
+.p2{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);}
+.p3{background:color-mix(in srgb,var(--t3) 15%,transparent);color:var(--t3);}
+
+/* EVENT ROW */
+.ev-table{width:100%;border-collapse:collapse;}
+.ev-table th{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left;}
+.ev-table td{padding:9px 10px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--t3);vertical-align:top;}
+.ev-table td:first-child{color:var(--t1);font-weight:600;font-family:'SF Mono','Fira Code',monospace;font-size:11px;}
+.ev-table tr:last-child td{border-bottom:none;}
+.ev-group{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;padding:10px 10px 4px;background:color-mix(in srgb,var(--blue) 5%,transparent);}
+
+/* STATUS DOT */
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0;}
+.dot.g{background:var(--green);}
+.dot.y{background:var(--yellow);}
+.dot.r{background:var(--red);}
+.dot.b{background:var(--blue);}
+
+/* VFLOW */
+.vflow{display:flex;flex-direction:column;gap:0;}
+.vf-item{display:flex;align-items:flex-start;gap:12px;position:relative;padding-bottom:14px;}
+.vf-item:not(:last-child)::before{content:'';position:absolute;left:12px;top:26px;width:1px;height:calc(100% - 10px);background:var(--bd);}
+.vf-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;z-index:1;background:var(--s1);border:2px solid var(--blue);color:var(--blue);}
+.vf-dot.g{border-color:var(--green);color:var(--green);}
+.vf-dot.y{border-color:var(--yellow);color:var(--yellow);}
+.vf-dot.r{border-color:var(--red);color:var(--red);}
+.vf-body{flex:1;padding-top:3px;}
+.vf-body h3{margin-bottom:3px;}
+
+@media(max-width:560px){
+  main{padding:16px 12px;}header{padding:0 12px;}nav{padding:0 12px;}
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .badges{display:none;}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">PRD for AI + Tracking Events</span></div>
-  <div class="hbadge">
-    <span class="badge b-green">Lean 검증 최적화</span>
-    <span class="badge b-blue">v1.2 (Full Version)</span>
+  <div style="display:flex;align-items:center;">
+    <div class="logo">Scope<span>Manager</span></div>
+    <div class="badges">
+      <span class="badge blue">PRD for AI</span>
+      <span class="badge green">Tracking Events</span>
+      <span class="badge">MVP v1.0</span>
+    </div>
   </div>
+  <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
 </header>
 
 <nav>
-  <div class="tab on" onclick="go('prd',this)">📋 PRD 개요</div>
-  <div class="tab" onclick="go('fr',this)">⚙️ 요구사항 정리</div>
-  <div class="tab" onclick="go('ai',this)">🤖 AI 컨텍스트</div>
-  <div class="tab" onclick="go('nfr',this)">🛡 비기능 요구사항</div>
-  <div class="tab" onclick="go('events',this)">📊 검증용 트래킹</div>
-  <div class="tab" onclick="go('metrics',this)">🎯 PMF 지표</div>
-  <div class="tab" onclick="go('posthog',this)">⚡ PostHog 설정</div>
+  <button class="tab-btn active" data-tab="overview">📋 PRD 개요</button>
+  <button class="tab-btn" data-tab="features">⚙️ 기능 요구사항</button>
+  <button class="tab-btn" data-tab="ai">🤖 AI 프롬프트 명세</button>
+  <button class="tab-btn" data-tab="data">🗄️ 데이터 모델</button>
+  <button class="tab-btn" data-tab="tracking">📊 트래킹 이벤트</button>
+  <button class="tab-btn" data-tab="nonfunc">🛡️ 비기능 요구사항</button>
 </nav>
 
+<main>
 
-<div class="page on" id="page-prd">
-
-  <div class="card mb20" style="border-left: 4px solid var(--orange);">
-    <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">💡 Lean MVP 기조: "행동 데이터가 곧 인터뷰"</div>
-    <div style="font-size:11px;color:var(--t2);line-height:1.7;">사전 인터뷰를 생략한 대신, MVP 배포 후 사용자의 클릭과 이탈 등 <b>모든 행동 데이터를 완벽히 추적하여 '말'이 아닌 '행동'으로 PMF를 검증</b>합니다. 이를 위해 검증과 무관한 부가 기능은 모조리 덜어냈습니다.</div>
+<!-- ===== TAB 1: PRD 개요 ===== -->
+<div class="page active" id="page-overview">
+  <div class="sec-hdr">
+    <h2>PRD 개요 — Product Requirements Document</h2>
+    <p>AI 개발 도구(Lovable + Claude Code)를 위한 구조화된 요구사항 명세서</p>
   </div>
 
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-l">초압축 기능 요구사항</div>
-      <div class="kpi-v" style="color:var(--blue)">8<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">기존 13개에서 핵심만 생존</div>
+  <div class="g3 mb">
+    <div class="card hl">
+      <h4>제품 정보</h4>
+      <div class="kv"><span class="kk">제품명</span><span class="kv-v">Scope Manager</span></div>
+      <div class="kv"><span class="kk">버전</span><span class="kv-v">MVP v1.0</span></div>
+      <div class="kv"><span class="kk">문서 작성일</span><span class="kv-v">2025년 6월</span></div>
+      <div class="kv"><span class="kk">타겟 스택</span><span class="kv-v">Next.js + Supabase</span></div>
+      <div class="kv"><span class="kk">AI 판정</span><span class="kv-v">Claude API</span></div>
+      <div class="kv"><span class="kk">트래킹</span><span class="kv-v">PostHog</span></div>
+      <div class="kv"><span class="kk">프론트 빌더</span><span class="kv-v">Lovable</span></div>
     </div>
-    <div class="kpi">
-      <div class="kpi-l">AI 호출 포인트</div>
-      <div class="kpi-v" style="color:var(--yellow)">2<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">계약 요약 & 판정만 (비용추정 제외)</div>
+    <div class="card hl g">
+      <h4>핵심 목표 (Success Metrics)</h4>
+      <div class="fi">
+        <div class="fn g">G1</div>
+        <div><h3>얼리액세스 등록 50건</h3><p>배포 후 2주 이내. 수요 검증</p></div>
+      </div>
+      <div class="fi">
+        <div class="fn g">G2</div>
+        <div><h3>첫 판정 완료 30건</h3><p>Aha Moment 도달율 측정</p></div>
+      </div>
+      <div class="fi">
+        <div class="fn g">G3</div>
+        <div><h3>D7 리텐션 40%</h3><p>7일 후 재방문 및 재사용</p></div>
+      </div>
+      <div class="fi">
+        <div class="fn y">G4</div>
+        <div><h3>유료 전환 5건 (4주)</h3><p>PMF 초기 신호 확인</p></div>
+      </div>
     </div>
-    <div class="kpi">
-      <div class="kpi-l">핵심 트래킹 이벤트</div>
-      <div class="kpi-v" style="color:var(--green)">14<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">PMF 신호 포착용 이벤트 집중</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-l">핵심 성과 지표</div>
-      <div class="kpi-v" style="color:var(--orange)">4<span style="font-size:14px">개</span></div>
-      <div class="kpi-s">가설 검증 통과 기준</div>
+    <div class="card hl y">
+      <h4>MVP 범위 정의</h4>
+      <ul class="cl" style="margin-bottom:10px;">
+        <li>이메일 회원가입 / 로그인</li>
+        <li>프로젝트 생성 & 계약 범위 입력</li>
+        <li>텍스트 기반 AI 범위 판정</li>
+        <li>청구 근거 문서 자동 생성</li>
+        <li>클립보드 복사 내보내기</li>
+        <li>판정 히스토리 조회</li>
+        <li>기본 손익 집계 (수동 입력)</li>
+      </ul>
+      <ul class="cl">
+        <li class="n">소셜 로그인 (v1.5)</li>
+        <li class="n">PDF 내보내기 (v1.5)</li>
+        <li class="n">팀원 초대 (v1.5)</li>
+        <li class="n">파일/이미지 판정 (v2)</li>
+      </ul>
     </div>
   </div>
 
-  <div class="sec mb16">MVP 범위 결정 매트릭스 (가설 검증 중심)</div>
-  <div class="pm-wrap mb28">
-    <div class="pm-q" style="background:rgba(239,68,68,.04)">
-      <div class="pm-q-label" style="color:var(--red)">검증 무관 (Defer to V2)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>디테일한 온보딩 정보 수집</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--red)"></div>자동 비용 추정 로직 복잡화</div>
-      <div class="pm-axis-v">↑ 개발 비용(Cost)</div>
-    </div>
-    <div class="pm-q" style="background:rgba(16,185,129,.04)">
-      <div class="pm-q-label" style="color:var(--green)">핵심 가치 증명 (Must Have) ⭐</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>AI 범위 판정 (F-020)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>계약서 AI 요약 (F-002)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--green)"></div>PM 판정 Override 데이터 수집</div>
-    </div>
-    <div class="pm-q" style="background:rgba(90,100,120,.04)">
-      <div class="pm-q-label" style="color:var(--t4)">부가 가치 (Nice to Have - Drop)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--t4)"></div>상세한 히스토리 필터/정렬</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--t4)"></div>프로필/설정 메뉴</div>
-      <div class="pm-axis-h">검증 효과(Value) →</div>
-    </div>
-    <div class="pm-q" style="background:rgba(79,128,255,.04)">
-      <div class="pm-q-label" style="color:var(--blue)">공유/바이럴 (Should Have)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>공유 리포트 (F-030)</div>
-      <div class="pm-item"><div class="pm-dot" style="background:var(--blue)"></div>간단한 손익 대시보드 UI</div>
+  <div class="card mb">
+    <h4>전략적 맥락 — 왜 이 PRD가 다른가</h4>
+    <div class="g3">
+      <div class="hl r" style="padding-top:4px;">
+        <h3 style="margin-bottom:6px;">기존 린 스타트업</h3>
+        <div class="vflow">
+          <div class="vf-item"><div class="vf-dot r" style="font-size:9px;">X</div><div class="vf-body"><p>고객 인터뷰 (말 ≠ 행동 불일치)</p></div></div>
+          <div class="vf-item"><div class="vf-dot r" style="font-size:9px;">X</div><div class="vf-body"><p>문제 검증 (수개월 소요)</p></div></div>
+          <div class="vf-item"><div class="vf-dot r" style="font-size:9px;">X</div><div class="vf-body"><p>솔루션 검증 → MVP 개발</p></div></div>
+          <div class="vf-item" style="padding-bottom:0;"><div class="vf-dot r" style="font-size:9px;">X</div><div class="vf-body"><p>시장 출시 (리스크 누적)</p></div></div>
+        </div>
+      </div>
+      <div class="hl g" style="padding-top:4px;">
+        <h3 style="margin-bottom:6px;">채택 전략 (AI 시대)</h3>
+        <div class="vflow">
+          <div class="vf-item"><div class="vf-dot g" style="font-size:9px;">✓</div><div class="vf-body"><p>가설 정의 + PRD 작성</p></div></div>
+          <div class="vf-item"><div class="vf-dot g" style="font-size:9px;">✓</div><div class="vf-body"><p>AI 도구로 MVP 즉시 배포</p></div></div>
+          <div class="vf-item"><div class="vf-dot g" style="font-size:9px;">✓</div><div class="vf-body"><p>행동 데이터로 가설 검증</p></div></div>
+          <div class="vf-item" style="padding-bottom:0;"><div class="vf-dot g" style="font-size:9px;">✓</div><div class="vf-body"><p>데이터 기반 피벗/유지 결정</p></div></div>
+        </div>
+      </div>
+      <div>
+        <h4>비용 역전 논리</h4>
+        <div class="ann" style="margin-bottom:10px;">
+          MVP 개발 비용 &lt; 고객 인터뷰 설계·진행 비용<br>
+          <strong>→ "만들어서 보여주는" 것이 더 빠른 검증</strong>
+        </div>
+        <div class="kv"><span class="kk">기존 MVP 비용</span><span class="kv-v" style="color:var(--red);">수천만원+</span></div>
+        <div class="kv"><span class="kk">AI 시대 MVP 비용</span><span class="kv-v" style="color:var(--green);">수백만원</span></div>
+        <div class="kv"><span class="kk">개발 기간 단축</span><span class="kv-v" style="color:var(--blue);">~90%</span></div>
+      </div>
     </div>
   </div>
 
-</div>
-
-
-<div class="page" id="page-fr">
-  <div class="sec mb16">기능 요구사항 — 1분 내 가치 증명(TTV)을 위한 최소 스펙</div>
-  <div style="overflow-x:auto">
-  <table class="fr-table">
-    <thead><tr>
-      <th style="width:70px">ID</th>
-      <th style="width:150px">기능명</th>
-      <th>설명 & 수용 기준 (Lean AC)</th>
-    </tr></thead>
-    <tbody>
-
-    <tr>
-      <td><div class="fr-id">F-001</div></td>
-      <td><div class="fr-name">마찰 제로 회원가입</div></td>
-      <td>
-        <div class="fr-desc">입력 폼을 최소화하고 Google 로그인 위주로 즉각 진입.</div>
-        <ul class="fr-ac">
-          <li>Google OAuth 1-Click 로그인/가입 지원</li>
-          <li>가입 직후 불필요한 온보딩(이름, 시급 등) 생략하고 바로 첫 프로젝트 생성(F-003)으로 직행</li>
-        </ul>
-      </td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-002</div></td>
-      <td><div class="fr-name">계약서 AI 요약 (최단 경로)</div></td>
-      <td>
-        <div class="fr-desc">판정의 기준이 될 계약서 핵심 텍스트를 붙여넣고 AI가 요약.</div>
-        <ul class="fr-ac">
-          <li>텍스트 붙여넣기 폼 제공 (최대 3,000자)</li>
-          <li>로딩 시 이탈을 막기 위한 직관적 프로그레스 바 제공</li>
-        </ul>
-      </td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-020</div></td>
-      <td><div class="fr-name">AI 범위 판정 (Aha Moment) ⭐</div></td>
-      <td>
-        <div class="fr-desc">PM이 요청을 입력하면 Claude API가 즉시 In/Out/Unclear를 판정.</div>
-        <ul class="fr-ac">
-          <li>가장 직관적이고 큰 UI로 판정 결과(초록/빨강/노랑 뱃지)와 핵심 근거 1문장 노출</li>
-          <li>응답 시간 3초를 넘길 경우 "거의 다 분석했습니다" 등 안심시키는 텍스트 교체 표시</li>
-        </ul>
-      </td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-021</div></td>
-      <td><div class="fr-name">판정 피드백 (가설 검증 장치)</div></td>
-      <td>
-        <div class="fr-desc">AI의 판정이 시장(PM)의 상식과 맞는지 확인하는 핵심 검증 장치.</div>
-        <ul class="fr-ac">
-          <li>결과 화면에 무조건 [👍 맞음] / [👎 직접 수정(Override)] 버튼 노출</li>
-          <li>수정 시 PM이 선택한 결과값(in/out)을 백그라운드로 즉시 DB에 적재 (프롬프트 튜닝의 핵심 지표)</li>
-        </ul>
-      </td>
-    </tr>
-
-    <tr>
-      <td><div class="fr-id">F-030</div></td>
-      <td><div class="fr-name">초간편 리포트 & 공유</div></td>
-      <td>
-        <div class="fr-desc">판정된(범위 외) 결과를 묶어 URL로 내부 공유.</div>
-        <ul class="fr-ac">
-          <li>항목 체크박스 선택 후 "공유 링크 생성" 클릭 시 즉시 클립보드에 URL 복사</li>
-          <li>인증 없이 볼 수 있는 깔끔한 리포트 뷰 제공 (바이럴 유도)</li>
-        </ul>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="g2">
+    <div class="card">
+      <h4>핵심 가설 (검증 대상)</h4>
+      <div class="fi">
+        <div class="fn b">H1</div>
+        <div><h3>문제 가설</h3><p>5~20인 웹 에이전시 PM의 95%가 추가 요금 청구에 어려움을 겪는다</p><div style="margin-top:4px;"><span class="tag ty">미검증</span></div></div>
+      </div>
+      <div class="fi">
+        <div class="fn b">H2</div>
+        <div><h3>솔루션 가설</h3><p>AI 판정 결과를 보여주면 PM이 클라이언트와 협상하기 쉬워진다</p><div style="margin-top:4px;"><span class="tag ty">미검증</span></div></div>
+      </div>
+      <div class="fi">
+        <div class="fn b">H3</div>
+        <div><h3>수익 가설</h3><p>월 3만원~5만원 구독료를 지불할 의향이 있다</p><div style="margin-top:4px;"><span class="tag ty">미검증</span></div></div>
+      </div>
+      <div class="fi">
+        <div class="fn y">H4</div>
+        <div><h3>채널 가설</h3><p>LinkedIn/Brunch 콘텐츠를 통해 타겟 PM에게 도달 가능하다</p><div style="margin-top:4px;"><span class="tag ty">미검증</span></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h4>검증 방법 매핑</h4>
+      <table>
+        <thead><tr><th>가설</th><th>검증 지표</th><th>기준</th></tr></thead>
+        <tbody>
+          <tr><td>H1 문제</td><td>랜딩 이메일 등록</td><td>50건 / 2주</td></tr>
+          <tr><td>H2 솔루션</td><td>첫 판정 완료율</td><td>≥ 60%</td></tr>
+          <tr><td>H2 솔루션</td><td>청구 문서 복사율</td><td>≥ 40%</td></tr>
+          <tr><td>H3 수익</td><td>유료 전환</td><td>5건 / 4주</td></tr>
+          <tr><td>H4 채널</td><td>채널별 등록 출처</td><td>단일 채널 ≥ 40%</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
+<!-- ===== TAB 2: 기능 요구사항 ===== -->
+<div class="page" id="page-features">
+  <div class="sec-hdr">
+    <h2>기능 요구사항 명세</h2>
+    <p>AI 개발 도구가 구현해야 할 기능의 구체적 요구사항. 우선순위 P0 → P3 순</p>
+  </div>
 
+  <!-- AUTH -->
+  <div class="sec-label" style="margin-bottom:8px;">Feature Group A — 인증 & 계정</div>
+  <div class="card mb">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>기능명</th><th>요구사항 상세</th><th>우선순위</th><th>검수 기준</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A-01</td>
+            <td>이메일 회원가입</td>
+            <td>이메일+비밀번호 입력. 비밀번호 8자 이상, 영문+숫자 포함. Supabase Auth 사용</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>가입 후 인증 메일 60초 내 수신, 링크 클릭 시 로그인 상태로 이동</td>
+          </tr>
+          <tr>
+            <td>A-02</td>
+            <td>이메일 인증</td>
+            <td>가입 후 인증 링크 발송. 미인증 시 판정 기능 비활성화. 재발송 버튼 제공</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>인증 완료 후 /dashboard로 리다이렉트</td>
+          </tr>
+          <tr>
+            <td>A-03</td>
+            <td>로그인 / 로그아웃</td>
+            <td>세션 유지 7일. 로그아웃 시 모든 로컬 데이터 초기화</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>새 탭 열어도 세션 유지 확인</td>
+          </tr>
+          <tr>
+            <td>A-04</td>
+            <td>비밀번호 재설정</td>
+            <td>이메일로 재설정 링크 발송. 링크 유효시간 1시간</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>링크 만료 후 재설정 불가 확인</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PROJECT -->
+  <div class="sec-label" style="margin-bottom:8px;">Feature Group B — 프로젝트 & 계약 관리</div>
+  <div class="card mb">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>기능명</th><th>요구사항 상세</th><th>우선순위</th><th>검수 기준</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>B-01</td>
+            <td>프로젝트 생성</td>
+            <td>프로젝트명(필수), 클라이언트명(필수), 계약 금액(선택), 시작일/종료일(선택). 사용자당 최대 20개</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>생성 후 /project/:id로 이동. 목록에 즉시 노출</td>
+          </tr>
+          <tr>
+            <td>B-02</td>
+            <td>계약 범위 입력</td>
+            <td>자유 텍스트 붙여넣기 방식. AI가 범위 항목 자동 파싱 후 확인 요청. 수동 편집 가능. 500~5000자 권장</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>파싱 완료 후 범위 항목 리스트 미리보기 표시</td>
+          </tr>
+          <tr>
+            <td>B-03</td>
+            <td>계약 범위 수정</td>
+            <td>기존 범위 편집. 수정 시 이전 판정에 영향 없음 (버전 스냅샷 보존)</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>수정 후 새 판정은 신규 범위 기준 적용</td>
+          </tr>
+          <tr>
+            <td>B-04</td>
+            <td>프로젝트 목록</td>
+            <td>카드 레이아웃. 프로젝트명, 클라이언트명, 최근 판정일, 판정 건수 표시. 활성/완료 필터</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>5개 이상 프로젝트 있을 때 스크롤 정상 동작</td>
+          </tr>
+          <tr>
+            <td>B-05</td>
+            <td>샘플 프로젝트</td>
+            <td>온보딩 시 "샘플로 체험하기" 옵션. 더미 계약서 + 더미 판정 3건 사전 입력</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>샘플 삭제 후 실제 프로젝트 생성 유도 메시지 노출</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- JUDGE -->
+  <div class="sec-label" style="margin-bottom:8px;">Feature Group C — AI 범위 판정</div>
+  <div class="card mb">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>기능명</th><th>요구사항 상세</th><th>우선순위</th><th>검수 기준</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>C-01</td>
+            <td>요청 텍스트 입력</td>
+            <td>최대 2000자. 멀티라인 입력. 붙여넣기 최적화 (카카오톡/이메일). 프로젝트 선택 드롭다운 연동</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>2000자 초과 시 경고 + 자르기 옵션 제공</td>
+          </tr>
+          <tr>
+            <td>C-02</td>
+            <td>AI 판정 실행</td>
+            <td>Claude API 호출. 계약 범위 + 요청 텍스트 전달. 결과: IN / OUT / AMBIGUOUS + 판정 근거 2~3문장. 타임아웃 15초</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>응답 5초 내 결과 표시. 타임아웃 시 재시도 안내</td>
+          </tr>
+          <tr>
+            <td>C-03</td>
+            <td>판정 결과 표시</td>
+            <td>결과 타입(IN/OUT/AMBIGUOUS) 색상 구분. 판정 근거 텍스트. "문서 생성" / "수동 수정" 버튼</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>색상: IN=green, OUT=red, AMBIGUOUS=yellow</td>
+          </tr>
+          <tr>
+            <td>C-04</td>
+            <td>판정 수동 수정</td>
+            <td>AI 결과가 틀렸을 때 PM이 직접 판정 변경 가능. 수정 이유 입력 (선택). 수정 이력 보존</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>수정된 판정은 대시보드에 "수정됨" 배지 표시</td>
+          </tr>
+          <tr>
+            <td>C-05</td>
+            <td>판정 히스토리</td>
+            <td>프로젝트별 전체 판정 목록. 날짜, 요청 요약, 판정 결과, 청구 여부 표시. 역순 정렬</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>50건 이상 시 페이지네이션(20건씩)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DOCUMENT -->
+  <div class="sec-label" style="margin-bottom:8px;">Feature Group D — 청구 근거 문서</div>
+  <div class="card mb">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>기능명</th><th>요구사항 상세</th><th>우선순위</th><th>검수 기준</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>D-01</td>
+            <td>문서 자동 생성</td>
+            <td>OUT 판정 시 "문서 생성" 버튼 활성화. 요청 요약, 계약 조항 인용, 초과 근거 자동 작성. Claude API 2차 호출</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>생성 3초 내 초안 표시. 문서 내 공란([]) 없어야 함</td>
+          </tr>
+          <tr>
+            <td>D-02</td>
+            <td>문서 편집</td>
+            <td>생성된 문서 전문 편집 가능. 견적 금액, 예상 공수 입력 필드 별도 제공</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>편집 중 자동저장(debounce 1초)</td>
+          </tr>
+          <tr>
+            <td>D-03</td>
+            <td>클립보드 복사</td>
+            <td>버튼 1클릭으로 전체 문서 텍스트 복사. 복사 완료 토스트 알림. 마크다운 제거한 순수 텍스트</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>카카오톡에 붙여넣기 시 줄바꿈 정상 유지</td>
+          </tr>
+          <tr>
+            <td>D-04</td>
+            <td>청구 상태 관리</td>
+            <td>문서별 "미청구 / 청구완료 / 수락 / 거절" 상태. 수동 업데이트. 히스토리에 상태 반영</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>상태 변경 시 대시보드 집계 즉시 반영</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="sec-label" style="margin-bottom:8px;">Feature Group E — 수익성 대시보드</div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>기능명</th><th>요구사항 상세</th><th>우선순위</th><th>검수 기준</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>E-01</td>
+            <td>홈 대시보드</td>
+            <td>이번 달 판정 건수, Out of Scope 건수, 미청구 금액 합계, 진행 프로젝트 수 카드 표시</td>
+            <td><span class="pri p0">P0 필수</span></td>
+            <td>데이터 없을 때 빈 상태 UI 표시 (0 아닌 "-")</td>
+          </tr>
+          <tr>
+            <td>E-02</td>
+            <td>프로젝트 손익</td>
+            <td>계약 금액 대비 실제 청구 금액 비교. 수동 입력 기반. 수익률(%) 계산 표시</td>
+            <td><span class="pri p1">P1 중요</span></td>
+            <td>수익률 음수 시 빨간색, 양수 시 초록색</td>
+          </tr>
+          <tr>
+            <td>E-03</td>
+            <td>미청구 경고</td>
+            <td>Out of Scope 판정 후 7일 내 청구 미완료 시 배너 알림. 해당 항목 리스트 표시</td>
+            <td><span class="pri p2">P2 선택</span></td>
+            <td>알림 dismiss 시 30일간 미표시</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 3: AI 프롬프트 명세 ===== -->
 <div class="page" id="page-ai">
-
-  <div class="sec mb16">AI 호출 포인트 2개 (Lean MVP 기준 비용 추정 제외)</div>
-
-  <div class="ai-block mb12">
-    <div class="ai-block-head">
-      <div class="ai-block-id">AI-001</div>
-      <div class="ai-block-title">계약서 범위 요약 (F-002 연동)</div>
-      <span class="tag tag-yellow">계약서 등록 시 1회</span>
-    </div>
-    <div class="ai-block-body">
-      <div class="g2">
-        <div>
-          <div class="ai-context-label">System Prompt</div>
-          <div class="ai-context-val">당신은 웹 에이전시 계약서에서 프로젝트 범위를 구조화하는 전문가입니다.<br>계약서 텍스트를 분석해 반드시 유효한 JSON으로만 응답합니다.<br>설명 문장, 마크다운 코드블록 절대 포함 금지.</div>
-          <div class="ai-context-label" style="margin-top:10px">User Prompt 구조</div>
-          <div class="ai-context-val">다음 계약서에서 프로젝트 범위를 분석하세요:<br><br>"{contract_text}"<br><br>응답 형식:<br>{<br>  "included": ["명시 포함 항목"],<br>  "excluded": ["명시 제외 항목"],<br>  "unclear": ["불명확 항목"],<br>  "summary_ko": "한 문장 요약"<br>}</div>
-        </div>
-        <div>
-          <div class="ai-context-label">파라미터 설정</div>
-          <div class="ai-context-val">model: claude-3-5-sonnet<br>temperature: 0.1<br>max_tokens: 1000<br>timeout: 10s</div>
-          <div class="ai-context-label" style="margin-top:10px">에러 처리</div>
-          <div class="ai-context-val">JSON 파싱 실패 → 1회 재호출<br>재실패 → 수동 입력 유도<br>타임아웃 → "잠시 후 재시도" 토스트</div>
-        </div>
-      </div>
-    </div>
+  <div class="sec-hdr">
+    <h2>AI 프롬프트 명세</h2>
+    <p>Claude API 호출 시 사용할 시스템 프롬프트 구조 및 출력 형식 정의</p>
   </div>
 
-  <div class="ai-block mb28">
-    <div class="ai-block-head">
-      <div class="ai-block-id">AI-002</div>
-      <div class="ai-block-title">범위 초과 판정 ⭐ (F-020 연동)</div>
-      <span class="tag tag-red">요청 입력마다 호출</span>
-    </div>
-    <div class="ai-block-body">
-      <div class="g2">
-        <div>
-          <div class="ai-context-label">System Prompt</div>
-          <div class="ai-context-val">당신은 웹 에이전시 프로젝트의 계약 범위를 판정하는 전문가입니다.<br>주어진 계약 범위 요약과 클라이언트 요청을 비교하여<br>반드시 유효한 JSON으로만 응답합니다.</div>
-          <div class="ai-context-label" style="margin-top:10px">User Prompt 구조</div>
-          <div class="ai-context-val">## 계약 범위 요약<br>포함: {scope.included}<br>제외: {scope.excluded}<br>불명확: {scope.unclear}<br><br>## 클라이언트 요청<br>"{request_text}"<br><br>## 응답 형식<br>{<br>  "judgment": "in_scope|out_of_scope|unclear",<br>  "confidence": 0.0~1.0,<br>  "reasoning": "1~3문장 근거"<br>}</div>
-        </div>
-        <div>
-          <div class="ai-context-label">파라미터 설정</div>
-          <div class="ai-context-val">model: claude-3-5-sonnet<br>temperature: 0.2<br>max_tokens: 500<br>timeout: 5s</div>
-          <div class="ai-context-label" style="margin-top:10px">신뢰도 임계값</div>
-          <div class="ai-context-val">confidence &lt; 0.70<br>→ judgment 강제 "unclear"로 오버라이드<br>→ PM 직접 판단 유도</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-<div class="page" id="page-nfr">
-
-  <div class="sec mb16">비기능 요구사항 (NFR) — 측정 가능한 기준으로</div>
-  <div style="overflow-x:auto;margin-bottom:28px">
-  <table class="nfr-table">
-    <thead><tr>
-      <th style="width:50px">ID</th>
-      <th style="width:100px">카테고리</th>
-      <th style="width:160px">요구사항</th>
-      <th>측정 기준 & 구현 방법</th>
-      <th style="width:80px">우선순위</th>
-    </tr></thead>
-    <tbody>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-01</span></td>
-      <td><span class="tag tag-yellow">성능</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">AI 판정 응답 시간</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">목표: P95 &lt; 3초 / P99 &lt; 5초</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">Claude Sonnet 기준 실측 1.5~2.5초. 5초 초과 시 로딩 메시지 변경 ("조금 더 걸리고 있어요"). PostHog로 응답 시간 분포 추적.</div>
-      </td>
-      <td><span class="tag tag-red">P0</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-02</span></td>
-      <td><span class="tag tag-yellow">성능</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">페이지 로드 시간</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">목표: LCP &lt; 2.5초 (Vercel CDN 기준)</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">Vercel Analytics로 Core Web Vitals 모니터링. 스켈레톤 UI로 체감 속도 향상.</div>
-      </td>
-      <td><span class="tag tag-yellow">P1</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-03</span></td>
-      <td><span class="tag tag-red">보안</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">데이터 격리</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Supabase RLS: auth.uid() = user_id 정책 전 테이블 적용</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">타 사용자 데이터 절대 접근 불가. 공유 토큰은 scope_reports 테이블만 공개 접근 허용.</div>
-      </td>
-      <td><span class="tag tag-red">P0</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-04</span></td>
-      <td><span class="tag tag-red">보안</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">API 키 보호</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Supabase Edge Functions 환경변수로만 관리</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">프론트엔드 코드에 API 키 절대 노출 금지. GitHub 커밋 전 .env 파일 gitignore 확인.</div>
-      </td>
-      <td><span class="tag tag-red">P0</span></td>
-    </tr>
-    <tr>
-      <td><span style="font-family:monospace;color:var(--cyan);font-size:11px">NFR-05</span></td>
-      <td><span class="tag tag-cyan">개인정보</span></td>
-      <td style="font-weight:700;color:#fff;font-size:12px">계정 탈퇴 처리</td>
-      <td>
-        <div style="font-size:11px;color:var(--t2);margin-bottom:3px">탈퇴 요청 → 90일 유예 → 완전 삭제</div>
-        <div style="font-size:11px;color:var(--t4);line-height:1.6">유예 기간 중 취소 가능. 개인정보보호법 대응. 피드백 통계만 익명 보존.</div>
-      </td>
-      <td><span class="tag tag-yellow">P1</span></td>
-    </tr>
-    </tbody>
-  </table>
-  </div>
-</div>
-
-
-<div class="page" id="page-events">
-
-  <div class="sec mb16">PMF 가설 검증을 위한 핵심 이벤트 로깅</div>
-  <div class="ev-wrap">
-    <div class="ev-group-body" style="border-color:var(--bd); border-top: 1px solid var(--bd); border-radius: 8px;">
-      <div class="ev-row-head" style="background:var(--s3)">
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">이벤트명</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4)">검증하려는 가설 (목적) & 프로퍼티</div>
-        <div style="font-size:10px;font-weight:700;color:var(--t4);text-align:center">발생 시점</div>
-      </div>
-      
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">user_signed_up</div></div>
-        <div>
-          <div class="ev-desc"><b>가설:</b> "방문자는 이 문제를 심각하게 여겨 가입 허들을 넘을 것이다."</div>
-          <div class="ev-props"><span class="ev-prop">method: google</span><span class="ev-prop">utm_source</span></div>
-        </div>
-        <div class="ev-when"><span class="tag tag-blue">가입 직후</span></div>
-      </div>
-
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">first_judgment_completed</div></div>
-        <div>
-          <div class="ev-desc"><b>가설:</b> "가입자는 이탈 없이 1분 안에 첫 AI 판정(Aha Moment)을 경험할 것이다."</div>
-          <div class="ev-props"><span class="ev-prop">time_since_signup_seconds</span><span class="ev-prop">judgment_result: in|out</span></div>
-        </div>
-        <div class="ev-when"><span class="tag tag-green">첫 판정 수신</span></div>
-      </div>
-
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">judgment_overridden</div></div>
-        <div>
-          <div class="ev-desc"><b>가설 기각 신호:</b> "AI의 판정 로직이 PM의 실무 감각과 일치하지 않는다." (이 수치가 높으면 프롬프트 즉각 수정)</div>
-          <div class="ev-props"><span class="ev-prop">ai_original</span><span class="ev-prop">pm_corrected</span></div>
-        </div>
-        <div class="ev-when"><span class="tag tag-red">결과 수정 시</span></div>
-      </div>
-
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">report_shared</div></div>
-        <div>
-          <div class="ev-desc"><b>가설:</b> "PM은 AI의 판정 결과를 팀이나 윗선에 공유하여 근거로 사용할 것이다."</div>
-          <div class="ev-props"><span class="ev-prop">item_count</span></div>
-        </div>
-        <div class="ev-when"><span class="tag tag-purple">링크 복사 시</span></div>
-      </div>
-
-      <div class="ev-row" style="border-color:var(--bd)">
-        <div><div class="ev-name">return_session_started</div></div>
-        <div>
-          <div class="ev-desc"><b>가설:</b> "이 도구는 일회성 호기심이 아니라, 지속적인 실무 루틴(Retention)으로 자리 잡는다."</div>
-          <div class="ev-props"><span class="ev-prop">days_since_signup</span></div>
-        </div>
-        <div class="ev-when"><span class="tag tag-yellow">재접속 시</span></div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div class="page" id="page-metrics">
-  <div class="sec mb16">PMF(Product-Market Fit) 통과 기준 (수치적 목표)</div>
-
-  <div class="g2 mb28">
-    <div class="metric-def">
-      <div class="metric-head">
-        <div class="metric-id" style="background:rgba(16,185,129,.2);color:var(--green)">지표 1</div>
-        <div class="metric-name">Time to Value (TTV) 전환율</div>
-      </div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">가입자 중 1분 안에 첫 AI 판정을 받는 비율</div>
-      <div class="metric-target" style="background:rgba(16,185,129,.15);color:var(--green);display:inline-block">목표: 80% 이상 (이탈 시 온보딩 축소)</div>
-    </div>
-
-    <div class="metric-def">
-      <div class="metric-head">
-        <div class="metric-id" style="background:rgba(239,68,68,.2);color:var(--red)">지표 2</div>
-        <div class="metric-name">AI 신뢰도 붕괴율 (Override Rate)</div>
-      </div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">AI가 내린 판정을 PM이 수동으로 수정한 비율</div>
-      <div class="metric-target" style="background:rgba(239,68,68,.15);color:var(--red);display:inline-block">경고: 30% 초과 시 프롬프트 롤백/수정</div>
-    </div>
-
-    <div class="metric-def">
-      <div class="metric-head">
-        <div class="metric-id" style="background:rgba(168,85,247,.2);color:var(--purple)">지표 3</div>
-        <div class="metric-name">리포트 공유 활성화율</div>
-      </div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">범위 외(Out of Scope) 판정을 1회 이상 받은 유저 중 리포트 링크를 생성한 유저의 비율</div>
-      <div class="metric-target" style="background:rgba(168,85,247,.15);color:var(--purple);display:inline-block">목표: 20% 이상 (가치의 최종 목적지 도달 여부)</div>
-    </div>
-
-    <div class="metric-def">
-      <div class="metric-head">
-        <div class="metric-id" style="background:rgba(79,128,255,.2);color:var(--blue)">지표 4</div>
-        <div class="metric-name">D7 리텐션 (재방문율)</div>
-      </div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px">가입 후 7일 이내에 앱에 다시 접속하여 판정을 요청한 비율</div>
-      <div class="metric-target" style="background:rgba(79,128,255,.15);color:var(--blue);display:inline-block">목표: 15% 이상 (실무 루틴화 검증)</div>
-    </div>
-  </div>
-</div>
-
-<div class="page" id="page-posthog">
-
-  <div class="sec mb16">PostHog 초기 설정 코드 — React</div>
-  <div class="ph-code mb20">
-<span class="cm">// src/lib/analytics.ts</span>
-<span class="kw">import</span> posthog <span class="kw">from</span> <span class="str">'posthog-js'</span>
-
-<span class="kw">export function</span> <span class="fn">initPostHog</span>() {
-  posthog.<span class="fn">init</span>(<span class="str">'YOUR_POSTHOG_KEY'</span>, {
-    api_host: <span class="str">'https://app.posthog.com'</span>,
-    <span class="cm">// 개발 환경 이벤트 캡처 비활성화</span>
-    loaded: (ph) => {
-      <span class="kw">if</span> (process.env.NODE_ENV === <span class="str">'development'</span>) ph.<span class="fn">opt_out_capturing</span>()
-    },
-    <span class="cm">// 자동 수집: 페이지뷰, 클릭, 세션 레코딩</span>
-    autocapture: <span class="kw">false</span>, <span class="cm">// 수동 이벤트만 사용</span>
-    session_recording: { maskAllInputs: <span class="kw">true</span> } <span class="cm">// 입력값 마스킹</span>
-  })
+  <!-- PROMPT 1 -->
+  <div class="sec-label mb" style="margin-bottom:8px;">Prompt 01 — 계약 범위 파싱</div>
+  <div class="g2 mb">
+    <div class="card">
+      <h4>호출 조건 & 설정</h4>
+      <div class="kv"><span class="kk">트리거</span><span class="kv-v">계약서 텍스트 입력 후 "분석 시작" 클릭</span></div>
+      <div class="kv"><span class="kk">모델</span><span class="kv-v">claude-sonnet-4-20250514</span></div>
+      <div class="kv"><span class="kk">max_tokens</span><span class="kv-v">1000</span></div>
+      <div class="kv"><span class="kk">출력 형식</span><span class="kv-v">JSON array</span></div>
+      <div class="kv"><span class="kk">온도(temp)</span><span class="kv-v">0.1 (일관성 우선)</span></div>
+      <hr>
+      <h4>출력 스키마</h4>
+      <div class="code">
+<span class="c">// 기대 출력 형식</span><br>
+{<br>
+&nbsp;&nbsp;<span class="k">"scope_items"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"id"</span>: <span class="s">"scope_001"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"category"</span>: <span class="s">"UI/퍼블리싱"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"description"</span>: <span class="s">"메인/서브 페이지 퍼블리싱"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">"included"</span>: <span class="n">true</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;],<br>
+&nbsp;&nbsp;<span class="k">"exclusions"</span>: [<span class="s">"동영상 편집"</span>, <span class="s">"채팅 기능"</span>],<br>
+&nbsp;&nbsp;<span class="k">"ambiguous"</span>: [<span class="s">"반응형 적용 범위"</span>]<br>
 }
+      </div>
+    </div>
+    <div class="card">
+      <h4>시스템 프롬프트 구조</h4>
+      <div class="code">
+<span class="c">// System Prompt</span><br>
+<span class="s">당신은 웹 에이전시 계약서 분석 전문가입니다.<br>
+주어진 계약서 텍스트에서 다음을 추출하세요:<br>
+1. 포함된 기능/작업 항목 목록<br>
+2. 명시적으로 제외된 항목<br>
+3. 범위가 모호한 항목<br><br>
+반드시 JSON 형식으로만 응답하세요.<br>
+앞뒤 설명 텍스트 없이 JSON만 출력하세요.</span><br><br>
+<span class="c">// User Prompt</span><br>
+<span class="s">다음 계약서를 분석해주세요:<br>
+---<br>
+{contract_text}<br>
+---</span>
+      </div>
+      <div class="ann" style="margin-top:8px;">⚠ 파싱 실패(JSON 파싱 오류) 시: 수동 입력 모드로 fallback. 오류 메시지: "계약서를 자동 분석하지 못했습니다. 직접 범위를 입력해주세요"</div>
+    </div>
+  </div>
 
-<span class="cm">// 사용자 식별 (로그인 시 호출)</span>
-<span class="kw">export function</span> <span class="fn">identifyUser</span>(userId: <span class="pr">string</span>, props: <span class="pr">object</span>) {
-  posthog.<span class="fn">identify</span>(userId, {
-    email: props.email,
-    plan: props.plan, <span class="cm">// 'beta' | 'paid'</span>
-    created_at: props.created_at
-  })
+  <!-- PROMPT 2 -->
+  <div class="sec-label mb" style="margin-bottom:8px;">Prompt 02 — 요청 범위 판정</div>
+  <div class="g2 mb">
+    <div class="card">
+      <h4>호출 조건 & 설정</h4>
+      <div class="kv"><span class="kk">트리거</span><span class="kv-v">"판정 요청" 버튼 클릭</span></div>
+      <div class="kv"><span class="kk">모델</span><span class="kv-v">claude-sonnet-4-20250514</span></div>
+      <div class="kv"><span class="kk">max_tokens</span><span class="kv-v">800</span></div>
+      <div class="kv"><span class="kk">출력 형식</span><span class="kv-v">JSON object</span></div>
+      <div class="kv"><span class="kk">온도(temp)</span><span class="kv-v">0.1</span></div>
+      <hr>
+      <h4>출력 스키마</h4>
+      <div class="code">
+{<br>
+&nbsp;&nbsp;<span class="k">"verdict"</span>: <span class="s">"OUT"</span>, <span class="c">// IN | OUT | AMBIGUOUS</span><br>
+&nbsp;&nbsp;<span class="k">"confidence"</span>: <span class="n">0.92</span>, <span class="c">// 0.0~1.0</span><br>
+&nbsp;&nbsp;<span class="k">"reason"</span>: <span class="s">"동영상 배너 추가는 계약서 3조 UI 항목에 포함되지 않습니다"</span>,<br>
+&nbsp;&nbsp;<span class="k">"relevant_scope"</span>: <span class="s">"scope_003"</span>, <span class="c">// 관련 범위 항목 ID</span><br>
+&nbsp;&nbsp;<span class="k">"request_summary"</span>: <span class="s">"동영상 배너 및 채팅 기능 추가 요청"</span><br>
 }
+      </div>
+    </div>
+    <div class="card">
+      <h4>시스템 프롬프트 구조</h4>
+      <div class="code">
+<span class="c">// System Prompt</span><br>
+<span class="s">당신은 웹 에이전시 프로젝트 범위 판정 AI입니다.<br>
+아래 계약 범위를 기준으로 클라이언트 요청이<br>
+계약 범위 내(IN)인지, 초과(OUT)인지,<br>
+모호(AMBIGUOUS)한지 판정하세요.<br><br>
+판정 기준:<br>
+- IN: 계약 범위에 명시적으로 포함된 작업<br>
+- OUT: 범위에 없거나 명시적으로 제외된 작업<br>
+- AMBIGUOUS: 해석에 따라 달라질 수 있는 작업<br><br>
+반드시 JSON 형식으로만 응답하세요.</span><br><br>
+<span class="c">// User Prompt</span><br>
+<span class="s">계약 범위: {scope_items_json}<br>
+클라이언트 요청: {request_text}</span>
+      </div>
+    </div>
+  </div>
 
-<span class="cm">// 표준 이벤트 래퍼</span>
-<span class="kw">export function</span> <span class="fn">track</span>(event: <span class="pr">string</span>, props?: <span class="pr">object</span>) {
-  posthog.<span class="fn">capture</span>(event, {
-    ...props,
-    <span class="cm">// 공통 프로퍼티 자동 첨부</span>
-    app_version: <span class="str">'1.0.0'</span>,
-    env: process.env.NODE_ENV
-  })
-}</div>
+  <!-- PROMPT 3 -->
+  <div class="sec-label mb" style="margin-bottom:8px;">Prompt 03 — 청구 근거 문서 생성</div>
+  <div class="g2">
+    <div class="card">
+      <h4>호출 조건 & 설정</h4>
+      <div class="kv"><span class="kk">트리거</span><span class="kv-v">OUT 판정 후 "문서 생성" 클릭</span></div>
+      <div class="kv"><span class="kk">모델</span><span class="kv-v">claude-sonnet-4-20250514</span></div>
+      <div class="kv"><span class="kk">max_tokens</span><span class="kv-v">1200</span></div>
+      <div class="kv"><span class="kk">출력 형식</span><span class="kv-v">Plain text (마크다운 없이)</span></div>
+      <div class="kv"><span class="kk">온도(temp)</span><span class="kv-v">0.3 (약간의 자연스러움)</span></div>
+      <div class="kv"><span class="kk">언어</span><span class="kv-v">한국어, 비즈니스 문어체</span></div>
+    </div>
+    <div class="card">
+      <h4>시스템 프롬프트 구조</h4>
+      <div class="code">
+<span class="c">// System Prompt</span><br>
+<span class="s">당신은 웹 에이전시 PM을 돕는 전문 작성가입니다.<br>
+클라이언트에게 보낼 추가 작업 안내 문서를 작성하세요.<br><br>
+작성 원칙:<br>
+- 정중하고 전문적인 비즈니스 한국어<br>
+- 감정적 표현 없이 사실 중심<br>
+- PM이 직접 쓴 것처럼 자연스럽게<br>
+- 마크다운 기호(#, *, `) 사용 금지<br>
+- 순수 텍스트만 출력</span><br><br>
+<span class="c">// User Prompt</span><br>
+<span class="s">프로젝트명: {project_name}<br>
+클라이언트명: {client_name}<br>
+계약 체결일: {contract_date}<br>
+요청 내용: {request_text}<br>
+판정 근거: {reason}<br>
+추가 견적 금액: {amount} (없으면 생략)<br><br>
+위 정보를 바탕으로 추가 작업 안내 문서를 작성하세요.</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <div class="sec mb16">이벤트 호출 예시 — 핵심 3개</div>
-  <div class="ph-code mb12">
-<span class="cm">// ① 회원가입 완료</span>
-<span class="fn">track</span>(<span class="str">'user_signed_up'</span>, {
-  method: <span class="str">'google'</span>,
-  referrer: document.referrer,
-  utm_source: searchParams.<span class="fn">get</span>(<span class="str">'utm_source'</span>)
-})</div>
+<!-- ===== TAB 4: 데이터 모델 ===== -->
+<div class="page" id="page-data">
+  <div class="sec-hdr">
+    <h2>데이터 모델 (Supabase Schema)</h2>
+    <p>MVP에 필요한 최소 테이블 구조 및 관계 정의</p>
+  </div>
 
-  <div class="ph-code mb12">
-<span class="cm">// ② AI 첫 판정 완료 (Aha Moment)</span>
-<span class="fn">track</span>(<span class="str">'first_judgment_completed'</span>, {
-  judgment: result.judgment,
-  time_since_signup_seconds: (Date.now() - user.created_at) / 1000
-})</div>
+  <div class="g2 mb">
+    <div class="card">
+      <h4>테이블 구조 — users (Supabase Auth 확장)</h4>
+      <div class="code">
+<span class="c">-- Supabase Auth users 테이블 확장</span><br>
+<span class="k">CREATE TABLE</span> profiles (<br>
+&nbsp;&nbsp;id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">UUID</span> REFERENCES auth.users,<br>
+&nbsp;&nbsp;agency_name &nbsp;&nbsp;<span class="v">TEXT</span>,<br>
+&nbsp;&nbsp;display_name &nbsp;<span class="v">TEXT</span>,<br>
+&nbsp;&nbsp;agency_size &nbsp;&nbsp;<span class="v">TEXT</span>, <span class="c">-- '5미만'|'5-10'|'11-20'|'20이상'</span><br>
+&nbsp;&nbsp;created_at &nbsp;&nbsp;&nbsp;<span class="v">TIMESTAMPTZ</span> DEFAULT now(),<br>
+&nbsp;&nbsp;onboarded &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">BOOLEAN</span> DEFAULT false,<br>
+&nbsp;&nbsp;<span class="k">PRIMARY KEY</span> (id)<br>
+);
+      </div>
+    </div>
+    <div class="card">
+      <h4>테이블 구조 — projects</h4>
+      <div class="code">
+<span class="k">CREATE TABLE</span> projects (<br>
+&nbsp;&nbsp;id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">UUID</span> DEFAULT gen_random_uuid(),<br>
+&nbsp;&nbsp;user_id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">UUID</span> REFERENCES profiles(id),<br>
+&nbsp;&nbsp;name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TEXT</span> NOT NULL,<br>
+&nbsp;&nbsp;client_name &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TEXT</span> NOT NULL,<br>
+&nbsp;&nbsp;contract_text &nbsp;&nbsp;<span class="v">TEXT</span>, <span class="c">-- 원문</span><br>
+&nbsp;&nbsp;scope_items &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">JSONB</span>, <span class="c">-- 파싱된 범위</span><br>
+&nbsp;&nbsp;contract_amount <span class="v">NUMERIC</span>,<br>
+&nbsp;&nbsp;status &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TEXT</span> DEFAULT <span class="s">'active'</span>, <span class="c">-- active|completed</span><br>
+&nbsp;&nbsp;is_sample &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">BOOLEAN</span> DEFAULT false,<br>
+&nbsp;&nbsp;created_at &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TIMESTAMPTZ</span> DEFAULT now(),<br>
+&nbsp;&nbsp;<span class="k">PRIMARY KEY</span> (id)<br>
+);
+      </div>
+    </div>
+  </div>
 
-  <div class="ph-code mb28">
-<span class="cm">// ③ 결과 오버라이드 (프롬프트 튜닝 지표)</span>
-<span class="fn">track</span>(<span class="str">'judgment_overridden'</span>, {
-  ai_original: <span class="str">'in_scope'</span>,
-  pm_corrected: <span class="str">'out_of_scope'</span>,
-  judgment_id: judgment.id
-})</div>
+  <div class="g2 mb">
+    <div class="card">
+      <h4>테이블 구조 — judgments</h4>
+      <div class="code">
+<span class="k">CREATE TABLE</span> judgments (<br>
+&nbsp;&nbsp;id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">UUID</span> DEFAULT gen_random_uuid(),<br>
+&nbsp;&nbsp;project_id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">UUID</span> REFERENCES projects(id),<br>
+&nbsp;&nbsp;request_text &nbsp;&nbsp;&nbsp;<span class="v">TEXT</span> NOT NULL,<br>
+&nbsp;&nbsp;request_summary <span class="v">TEXT</span>, <span class="c">-- AI 요약</span><br>
+&nbsp;&nbsp;verdict &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TEXT</span> NOT NULL, <span class="c">-- IN|OUT|AMBIGUOUS</span><br>
+&nbsp;&nbsp;ai_reason &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TEXT</span>,<br>
+&nbsp;&nbsp;confidence &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">NUMERIC</span>, <span class="c">-- 0.0~1.0</span><br>
+&nbsp;&nbsp;manual_override <span class="v">BOOLEAN</span> DEFAULT false,<br>
+&nbsp;&nbsp;override_reason <span class="v">TEXT</span>,<br>
+&nbsp;&nbsp;billing_status &nbsp;<span class="v">TEXT</span> DEFAULT <span class="s">'unbilled'</span>,<br>
+&nbsp;&nbsp;<span class="c">-- unbilled|billed|accepted|rejected</span><br>
+&nbsp;&nbsp;created_at &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TIMESTAMPTZ</span> DEFAULT now(),<br>
+&nbsp;&nbsp;<span class="k">PRIMARY KEY</span> (id)<br>
+);
+      </div>
+    </div>
+    <div class="card">
+      <h4>테이블 구조 — documents</h4>
+      <div class="code">
+<span class="k">CREATE TABLE</span> documents (<br>
+&nbsp;&nbsp;id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">UUID</span> DEFAULT gen_random_uuid(),<br>
+&nbsp;&nbsp;judgment_id &nbsp;&nbsp;&nbsp;<span class="v">UUID</span> REFERENCES judgments(id),<br>
+&nbsp;&nbsp;content &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TEXT</span> NOT NULL, <span class="c">-- 문서 본문</span><br>
+&nbsp;&nbsp;extra_amount &nbsp;&nbsp;<span class="v">NUMERIC</span>, <span class="c">-- 추가 견적</span><br>
+&nbsp;&nbsp;extra_hours &nbsp;&nbsp;&nbsp;<span class="v">NUMERIC</span>, <span class="c">-- 추가 공수</span><br>
+&nbsp;&nbsp;copied_at &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TIMESTAMPTZ</span>, <span class="c">-- 복사 시각</span><br>
+&nbsp;&nbsp;copy_count &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">INT</span> DEFAULT 0,<br>
+&nbsp;&nbsp;created_at &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TIMESTAMPTZ</span> DEFAULT now(),<br>
+&nbsp;&nbsp;updated_at &nbsp;&nbsp;&nbsp;&nbsp;<span class="v">TIMESTAMPTZ</span>,<br>
+&nbsp;&nbsp;<span class="k">PRIMARY KEY</span> (id)<br>
+);
+      </div>
+    </div>
+  </div>
 
-</div>s
+  <div class="card">
+    <h4>RLS (Row Level Security) 정책</h4>
+    <div class="g3">
+      <div>
+        <ul class="cl">
+          <li>모든 테이블에 RLS 활성화 필수</li>
+          <li>profiles: 본인 row만 읽기/수정</li>
+          <li>projects: user_id = auth.uid()만 접근</li>
+        </ul>
+      </div>
+      <div>
+        <ul class="cl">
+          <li>judgments: project의 user_id 기준 접근</li>
+          <li>documents: judgment → project 체인 검증</li>
+          <li class="w">INSERT 시 user_id 자동 주입 필수</li>
+        </ul>
+      </div>
+      <div>
+        <ul class="cl">
+          <li class="n">다른 사용자 데이터 크로스 접근 절대 금지</li>
+          <li class="n">API Route에서 서비스 롤 키 사용 금지</li>
+          <li class="p">Supabase Edge Function으로 AI 호출 격리</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 5: 트래킹 이벤트 ===== -->
+<div class="page" id="page-tracking">
+  <div class="sec-hdr">
+    <h2>트래킹 이벤트 정의</h2>
+    <p>PostHog 기반 행동 데이터 수집 설계. 가설 검증과 이탈 분석을 위한 핵심 이벤트 목록</p>
+  </div>
+
+  <div class="g3 mb">
+    <div class="card hl">
+      <h4>트래킹 전략 원칙</h4>
+      <ul class="cl">
+        <li>가설 검증에 직접 연결된 이벤트만 수집</li>
+        <li>이벤트명: snake_case, 동사_명사 형식</li>
+        <li>공통 속성은 모든 이벤트에 포함</li>
+        <li>PII (개인정보) 절대 이벤트에 포함 금지</li>
+        <li class="w">과도한 이벤트 수집은 분석 복잡도 증가</li>
+        <li class="n">비밀번호, 이메일 원문 포함 금지</li>
+      </ul>
+    </div>
+    <div class="card hl g">
+      <h4>공통 속성 (모든 이벤트 포함)</h4>
+      <div class="code" style="font-size:11px;">
+{<br>
+&nbsp;<span class="k">"user_id"</span>: <span class="s">"uuid"</span>, <span class="c">// 익명화</span><br>
+&nbsp;<span class="k">"session_id"</span>: <span class="s">"uuid"</span>,<br>
+&nbsp;<span class="k">"agency_size"</span>: <span class="s">"5-10"</span>,<br>
+&nbsp;<span class="k">"plan"</span>: <span class="s">"beta_free"</span>,<br>
+&nbsp;<span class="k">"platform"</span>: <span class="s">"web"</span>,<br>
+&nbsp;<span class="k">"timestamp"</span>: <span class="s">"ISO8601"</span><br>
+}
+      </div>
+    </div>
+    <div class="card hl y">
+      <h4>검증 가설 매핑</h4>
+      <div class="kv"><span class="kk">H1 문제 가설</span><span class="kv-v" style="color:var(--blue);">획득 이벤트</span></div>
+      <div class="kv"><span class="kk">H2 솔루션 가설</span><span class="kv-v" style="color:var(--green);">활성화 이벤트</span></div>
+      <div class="kv"><span class="kk">H3 수익 가설</span><span class="kv-v" style="color:var(--yellow);">전환 이벤트</span></div>
+      <div class="kv"><span class="kk">이탈 분석</span><span class="kv-v" style="color:var(--red);">Funnel 이벤트</span></div>
+      <div class="kv"><span class="kk">기능 만족도</span><span class="kv-v" style="color:var(--purple);">참여 이벤트</span></div>
+    </div>
+  </div>
+
+  <!-- 이벤트 테이블 -->
+  <div class="card mb">
+    <h4>이벤트 정의 전체 목록</h4>
+    <div class="tbl-wrap">
+      <table class="ev-table">
+        <thead>
+          <tr>
+            <th>이벤트명</th>
+            <th>발생 시점</th>
+            <th>추가 속성</th>
+            <th>가설</th>
+            <th>우선순위</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 획득 -->
+          <tr><td colspan="5" class="ev-group">🔵 A. 획득 이벤트 (Acquisition) — H1 검증</td></tr>
+          <tr>
+            <td>landing_page_viewed</td>
+            <td>랜딩 페이지 최초 진입</td>
+            <td>referrer, utm_source, utm_medium, utm_campaign</td>
+            <td><span class="tag tb">H1</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>landing_cta_clicked</td>
+            <td>랜딩 CTA 버튼 클릭</td>
+            <td>cta_location (hero/mid/footer), cta_text</td>
+            <td><span class="tag tb">H1</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>signup_started</td>
+            <td>회원가입 폼 진입</td>
+            <td>entry_point (landing/direct)</td>
+            <td><span class="tag tb">H1</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>signup_completed</td>
+            <td>이메일 인증 완료</td>
+            <td>signup_method (email), time_to_complete_sec</td>
+            <td><span class="tag tb">H1</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>signup_abandoned</td>
+            <td>가입 폼 이탈 (5분 비활성)</td>
+            <td>last_step (email_input/verification_pending)</td>
+            <td><span class="tag tb">H1</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+          <!-- 온보딩 -->
+          <tr><td colspan="5" class="ev-group">🟢 B. 온보딩 이벤트 (Onboarding) — Funnel 분석</td></tr>
+          <tr>
+            <td>onboarding_step_viewed</td>
+            <td>온보딩 각 단계 진입</td>
+            <td>step_number (1~5), step_name</td>
+            <td><span class="tag tg">Funnel</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>onboarding_step_skipped</td>
+            <td>단계 "건너뛰기" 클릭</td>
+            <td>step_number, step_name</td>
+            <td><span class="tag tg">Funnel</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>project_created</td>
+            <td>첫 프로젝트 생성 완료</td>
+            <td>is_first_project (bool), is_sample (bool)</td>
+            <td><span class="tag tg">Funnel</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>contract_scope_saved</td>
+            <td>계약 범위 저장 완료</td>
+            <td>input_method (paste/manual), char_count, scope_item_count</td>
+            <td><span class="tag tg">Funnel</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>contract_parse_failed</td>
+            <td>AI 계약서 파싱 실패</td>
+            <td>error_type, char_count</td>
+            <td><span class="tag tr">이탈</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+          <tr>
+            <td>onboarding_completed</td>
+            <td>온보딩 전 단계 완료</td>
+            <td>total_time_sec, steps_skipped_count</td>
+            <td><span class="tag tg">Funnel</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <!-- 활성화 -->
+          <tr><td colspan="5" class="ev-group">⚡ C. 활성화 이벤트 (Activation) — H2 검증</td></tr>
+          <tr>
+            <td>judgment_started</td>
+            <td>요청 텍스트 입력 후 판정 버튼 클릭</td>
+            <td>project_id (hashed), char_count</td>
+            <td><span class="tag tg">H2</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>judgment_completed</td>
+            <td>AI 판정 결과 수신 완료</td>
+            <td>verdict (IN/OUT/AMBIGUOUS), confidence, response_time_ms, is_first_judgment</td>
+            <td><span class="tag tg">H2</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>judgment_failed</td>
+            <td>AI 판정 API 오류</td>
+            <td>error_type (timeout/api_error), retry_count</td>
+            <td><span class="tag tr">이탈</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>judgment_overridden</td>
+            <td>PM이 판정 결과 수동 수정</td>
+            <td>original_verdict, new_verdict, has_reason (bool)</td>
+            <td><span class="tag tg">H2 품질</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+          <tr>
+            <td>aha_moment_reached</td>
+            <td>첫 OUT 판정 완료 (가장 중요)</td>
+            <td>time_from_signup_min, steps_taken, project_count</td>
+            <td><span class="tag tg">H2</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <!-- 문서 -->
+          <tr><td colspan="5" class="ev-group">📄 D. 문서 생성 이벤트 — H2 검증 (행동 완료)</td></tr>
+          <tr>
+            <td>document_generation_started</td>
+            <td>"문서 생성" 버튼 클릭</td>
+            <td>verdict, has_amount (bool)</td>
+            <td><span class="tag tg">H2</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>document_generated</td>
+            <td>청구 근거 문서 생성 완료</td>
+            <td>response_time_ms, char_count</td>
+            <td><span class="tag tg">H2</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>document_edited</td>
+            <td>생성된 문서 내용 수정</td>
+            <td>edit_type (amount/hours/content), time_to_edit_sec</td>
+            <td><span class="tag tg">H2 품질</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+          <tr>
+            <td>document_copied</td>
+            <td>클립보드 복사 버튼 클릭 ⭐핵심</td>
+            <td>has_amount (bool), has_hours (bool), copy_count_total</td>
+            <td><span class="tag tg">H2 완료</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <!-- 참여 -->
+          <tr><td colspan="5" class="ev-group">🔄 E. 참여 & 리텐션 이벤트</td></tr>
+          <tr>
+            <td>session_started</td>
+            <td>로그인 후 첫 페이지 진입</td>
+            <td>days_since_signup, last_session_days_ago</td>
+            <td><span class="tag tp">리텐션</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>dashboard_viewed</td>
+            <td>대시보드 페이지 진입</td>
+            <td>project_count, total_judgment_count</td>
+            <td><span class="tag tp">참여</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+          <tr>
+            <td>history_viewed</td>
+            <td>판정 히스토리 페이지 진입</td>
+            <td>project_id (hashed), item_count_visible</td>
+            <td><span class="tag tp">참여</span></td>
+            <td><span class="pri p2">P2</span></td>
+          </tr>
+          <tr>
+            <td>billing_status_updated</td>
+            <td>청구 상태 변경 (미청구→청구 등)</td>
+            <td>from_status, to_status</td>
+            <td><span class="tag ty">H3 신호</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+          <!-- 전환 -->
+          <tr><td colspan="5" class="ev-group">💰 F. 전환 이벤트 — H3 검증</td></tr>
+          <tr>
+            <td>pricing_page_viewed</td>
+            <td>가격 페이지 진입</td>
+            <td>entry_source, judgments_made_count</td>
+            <td><span class="tag ty">H3</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>upgrade_cta_clicked</td>
+            <td>유료 플랜 CTA 클릭</td>
+            <td>plan_name, cta_location</td>
+            <td><span class="tag ty">H3</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>subscription_started</td>
+            <td>유료 구독 결제 완료</td>
+            <td>plan_name, amount_krw, days_since_signup</td>
+            <td><span class="tag ty">H3 완료</span></td>
+            <td><span class="pri p0">P0</span></td>
+          </tr>
+          <tr>
+            <td>subscription_cancelled</td>
+            <td>구독 해지</td>
+            <td>reason (선택), days_as_paid, total_judgments</td>
+            <td><span class="tag ty">H3 이탈</span></td>
+            <td><span class="pri p1">P1</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FUNNEL -->
+  <div class="g2">
+    <div class="card">
+      <h4>핵심 퍼널 정의 (PostHog Funnel)</h4>
+      <div class="vflow">
+        <div class="vf-item">
+          <div class="vf-dot" style="font-size:9px;">F1</div>
+          <div class="vf-body"><h3>획득 퍼널</h3><p>landing_page_viewed → landing_cta_clicked → signup_completed</p><span class="tag ty">목표 CVR: 3%</span></div>
+        </div>
+        <div class="vf-item">
+          <div class="vf-dot g" style="font-size:9px;">F2</div>
+          <div class="vf-body"><h3>Aha 퍼널</h3><p>signup_completed → project_created → contract_scope_saved → judgment_completed → aha_moment_reached</p><span class="tag tg">목표: ≥ 60%</span></div>
+        </div>
+        <div class="vf-item">
+          <div class="vf-dot g" style="font-size:9px;">F3</div>
+          <div class="vf-body"><h3>가치 완료 퍼널</h3><p>aha_moment_reached → document_generated → document_copied</p><span class="tag tg">목표: ≥ 40%</span></div>
+        </div>
+        <div class="vf-item" style="padding-bottom:0;">
+          <div class="vf-dot y" style="font-size:9px;">F4</div>
+          <div class="vf-body"><h3>수익 전환 퍼널</h3><p>pricing_page_viewed → upgrade_cta_clicked → subscription_started</p><span class="tag ty">목표 CVR: 10%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h4>PostHog 구현 코드 예시</h4>
+      <div class="code">
+<span class="c">// 초기화</span><br>
+<span class="k">import</span> posthog <span class="k">from</span> <span class="s">'posthog-js'</span><br><br>
+posthog.init(<span class="s">'phc_YOUR_KEY'</span>, {<br>
+&nbsp;&nbsp;api_host: <span class="s">'https://app.posthog.com'</span>,<br>
+&nbsp;&nbsp;capture_pageview: <span class="n">true</span>,<br>
+&nbsp;&nbsp;persistence: <span class="s">'localStorage'</span><br>
+})<br><br>
+<span class="c">// Aha Moment 이벤트 예시</span><br>
+posthog.capture(<span class="s">'aha_moment_reached'</span>, {<br>
+&nbsp;&nbsp;...commonProps, <span class="c">// 공통 속성</span><br>
+&nbsp;&nbsp;time_from_signup_min: <span class="n">8.3</span>,<br>
+&nbsp;&nbsp;steps_taken: <span class="n">4</span>,<br>
+&nbsp;&nbsp;is_first_judgment: <span class="n">true</span><br>
+})<br><br>
+<span class="c">// 사용자 식별 (가입 후)</span><br>
+posthog.identify(hashedUserId, {<br>
+&nbsp;&nbsp;agency_size: <span class="s">'5-10'</span>,<br>
+&nbsp;&nbsp;plan: <span class="s">'beta_free'</span><br>
+})
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 6: 비기능 요구사항 ===== -->
+<div class="page" id="page-nonfunc">
+  <div class="sec-hdr">
+    <h2>비기능 요구사항</h2>
+    <p>성능, 보안, 접근성, 운영 관련 요구사항 명세</p>
+  </div>
+
+  <div class="g3 mb">
+    <div class="card hl">
+      <h4>성능 요구사항</h4>
+      <div class="fi"><div class="fn b">P</div><div><h3>페이지 로드</h3><p>LCP ≤ 2.5초 (3G 환경 기준). 번들 크기 300KB 이하</p></div></div>
+      <div class="fi"><div class="fn b">P</div><div><h3>AI 판정 응답</h3><p>평균 3초, 최대 15초. 15초 초과 시 타임아웃 + 재시도 안내</p></div></div>
+      <div class="fi"><div class="fn b">P</div><div><h3>문서 생성</h3><p>평균 3초. 로딩 인디케이터 필수. 스트리밍 응답 고려</p></div></div>
+      <div class="fi"><div class="fn b">P</div><div><h3>Supabase 쿼리</h3><p>단순 조회 100ms 이하. 복잡 집계 500ms 이하</p></div></div>
+    </div>
+    <div class="card hl g">
+      <h4>보안 요구사항</h4>
+      <div class="fi"><div class="fn g">S</div><div><h3>인증</h3><p>Supabase Auth. JWT 토큰 만료 1시간. Refresh 7일</p></div></div>
+      <div class="fi"><div class="fn g">S</div><div><h3>데이터 격리</h3><p>RLS 전 테이블 적용. 타 사용자 데이터 접근 불가</p></div></div>
+      <div class="fi"><div class="fn g">S</div><div><h3>API 키 보안</h3><p>Claude API 키 서버사이드(Edge Function)에서만 사용. 클라이언트 노출 금지</p></div></div>
+      <div class="fi"><div class="fn g">S</div><div><h3>입력 검증</h3><p>XSS 방지. 모든 사용자 입력 서버사이드 검증</p></div></div>
+    </div>
+    <div class="card hl y">
+      <h4>운영 요구사항</h4>
+      <div class="fi"><div class="fn y">O</div><div><h3>가용성</h3><p>목표 99.5% uptime. Supabase + Vercel SLA 기반</p></div></div>
+      <div class="fi"><div class="fn y">O</div><div><h3>오류 모니터링</h3><p>Sentry 연동. 500 에러 즉시 알림 (Slack)</p></div></div>
+      <div class="fi"><div class="fn y">O</div><div><h3>API 비용 관리</h3><p>사용자당 일일 판정 50건 제한 (베타). Claude API 비용 임계값 알림</p></div></div>
+      <div class="fi"><div class="fn y">O</div><div><h3>백업</h3><p>Supabase 자동 백업 일 1회. 7일 보관</p></div></div>
+    </div>
+  </div>
+
+  <div class="g2 mb">
+    <div class="card">
+      <h4>접근성 & UX 요구사항</h4>
+      <ul class="cl">
+        <li>모바일 반응형 (375px~ 지원)</li>
+        <li>키보드 네비게이션 지원</li>
+        <li>로딩 상태 모든 비동기 액션에 표시</li>
+        <li>에러 메시지 사용자 친화적 (기술 용어 금지)</li>
+        <li>토스트 알림: 성공 2초, 오류 4초 자동 닫힘</li>
+        <li>빈 상태 UI 모든 리스트 페이지에 적용</li>
+        <li class="w">색맹 고려: 색상 단독 정보 전달 금지 (아이콘 병행)</li>
+        <li class="n">인터넷 익스플로러 지원 불필요</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Claude API 사용량 제어 (베타 비용 관리)</h4>
+      <table>
+        <thead><tr><th>구분</th><th>제한</th><th>초과 시</th></tr></thead>
+        <tbody>
+          <tr><td>판정 (C-02)</td><td>사용자당 50건/일</td><td>안내 메시지 + 내일 재시도</td></tr>
+          <tr><td>계약서 파싱 (Prompt 01)</td><td>프로젝트당 10회</td><td>수동 입력 유도</td></tr>
+          <tr><td>문서 생성 (Prompt 03)</td><td>50건/일 (전체 공유)</td><td>대기열 또는 재시도</td></tr>
+          <tr><td>월 API 비용 임계값</td><td>$50 초과 시</td><td>Slack 자동 알림</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>MVP 완료 정의 (Definition of Done)</h4>
+    <div class="g3">
+      <div>
+        <div style="color:var(--green);font-weight:700;font-size:12px;margin-bottom:8px;">✅ 기능 완료 기준</div>
+        <ul class="cl">
+          <li>A-01~A-03 인증 플로우 정상 동작</li>
+          <li>B-01~B-02 프로젝트 생성 및 계약 입력</li>
+          <li>C-01~C-03 AI 판정 + 결과 표시</li>
+          <li>D-01~D-03 문서 생성 + 복사</li>
+          <li>E-01 홈 대시보드 집계 정상</li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--blue);font-weight:700;font-size:12px;margin-bottom:8px;">📊 트래킹 완료 기준</div>
+        <ul class="cl">
+          <li>P0 이벤트 전체 발화 확인</li>
+          <li>PostHog 대시보드 퍼널 설정</li>
+          <li>Aha Moment 이벤트 정상 수집</li>
+          <li>document_copied 이벤트 검증</li>
+          <li>signup → aha 퍼널 가시화</li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--yellow);font-weight:700;font-size:12px;margin-bottom:8px;">🔒 보안/성능 기준</div>
+        <ul class="cl">
+          <li>RLS 정책 전 테이블 검증</li>
+          <li>Claude API 키 클라이언트 미노출</li>
+          <li>LCP 2.5초 이하 확인</li>
+          <li>타임아웃 & 오류 처리 전 케이스</li>
+          <li>모바일 375px 레이아웃 확인</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
 
 <script>
-function go(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('page-' + id).classList.add('on');
-  el.classList.add('on');
-}
+const btn = document.getElementById('themeToggle');
+btn.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+});
+document.querySelectorAll('.tab-btn').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-' + tab.dataset.tab).classList.add('active');
+  });
+});
 </script>
 </body>
 </html>
