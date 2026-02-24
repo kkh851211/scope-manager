@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI — PRD for AI + 트래킹 이벤트</title>
+<style>
+:root {
+  --bg:#0f1117; --s1:#1a1f2e; --s2:#1e2538; --s3:#232b3e;
+  --t1:#e8eaf0; --t2:#b0b8cc; --t3:#8c95aa; --bd:#232b3e;
+  --blue:#4f80ff; --green:#10b981; --purple:#7c5cfc;
+  --orange:#f59e0b; --red:#ef4444; --cyan:#06b6d4;
+}
+body.light {
+  --bg:#f5f7fa; --s1:#ffffff; --s2:#eef1f7; --s3:#e2e8f0;
+  --t1:#1a1f2e; --t2:#3a4258; --t3:#5a6478; --bd:#d1d9e6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);transition:background .2s,color .2s;min-height:100vh;font-size:14px;line-height:1.6;}
+
+/* ── HEADER ── */
+header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:background .2s;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;}
+.logo-text{font-size:18px;font-weight:700;color:var(--t1);}
+.logo-text span{color:var(--blue);}
+.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.bdg-blue{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);}
+.bdg-green{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
+.toggle-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:5px 11px;cursor:pointer;font-size:13px;color:var(--t1);transition:background .2s;}
+.toggle-btn:hover{background:var(--bd);}
+
+/* ── NAV ── */
+nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;overflow-x:auto;transition:background .2s;}
+nav::-webkit-scrollbar{height:0;}
+.tab{padding:14px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;user-select:none;}
+.tab:hover{color:var(--t2);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* ── LAYOUT ── */
+main{padding:28px 24px;max-width:1140px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.span2{grid-column:span 2;}
+.gap{height:14px;}
+
+/* ── CARD ── */
+.card{background:var(--s1);border-radius:12px;padding:18px;border:1px solid var(--bd);transition:background .2s,border-color .2s;}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:12px;}
+.sec-hd{margin-bottom:20px;}
+.sec-hd h2{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.sec-hd p{font-size:13px;color:var(--t3);}
+
+/* ── TAG ── */
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;}
+.tbl{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue);}
+.tgr{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green);}
+.tor{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange);}
+.trd{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red);}
+.tpu{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple);}
+.tcy{background:color-mix(in srgb,var(--cyan) 18%,transparent);color:var(--cyan);}
+.tgray{background:var(--s3);color:var(--t3);}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{background:var(--s2);color:var(--t3);font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd);}
+td{padding:9px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--s2);}
+code{background:var(--s3);color:var(--cyan);padding:2px 6px;border-radius:4px;font-family:'Courier New',monospace;font-size:11px;}
+
+/* ── PROMPT BOX ── */
+.prompt-box{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:14px;font-family:'Courier New',monospace;font-size:12px;color:var(--t2);line-height:1.7;white-space:pre-wrap;position:relative;}
+.prompt-box .copy-btn{position:absolute;top:8px;right:8px;background:var(--s3);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;color:var(--t3);font-family:inherit;}
+.prompt-box .copy-btn:hover{color:var(--t1);}
+.prompt-box .kw{color:var(--blue);}
+.prompt-box .kv{color:var(--green);}
+.prompt-box .cmt{color:var(--t3);}
+
+/* ── SPEC BLOCK ── */
+.spec{border-left:3px solid var(--blue);padding:10px 14px;background:var(--s2);border-radius:0 8px 8px 0;margin-bottom:8px;}
+.spec .spec-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.spec p,.spec li{font-size:12px;color:var(--t2);}
+.spec ul{padding-left:16px;}
+.spec-green{border-color:var(--green);}
+.spec-orange{border-color:var(--orange);}
+.spec-red{border-color:var(--red);}
+.spec-purple{border-color:var(--purple);}
+
+/* ── REQUIREMENT CARD ── */
+.req-card{border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.req-head{background:var(--s2);padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.req-head .rh-id{font-family:'Courier New',monospace;font-size:11px;color:var(--blue);font-weight:700;min-width:60px;}
+.req-head .rh-title{font-size:13px;font-weight:600;color:var(--t1);flex:1;}
+.req-head .rh-toggle{color:var(--t3);font-size:14px;transition:transform .2s;}
+.req-head.open .rh-toggle{transform:rotate(180deg);}
+.req-body{padding:14px;display:none;border-top:1px solid var(--bd);}
+.req-body.open{display:block;}
+.req-row{display:flex;gap:6px;margin-bottom:8px;align-items:flex-start;}
+.req-label{font-size:10px;font-weight:700;color:var(--t3);min-width:70px;padding-top:2px;}
+.req-val{font-size:12px;color:var(--t2);flex:1;}
+.req-val code{font-size:11px;}
+
+/* ── EVENT ROW ── */
+.ev-group{margin-bottom:20px;}
+.ev-group-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.ev-card{border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.ev-head{padding:10px 14px;background:var(--s2);display:flex;align-items:center;gap:8px;cursor:pointer;}
+.ev-name{font-family:'Courier New',monospace;font-size:12px;color:var(--cyan);font-weight:700;flex:1;}
+.ev-desc{font-size:12px;color:var(--t2);flex:2;}
+.ev-phase{font-size:10px;}
+.ev-body{padding:12px 14px;display:none;border-top:1px solid var(--bd);}
+.ev-body.open{display:block;}
+.prop-table{width:100%;font-size:11px;}
+.prop-table th{font-size:10px;padding:6px 8px;}
+.prop-table td{padding:6px 8px;}
+
+/* ── FUNNEL ── */
+.funnel{display:flex;flex-direction:column;gap:0;}
+.funnel-step{position:relative;padding:12px 16px 12px 20px;border-left:2px solid var(--bd);margin-left:20px;}
+.funnel-step::before{content:'';position:absolute;left:-6px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--bd);}
+.funnel-step.active-step::before{background:var(--blue);}
+.funnel-step.active-step{border-color:var(--blue);}
+.funnel-step.success-step::before{background:var(--green);}
+.funnel-step.aha-step::before{background:var(--orange);}
+.fs-label{font-size:12px;font-weight:700;color:var(--t1);}
+.fs-event{font-family:'Courier New',monospace;font-size:11px;color:var(--cyan);margin-top:2px;}
+.fs-metric{font-size:11px;color:var(--t3);}
+
+/* ── JSON PREVIEW ── */
+.json-box{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:11px;color:var(--t2);overflow-x:auto;line-height:1.6;}
+.jk{color:var(--blue);}
+.jv{color:var(--green);}
+.js{color:var(--orange);}
+.jn{color:var(--purple);}
+
+/* ── HYPOTHESIS CARD ── */
+.hyp{border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px;}
+.hyp-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+
+@media(max-width:700px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  main{padding:14px 12px;}
+  .tab{padding:12px 10px;font-size:11px;}
+  th,td{padding:7px 8px;}
+}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">M</div>
+    <div class="logo-text">My<span>ROI</span></div>
+    <div style="display:flex;gap:6px;">
+      <span class="bdg bdg-blue">PRD for AI</span>
+      <span class="bdg bdg-green">트래킹 정의</span>
+    </div>
+  </div>
+  <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+</header>
+
+<nav id="mainNav">
+  <div class="tab active">📋 PRD 개요</div>
+  <div class="tab">🧩 기능 요구사항</div>
+  <div class="tab">🤖 AI 프롬프트 설계</div>
+  <div class="tab">📡 트래킹 이벤트</div>
+  <div class="tab">🔬 가설 검증 매트릭스</div>
+</nav>
+
+<main>
+
+<!-- ══════════ TAB 1: PRD 개요 ══════════ -->
+<div class="page active" id="page-0">
+  <div class="sec-hd">
+    <h2>PRD 개요 — MyROI MVP</h2>
+    <p>린 캔버스 v6.0 기반 · AI-First PRD · MVP 즉시 배포 전략</p>
+  </div>
+
+  <!-- 문서 메타 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">문서 정보</div>
+    <div class="g3">
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">제품명</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);">MyROI</div>
+        <div style="font-size:12px;color:var(--t3);">숨은 헌신 → 재무 성과 변환 SaaS</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">문서 버전</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);">PRD v1.0</div>
+        <div style="font-size:12px;color:var(--t3);">린 캔버스 v6.0 연동</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">MVP 범위</div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1);">4주 압축</div>
+        <div style="font-size:12px;color:var(--t3);">소급 텍스트 입력 단일 실험</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전략 맥락 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">전략적 배경 — 왜 인터뷰 대신 MVP 즉시 배포인가</div>
+    <div class="g3">
+      <div class="spec">
+        <div class="spec-title">❌ 기존 린 스타트업 경로</div>
+        <p>고객 인터뷰 → 문제 검증 → 솔루션 검증 → MVP 개발</p>
+        <p style="margin-top:6px;color:var(--red);font-size:11px;">말(intention) ≠ 행동(behavior) 불일치로 노이즈 과다</p>
+      </div>
+      <div class="spec spec-green">
+        <div class="spec-title">✅ 채택 전략</div>
+        <p>MVP 즉시 배포 → 실제 사용·이탈 패턴으로 가설 검증</p>
+        <p style="margin-top:6px;color:var(--green);font-size:11px;">AI 덕분에 MVP 개발 비용 &lt; 인터뷰 비용 역전 현상</p>
+      </div>
+      <div class="spec spec-orange">
+        <div class="spec-title">🎯 검증 신호</div>
+        <p>WAU · Activation · CVR 행동 데이터가 인터뷰 응답보다 정직</p>
+        <p style="margin-top:6px;color:var(--orange);font-size:11px;">"만들어 보여주기"가 "물어보기"보다 빠르고 정확</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 제품 목표 -->
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="card-title">제품 목표 (MVP 4주)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="spec spec-green">
+          <div class="spec-title">Goal 1 — 핵심 가설 검증</div>
+          <p>자유 텍스트 → AI 재무 금액 변환이 "쓰고 싶다"는 욕구를 만드는가?</p>
+          <p style="color:var(--green);font-size:11px;">측정: 데모 완료율 &gt; 40%</p>
+        </div>
+        <div class="spec spec-green">
+          <div class="spec-title">Goal 2 — Activation 달성</div>
+          <p>소급 입력 → 첫 피치덱 PDF 생성까지 완주 비율</p>
+          <p style="color:var(--green);font-size:11px;">측정: 가입자 중 &gt; 50% 첫 세션 완주</p>
+        </div>
+        <div class="spec">
+          <div class="spec-title">Goal 3 — WAU 습관 형성</div>
+          <p>이슈 보관함 재방문으로 누적 금액 확인 루틴 형성</p>
+          <p style="color:var(--blue);font-size:11px;">측정: WAU 초기 15% → 6개월 30%</p>
+        </div>
+        <div class="spec spec-purple">
+          <div class="spec-title">Goal 4 — B2B WTP 검증</div>
+          <p>경영진이 대시보드 데이터에 실제 지불 의사를 보이는가?</p>
+          <p style="color:var(--purple);font-size:11px;">측정: 데모 요청 월 10건 이상</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">비기능 요구사항 (Non-Functional)</div>
+      <table>
+        <thead><tr><th>항목</th><th>기준</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>AI 응답 속도</td><td>&lt; 15초</td><td>GPT-4o-mini 경량 모델</td></tr>
+          <tr><td>LLM 비용</td><td>유저당 월 50~100원</td><td>프리미엄 지속 가능성</td></tr>
+          <tr><td>가용성</td><td>99% 이상</td><td>GitHub Pages + CDN</td></tr>
+          <tr><td>모바일 반응형</td><td>360px 이상 지원</td><td>피치덱 제출 시나리오</td></tr>
+          <tr><td>PDF 생성</td><td>&lt; 5초</td><td>클라이언트 렌더링</td></tr>
+          <tr><td>데이터 보안</td><td>암호화 저장</td><td>업무 민감정보 처리</td></tr>
+          <tr><td>로그인 방식</td><td>소셜 OAuth</td><td>가입 마찰 최소화</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MVP 범위 in/out -->
+  <div class="card">
+    <div class="card-title">MVP 범위 — In Scope / Out of Scope</div>
+    <div class="g2">
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;"><span class="tag tgr">IN SCOPE · 4주 MVP</span></div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">자유 텍스트 소급 입력 (1~3개 이슈)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">LLM 기반 이슈 구조화 + 예상 방어 금액(M/M) 산출</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">Human-in-the-loop 금액 직접 수정</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">캡처/증거자료 첨부 (이미지 업로드)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">연봉 피치덱 PDF 원클릭 생성</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">이슈 보관함 (CRUD)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">소셜 로그인 (Google OAuth)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">Pricing 페이지 + B2B 데모 요청 폼 (WTP 탐색)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--green);font-size:14px;">✓</span><span style="font-size:12px;color:var(--t2);">트래킹 이벤트 전체 심기 (행동 데이터 수집)</span></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;"><span class="tag trd">OUT OF SCOPE · 추후 검증 후</span></div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">이메일/슬랙 자동 파싱 연동 (Scope Creep 차단)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">B2B 조직 ROI 대시보드 (WTP 10건 달성 후 착수)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">실시간 협업 기능 (다중 유저 공동 편집)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">팀/조직 계정 관리 (per-seat 청구)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">결제 시스템 (Freemium 검증 우선)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">다국어 지원 (한국어 SME 타겟 집중)</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--red);font-size:14px;">✗</span><span style="font-size:12px;color:var(--t3);">HR 시스템 API 연동 (Jira/Asana 등)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB 2: 기능 요구사항 ══════════ -->
+<div class="page" id="page-1">
+  <div class="sec-hd">
+    <h2>기능 요구사항 명세</h2>
+    <p>화면별 기능 요구사항 · 클릭해서 상세 펼치기</p>
+  </div>
+
+  <!-- F-001 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-001</span>
+      <span class="rh-title">자유 텍스트 이슈 입력</span>
+      <span class="tag trd" style="font-size:10px;">P0 · 핵심</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">복잡한 연동 없이 과거 이슈 기억만으로 AI 환산 진입. 입력 장벽 최소화.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">사용자가 자유 텍스트 형식으로 과거 이슈를 1~3개 입력. 직무 유형별 예시 문장 자동 제안. 500자 제한. 실시간 글자 수 카운터.</span></div>
+      <div class="req-row"><span class="req-label">입력</span><span class="req-val">사용자 입력 텍스트 (최소 20자 이상 시 AI 분석 버튼 활성화)</span></div>
+      <div class="req-row"><span class="req-label">출력</span><span class="req-val">이슈 텍스트 배열 → AI 분석 엔드포인트 전달</span></div>
+      <div class="req-row"><span class="req-label">예외 처리</span><span class="req-val">20자 미만 시 "좀 더 구체적으로 적어주세요" 인라인 에러. API 타임아웃 15초 초과 시 재시도 옵션 제공.</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>issue_input_started</code> · <code>issue_input_completed</code> · <code>ai_analysis_triggered</code></span></div>
+      <div class="req-row"><span class="req-label">성공 기준</span><span class="req-val">입력 완료율 &gt; 50% (입력 시작 → AI 분석 트리거 기준)</span></div>
+    </div>
+  </div>
+
+  <!-- F-002 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-002</span>
+      <span class="rh-title">AI 이슈 구조화 + 재무 금액 산출</span>
+      <span class="tag trd" style="font-size:10px;">P0 · 핵심</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">비정형 헌신 텍스트 → 재무적 절감액(Cost Saving) 변환. 핵심 가설 검증 포인트.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">LLM(GPT-4o-mini)이 이슈를 5개 카테고리로 분류 (위기수습/사전방어/역할초과/지식이전/관계관리). M/M 단가 기반 예상 방어 금액 계산. AI 신뢰도 점수(%) 함께 반환.</span></div>
+      <div class="req-row"><span class="req-label">출력 형식</span><span class="req-val">카테고리 · 예상 금액(원) · M/M 환산 · 신뢰도(%) · 근거 요약 1~2문장</span></div>
+      <div class="req-row"><span class="req-label">예외 처리</span><span class="req-val">신뢰도 50% 미만 시 "입력을 더 구체화하면 정확도가 높아집니다" 안내. API 오류 시 재시도 버튼.</span></div>
+      <div class="req-row"><span class="req-label">LLM 비용</span><span class="req-val">GPT-4o-mini 기준 유저당 월 50~100원 수준. 입력 토큰 최대 800토큰 제한.</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>ai_result_displayed</code> · <code>ai_confidence_score</code></span></div>
+    </div>
+  </div>
+
+  <!-- F-003 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-003</span>
+      <span class="rh-title">Human-in-the-loop 금액 검토 & 수정</span>
+      <span class="tag trd" style="font-size:10px;">P0 · 핵심</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">AI 산출 금액의 신뢰도를 실무자 컨텍스트로 보완. 사용자 에이전시 부여로 제품 신뢰 향상.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">AI 산출 금액을 직접 수정 가능 (숫자 필드 편집). 100만원 단위 +/- 스텝 버튼. 수정 이력 저장. 캡처/증거자료 이미지 첨부 (최대 3개, 각 5MB 이하).</span></div>
+      <div class="req-row"><span class="req-label">수정 범위</span><span class="req-val">AI 산출 금액의 ±300% 이내. 0원 입력 불가. 범위 초과 시 확인 팝업.</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>amount_edited</code> · <code>evidence_attached</code> · <code>issue_confirmed</code></span></div>
+      <div class="req-row"><span class="req-label">성공 기준</span><span class="req-val">수정 없이 그대로 확정하는 비율 추적 → AI 정확도 지표로 활용</span></div>
+    </div>
+  </div>
+
+  <!-- F-004 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-004</span>
+      <span class="rh-title">연봉 피치덱 PDF 원클릭 생성</span>
+      <span class="tag tor" style="font-size:10px;">P1</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">Activation 달성 포인트. 협상 테이블에 즉시 사용 가능한 문서 생성.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">확정된 이슈 선택 → 1페이지 요약 피치덱 PDF 렌더링. 직무/이름/날짜 자동 삽입. 총 방어 가치 합산 표시. 다운로드 + 링크 공유 2가지 옵션.</span></div>
+      <div class="req-row"><span class="req-label">무료 제한</span><span class="req-val">월 1회 무료 생성. 2회차부터 유료 플랜 유도 팝업 (CVR 측정 포인트).</span></div>
+      <div class="req-row"><span class="req-label">PDF 구성</span><span class="req-val">헤더(이름/직무/기간) · 이슈별 카드(카테고리/설명/금액) · 총합 요약 · 면책 문구</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>pitchdeck_generated</code> · <code>pdf_downloaded</code> · <code>link_shared</code></span></div>
+      <div class="req-row"><span class="req-label">성공 기준</span><span class="req-val">Activation = 가입 후 첫 세션 내 PDF 생성 완료 (F-001 → F-004 완주)</span></div>
+    </div>
+  </div>
+
+  <!-- F-005 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-005</span>
+      <span class="rh-title">이슈 보관함 (내 성과 저장소)</span>
+      <span class="tag tor" style="font-size:10px;">P1</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">누적 금액 시각화로 재방문 동기 제공 → WAU 지표 달성 핵심.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">이슈 목록 CRUD. 카테고리별 필터링. 누적 방어 금액 상단 대시 표시. 이슈별 날짜/카테고리/금액/증거 첨부 여부 표시.</span></div>
+      <div class="req-row"><span class="req-label">WAU 유도</span><span class="req-val">"이번 달 새 이슈가 없습니다" 넛지 메시지. 마지막 입력 후 7일 경과 시 이메일 리마인더 발송.</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>vault_viewed</code> · <code>issue_added</code> · <code>issue_edited</code> · <code>issue_deleted</code></span></div>
+    </div>
+  </div>
+
+  <!-- F-006 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-006</span>
+      <span class="rh-title">온보딩 플로우 (가입 → 첫 이슈 입력 가이드)</span>
+      <span class="tag tor" style="font-size:10px;">P1</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">가입 완료 후 즉시 첫 이슈 입력까지 유도 → Activation 퍼널 이탈 최소화.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">4단계 프로그레스 바 (가입→직무선택→예시확인→첫입력). 직무 선택 시 해당 직무 이슈 예시 3개 자동 제안. "예시로 바로 시작하기" 원클릭 진입.</span></div>
+      <div class="req-row"><span class="req-label">직무 분류</span><span class="req-val">PM/기획자 · 개발자 · 디자이너 · 마케터 · 세일즈 · 기타</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>onboarding_started</code> · <code>role_selected</code> · <code>example_used</code> · <code>onboarding_completed</code></span></div>
+    </div>
+  </div>
+
+  <!-- F-007 -->
+  <div class="req-card">
+    <div class="req-head" onclick="toggleReq(this)">
+      <span class="rh-id">F-007</span>
+      <span class="rh-title">Pricing 페이지 + B2B 데모 요청 폼</span>
+      <span class="tag tpu" style="font-size:10px;">P2 · WTP 검증</span>
+      <span class="rh-toggle">▼</span>
+    </div>
+    <div class="req-body">
+      <div class="req-row"><span class="req-label">목적</span><span class="req-val">B2B 대시보드 개발 착수 전 경영진 WTP 검증. 데모 요청 월 10건 = 개발 그린라이트.</span></div>
+      <div class="req-row"><span class="req-label">기능 설명</span><span class="req-val">Free 플랜 vs B2B 플랜 비교 테이블. B2B 가격은 의도적으로 "문의하기"로 대체. 데모 요청 폼: 회사명/직함/인원수/고민/예산 범위(선택).</span></div>
+      <div class="req-row"><span class="req-label">B2B 플랜 내용</span><span class="req-val">전사 ROI 트렌드 대시보드 · 핵심 기여자 익명 감지 · 이탈 위험 선제 알림 · per-seat 구독</span></div>
+      <div class="req-row"><span class="req-label">트래킹</span><span class="req-val"><code>pricing_viewed</code> · <code>b2b_plan_clicked</code> · <code>demo_request_submitted</code></span></div>
+      <div class="req-row"><span class="req-label">성공 기준</span><span class="req-val">데모 요청 폼 제출 월 10건 → B2B 대시보드 S10 개발 착수</span></div>
+    </div>
+  </div>
+
+  <div class="gap"></div>
+  <div class="card">
+    <div class="card-title">기능 우선순위 요약</div>
+    <table>
+      <thead><tr><th>ID</th><th>기능명</th><th>우선순위</th><th>가설 연결</th><th>성공 지표</th></tr></thead>
+      <tbody>
+        <tr><td><code>F-001</code></td><td>자유 텍스트 이슈 입력</td><td><span class="tag trd">P0</span></td><td>솔루션 매력도</td><td>입력 완료율 &gt; 50%</td></tr>
+        <tr><td><code>F-002</code></td><td>AI 구조화 + 금액 산출</td><td><span class="tag trd">P0</span></td><td>핵심 가설 검증</td><td>데모 완료율 &gt; 40%</td></tr>
+        <tr><td><code>F-003</code></td><td>Human-in-loop 수정</td><td><span class="tag trd">P0</span></td><td>신뢰도 + 정확도</td><td>수정 없이 확정 비율 추적</td></tr>
+        <tr><td><code>F-004</code></td><td>피치덱 PDF 생성</td><td><span class="tag tor">P1</span></td><td>Activation 달성</td><td>첫 세션 PDF 완주율</td></tr>
+        <tr><td><code>F-005</code></td><td>이슈 보관함</td><td><span class="tag tor">P1</span></td><td>WAU 습관 형성</td><td>WAU 15% → 30%</td></tr>
+        <tr><td><code>F-006</code></td><td>온보딩 플로우</td><td><span class="tag tor">P1</span></td><td>가입→Activation 이탈 감소</td><td>온보딩 완주율 &gt; 70%</td></tr>
+        <tr><td><code>F-007</code></td><td>Pricing + B2B 데모 요청</td><td><span class="tag tpu">P2</span></td><td>Buyer WTP 검증</td><td>데모 요청 월 10건</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════ TAB 3: AI 프롬프트 설계 ══════════ -->
+<div class="page" id="page-2">
+  <div class="sec-hd">
+    <h2>AI 프롬프트 설계 (Prompt Engineering)</h2>
+    <p>핵심 가설 검증의 기술적 핵심 — 비정형 텍스트 → 재무 금액 변환 프롬프트</p>
+  </div>
+
+  <!-- System Prompt -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">System Prompt — 이슈 분류 & 금액 산출</div>
+    <div class="prompt-box">
+<span class="cmt"># Role</span>
+<span class="kw">You are a workplace contribution analyst</span> specializing in converting
+informal employee contributions into quantified financial impact.
+Your role is to help Korean workers in SMEs (50 employees or fewer)
+objectively measure the value of their hidden work.
+
+<span class="cmt"># Task</span>
+Analyze the user's issue description and return a structured JSON response
+containing: issue category, estimated defense value in KRW, M/M calculation,
+confidence score, and reasoning summary.
+
+<span class="cmt"># Issue Categories</span>
+<span class="kv">- crisis_response</span>: 위기 수습 (서버 장애, 납기 위기, 계약 무산 방지)
+<span class="kv">- preventive_defense</span>: 사전 방어 (리스크 사전 차단, 재작업 방지)
+<span class="kv">- role_overflow</span>: 역할 초과 (타 직무 공백 대체, 멀티롤)
+<span class="kv">- knowledge_transfer</span>: 지식 이전 (온보딩, 문서화, 교육)
+<span class="kv">- relationship_mgmt</span>: 관계 관리 (클라이언트 유지, 갈등 중재)
+
+<span class="cmt"># M/M Unit Cost Reference (Korean SME, IT/Agency)</span>
+<span class="kv">Junior (0-3y):</span>  3,500,000 KRW/month
+<span class="kv">Mid (3-7y):</span>     5,500,000 KRW/month
+<span class="kv">Senior (7y+):</span>   8,000,000 KRW/month
+Default if unknown: 5,500,000 KRW/month
+
+<span class="cmt"># Calculation Logic</span>
+1. Estimate time saved or cost avoided in person-months (M/M)
+2. Multiply by appropriate M/M unit cost
+3. Add any direct cost savings (contract value, error cost, etc.)
+4. Confidence: HIGH(80-100%) / MED(50-79%) / LOW(&lt;50%)
+
+<span class="cmt"># Output Format (JSON ONLY, no markdown)</span>
+{
+  "category": "crisis_response",
+  "category_label_ko": "위기 수습",
+  "estimated_amount_krw": 24000000,
+  "mm_saved": 2.4,
+  "confidence_pct": 87,
+  "reasoning": "런칭 위기 수습으로 계약 1건 유지. 계약 규모 및 재작업 비용 기준 산출.",
+  "amount_range": { "min": 18000000, "max": 32000000 }
+}
+    </div>
+  </div>
+
+  <!-- User Prompt -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">User Prompt Template</div>
+    <div class="prompt-box">
+<span class="cmt"># User Input</span>
+Analyze the following workplace contribution and return JSON:
+
+<span class="kw">User Role:</span> <span class="kv">{{role}}</span>  (e.g., PM/기획자, 개발자, 디자이너)
+<span class="kw">Experience Level:</span> <span class="kv">{{experience}}</span>  (junior/mid/senior)
+<span class="kw">Issue Description:</span>
+<span class="kv">{{issue_text}}</span>
+
+<span class="cmt"># Constraints</span>
+- If the description is vague (&lt;30 chars or lacks specifics),
+  set confidence_pct below 50 and add a clarification hint.
+- Do NOT hallucinate contract values or company-specific data.
+- Always return valid JSON. No explanation outside the JSON.
+    </div>
+  </div>
+
+  <!-- 예시 응답 -->
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="card-title">입력 예시</div>
+      <div class="prompt-box" style="font-size:11px;">
+<span class="cmt"># 실제 입력 예시</span>
+Role: PM/기획자
+Experience: mid
+
+Issue: "런칭 3일 전 외부 API 연동 오류를 발견해서
+혼자 밤새 디버깅해서 고쳤습니다. 그 덕분에
+납기를 맞추고 클라이언트 계약이 유지됐습니다."
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">AI 응답 예시 (JSON)</div>
+      <div class="json-box">
+{
+  <span class="jk">"category"</span>: <span class="js">"crisis_response"</span>,
+  <span class="jk">"category_label_ko"</span>: <span class="js">"위기 수습"</span>,
+  <span class="jk">"estimated_amount_krw"</span>: <span class="jn">24000000</span>,
+  <span class="jk">"mm_saved"</span>: <span class="jn">2.4</span>,
+  <span class="jk">"confidence_pct"</span>: <span class="jn">87</span>,
+  <span class="jk">"reasoning"</span>: <span class="js">"납기 위기 수습으로
+    계약 유지 + 재작업 비용 절감.
+    M/M 2.4개월 × 5,500,000원 산출."</span>,
+  <span class="jk">"amount_range"</span>: {
+    <span class="jk">"min"</span>: <span class="jn">18000000</span>,
+    <span class="jk">"max"</span>: <span class="jn">32000000</span>
+  }
+}
+      </div>
+    </div>
+  </div>
+
+  <!-- 프롬프트 개선 전략 -->
+  <div class="card">
+    <div class="card-title">프롬프트 개선 전략 — Unfair Advantage 구축 로드맵</div>
+    <div class="g3">
+      <div class="spec">
+        <div class="spec-title">Phase 1 · Launch (v1)</div>
+        <p>단일 프롬프트 + 직무별 M/M 단가 테이블. 신뢰도 50% 미만 시 재입력 가이드.</p>
+        <p style="color:var(--blue);font-size:11px;margin-top:5px;">측정: AI 신뢰도 평균 점수, 수정 없이 확정 비율</p>
+      </div>
+      <div class="spec spec-orange">
+        <div class="spec-title">Phase 2 · Learning (v2)</div>
+        <p>유저 수정 데이터 누적 → 카테고리별 보정 계수 추출. 업종별 단가 테이블 세분화.</p>
+        <p style="color:var(--orange);font-size:11px;margin-top:5px;">조건: 이슈 500개 이상 수집 후 적용</p>
+      </div>
+      <div class="spec spec-green">
+        <div class="spec-title">Phase 3 · Dataset (v3)</div>
+        <p>유저 수정 이력 → 파인튜닝 데이터셋 구축. 특화 매핑 데이터셋 선점 (Unfair Advantage).</p>
+        <p style="color:var(--green);font-size:11px;margin-top:5px;">조건: 이슈 5,000개 이상 → 경쟁사 대비 정확도 격차</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB 4: 트래킹 이벤트 ══════════ -->
+<div class="page" id="page-3">
+  <div class="sec-hd">
+    <h2>트래킹 이벤트 정의</h2>
+    <p>행동 데이터로 가설 검증 · 이벤트명 · 속성 · 트리거 조건 전체 정의</p>
+  </div>
+
+  <!-- 트래킹 원칙 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">트래킹 설계 원칙</div>
+    <div class="g3">
+      <div class="spec"><div class="spec-title">인터뷰 대신 행동 데이터</div><p>말(intention)이 아닌 실제 클릭·입력·이탈 패턴이 가설 검증의 근거. 모든 핵심 가설에 측정 이벤트 1:1 매핑.</p></div>
+      <div class="spec spec-green"><div class="spec-title">퍼널 추적 우선</div><p>유입 → 가입 → 이슈입력 → AI결과 → PDF생성 단계별 이탈율. 어느 단계에서 막히는지 즉시 식별.</p></div>
+      <div class="spec spec-orange"><div class="spec-title">속성(Property) 필수</div><p>단순 이벤트 카운트가 아닌 카테고리·금액·신뢰도·채널 등 속성 함께 수집 → 세그먼트 분석 가능.</p></div>
+    </div>
+  </div>
+
+  <!-- 퍼널 핵심 이벤트 -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">Activation 퍼널 — 핵심 측정 경로</div>
+    <div class="funnel">
+      <div class="funnel-step active-step">
+        <div class="fs-label">① 랜딩 페이지 진입</div>
+        <div class="fs-event">page_viewed { page: "landing" }</div>
+        <div class="fs-metric">가설: Hero 공감 → 가입 의도</div>
+      </div>
+      <div class="funnel-step active-step">
+        <div class="fs-label">② Hero CTA 클릭</div>
+        <div class="fs-event">cta_clicked { location: "hero", cta_text }</div>
+        <div class="fs-metric">목표: 클릭률 &gt; 15%</div>
+      </div>
+      <div class="funnel-step active-step">
+        <div class="fs-label">③ 회원가입 완료</div>
+        <div class="fs-event">user_signed_up { method, utm_source }</div>
+        <div class="fs-metric">목표: 가입 완료율 &gt; 60%</div>
+      </div>
+      <div class="funnel-step active-step">
+        <div class="fs-label">④ 이슈 입력 완료</div>
+        <div class="fs-event">issue_input_completed { issue_count, char_length }</div>
+        <div class="fs-metric">목표: 입력 완료율 &gt; 50%</div>
+      </div>
+      <div class="funnel-step aha-step">
+        <div class="fs-label">⑤ AI 결과 확인 🌟 AHA Moment</div>
+        <div class="fs-event">ai_result_displayed { amount_krw, confidence_pct, category }</div>
+        <div class="fs-metric">핵심 가설 검증 포인트</div>
+      </div>
+      <div class="funnel-step active-step">
+        <div class="fs-label">⑥ 이슈 확정</div>
+        <div class="fs-event">issue_confirmed { final_amount, was_edited, evidence_count }</div>
+        <div class="fs-metric">수정 비율로 AI 정확도 측정</div>
+      </div>
+      <div class="funnel-step success-step">
+        <div class="fs-label">⑦ 피치덱 PDF 생성 ✅ Activated</div>
+        <div class="fs-event">pitchdeck_generated { issue_count, total_amount }</div>
+        <div class="fs-metric">Activation 완료 판정</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전체 이벤트 테이블 -->
+  <div class="ev-group">
+    <div class="ev-group-title"><span class="tag tbl">ACQUISITION</span> 유입 & 가입</div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">page_viewed</span>
+        <span class="ev-desc">페이지 진입 시 공통 발화</span>
+        <span class="tag tbl ev-phase">획득</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>page</code></td><td>string</td><td>"landing"</td><td>landing / signup / onboarding / vault / pitchdeck / pricing</td></tr>
+          <tr><td><code>utm_source</code></td><td>string</td><td>"blind"</td><td>blind / brunch / kakaotalk / cold_email / direct</td></tr>
+          <tr><td><code>utm_campaign</code></td><td>string</td><td>"pm_article_nov"</td><td>캠페인명</td></tr>
+          <tr><td><code>referrer</code></td><td>string</td><td>"https://blind.so"</td><td>이전 페이지 URL</td></tr>
+          <tr><td><code>session_id</code></td><td>string</td><td>"sess_abc123"</td><td>세션 고유 ID</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">cta_clicked</span>
+        <span class="ev-desc">CTA 버튼 클릭</span>
+        <span class="tag tbl ev-phase">획득</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>location</code></td><td>string</td><td>"hero"</td><td>hero / s3_solution / final_cta / pricing_free / pricing_b2b</td></tr>
+          <tr><td><code>cta_text</code></td><td>string</td><td>"무료로 피치덱 만들기"</td><td>버튼 텍스트 (A/B 테스트 추적용)</td></tr>
+          <tr><td><code>scroll_depth_pct</code></td><td>number</td><td>35</td><td>클릭 시점 스크롤 뎁스 (%)</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">user_signed_up</span>
+        <span class="ev-desc">회원가입 완료</span>
+        <span class="tag tbl ev-phase">획득</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>method</code></td><td>string</td><td>"google"</td><td>google / email / kakao</td></tr>
+          <tr><td><code>utm_source</code></td><td>string</td><td>"blind"</td><td>유입 채널 (CAC 계산용)</td></tr>
+          <tr><td><code>time_to_signup_sec</code></td><td>number</td><td>47</td><td>랜딩 진입 → 가입 완료 소요 시간(초)</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="ev-group">
+    <div class="ev-group-title"><span class="tag tgr">ACTIVATION</span> 온보딩 & 첫 경험</div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">onboarding_completed</span>
+        <span class="ev-desc">온보딩 4단계 완료</span>
+        <span class="tag tgr ev-phase">활성화</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>role_selected</code></td><td>string</td><td>"pm_planner"</td><td>pm_planner / developer / designer / marketer / sales / other</td></tr>
+          <tr><td><code>used_example</code></td><td>boolean</td><td>true</td><td>예시 이슈 사용 여부 (진입 장벽 분석)</td></tr>
+          <tr><td><code>steps_completed</code></td><td>number</td><td>4</td><td>완료한 온보딩 단계 수 (이탈 단계 분석)</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">issue_input_completed</span>
+        <span class="ev-desc">이슈 텍스트 입력 완료 후 AI 분석 트리거</span>
+        <span class="tag tgr ev-phase">활성화</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>issue_count</code></td><td>number</td><td>2</td><td>입력한 이슈 개수 (1~3)</td></tr>
+          <tr><td><code>total_char_length</code></td><td>number</td><td>340</td><td>전체 입력 글자 수 (상세도 측정)</td></tr>
+          <tr><td><code>used_example</code></td><td>boolean</td><td>false</td><td>예시 텍스트 사용 여부</td></tr>
+          <tr><td><code>time_to_input_sec</code></td><td>number</td><td>185</td><td>이슈 입력 화면 진입 → 분석 트리거 소요 시간</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">ai_result_displayed</span>
+        <span class="ev-desc">AI 금액 산출 결과 화면 노출 🌟 AHA</span>
+        <span class="tag tgr ev-phase">활성화</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>category</code></td><td>string</td><td>"crisis_response"</td><td>AI 분류 카테고리</td></tr>
+          <tr><td><code>estimated_amount_krw</code></td><td>number</td><td>24000000</td><td>AI 산출 금액 (원)</td></tr>
+          <tr><td><code>confidence_pct</code></td><td>number</td><td>87</td><td>AI 신뢰도 점수</td></tr>
+          <tr><td><code>ai_response_time_ms</code></td><td>number</td><td>8200</td><td>LLM 응답 소요 시간(ms)</td></tr>
+          <tr><td><code>issue_count</code></td><td>number</td><td>2</td><td>분석된 이슈 수</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">issue_confirmed</span>
+        <span class="ev-desc">Human-in-loop 검토 후 이슈 최종 확정</span>
+        <span class="tag tgr ev-phase">활성화</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>final_amount_krw</code></td><td>number</td><td>20000000</td><td>확정 금액 (수정 후)</td></tr>
+          <tr><td><code>ai_amount_krw</code></td><td>number</td><td>24000000</td><td>원래 AI 산출 금액</td></tr>
+          <tr><td><code>was_edited</code></td><td>boolean</td><td>true</td><td>금액 수정 여부 (AI 정확도 핵심 지표)</td></tr>
+          <tr><td><code>edit_direction</code></td><td>string</td><td>"down"</td><td>up / down / none</td></tr>
+          <tr><td><code>edit_pct</code></td><td>number</td><td>-16.7</td><td>수정 비율 (%) — 프롬프트 개선 데이터</td></tr>
+          <tr><td><code>evidence_count</code></td><td>number</td><td>1</td><td>첨부한 증거자료 수</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">pitchdeck_generated</span>
+        <span class="ev-desc">피치덱 PDF 생성 완료 ✅ Activated</span>
+        <span class="tag tgr ev-phase">활성화</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>issue_count</code></td><td>number</td><td>2</td><td>포함된 이슈 수</td></tr>
+          <tr><td><code>total_amount_krw</code></td><td>number</td><td>42000000</td><td>총 방어 가치 합계</td></tr>
+          <tr><td><code>time_to_activate_min</code></td><td>number</td><td>12</td><td>가입 → 첫 PDF 생성까지 분(min)</td></tr>
+          <tr><td><code>session_number</code></td><td>number</td><td>1</td><td>몇 번째 세션에서 생성했는지</td></tr>
+          <tr><td><code>is_first_pitchdeck</code></td><td>boolean</td><td>true</td><td>첫 피치덱 여부 (Activation 판정)</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="ev-group">
+    <div class="ev-group-title"><span class="tag tor">RETENTION</span> WAU & 재방문</div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">vault_viewed</span>
+        <span class="ev-desc">이슈 보관함 방문 (WAU 핵심 지표)</span>
+        <span class="tag tor ev-phase">리텐션</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>total_issues</code></td><td>number</td><td>3</td><td>현재 저장된 이슈 수</td></tr>
+          <tr><td><code>total_amount_krw</code></td><td>number</td><td>58000000</td><td>누적 방어 가치</td></tr>
+          <tr><td><code>days_since_last_visit</code></td><td>number</td><td>5</td><td>마지막 방문 이후 경과일 (이탈 위험 감지)</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">pdf_downloaded</span>
+        <span class="ev-desc">PDF 다운로드 또는 링크 공유</span>
+        <span class="tag tor ev-phase">리텐션</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>action_type</code></td><td>string</td><td>"download"</td><td>download / share_link</td></tr>
+          <tr><td><code>pitchdeck_id</code></td><td>string</td><td>"pd_xyz"</td><td>피치덱 고유 ID</td></tr>
+          <tr><td><code>total_amount_krw</code></td><td>number</td><td>58000000</td><td>피치덱 총 금액</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="ev-group">
+    <div class="ev-group-title"><span class="tag tpu">REVENUE</span> B2B WTP 검증</div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">pricing_viewed</span>
+        <span class="ev-desc">Pricing 페이지 방문</span>
+        <span class="tag tpu ev-phase">수익</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>visitor_type</code></td><td>string</td><td>"end_user"</td><td>end_user / buyer / unknown</td></tr>
+          <tr><td><code>utm_source</code></td><td>string</td><td>"cold_email"</td><td>Buyer 유입 채널 (B2B 채널 효율 측정)</td></tr>
+          <tr><td><code>scroll_depth_pct</code></td><td>number</td><td>80</td><td>B2B 섹션 도달 여부 측정</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">demo_request_submitted</span>
+        <span class="ev-desc">B2B 데모 요청 폼 제출 — WTP 검증 핵심</span>
+        <span class="tag tpu ev-phase">수익</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>company_size</code></td><td>string</td><td>"10_50"</td><td>under_10 / 10_50 / 50_plus</td></tr>
+          <tr><td><code>role</code></td><td>string</td><td>"ceo"</td><td>ceo / hr / cto / other</td></tr>
+          <tr><td><code>budget_range</code></td><td>string</td><td>"100k_300k"</td><td>선택 응답 (WTP 직접 측정)</td></tr>
+          <tr><td><code>pain_keyword</code></td><td>string</td><td>"퇴사"</td><td>고민 텍스트 키워드 (자동 추출)</td></tr>
+          <tr><td><code>utm_source</code></td><td>string</td><td>"cold_email"</td><td>유입 채널</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="ev-group">
+    <div class="ev-group-title"><span class="tag trd">ERROR / DROP</span> 이탈 & 오류</div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">ai_analysis_failed</span>
+        <span class="ev-desc">AI 분석 실패 (타임아웃 / API 오류)</span>
+        <span class="tag trd ev-phase">오류</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>error_type</code></td><td>string</td><td>"timeout"</td><td>timeout / api_error / parse_error / rate_limit</td></tr>
+          <tr><td><code>response_time_ms</code></td><td>number</td><td>15200</td><td>실패 시점까지 소요 시간</td></tr>
+          <tr><td><code>retry_attempted</code></td><td>boolean</td><td>true</td><td>재시도 버튼 클릭 여부</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-head" onclick="toggleEv(this)">
+        <span class="ev-name">funnel_dropped</span>
+        <span class="ev-desc">퍼널 이탈 감지 (5분 이상 비활성)</span>
+        <span class="tag trd ev-phase">이탈</span>
+      </div>
+      <div class="ev-body">
+        <table class="prop-table"><thead><tr><th>속성명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead><tbody>
+          <tr><td><code>drop_stage</code></td><td>string</td><td>"issue_input"</td><td>landing / signup / onboarding / issue_input / ai_loading / ai_result / pitchdeck</td></tr>
+          <tr><td><code>time_on_stage_sec</code></td><td>number</td><td>48</td><td>해당 단계에서의 체류 시간</td></tr>
+          <tr><td><code>last_action</code></td><td>string</td><td>"started_typing"</td><td>이탈 직전 마지막 액션</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAB 5: 가설 검증 매트릭스 ══════════ -->
+<div class="page" id="page-4">
+  <div class="sec-hd">
+    <h2>가설 검증 매트릭스</h2>
+    <p>린 캔버스 v6.0 기반 핵심 가설 · 측정 이벤트 · 성공 기준 · 의사결정 트리거</p>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-title">가설 검증 전체 매트릭스</div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>가설</th><th>측정 이벤트</th><th>성공 기준</th><th>실패 시 액션</th><th>기간</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag trd">H-1</span></td>
+          <td><strong style="color:var(--t1)">문제 공감</strong><br><span style="font-size:11px;">Hero 헤드라인이 타겟의 고통에 즉시 공명하는가</span></td>
+          <td><code>page_viewed</code><br><code>cta_clicked</code></td>
+          <td>Bounce Rate &lt; 60%<br>Hero CTR &gt; 15%</td>
+          <td>카피 A/B 테스트<br>타겟 세그먼트 재정의</td>
+          <td>W1~W2</td>
+        </tr>
+        <tr>
+          <td><span class="tag tor">H-2</span></td>
+          <td><strong style="color:var(--t1)">솔루션 매력도</strong><br><span style="font-size:11px;">텍스트 → AI 금액 변환이 "써보고 싶다"는 욕구를 만드는가</span></td>
+          <td><code>ai_result_displayed</code><br><code>issue_confirmed</code></td>
+          <td>AI 결과 → 확정 전환율 &gt; 40%<br>평균 AI 신뢰도 &gt; 70%</td>
+          <td>프롬프트 재설계<br>입력 가이드 강화</td>
+          <td>W2~W4</td>
+        </tr>
+        <tr>
+          <td><span class="tag tgr">H-3</span></td>
+          <td><strong style="color:var(--t1)">Activation</strong><br><span style="font-size:11px;">가입자가 첫 세션에 PDF까지 완주하는가</span></td>
+          <td><code>pitchdeck_generated</code><br><code>time_to_activate_min</code></td>
+          <td>첫 세션 완주율 &gt; 50%<br>평균 완주 시간 &lt; 15분</td>
+          <td>이탈 단계 UX 수정<br>온보딩 가이드 강화</td>
+          <td>W2~W4</td>
+        </tr>
+        <tr>
+          <td><span class="tag tbl">H-4</span></td>
+          <td><strong style="color:var(--t1)">WAU 습관 형성</strong><br><span style="font-size:11px;">이슈 보관함 재방문이 주간 루틴이 되는가</span></td>
+          <td><code>vault_viewed</code><br><code>issue_added</code></td>
+          <td>초기 WAU 15%<br>6개월 후 WAU 30%</td>
+          <td>리마인더 메일 최적화<br>누적 금액 넛지 강화</td>
+          <td>W4~M3</td>
+        </tr>
+        <tr>
+          <td><span class="tag tpu">H-5</span></td>
+          <td><strong style="color:var(--t1)">AI 정확도</strong><br><span style="font-size:11px;">AI 산출 금액이 실무자 인식과 근접한가</span></td>
+          <td><code>issue_confirmed</code><br><code>was_edited</code> · <code>edit_pct</code></td>
+          <td>수정 없이 확정 비율 &gt; 40%<br>수정 폭 평균 ±30% 이내</td>
+          <td>카테고리별 M/M 단가 재보정<br>프롬프트 v2 업데이트</td>
+          <td>W2~M2</td>
+        </tr>
+        <tr>
+          <td><span class="tag tpu">H-6</span></td>
+          <td><strong style="color:var(--t1)">Buyer WTP</strong><br><span style="font-size:11px;">경영진이 B2B 대시보드에 실제 지불 의사를 보이는가</span></td>
+          <td><code>demo_request_submitted</code><br><code>budget_range</code></td>
+          <td>데모 요청 월 10건 이상<br>예산 응답 비율 &gt; 30%</td>
+          <td>B2B UVP 재검토<br>콜드메일 타겟 재설정</td>
+          <td>W3~M2</td>
+        </tr>
+        <tr>
+          <td><span class="tag trd">H-7</span></td>
+          <td><strong style="color:var(--t1)">채널 효율</strong><br><span style="font-size:11px;">블라인드 vs 브런치 vs 단톡 vs 콜드메일 중 CAC 최저 채널은?</span></td>
+          <td><code>user_signed_up</code><br><code>utm_source</code></td>
+          <td>채널별 가입당 비용 비교<br>Activation率 기준 CAC 효율 순위</td>
+          <td>비효율 채널 예산 삭감<br>최효율 채널 집중 투자</td>
+          <td>W2~M2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 의사결정 트리거 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">4주 후 의사결정 트리거</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="spec spec-green">
+          <div class="spec-title">✅ CONTINUE — 기능 고도화</div>
+          <p>H-2 솔루션 매력도 통과 + H-3 Activation 50% 이상</p>
+          <p style="color:var(--green);font-size:11px;margin-top:4px;">→ 이슈 보관함 강화 + WAU 습관 형성 집중</p>
+        </div>
+        <div class="spec spec-orange">
+          <div class="spec-title">🔄 PIVOT — 방향 수정</div>
+          <p>H-1 Hero Bounce &gt; 80% OR H-2 완료율 &lt; 20%</p>
+          <p style="color:var(--orange);font-size:11px;margin-top:4px;">→ 카피 A/B 테스트 + 타겟 세그먼트 재정의</p>
+        </div>
+        <div class="spec spec-red">
+          <div class="spec-title">🛑 STOP — 핵심 가설 기각</div>
+          <p>4주 후 데모 완료율 &lt; 20% + WAU &lt; 5%</p>
+          <p style="color:var(--red);font-size:11px;margin-top:4px;">→ 제품 방향 전면 재검토, IDI 실시</p>
+        </div>
+        <div class="spec spec-purple">
+          <div class="spec-title">🚀 B2B LAUNCH — 대시보드 개발 착수</div>
+          <p>H-6 데모 요청 월 10건 이상 달성</p>
+          <p style="color:var(--purple);font-size:11px;margin-top:4px;">→ B2B 대시보드 S10 스프린트 시작</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">트래킹 스택 구현 가이드</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="spec"><div class="spec-title">이벤트 심기 — JavaScript</div>
+          <div class="json-box" style="font-size:11px;margin-top:6px;">
+<span class="cmt">// 공통 이벤트 발화 함수</span>
+<span class="jk">function</span> <span class="js">track</span>(eventName, props = {}) {
+  <span class="cmt">// Mixpanel / Amplitude / GA4</span>
+  window.mixpanel?.<span class="js">track</span>(eventName, {
+    ...props,
+    <span class="jk">timestamp</span>: <span class="js">new Date</span>().toISOString(),
+    <span class="jk">session_id</span>: getSessionId(),
+    <span class="jk">user_role</span>: currentUser?.role
+  });
+}
+
+<span class="cmt">// 사용 예시</span>
+<span class="js">track</span>(<span class="jk">'ai_result_displayed'</span>, {
+  category: <span class="js">'crisis_response'</span>,
+  estimated_amount_krw: <span class="jn">24000000</span>,
+  confidence_pct: <span class="jn">87</span>
+});
+          </div>
+        </div>
+        <div class="spec spec-green"><div class="spec-title">권장 트래킹 툴 (4주 MVP)</div>
+          <ul>
+            <li><strong style="color:var(--t1)">Mixpanel Free</strong> — 퍼널 분석, 이벤트 대시보드</li>
+            <li><strong style="color:var(--t1)">Google Analytics 4</strong> — UTM 채널 분석, CAC</li>
+            <li><strong style="color:var(--t1)">Hotjar Free</strong> — 스크롤 뎁스, 히트맵</li>
+            <li><strong style="color:var(--t1)">Notion</strong> — 수동 가설 검증 대시보드</li>
+          </ul>
+        </div>
+        <div class="spec spec-orange"><div class="spec-title">MVP 최소 트래킹 (반드시 구현)</div>
+          <p>P0: <code>ai_result_displayed</code> · <code>pitchdeck_generated</code> · <code>issue_confirmed (was_edited)</code></p>
+          <p style="margin-top:4px;color:var(--orange);font-size:11px;">이 3개만으로도 H-2·H-3·H-5 핵심 가설 검증 가능</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// Tab switching
+const tabIds = ['page-0','page-1','page-2','page-3','page-4'];
+document.querySelectorAll('.tab').forEach((tab, i) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tabIds[i]).classList.add('active');
+  });
+});
+
+// Toggle req cards
+function toggleReq(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// Toggle event cards
+function toggleEv(head) {
+  head.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+// Theme
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent =
+    document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+}
+
+// Copy prompt (optional UX)
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const text = btn.parentElement.innerText.replace('복사','').trim();
+    navigator.clipboard?.writeText(text);
+    btn.textContent = '✓ 복사됨';
+    setTimeout(() => btn.textContent = '복사', 1500);
+  });
+});
+</script>
+</body>
+</html>
