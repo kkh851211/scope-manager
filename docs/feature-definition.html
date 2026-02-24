@@ -3,724 +3,848 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — Feature Definition & Backlog v1.1</title>
+<title>Scope Manager — 기능 정의서 & 백로그</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2438;--s3:#222840;
-  --bd:#232b3e;--bd2:#2e3748;
-  --blue:#4f80ff;--purple:#a855f7;--green:#10b981;
-  --red:#ef4444;--cyan:#06b6d4;--orange:#f97316;--yellow:#f59e0b;
-  --t1:#e8eaf0;--t2:#c5cbd8;--t3:#8c95aa;--t4:#5a6478;
+  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2538;
+  --t1:#e8eaf0;--t3:#8c95aa;--bd:#232b3e;
+  --blue:#4f80ff;--green:#10b981;
+  --red:#f87171;--yellow:#fbbf24;
+  --purple:#a78bfa;--orange:#fb923c;
 }
-body{background:var(--bg);color:var(--t1);font-family:'Apple SD Gothic Neo','Pretendard',sans-serif;font-size:13px;min-height:100vh}
+body.light{
+  --bg:#f5f7fa;--s1:#ffffff;--s2:#eef1f7;
+  --t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh}
 
 /* HEADER */
-header{padding:18px 28px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;gap:12px;flex-wrap:wrap}
-.logo{font-size:15px;font-weight:800}.logo b{color:var(--blue)}
-.hbadge{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
-.b-blue{background:rgba(79,128,255,.15);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
-.b-purple{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3)}
-.b-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+header{background:var(--s1);border-bottom:1px solid var(--bd);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:200;transition:background .2s}
+.hl{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-size:17px;font-weight:700;color:var(--blue);letter-spacing:-.3px;white-space:nowrap}
+.logo span{color:var(--t1)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);white-space:nowrap}
+.bdg.b{border-color:var(--blue);color:var(--blue);background:transparent}
+.bdg.g{border-color:var(--green);color:var(--green);background:transparent}
+.bdg.y{border-color:var(--yellow);color:var(--yellow);background:transparent}
+.bdg.r{border-color:var(--red);color:var(--red);background:transparent}
+.tog{background:var(--s2);border:1px solid var(--bd);color:var(--t1);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;white-space:nowrap;transition:background .15s;flex-shrink:0}
+.tog:hover{background:var(--bd)}
 
 /* NAV */
-nav{border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:2px;overflow-x:auto}
-.tab{background:none;border:none;padding:11px 15px;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
-.tab:hover{color:var(--t2)}
-.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+nav{background:var(--s1);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;padding:0 24px;scrollbar-width:none;transition:background .2s}
+nav::-webkit-scrollbar{display:none}
+.tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);cursor:pointer;font-size:13px;font-weight:500;padding:12px 16px;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0}
+.tb:hover{color:var(--t1)}
+.tb.active{border-bottom:2px solid var(--blue);color:var(--blue);font-weight:600}
 
-/* PAGE */
-.page{display:none;padding:24px 28px 72px}
-.page.on{display:block}
+/* MAIN */
+main{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+.page{display:none}.page.active{display:block}
 
-/* SECTION */
-.sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t4);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
-.mb20{margin-bottom:20px}.mb28{margin-bottom:28px}.mb32{margin-bottom:32px}
+/* TYPE */
+.ptitle{font-size:20px;font-weight:700;margin-bottom:6px}
+.pdesc{color:var(--t3);font-size:13px;margin-bottom:22px;line-height:1.75}
+.pdesc strong{color:var(--t1)}
+.slabel{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
 
 /* CARD */
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px}
-.card-sm{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;transition:background .2s}
 
-/* GRID */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:16px 16px 72px}}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt14{margin-top:14px}.mt18{margin-top:18px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}.mb18{margin-bottom:18px}.mb20{margin-bottom:20px}
 
-/* TAG */
-.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600;white-space:nowrap}
-.tag-must{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.tag-should{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
-.tag-could{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
-.tag-wont{background:rgba(90,100,120,.15);color:var(--t4);border:1px solid var(--bd2)}
-.tag-blue{background:rgba(79,128,255,.15);color:var(--blue)}
-.tag-purple{background:rgba(168,85,247,.12);color:var(--purple)}
-.tag-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
+/* ACCENT */
+.ac{position:relative;overflow:hidden}
+.ac::before{content:'';display:block;height:3px;position:absolute;top:-1px;left:-1px;right:-1px;border-radius:12px 12px 0 0}
+.ab::before{background:var(--blue)}.ag::before{background:var(--green)}
+.ar::before{background:var(--red)}.ay::before{background:var(--yellow)}
+.ap::before{background:var(--purple)}.ao::before{background:var(--orange)}
 
-/* OVERVIEW HERO */
-.hero{background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(79,128,255,.05));border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:24px;margin-bottom:28px}
-.hero-title{font-size:17px;font-weight:900;color:#fff;margin-bottom:6px}
-.hero-sub{font-size:12px;color:var(--t3);line-height:1.8;max-width:680px}
+/* TAGS */
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--s2);color:var(--t3);border:1px solid var(--bd);margin:2px 3px 2px 0}
+.tag.b{background:rgba(79,128,255,.12);color:var(--blue);border-color:rgba(79,128,255,.25)}
+.tag.g{background:rgba(16,185,129,.12);color:var(--green);border-color:rgba(16,185,129,.25)}
+.tag.r{background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.25)}
+.tag.y{background:rgba(251,191,36,.12);color:var(--yellow);border-color:rgba(251,191,36,.25)}
+.tag.p{background:rgba(167,139,250,.12);color:var(--purple);border-color:rgba(167,139,250,.25)}
+.tag.o{background:rgba(251,146,60,.12);color:var(--orange);border-color:rgba(251,146,60,.25)}
 
-/* KPI ROW */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-@media(max-width:700px){.kpi-row{grid-template-columns:1fr 1fr}}
-.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
-.kpi-l{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t4);margin-bottom:5px}
-.kpi-v{font-size:24px;font-weight:900;line-height:1;margin-bottom:3px}
-.kpi-s{font-size:11px;color:var(--t4)}
+/* BULLET LIST */
+.bl{list-style:none;padding:0}
+.bl li{font-size:13px;color:var(--t3);padding:6px 0;border-bottom:1px solid var(--bd);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
+.bl li:last-child{border-bottom:none}
+.bl li::before{content:'›';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
+.bl li strong{color:var(--t1)}
 
-/* PHASE TIMELINE */
-.phase-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:28px;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
-.phase-col{padding:16px 18px;border-right:1px solid var(--bd);position:relative}
-.phase-col:last-child{border-right:none}
-.phase-col.active-phase{background:rgba(168,85,247,.05)}
-.ph-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t4);margin-bottom:4px}
-.ph-name{font-size:13px;font-weight:800;color:#fff;margin-bottom:3px}
-.ph-week{font-size:11px;color:var(--t3);margin-bottom:10px}
-.ph-items{display:flex;flex-direction:column;gap:4px}
-.ph-item{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:6px}
-.ph-item::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.ph-mvp .ph-item::before{background:var(--purple)}
-.ph-beta .ph-item::before{background:var(--yellow)}
-.ph-v1 .ph-item::before{background:var(--green)}
-.ph-tag{position:absolute;top:12px;right:14px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px}
-.pht-now{background:rgba(168,85,247,.2);color:var(--purple)}
-.pht-plan{background:rgba(90,100,120,.15);color:var(--t4)}
+/* STAT */
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
+.sn{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.sn.b{color:var(--blue)}.sn.g{color:var(--green)}.sn.y{color:var(--yellow)}.sn.r{color:var(--red)}.sn.p{color:var(--purple)}
+.sl2{font-size:12px;color:var(--t3);font-weight:500}
+.ss2{font-size:11px;color:var(--t3);margin-top:4px}
 
-/* FEATURE TABLE */
-.ftable{width:100%;border-collapse:collapse}
-.ftable th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t4);border-bottom:1px solid var(--bd);background:var(--s1);white-space:nowrap}
-.ftable td{padding:12px 14px;border-bottom:1px solid var(--bd);vertical-align:top}
-.ftable tr:last-child td{border-bottom:none}
-.ftable tr:hover td{background:rgba(79,128,255,.025)}
-.feat-code{font-size:10px;font-weight:700;color:var(--t4);font-family:monospace;margin-bottom:4px}
-.feat-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
-.feat-desc{font-size:11px;color:var(--t3);line-height:1.6}
-.user-story{font-size:11px;color:var(--t3);line-height:1.6;border-left:2px solid var(--bd2);padding-left:9px;margin-top:5px;font-style:italic}
-.user-story b{color:var(--t2);font-style:normal}
+/* CALLOUT */
+.callout{border-radius:12px;padding:16px 20px;margin-bottom:18px;border:1px solid}
+.callout.b{background:rgba(79,128,255,.07);border-color:rgba(79,128,255,.3)}
+.callout.g{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.3)}
+.callout.y{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.3)}
+.cot{font-size:13px;font-weight:700;margin-bottom:7px}
+.callout.b .cot{color:var(--blue)}.callout.g .cot{color:var(--green)}.callout.y .cot{color:var(--yellow)}
+.callout p{font-size:13px;color:var(--t3);line-height:1.75}
+.callout p strong{color:var(--t1)}
 
-/* BACKLOG KANBAN */
-.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
-@media(max-width:900px){.kanban{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.kanban{grid-template-columns:1fr}}
-.kboard{background:var(--s2);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
-.kboard-head{padding:12px 14px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
-.kboard-cnt{font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:22px;text-align:center}
-.kboard-body{padding:10px;display:flex;flex-direction:column;gap:7px;min-height:120px}
-.story-card{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;cursor:default;transition:.15s}
-.story-card:hover{border-color:rgba(79,128,255,.3)}
-.sc-code{font-size:9px;font-weight:700;color:var(--t4);font-family:monospace;margin-bottom:4px}
-.sc-title{font-size:11px;font-weight:600;color:var(--t2);line-height:1.5;margin-bottom:6px}
-.sc-tags{display:flex;gap:4px;flex-wrap:wrap}
-.sc-pt{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:var(--s3);color:var(--t3)}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl td{font-size:12px;color:var(--t3);padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.t1{color:var(--t1);font-weight:600}
+.tbl td.bl2{color:var(--blue)}
 
-/* FLOW DIAGRAM */
-.flow-wrap{overflow-x:auto;margin-bottom:28px}
-.flow{display:flex;align-items:center;gap:0;min-width:700px}
-.flow-node{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;text-align:center;flex:1;position:relative}
-.flow-node.fn-active{border-color:var(--blue);background:rgba(79,128,255,.07)}
-.flow-node.fn-ai{border-color:var(--purple);background:rgba(168,85,247,.07)}
-.flow-node.fn-out{border-color:var(--green);background:rgba(16,185,129,.07)}
-.fn-icon{font-size:20px;margin-bottom:6px}
-.fn-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
-.fn-desc{font-size:10px;color:var(--t4);line-height:1.5}
-.flow-arrow{font-size:18px;color:var(--bd2);padding:0 6px;flex-shrink:0}
+/* PILL / STATUS */
+.pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
+.pill.mvp{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.pill.p1{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3)}
+.pill.p2{background:rgba(79,128,255,.12);color:var(--blue);border:1px solid rgba(79,128,255,.3)}
+.pill.p3{background:var(--s2);color:var(--t3);border:1px solid var(--bd)}
+.pill.done{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.pill.wip{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3)}
+.pill.todo{background:var(--s2);color:var(--t3);border:1px solid var(--bd)}
 
-/* PRIORITY MATRIX */
-.matrix-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px}
-.mq{padding:16px;background:var(--s1);position:relative}
-.mq-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
-.mq-items{display:flex;flex-direction:column;gap:6px}
-.mq-item{font-size:11px;color:var(--t2);display:flex;gap:7px;align-items:flex-start;line-height:1.5}
-.mq-dot{width:5px;height:5px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.mq-axis{position:absolute;font-size:9px;font-weight:700;color:var(--t4);letter-spacing:.8px}
+/* FEATURE CARD */
+.fc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:14px;transition:background .2s}
+.fc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.fc-id{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+.fc-title{font-size:15px;font-weight:700;color:var(--t1)}
+.fc-body{font-size:13px;color:var(--t3);line-height:1.75;margin-bottom:12px}
+.fc-body strong{color:var(--t1)}
+.fc-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.fm{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px}
+.fm-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:4px}
+.fm-val{font-size:12px;color:var(--t1);font-weight:600;line-height:1.5}
 
-/* ACCEPTANCE */
-.ac-item{background:var(--s1);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden}
-.ac-head{padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none}
-.ac-head:hover{background:rgba(79,128,255,.04)}
-.ac-htitle{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
-.ac-body{display:none;padding:0 16px 16px;border-top:1px solid var(--bd)}
-.ac-body.open{display:block}
-.ac-criteria{display:flex;flex-direction:column;gap:7px;padding-top:14px}
-.ac-row{display:flex;gap:10px;align-items:flex-start}
-.ac-check{width:16px;height:16px;border:1.5px solid var(--bd2);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px}
-.ac-check.done{background:var(--green);border-color:var(--green);color:#fff}
-.ac-text{font-size:12px;color:var(--t2);line-height:1.6}
-.ac-text .given{color:var(--cyan);font-weight:600}
-.ac-text .when{color:var(--yellow);font-weight:600}
-.ac-text .then{color:var(--green);font-weight:600}
-.chev{font-size:13px;color:var(--t4);transition:.2s}
-.chev.open{transform:rotate(180deg)}
+/* USER STORY */
+.us-box{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:11px 14px;margin-bottom:8px;font-size:13px;color:var(--t3);line-height:1.7}
+.us-box strong{color:var(--t1)}
 
-/* SPRINT */
-.sprint-col{display:grid;grid-template-columns:120px 1fr;gap:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px}
-.sp-left{background:var(--s2);padding:14px;border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.sp-num{font-size:11px;font-weight:700;color:var(--t4);margin-bottom:4px}
-.sp-week{font-size:13px;font-weight:800;color:#fff;margin-bottom:6px}
-.sp-pts{font-size:11px;color:var(--t3)}
-.sp-right{padding:14px 16px}
-.sp-items{display:flex;flex-direction:column;gap:6px}
-.sp-item{display:flex;gap:10px;align-items:flex-start}
-.sp-item-code{font-size:10px;font-weight:700;color:var(--t4);font-family:monospace;width:60px;flex-shrink:0;padding-top:1px}
-.sp-item-name{font-size:12px;color:var(--t2);line-height:1.5}
+/* AC CRITERIA */
+.ac-list{margin-top:10px}
+.ac-item{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--t3);line-height:1.6;align-items:flex-start}
+.ac-item:last-child{border-bottom:none}
+.ac-item .check{color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px}
+.ac-item strong{color:var(--t1)}
 
-/* OUT OF SCOPE */
-.oos-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
-.oos-item{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
-.oos-x{width:20px;height:20px;border-radius:50%;background:rgba(90,100,120,.2);color:var(--t4);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.oos-name{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:2px}
-.oos-reason{font-size:11px;color:var(--t4);line-height:1.5}
+/* PHASE BLOCK */
+.phase-block{background:var(--s1);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.phase-head{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.phase-title{font-size:14px;font-weight:700;color:var(--t1)}
+.phase-body{padding:0}
+.bl-row{display:grid;grid-template-columns:80px 1fr 120px 80px 70px 80px;gap:0;padding:11px 20px;border-bottom:1px solid var(--bd);align-items:center;font-size:12px}
+.bl-row:last-child{border-bottom:none}
+.bl-row:hover{background:var(--s2)}
+.bl-row.header{background:var(--s2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);padding:8px 20px}
+.bl-id{color:var(--blue);font-weight:700;font-size:11px}
+.bl-title{color:var(--t1);font-weight:500;line-height:1.5}
+.bl-effort{color:var(--t3)}
+.bl-value{font-weight:700}
+.bl-value.high{color:var(--red)}.bl-value.med{color:var(--yellow)}.bl-value.low{color:var(--t3)}
+
+/* MATRIX */
+.matrix-wrap{display:grid;grid-template-columns:40px 1fr 1fr;grid-template-rows:1fr 1fr 40px;gap:3px;height:320px;margin-top:10px}
+.mx-cell{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:10px;overflow-y:auto;font-size:11px;color:var(--t3);line-height:1.7}
+.mx-cell.q1{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.25)}
+.mx-cell.q2{background:rgba(79,128,255,.07);border-color:rgba(79,128,255,.25)}
+.mx-cell.q3{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.25)}
+.mx-cell.q4{background:rgba(248,113,113,.05)}
+.mx-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.mx-label.g{color:var(--green)}.mx-label.b{color:var(--blue)}.mx-label.y{color:var(--yellow)}.mx-label.r{color:var(--red)}
+.mx-item{padding:3px 0;border-bottom:1px solid var(--bd);color:var(--t3)}
+.mx-item:last-child{border-bottom:none}
+.mx-item strong{color:var(--t1)}
+.mx-axis{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)}
+.mx-axis.vert{writing-mode:vertical-lr;transform:rotate(180deg)}
+.mx-empty{background:transparent;border:none}
+
+/* PROGRESS */
+.prog-row{margin-bottom:11px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.prog-lbl span:first-child{color:var(--t1)}
+.prog-lbl span:last-child{color:var(--t3)}
+.prog-bar{background:var(--bd);border-radius:4px;height:7px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px}
+.fb{background:var(--blue)}.fg{background:var(--green)}.fy{background:var(--yellow)}.fr{background:var(--red)}.fp{background:var(--purple)}
+
+/* RESPONSIVE */
+@media(max-width:860px){
+  .g3,.g4{grid-template-columns:1fr 1fr}
+  .fc-meta{grid-template-columns:1fr 1fr}
+  .bl-row{grid-template-columns:70px 1fr 90px 70px}
+  .bl-row .bl-effort,.bl-row .bl-value:last-child{display:none}
+}
+@media(max-width:560px){
+  header{padding:11px 14px}main{padding:16px 12px 60px}nav{padding:0 12px}
+  .tb{padding:11px 10px;font-size:12px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .fc-meta{grid-template-columns:1fr 1fr}
+  .bl-row{grid-template-columns:60px 1fr 80px}
+  .bl-row .bl-effort,.bl-row .bl-value,.bl-row .bl-status-col{display:none}
+  .matrix-wrap{height:auto;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo"><b>Scope</b>Manager &nbsp;<span style="font-size:11px;color:var(--t4);font-weight:400">Feature Definition & Backlog v1.1</span></div>
-  <div class="hbadge">
-    <span class="badge b-purple">MVP 빌드 진행 중</span>
-    <span class="badge b-blue">Phase 1</span>
-    <span style="font-size:11px;color:var(--t4)">2026.02</span>
+  <div class="hl">
+    <div class="logo">Scope<span>Manager</span></div>
+    <div class="badges">
+      <span class="bdg b">B2B SaaS</span>
+      <span class="bdg g">MVP 단계</span>
+      <span class="bdg y">기능 정의서 v1.0</span>
+      <span class="bdg r">백로그 관리 중</span>
+    </div>
   </div>
+  <button class="tog" id="togBtn" onclick="toggleMode()">☀️ 라이트</button>
 </header>
 
 <nav>
-  <button class="tab on"  onclick="switchTab('overview',this)">📦 Overview</button>
-  <button class="tab" onclick="switchTab('features',this)">📋 기능 정의</button>
-  <button class="tab" onclick="switchTab('backlog',this)">🗂 백로그</button>
-  <button class="tab" onclick="switchTab('flow',this)">🔄 핵심 플로우</button>
-  <button class="tab" onclick="switchTab('acceptance',this)">✅ 인수 조건</button>
-  <button class="tab" onclick="switchTab('sprint',this)">🏃 스프린트 계획</button>
-  <button class="tab" onclick="switchTab('outofscope',this)">🚫 MVP 제외</button>
+  <button class="tb active" onclick="showTab('overview',this)">📋 개요</button>
+  <button class="tb" onclick="showTab('mvp',this)">🚀 MVP 기능</button>
+  <button class="tb" onclick="showTab('stories',this)">📖 유저 스토리</button>
+  <button class="tb" onclick="showTab('backlog',this)">📝 전체 백로그</button>
+  <button class="tb" onclick="showTab('matrix',this)">⚡ 우선순위 매트릭스</button>
+  <button class="tb" onclick="showTab('roadmap',this)">🗺 로드맵</button>
 </nav>
 
+<main>
 
-<div class="page on" id="page-overview">
+<!-- ══════════════════
+  TAB 1: 개요
+══════════════════ -->
+<div id="page-overview" class="page active">
+  <div class="ptitle">기능 정의서 & 백로그</div>
+  <div class="pdesc">Scope Manager의 전체 기능을 정의하고 개발 우선순위를 설계합니다.<br>MVP는 <strong>가설 검증에 필요한 최소한의 기능</strong>만 포함하며, 검증 결과에 따라 백로그를 동적으로 조정합니다.</div>
 
-  <div class="hero">
-    <div class="hero-title">Scope Manager MVP — 초고속 빌드 팩</div>
-    <div class="hero-sub">
-      사전 인터뷰를 생략하고 <b>"제품으로 가설을 직접 검증한다"</b>는 전략에 맞춰, 6주 내 핵심 가치를 런칭하기 위한 최소 스펙을 정의합니다. <br>
-      Antigravity 단일 IDE 환경을 통해 개발 속도를 극대화합니다.
+  <div class="callout b mb18">
+    <div class="cot">⚡ 기능 정의 원칙 — 검증 최우선</div>
+    <p>모든 기능은 "<strong>어떤 가설을 검증하는가?</strong>"를 기준으로 우선순위를 결정합니다. 고객 인터뷰 대신 MVP를 배포하고 행동 데이터로 검증하는 전략에 따라, MVP에는 H1(문제 가설)·H2(솔루션 가설) 검증에 직결되는 기능만 포함합니다.</p>
+  </div>
+
+  <div class="g4 mb18">
+    <div class="sc ac ar">
+      <div class="sn r">8</div>
+      <div class="sl2">MVP 필수 기능</div>
+      <div class="ss2">H1·H2 가설 검증 직결</div>
+    </div>
+    <div class="sc ac ay">
+      <div class="sn y">12</div>
+      <div class="sl2">Phase 2 기능</div>
+      <div class="ss2">수익·성장 가설 검증용</div>
+    </div>
+    <div class="sc ac ab">
+      <div class="sn b">9</div>
+      <div class="sl2">Phase 3 기능</div>
+      <div class="ss2">확장·엔터프라이즈</div>
+    </div>
+    <div class="sc ac ag">
+      <div class="sn g">29</div>
+      <div class="sl2">총 백로그 아이템</div>
+      <div class="ss2">전체 로드맵 기준</div>
     </div>
   </div>
 
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-l">MVP 기능</div>
-      <div class="kpi-v" style="color:var(--red)">7<span style="font-size:15px;color:var(--t4)">/기능</span></div>
-      <div class="kpi-s">Must Have 기준 (압축됨)</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-l">총 User Story</div>
-      <div class="kpi-v" style="color:var(--blue)">21<span style="font-size:15px;color:var(--t4)">개</span></div>
-      <div class="kpi-s">스토리 포인트 합계: 41pt</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-l">MVP 목표 기간</div>
-      <div class="kpi-v" style="color:var(--purple)">4<span style="font-size:15px;color:var(--t4)">주</span></div>
-      <div class="kpi-s">W1–W4 초고속 개발</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-l">핵심 검증 지표</div>
-      <div class="kpi-v" style="color:var(--green)">청구<span style="font-size:15px"> 성공률</span></div>
-      <div class="kpi-s">≥ 30% 목표 (OMTM)</div>
-    </div>
-  </div>
-
-  <div class="sec mb20">3단계 출시 및 검증 계획</div>
-  <div class="phase-row mb32">
-    <div class="phase-col ph-mvp active-phase">
-      <div class="ph-tag pht-now">현재 진행 중</div>
-      <div class="ph-label">Phase 1</div>
-      <div class="ph-name">초고속 빌드 · 베타</div>
-      <div class="ph-week">W1–W6 · 개발 & 온보딩</div>
-      <div class="ph-items">
-        <div class="ph-item">프로젝트 등록 & 계약 전문 주입</div>
-        <div class="ph-item">과업 변경 일일 입력 UX</div>
-        <div class="ph-item">Edge Function 판정 연동</div>
-        <div class="ph-item">범위 초과 리포트 UI 생성</div>
-        <div class="ph-item">콜드 메일 테스터 10팀 섭외</div>
+  <!-- 기능 영역 구조 -->
+  <div class="g2 mb14">
+    <div class="card">
+      <div class="slabel">3대 핵심 기능 영역</div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px">⚖️ 영역 A — 범위 관리 (핵심)</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">계약 범위 등록 → 추가 요구 기록 → 범위 초과 자동 판정. MVP의 핵심 가치를 전달하는 기능 묶음.</div>
+        </div>
+        <div style="background:rgba(79,128,255,.08);border:1px solid rgba(79,128,255,.2);border-radius:8px;padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px">📄 영역 B — 리포트 & 청구 (AHA 모멘트)</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">범위 초과 판정 리포트 자동 생성 → PM의 감정 노동 없이 청구 근거 전달. H2 가설 검증의 핵심.</div>
+        </div>
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px 14px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px">📈 영역 C — 수익성 분석 (Paid 가치)</div>
+          <div style="font-size:12px;color:var(--t3);line-height:1.6">프로젝트별 실시간 손익 추적 → 견적 데이터 누적. Paid 플랜의 핵심 차별 기능.</div>
+        </div>
       </div>
     </div>
-    <div class="phase-col ph-beta">
-      <div class="ph-tag pht-plan">예정</div>
-      <div class="ph-label">Phase 2</div>
-      <div class="ph-name">실증 검증 · 유료화</div>
-      <div class="ph-week">W7–W12 · 데이터 트래킹</div>
-      <div class="ph-items">
-        <div class="ph-item">주간 활성 지표(DAU) 트래킹</div>
-        <div class="ph-item">리포트 공유 이벤트 추적</div>
-        <div class="ph-item">프로젝트별 손익 대시보드 추가</div>
-        <div class="ph-item">Stripe 연동 유료 구독 오픈</div>
-      </div>
-    </div>
-    <div class="phase-col ph-v1">
-      <div class="ph-tag pht-plan">예정</div>
-      <div class="ph-label">Phase 3</div>
-      <div class="ph-name">v1.0 · 제품 확장</div>
-      <div class="ph-week">W13+ · PMF 달성 이후</div>
-      <div class="ph-items">
-        <div class="ph-item">팀 멤버 초대 & 권한 관리</div>
-        <div class="ph-item">PDF 내보내기 자동화</div>
-        <div class="ph-item">표준 계약서 템플릿 마켓</div>
-        <div class="ph-item">API 연동 (Notion, Slack)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec mb20">MoSCoW 우선순위 매트릭스 (실증 테스트 최적화)</div>
-  <div class="matrix-grid mb32" style="height:360px">
-    <div class="mq" style="border-bottom:1px solid var(--bd)">
-      <div class="mq-label" style="color:var(--red)">🔴 Must Have — 없으면 검증 불가</div>
-      <div class="mq-items">
-        <div class="mq-item"><div class="mq-dot" style="background:var(--red)"></div>Supabase Auth 구글 로그인</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--red)"></div>프로젝트 등록 (계약서 Full Text 입력)</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--red)"></div>과업 변경 일일 3버튼 입력</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--red)"></div>Edge Function AI 판정 (Claude API)</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--red)"></div>범위 초과 리포트 렌더링</div>
-      </div>
-    </div>
-    <div class="mq" style="border-left:1px solid var(--bd);border-bottom:1px solid var(--bd)">
-      <div class="mq-label" style="color:var(--yellow)">🟡 Should Have — 베타 운영을 위한 최소 보완</div>
-      <div class="mq-items">
-        <div class="mq-item"><div class="mq-dot" style="background:var(--yellow)"></div>히스토리 목록 및 기본 필터</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--yellow)"></div>리포트 공유 URL(Public) 생성</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--yellow)"></div>프로젝트 손익 대시보드 (W7 이후)</div>
-      </div>
-    </div>
-    <div class="mq">
-      <div class="mq-label" style="color:var(--green)">🟢 Could Have — 여력 시 추가 (우선순위 하)</div>
-      <div class="mq-items">
-        <div class="mq-item"><div class="mq-dot" style="background:var(--green)"></div>입력 리마인더 (Push / 카카오)</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--green)"></div>판정 결과 맞음/틀림 피드백 버튼</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--green)"></div>청구 성공 여부 수동 기록 UI</div>
-      </div>
-    </div>
-    <div class="mq" style="border-left:1px solid var(--bd)">
-      <div class="mq-label" style="color:var(--t4)">⚪ Won't Have — MVP에서 의도적 배제</div>
-      <div class="mq-items">
-        <div class="mq-item"><div class="mq-dot" style="background:var(--t4)"></div>계약서 자동 요약 (Full Text로 우회)</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--t4)"></div>팀원 초대 및 멀티 계정</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--t4)"></div>PDF 내보내기 기능</div>
-        <div class="mq-item"><div class="mq-dot" style="background:var(--t4)"></div>카카오톡 채팅 내역 자동 파싱</div>
+    <div class="card">
+      <div class="slabel">기능 정의 원칙 (4가지)</div>
+      <ul class="bl mt12">
+        <li><strong>가설 연결성</strong> — 모든 기능은 검증할 가설 번호(H1~H4)를 명시</li>
+        <li><strong>AHA 경로 최단화</strong> — 가입→AHA 모멘트까지 클릭 수 최소화</li>
+        <li><strong>PM 감정 노동 제거</strong> — 사람이 말해야 할 것을 시스템이 대신 말함</li>
+        <li><strong>데이터 누적 구조</strong> — 사용할수록 다음 견적의 정확도가 높아지는 선순환</li>
+      </ul>
+      <div class="slabel" style="margin-top:16px">플랜별 기능 범위</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--t3);line-height:1.8">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd)"><span><span class="pill todo">Free</span></span><span>영역 A 기본 · 프로젝트 1개</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd)"><span><span class="pill p1">Starter 29K</span></span><span>영역 A 전체 + 영역 B · 5개</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span><span class="pill done">Pro 69K</span></span><span>전 영역 + 영역 C + 팀 공유</span></div>
       </div>
     </div>
   </div>
 
-</div>
-
-
-<div class="page" id="page-features">
-  <div class="sec mb20">기능 정의 — Must Have (초고속 빌드 범위)</div>
-  <div style="overflow-x:auto;margin-bottom:32px">
-  <table class="ftable">
-    <thead><tr>
-      <th style="width:90px">기능 코드</th>
-      <th style="width:200px">기능명</th>
-      <th>설명 & User Story</th>
-      <th style="width:90px">우선순위</th>
-      <th style="width:70px">포인트</th>
-      <th style="width:80px">관련 가설</th>
-    </tr></thead>
-    <tbody>
-    
-    <tr>
-      <td><div class="feat-code">F-070</div></td>
-      <td><div class="feat-name">회원가입 & 인증</div><div style="margin-top:4px"><span class="tag tag-must">Must</span></div></td>
-      <td>
-        <div class="feat-desc">Supabase Auth 연동. 구글 소셜 로그인 지원. 초기 베타 진입 장벽 최소화.</div>
-        <div class="user-story">As a user, I want to <b>sign up with my Google account</b>, so that I can start using the product immediately without friction.</div>
-      </td>
-      <td><span class="tag tag-must">Must Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">3pt</td>
-      <td style="font-size:11px;color:var(--t3)">—</td>
-    </tr>
-
-    <tr>
-      <td><div class="feat-code">F-001</div></td>
-      <td><div class="feat-name">프로젝트 및 원본 등록</div><div style="margin-top:4px"><span class="tag tag-must">Must</span></div></td>
-      <td>
-        <div class="feat-desc">프로젝트 기본 정보 입력. 핵심은 계약서 텍스트 전체(Full Text)를 복사해서 붙여넣는 필드 제공. (AI 요약 파이프라인 우회)</div>
-        <div class="user-story">As a PM, I want to <b>paste the entire contract text</b>, so that the AI has complete context for judging scope changes.</div>
-      </td>
-      <td><span class="tag tag-must">Must Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">3pt</td>
-      <td style="font-size:11px;color:var(--blue)">H2</td>
-    </tr>
-
-    <tr>
-      <td><div class="feat-code">F-010</div></td>
-      <td><div class="feat-name">일일 과업 변경 입력</div><div style="margin-top:4px"><span class="tag tag-must">Must</span></div></td>
-      <td>
-        <div class="feat-desc">3버튼(요청 있음/없음/보류) 및 텍스트 폼 제공. PM이 퇴근 전 1분 내에 기록을 남길 수 있는 직관적인 UX.</div>
-        <div class="user-story">As a PM, I want to <b>log today's client request in under 1 minute</b>, so that I build a change history without feeling burdened.</div>
-      </td>
-      <td><span class="tag tag-must">Must Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">3pt</td>
-      <td style="font-size:11px;color:var(--blue)">H3</td>
-    </tr>
-
-    <tr>
-      <td><div class="feat-code">F-020</div></td>
-      <td><div class="feat-name">Edge AI 판정 로직</div><div style="margin-top:4px"><span class="tag tag-must">Must</span></div></td>
-      <td>
-        <div class="feat-desc">입력된 요청을 계약서 원본과 함께 Claude API로 전송. 5~10초 대기(로딩 UX 포함) 후 "범위 내/외/불명확" 결과와 근거 JSON 저장.</div>
-        <div class="user-story">As a PM, I want the <b>system (not me) to declare a request out-of-scope</b>, so that I can use it as a neutral basis for billing discussion.</div>
-      </td>
-      <td><span class="tag tag-must">Must Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">8pt</td>
-      <td style="font-size:11px;color:var(--purple)">H1, H2 ⭐</td>
-    </tr>
-
-    <tr>
-      <td><div class="feat-code">F-030</div></td>
-      <td><div class="feat-name">범위 초과 리포트 UI</div><div style="margin-top:4px"><span class="tag tag-must">Must</span></div></td>
-      <td>
-        <div class="feat-desc">DB에 누적된 '범위 외' 판정 결과들을 모아 클라이언트 설득용 리포트 화면으로 렌더링. 예상 추가 공수(시급 반영) 자동 표시.</div>
-        <div class="user-story">As a PM, I want a <b>system-generated out-of-scope report</b>, so that I can show it to my client without feeling like I'm asking for money personally.</div>
-      </td>
-      <td><span class="tag tag-must">Must Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">5pt</td>
-      <td style="font-size:11px;color:var(--purple)">H1, H2 ⭐</td>
-    </tr>
-
-    <tr>
-      <td><div class="feat-code">F-090</div></td>
-      <td><div class="feat-name">리포트 Public 공유</div><div style="margin-top:4px"><span class="tag tag-should">Should</span></div></td>
-      <td>
-        <div class="feat-desc">생성된 리포트를 고유 URL로 발급(Supabase RLS 활용). 클라이언트가 로그인 없이 열람할 수 있는 뷰 제공. URL 클릭 이벤트 로깅.</div>
-        <div class="user-story">As a PM, I want to <b>share the report via a simple link</b>, so that the client can review the AI's objective judgment.</div>
-      </td>
-      <td><span class="tag tag-should">Should Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">3pt</td>
-      <td style="font-size:11px;color:var(--blue)">H2</td>
-    </tr>
-
-    <tr>
-      <td><div class="feat-code">F-060</div></td>
-      <td><div class="feat-name">히스토리 및 조회</div><div style="margin-top:4px"><span class="tag tag-should">Should</span></div></td>
-      <td>
-        <div class="feat-desc">과업 변경 이력을 날짜순으로 조회하는 기본 목록 뷰 제공. (MVP에서는 복잡한 필터와 검색보다 단순 나열에 집중)</div>
-        <div class="user-story">As a PM, I want to <b>see all past change requests</b>, so that I have a solid record if the client disputes previous decisions.</div>
-      </td>
-      <td><span class="tag tag-should">Should Have</span></td>
-      <td style="font-weight:700;color:var(--blue)">2pt</td>
-      <td style="font-size:11px;color:var(--t3)">—</td>
-    </tr>
-
-    </tbody>
-  </table>
+  <div class="card">
+    <div class="slabel">MVP 기능 커버리지 — 가설 검증 매핑</div>
+    <table class="tbl" style="margin-top:10px">
+      <thead><tr><th>가설</th><th>관련 기능</th><th>MVP 포함</th><th>검증 지표</th></tr></thead>
+      <tbody>
+        <tr><td class="t1">H1 문제 가설</td><td>온보딩 설문 · 계약 범위 등록 · 추가 요구 기록</td><td><span class="pill done">포함</span></td><td class="bl2">포기 경험률 &gt; 60%</td></tr>
+        <tr><td class="t1">H2 솔루션 가설</td><td>범위 초과 판정 · 리포트 자동 생성</td><td><span class="pill done">포함</span></td><td class="bl2">리포트 생성 후 재방문 &gt; 40%</td></tr>
+        <tr><td class="t1">H3 수익 가설</td><td>손익 대시보드 · 페이월 · 팀 공유</td><td><span class="pill p1">Starter+ 포함</span></td><td class="bl2">Paid 전환율 &gt; 5%</td></tr>
+        <tr><td class="t1">H4 성장 가설</td><td>레퍼럴 시스템 · 이메일 공유</td><td><span class="pill wip">Phase 2</span></td><td class="bl2">레퍼럴율 &gt; 15%</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
 
-<div class="page" id="page-backlog">
-  <div class="sec mb20">제품 백로그 — 칸반 보드 (Sprint 1 가동 중)</div>
-  <div class="kanban">
+<!-- ══════════════════
+  TAB 2: MVP 기능
+══════════════════ -->
+<div id="page-mvp" class="page">
+  <div class="ptitle">MVP 필수 기능 정의</div>
+  <div class="pdesc">H1·H2 가설 검증에 직결되는 8개 기능입니다. 이 외 기능은 검증 결과 확인 후 추가합니다.</div>
 
-    <div class="kboard">
-      <div class="kboard-head">
-        <span style="color:var(--t3)">📋 To Do (Sprint 2)</span>
-        <span class="kboard-cnt" style="background:rgba(90,100,120,.2);color:var(--t3)">4</span>
+  <!-- F01 -->
+  <div class="fc ac ar">
+    <div class="fc-head">
+      <div>
+        <div class="fc-id" style="color:var(--red)">F-01 · 영역 A · H1 검증</div>
+        <div class="fc-title">프로젝트 생성 & 계약 범위 등록</div>
       </div>
-      <div class="kboard-body">
-        <div class="story-card">
-          <div class="sc-code">F-030</div>
-          <div class="sc-title">범위 초과 리포트 화면 렌더링</div>
-          <div class="sc-tags"><span class="tag tag-must" style="font-size:9px">Must</span><span class="sc-pt">5pt</span></div>
-        </div>
-        <div class="story-card">
-          <div class="sc-code">F-090</div>
-          <div class="sc-title">리포트 Public 공유 링크(URL) 발급</div>
-          <div class="sc-tags"><span class="tag tag-should" style="font-size:9px">Should</span><span class="sc-pt">3pt</span></div>
-        </div>
-        <div class="story-card">
-          <div class="sc-code">F-060</div>
-          <div class="sc-title">과업 히스토리 단순 목록 뷰</div>
-          <div class="sc-tags"><span class="tag tag-should" style="font-size:9px">Should</span><span class="sc-pt">2pt</span></div>
-        </div>
-        <div class="story-card">
-          <div class="sc-code">F-050</div>
-          <div class="sc-title">프로젝트 손익 대시보드 (W7 이후 배치)</div>
-          <div class="sc-tags"><span class="tag tag-should" style="font-size:9px">Should</span><span class="sc-pt">5pt</span></div>
-        </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <span class="pill mvp">MVP 필수</span>
+        <span class="pill todo">개발 예정</span>
       </div>
     </div>
-
-    <div class="kboard" style="border-color:var(--purple);box-shadow:0 0 0 1px rgba(168,85,247,.3)">
-      <div class="kboard-head" style="border-bottom-color:var(--purple);background:rgba(168,85,247,.05)">
-        <span style="color:var(--purple)">🚀 In Progress (Sprint 1)</span>
-        <span class="kboard-cnt" style="background:var(--purple);color:#fff">3</span>
-      </div>
-      <div class="kboard-body">
-        <div class="story-card" style="border-left:3px solid var(--purple)">
-          <div class="sc-code">F-070</div>
-          <div class="sc-title">Supabase 기반 구글 소셜 로그인 연동</div>
-          <div class="sc-tags"><span class="tag tag-must" style="font-size:9px">Must</span><span class="sc-pt">3pt</span></div>
-        </div>
-        <div class="story-card" style="border-left:3px solid var(--purple)">
-          <div class="sc-code">F-001</div>
-          <div class="sc-title">프로젝트 등록 및 계약서 원본 붙여넣기 폼</div>
-          <div class="sc-tags"><span class="tag tag-must" style="font-size:9px">Must</span><span class="sc-pt">3pt</span></div>
-        </div>
-        <div class="story-card" style="border-left:3px solid var(--purple)">
-          <div class="sc-code">F-010</div>
-          <div class="sc-title">일일 과업 3버튼 입력 UI 구축</div>
-          <div class="sc-tags"><span class="tag tag-must" style="font-size:9px">Must</span><span class="sc-pt">3pt</span></div>
-        </div>
-      </div>
+    <div class="fc-body">
+      PM이 프로젝트를 생성하고 <strong>계약 범위(기능 목록 + 예상 공수)</strong>를 등록하는 기능. 이후 모든 범위 판정의 기준선이 된다. 온보딩 설문(포기 경험 2문항)도 이 단계에서 수집한다.
     </div>
-
-    <div class="kboard">
-      <div class="kboard-head">
-        <span style="color:var(--blue)">👁 In Review (AI Logic)</span>
-        <span class="kboard-cnt" style="background:rgba(79,128,255,.15);color:var(--blue)">1</span>
-      </div>
-      <div class="kboard-body">
-        <div class="story-card" style="border-left:3px solid var(--blue)">
-          <div class="sc-code">F-020</div>
-          <div class="sc-title">Edge Function 기반 Claude 판정 통신 로직 및 프롬프트 테스트</div>
-          <div class="sc-tags"><span class="tag tag-must" style="font-size:9px">Must</span><span class="sc-pt">8pt</span></div>
-        </div>
-      </div>
+    <div class="us-box">
+      <strong>유저 스토리:</strong> PM으로서, 새 프로젝트 시작 시 클라이언트와 합의한 기능 목록을 등록하고 싶다. 그래야 나중에 추가 요구가 생겼을 때 "이건 계약 범위 밖"이라고 시스템이 판정해줄 수 있기 때문이다.
     </div>
-
-    <div class="kboard">
-      <div class="kboard-head">
-        <span style="color:var(--green)">✅ Done</span>
-        <span class="kboard-cnt" style="background:rgba(16,185,129,.12);color:var(--green)">1</span>
-      </div>
-      <div class="kboard-body">
-        <div class="story-card" style="opacity:0.6">
-          <div class="sc-code">INFRA</div>
-          <div class="sc-title">Antigravity 통합 워크스페이스 세팅 & Supabase DB 스키마 마이그레이션</div>
-          <div class="sc-tags"><span class="tag tag-must" style="font-size:9px">Core</span></div>
-        </div>
-      </div>
+    <div class="fc-meta">
+      <div class="fm"><div class="fm-lbl">예상 공수</div><div class="fm-val">3일</div></div>
+      <div class="fm"><div class="fm-lbl">사용자 가치</div><div class="fm-val" style="color:var(--red)">최고</div></div>
+      <div class="fm"><div class="fm-lbl">기술 복잡도</div><div class="fm-val" style="color:var(--green)">낮음</div></div>
+      <div class="fm"><div class="fm-lbl">검증 가설</div><div class="fm-val" style="color:var(--blue)">H1 · H2</div></div>
     </div>
-
-  </div>
-</div>
-
-
-<div class="page" id="page-flow">
-  <div class="sec mb20">핵심 실증 플로우 — MVP 배포 기준</div>
-
-  <div class="flow-wrap mb32">
-    <div class="flow">
-      <div class="flow-node fn-active">
-        <div class="fn-icon">📋</div>
-        <div class="fn-title">원본 텍스트 주입</div>
-        <div class="fn-desc">요약 생략, 계약 전문<br>DB에 그대로 저장</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node fn-active">
-        <div class="fn-icon">⏱</div>
-        <div class="fn-title">일일 입력 (H3)</div>
-        <div class="fn-desc">3버튼 누르고<br>요청사항 텍스트 작성</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node fn-ai">
-        <div class="fn-icon">🤖</div>
-        <div class="fn-title">Edge AI 판정 (H1)</div>
-        <div class="fn-desc">계약서 전문 + 요청 비교<br>JSON 결과 DB Insert</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node fn-ai">
-        <div class="fn-icon">🔗</div>
-        <div class="fn-title">리포트 URL 발급</div>
-        <div class="fn-desc">범위 외 이력만 취합<br>Public 링크 생성</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node fn-out">
-        <div class="fn-icon">💰</div>
-        <div class="fn-title">청구 성공 실측 (H2)</div>
-        <div class="fn-desc">발급된 URL 클릭 로그 및<br>피드백 통한 결과 확인</div>
-      </div>
+    <div class="ac-list">
+      <div class="slabel" style="margin-top:12px;margin-bottom:6px">인수 조건 (Acceptance Criteria)</div>
+      <div class="ac-item"><span class="check">✓</span><span><strong>프로젝트 이름·클라이언트·기간</strong> 입력 후 저장 가능</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>기능 항목을 <strong>복수 추가</strong> 가능 (이름 + 예상 공수시간)</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>온보딩 설문 2문항이 <strong>첫 프로젝트 생성 직후</strong> 표시됨</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>등록된 범위는 <strong>언제든 수정·추가</strong> 가능 (계약 변경 반영)</span></div>
     </div>
   </div>
 
-  <div class="sec mb20">로딩 UX 대응 플로우 (AI API 지연 방어)</div>
+  <!-- F02 -->
+  <div class="fc ac ay">
+    <div class="fc-head">
+      <div>
+        <div class="fc-id" style="color:var(--yellow)">F-02 · 영역 A · H1 검증</div>
+        <div class="fc-title">추가 요구 실시간 기록</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <span class="pill mvp">MVP 필수</span>
+        <span class="pill todo">개발 예정</span>
+      </div>
+    </div>
+    <div class="fc-body">
+      클라이언트의 추가 요구를 <strong>발생 즉시 기록</strong>하는 기능. 날짜·내용·요청 채널(카카오톡/이메일/전화)을 기록한다. 빠른 입력을 위해 모바일 친화적 UI가 필요하다. 기록 시 자동으로 계약 범위와 비교를 시작한다.
+    </div>
+    <div class="us-box">
+      <strong>유저 스토리:</strong> PM으로서, 클라이언트가 카카오톡으로 추가 기능을 요청할 때 즉시 기록하고 싶다. 나중에 "그런 말 했나요?"라는 상황을 방지하기 위해.
+    </div>
+    <div class="fc-meta">
+      <div class="fm"><div class="fm-lbl">예상 공수</div><div class="fm-val">2일</div></div>
+      <div class="fm"><div class="fm-lbl">사용자 가치</div><div class="fm-val" style="color:var(--red)">최고</div></div>
+      <div class="fm"><div class="fm-lbl">기술 복잡도</div><div class="fm-val" style="color:var(--green)">낮음</div></div>
+      <div class="fm"><div class="fm-lbl">검증 가설</div><div class="fm-val" style="color:var(--blue)">H1</div></div>
+    </div>
+    <div class="ac-list">
+      <div class="slabel" style="margin-top:12px;margin-bottom:6px">인수 조건</div>
+      <div class="ac-item"><span class="check">✓</span><span>요구 내용 + 날짜 + 요청 채널 + 스크린샷 첨부 가능</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>입력 후 <strong>3초 이내</strong>에 "범위 내 / 범위 초과 여부" 자동 판정 표시</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>모바일에서 <strong>원탭 빠른 입력</strong> UI 지원</span></div>
+    </div>
+  </div>
+
+  <!-- F03 -->
+  <div class="fc ac ab">
+    <div class="fc-head">
+      <div>
+        <div class="fc-id" style="color:var(--blue)">F-03 · 영역 A · H2 검증</div>
+        <div class="fc-title">범위 초과 자동 판정 엔진</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <span class="pill mvp">MVP 필수</span>
+        <span class="pill todo">개발 예정</span>
+      </div>
+    </div>
+    <div class="fc-body">
+      등록된 계약 범위와 추가 요구를 비교하여 <strong>"범위 내 / 범위 초과 / 판단 필요"</strong> 3단계로 자동 분류하는 핵심 엔진. AI(Claude API)를 활용하여 텍스트 의미 기반 유사도 비교를 수행한다. 이것이 Scope Manager의 핵심 차별점이다.
+    </div>
+    <div class="us-box">
+      <strong>유저 스토리:</strong> PM으로서, 클라이언트의 추가 요구를 입력하면 시스템이 자동으로 계약 범위를 벗어났는지 판정해주길 원한다. "제가 아니라 시스템이 그렇게 판정했어요"라고 말할 수 있게.
+    </div>
+    <div class="fc-meta">
+      <div class="fm"><div class="fm-lbl">예상 공수</div><div class="fm-val">5일</div></div>
+      <div class="fm"><div class="fm-lbl">사용자 가치</div><div class="fm-val" style="color:var(--red)">최고</div></div>
+      <div class="fm"><div class="fm-lbl">기술 복잡도</div><div class="fm-val" style="color:var(--yellow)">중간</div></div>
+      <div class="fm"><div class="fm-lbl">검증 가설</div><div class="fm-val" style="color:var(--blue)">H2</div></div>
+    </div>
+    <div class="ac-list">
+      <div class="slabel" style="margin-top:12px;margin-bottom:6px">인수 조건</div>
+      <div class="ac-item"><span class="check">✓</span><span>범위 내 / 초과 / 판단 필요 <strong>3단계 판정</strong>, 판정 근거 텍스트 표시</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>PM이 판정 결과를 <strong>수동 오버라이드</strong> 가능 (시스템 오류 대응)</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>판정 정확도 로그 누적 → <strong>지속 개선</strong> 가능한 구조</span></div>
+    </div>
+  </div>
+
+  <!-- F04 -->
+  <div class="fc ac ap">
+    <div class="fc-head">
+      <div>
+        <div class="fc-id" style="color:var(--purple)">F-04 · 영역 B · H2 검증 (AHA)</div>
+        <div class="fc-title">범위 초과 판정 리포트 자동 생성</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <span class="pill mvp">MVP 필수</span>
+        <span class="pill todo">개발 예정</span>
+      </div>
+    </div>
+    <div class="fc-body">
+      "시스템상 과업 범위를 초과한 것으로 기록되었습니다"라는 문장을 포함한 <strong>공식 리포트를 자동 생성</strong>하는 기능. PM의 감정 노동 없이 클라이언트에게 전달 가능한 형태로 출력된다. 이것이 <strong>핵심 AHA 모멘트</strong>다.
+    </div>
+    <div class="us-box">
+      <strong>유저 스토리:</strong> PM으로서, 범위 초과가 판정되면 클라이언트에게 바로 보낼 수 있는 공식 문서를 자동으로 받고 싶다. 내가 직접 말하는 게 아니라 시스템 문서로 전달하고 싶다.
+    </div>
+    <div class="fc-meta">
+      <div class="fm"><div class="fm-lbl">예상 공수</div><div class="fm-val">3일</div></div>
+      <div class="fm"><div class="fm-lbl">사용자 가치</div><div class="fm-val" style="color:var(--red)">최고 (AHA)</div></div>
+      <div class="fm"><div class="fm-lbl">기술 복잡도</div><div class="fm-val" style="color:var(--green)">낮음</div></div>
+      <div class="fm"><div class="fm-lbl">검증 가설</div><div class="fm-val" style="color:var(--blue)">H2</div></div>
+    </div>
+    <div class="ac-list">
+      <div class="slabel" style="margin-top:12px;margin-bottom:6px">인수 조건</div>
+      <div class="ac-item"><span class="check">✓</span><span>리포트에 <strong>계약 범위 항목 · 요청 내용 · 판정 결과 · 날짜</strong> 포함</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>PDF 다운로드 또는 <strong>링크 공유</strong> 가능</span></div>
+      <div class="ac-item"><span class="check">✓</span><span>이메일 직접 발송 버튼 (Starter 이상)</span></div>
+    </div>
+  </div>
+
+  <!-- F05~F08 간략 카드 -->
+  <div class="g2 mb14">
+    <div class="fc ac ag" style="margin-bottom:0">
+      <div class="fc-head">
+        <div>
+          <div class="fc-id" style="color:var(--green)">F-05 · 영역 A · 온보딩</div>
+          <div class="fc-title">온보딩 설문 & 가입 플로우</div>
+        </div>
+        <span class="pill mvp">MVP 필수</span>
+      </div>
+      <div class="fc-body">가입 직후 에이전시 규모·포기 경험 2문항 설문 수집. H1 가설 정량 검증의 핵심 데이터 수집 지점. 3단계 이하 온보딩으로 마찰 최소화.</div>
+      <div class="fc-meta" style="grid-template-columns:1fr 1fr">
+        <div class="fm"><div class="fm-lbl">공수</div><div class="fm-val">2일</div></div>
+        <div class="fm"><div class="fm-lbl">가설</div><div class="fm-val" style="color:var(--blue)">H1</div></div>
+      </div>
+    </div>
+    <div class="fc ac ao" style="margin-bottom:0">
+      <div class="fc-head">
+        <div>
+          <div class="fc-id" style="color:var(--orange)">F-06 · 영역 A · UX</div>
+          <div class="fc-title">프로젝트 대시보드 (홈)</div>
+        </div>
+        <span class="pill mvp">MVP 필수</span>
+      </div>
+      <div class="fc-body">진행 중인 프로젝트 목록·범위 초과 현황·최근 추가 요구 알림을 한눈에 볼 수 있는 메인 대시보드. 재방문 트리거 역할.</div>
+      <div class="fc-meta" style="grid-template-columns:1fr 1fr">
+        <div class="fm"><div class="fm-lbl">공수</div><div class="fm-val">3일</div></div>
+        <div class="fm"><div class="fm-lbl">가설</div><div class="fm-val" style="color:var(--blue)">H2 리텐션</div></div>
+      </div>
+    </div>
+  </div>
   <div class="g2">
-    <div class="card" style="border-left:3px solid var(--purple)">
-      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">⏳ AI 추론 중 (5~8초 소요)</div>
-      <div style="display:flex;flex-direction:column;gap:7px">
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700">1.</span>입력 폼 비활성화 (중복 제출 방지)</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700">2.</span>스켈레톤 로딩 바 표출</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--purple);font-weight:700">3.</span>텍스트 변경: "계약 조항 교차 검증 중..."</div>
+    <div class="fc ac ab" style="margin-bottom:0">
+      <div class="fc-head">
+        <div>
+          <div class="fc-id" style="color:var(--blue)">F-07 · 영역 C · H3</div>
+          <div class="fc-title">프로젝트 손익 기본 트래킹</div>
+        </div>
+        <span class="pill p1">Starter+</span>
+      </div>
+      <div class="fc-body">계약 금액·실제 투입 시간·추가 청구 성공 금액을 기반으로 프로젝트별 실시간 손익을 계산·표시. Paid 플랜의 핵심 가치 제안.</div>
+      <div class="fc-meta" style="grid-template-columns:1fr 1fr">
+        <div class="fm"><div class="fm-lbl">공수</div><div class="fm-val">4일</div></div>
+        <div class="fm"><div class="fm-lbl">가설</div><div class="fm-val" style="color:var(--blue)">H3</div></div>
       </div>
     </div>
-    <div class="card" style="border-left:3px solid var(--red)">
-      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px">🚨 폴백(Fallback) 발생 시</div>
-      <div style="display:flex;flex-direction:column;gap:7px">
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700">1.</span>JSON 파싱 에러 또는 응답 타임아웃 발생</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700">2.</span>결과를 강제로 '불명확(Unclear)'으로 지정</div>
-        <div style="display:flex;gap:8px;font-size:12px;color:var(--t2)"><span style="color:var(--red);font-weight:700">3.</span>PM에게 "수동으로 판단해 주세요" 팝업 노출</div>
+    <div class="fc ac ag" style="margin-bottom:0">
+      <div class="fc-head">
+        <div>
+          <div class="fc-id" style="color:var(--green)">F-08 · 인프라 · 전체</div>
+          <div class="fc-title">인증·계정·구독 관리</div>
+        </div>
+        <span class="pill mvp">MVP 필수</span>
+      </div>
+      <div class="fc-body">이메일 가입/로그인, Freemium/Starter/Pro 플랜 관리, 결제 연동(Toss Payments). H3 수익 가설 검증을 위한 필수 인프라.</div>
+      <div class="fc-meta" style="grid-template-columns:1fr 1fr">
+        <div class="fm"><div class="fm-lbl">공수</div><div class="fm-val">3일</div></div>
+        <div class="fm"><div class="fm-lbl">가설</div><div class="fm-val" style="color:var(--blue)">H3</div></div>
       </div>
     </div>
   </div>
-
 </div>
 
 
-<div class="page" id="page-acceptance">
-  <div class="sec mb20">인수 조건 (Acceptance Criteria)</div>
-  <div style="font-size:12px;color:var(--t3);margin-bottom:20px;line-height:1.7">초고속 MVP 배포를 위한 핵심 조건들입니다. 아래 테스트 통과 즉시 클로즈드 베타 테스터들에게 URL을 오픈합니다.</div>
+<!-- ══════════════════
+  TAB 3: 유저 스토리
+══════════════════ -->
+<div id="page-stories" class="page">
+  <div class="ptitle">유저 스토리 & 인수 조건</div>
+  <div class="pdesc">핵심 사용 시나리오를 유저 스토리 형식으로 작성합니다.<br>As a [역할], I want [기능], So that [목적] 구조를 따릅니다.</div>
 
-  <div class="ac-item">
-    <div class="ac-head" onclick="toggleAc(this)">
-      <div class="ac-htitle"><span class="tag tag-must" style="font-size:9px">F-020</span> Edge AI 범위 초과 판정</div>
-      <div class="chev">▼</div>
+  <div class="slabel mb12">영역 A — 범위 관리</div>
+
+  <div class="card mb14">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--red)">Epic A1</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t1)">계약 범위 기준선 수립</div>
     </div>
-    <div class="ac-body">
-      <div class="ac-criteria">
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> Supabase Edge Function을 호출했을 때, <span class="when">When</span> 클라이언트 요청이 전달되면, <span class="then">Then</span> Claude API가 계약서 원본(Full Context)을 참조하여 유효한 JSON 포맷을 반환해야 한다.</div></div>
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> 동일한 요청 케이스 10개를 테스트했을 때, <span class="when">When</span> 결과를 확인하면, <span class="then">Then</span> Jey(기획자)가 사전 정의한 판정 결과와 8개 이상(80%) 일치해야 한다.</div></div>
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> 응답이 10초를 초과할 경우, <span class="when">When</span> 시스템이 타임아웃을 감지하면, <span class="then">Then</span> 안전하게 'Unclear(불명확)' 상태로 Fallback 처리되어 앱 크래시를 막아야 한다.</div></div>
-      </div>
+    <div class="us-box"><strong>US-A1-01:</strong> 에이전시 PM으로서, 프로젝트 시작 시 클라이언트와 합의한 기능 목록을 5분 이내에 등록하고 싶다. 그래야 이후 추가 요구와 비교할 수 있기 때문이다.<br><span style="color:var(--green);font-size:11px;margin-top:4px;display:block">✓ 기능 항목 + 공수 입력 ✓ 5분 이내 완료 ✓ 저장 후 즉시 수정 가능</span></div>
+    <div class="us-box"><strong>US-A1-02:</strong> 대표 겸직 PM으로서, 기존 계약서 PDF를 업로드하면 기능 목록이 자동 추출되길 원한다. 수동 입력 시간을 줄이고 싶기 때문이다.<br><span style="color:var(--yellow);font-size:11px;margin-top:4px;display:block">⚠️ Phase 2 기능 — MVP에서는 수동 입력으로 대체</span></div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 10px">
+      <div style="background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--yellow)">Epic A2</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t1)">추가 요구 캡처</div>
     </div>
+    <div class="us-box"><strong>US-A2-01:</strong> PM으로서, 클라이언트가 카카오톡으로 요청을 보내는 즉시 앱에 기록하고 싶다. 나중에 분쟁이 생겼을 때 증거로 쓰기 위해.<br><span style="color:var(--green);font-size:11px;margin-top:4px;display:block">✓ 모바일 원탭 입력 ✓ 날짜 자동 기록 ✓ 스크린샷 첨부</span></div>
+    <div class="us-box"><strong>US-A2-02:</strong> PM으로서, 추가 요구를 입력하자마자 "이게 계약 범위 안인지 밖인지" 바로 알고 싶다. 대화 중에 빠르게 판단해야 하기 때문이다.<br><span style="color:var(--green);font-size:11px;margin-top:4px;display:block">✓ 입력 후 3초 이내 판정 ✓ 판정 근거 텍스트 표시 ✓ 오버라이드 가능</span></div>
   </div>
 
-  <div class="ac-item">
-    <div class="ac-head" onclick="toggleAc(this)">
-      <div class="ac-htitle"><span class="tag tag-must" style="font-size:9px">F-010</span> 일일 과업 3버튼 입력</div>
-      <div class="chev">▼</div>
+  <div class="slabel mb12">영역 B — 리포트 & 청구</div>
+
+  <div class="card mb14">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--purple)">Epic B1</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t1)">청구 근거 자동 생성 (AHA 모멘트)</div>
     </div>
-    <div class="ac-body">
-      <div class="ac-criteria">
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> 로그인한 테스터가 모바일 환경에서 접속할 때, <span class="when">When</span> 입력 화면을 띄우면, <span class="then">Then</span> 3개의 상태 버튼이 한 화면(Above the fold)에 깨짐 없이 노출되어야 한다.</div></div>
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> "요청 있음"을 누르고 텍스트를 입력한 후 제출했을 때, <span class="when">When</span> 통신이 완료되면, <span class="then">Then</span> 화면에 체감 대기시간 완화용 로딩 스피너가 표시되어야 한다.</div></div>
-      </div>
-    </div>
+    <div class="us-box"><strong>US-B1-01:</strong> PM으로서, 범위 초과 판정이 나면 클라이언트에게 바로 보낼 수 있는 공식 문서를 받고 싶다. "제가 그러는 게 아니라 시스템이 판정했어요"라고 말할 수 있게.<br><span style="color:var(--green);font-size:11px;margin-top:4px;display:block">✓ 자동 리포트 생성 ✓ PDF 다운로드 ✓ 링크 공유</span></div>
+    <div class="us-box"><strong>US-B1-02:</strong> PM으로서, 리포트를 앱에서 직접 클라이언트 이메일로 발송하고 싶다. 첨부파일 다운로드 없이 바로 전달하기 위해.<br><span style="color:var(--yellow);font-size:11px;margin-top:4px;display:block">⚠️ Starter 이상 기능</span></div>
+    <div class="us-box"><strong>US-B1-03:</strong> PM으로서, 추가 청구 금액을 리포트에 포함시키고 싶다. "범위 초과이므로 N만원이 추가됩니다"라는 문장까지 자동 생성되길 원한다.<br><span style="color:var(--yellow);font-size:11px;margin-top:4px;display:block">⚠️ Phase 2 — MVP에서는 금액 입력 후 포함만 지원</span></div>
   </div>
 
-  <div class="ac-item">
-    <div class="ac-head" onclick="toggleAc(this)">
-      <div class="ac-htitle"><span class="tag tag-must" style="font-size:9px">F-090</span> 리포트 Public 공유</div>
-      <div class="chev">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="ac-criteria">
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> PM이 '범위 초과 리포트' 생성 버튼을 눌렀을 때, <span class="when">When</span> URL이 발급되면, <span class="then">Then</span> 해당 URL(share_token)을 시크릿 모드에서 열었을 때 로그인 없이 리포트 내용이 정상 노출되어야 한다.</div></div>
-        <div class="ac-row"><div class="ac-check">□</div><div class="ac-text"><span class="given">Given</span> 클라이언트가 공유된 링크를 클릭했을 때, <span class="when">When</span> 서버에 요청이 들어오면, <span class="then">Then</span> 해당 조회 로그가 Supabase에 정상적으로 트래킹되어야 한다.</div></div>
-      </div>
-    </div>
-  </div>
+  <div class="slabel mb12">영역 C — 수익성 분석</div>
 
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--green)">Epic C1</div>
+      <div style="font-size:14px;font-weight:700;color:var(--t1)">프로젝트 손익 가시화</div>
+    </div>
+    <div class="us-box"><strong>US-C1-01:</strong> 에이전시 대표로서, 진행 중인 프로젝트의 현재 수익성을 실시간으로 보고 싶다. 프로젝트가 끝난 후에야 적자인 걸 알게 되는 상황을 없애고 싶다.<br><span style="color:var(--green);font-size:11px;margin-top:4px;display:block">✓ 계약금 · 투입시간 · 추가청구 기반 실시간 손익 표시</span></div>
+    <div class="us-box"><strong>US-C1-02:</strong> PM으로서, 이번 프로젝트에서 발생한 모든 추가 요구와 청구 결과를 한 페이지에서 보고 싶다. 다음 프로젝트 견적의 기준으로 쓰기 위해.<br><span style="color:var(--green);font-size:11px;margin-top:4px;display:block">✓ 추가 요구 목록 · 판정 결과 · 청구 성공 여부 집계</span></div>
+  </div>
 </div>
 
 
-<div class="page" id="page-sprint">
-  <div class="sec mb20">스프린트 계획 — 4주 초고속 빌드 팩</div>
+<!-- ══════════════════
+  TAB 4: 전체 백로그
+══════════════════ -->
+<div id="page-backlog" class="page">
+  <div class="ptitle">전체 백로그</div>
+  <div class="pdesc">MVP · Phase 2 · Phase 3으로 구분된 29개 백로그 아이템입니다.<br>검증 결과에 따라 Phase 2·3 순서는 동적으로 재조정됩니다.</div>
 
-  <div class="sprint-col" style="border-color:var(--purple);box-shadow:0 0 0 1px rgba(168,85,247,.3)">
-    <div class="sp-left" style="background:rgba(168,85,247,.05);border-right-color:var(--purple)">
-      <div class="sp-num" style="color:var(--purple)">Sprint 1</div>
-      <div class="sp-week">W1–W2 (현재)</div>
-      <div class="sp-pts">17pt</div>
+  <!-- MVP -->
+  <div class="phase-block mb14">
+    <div class="phase-head">
+      <div><div class="phase-title">🚀 MVP — 가설 검증 필수 기능</div><div style="font-size:12px;color:var(--t3);margin-top:2px">H1·H2 검증 직결 · 총 예상 공수 21일</div></div>
+      <span class="pill mvp">8개 아이템</span>
     </div>
-    <div class="sp-right">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">🏗 기반 구축 및 AI 엔진 코어</div>
-      <div class="sp-items">
-        <div class="sp-item"><div class="sp-item-code">INFRA</div><div class="sp-item-name">Antigravity 셋업 및 Supabase 마이그레이션 (완료)</div></div>
-        <div class="sp-item"><div class="sp-item-code">F-070</div><div class="sp-item-name">구글 소셜 로그인 및 세션 (3pt)</div></div>
-        <div class="sp-item"><div class="sp-item-code">F-001</div><div class="sp-item-name">프로젝트 및 원본 텍스트 폼 생성 (3pt)</div></div>
-        <div class="sp-item"><div class="sp-item-code">F-010</div><div class="sp-item-name">일일 3버튼 과업 입력 UI (3pt)</div></div>
-        <div class="sp-item"><div class="sp-item-code">F-020</div><div class="sp-item-name">Edge Function AI 판정 엔진 통신 (8pt)</div></div>
+    <div class="phase-body">
+      <div class="bl-row header"><div>ID</div><div>기능명</div><div>영역</div><div>공수</div><div>가설</div><div>상태</div></div>
+      <div class="bl-row"><div class="bl-id">F-01</div><div class="bl-title">프로젝트 생성 & 계약 범위 등록</div><div><span class="tag r">영역 A</span></div><div class="bl-effort">3일</div><div><span class="tag b">H1·H2</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-02</div><div class="bl-title">추가 요구 실시간 기록</div><div><span class="tag r">영역 A</span></div><div class="bl-effort">2일</div><div><span class="tag b">H1</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-03</div><div class="bl-title">범위 초과 자동 판정 엔진 (AI)</div><div><span class="tag r">영역 A</span></div><div class="bl-effort">5일</div><div><span class="tag b">H2</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-04</div><div class="bl-title">범위 초과 판정 리포트 자동 생성</div><div><span class="tag p">영역 B</span></div><div class="bl-effort">3일</div><div><span class="tag b">H2</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-05</div><div class="bl-title">온보딩 설문 & 가입 플로우</div><div><span class="tag g">온보딩</span></div><div class="bl-effort">2일</div><div><span class="tag b">H1</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-06</div><div class="bl-title">프로젝트 대시보드 (홈)</div><div><span class="tag r">영역 A</span></div><div class="bl-effort">3일</div><div><span class="tag b">리텐션</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-07</div><div class="bl-title">프로젝트 손익 기본 트래킹</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">4일</div><div><span class="tag b">H3</span></div><div><span class="pill todo">예정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-08</div><div class="bl-title">인증·계정·구독 관리 (결제)</div><div><span class="tag">인프라</span></div><div class="bl-effort">3일</div><div><span class="tag b">H3</span></div><div><span class="pill todo">예정</span></div></div>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase-block mb14">
+    <div class="phase-head">
+      <div><div class="phase-title">📈 Phase 2 — 검증 후 확장 기능</div><div style="font-size:12px;color:var(--t3);margin-top:2px">H3·H4 검증 · MVP 성공 확인 후 착수</div></div>
+      <span class="pill p1">12개 아이템</span>
+    </div>
+    <div class="phase-body">
+      <div class="bl-row header"><div>ID</div><div>기능명</div><div>영역</div><div>공수</div><div>가설</div><div>상태</div></div>
+      <div class="bl-row"><div class="bl-id">F-09</div><div class="bl-title">리포트 이메일 직접 발송</div><div><span class="tag p">영역 B</span></div><div class="bl-effort">2일</div><div><span class="tag b">H2</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-10</div><div class="bl-title">계약서 PDF 자동 파싱·등록</div><div><span class="tag r">영역 A</span></div><div class="bl-effort">5일</div><div><span class="tag">UX</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-11</div><div class="bl-title">추가 청구 금액 자동 계산·리포트 포함</div><div><span class="tag p">영역 B</span></div><div class="bl-effort">3일</div><div><span class="tag b">H3</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-12</div><div class="bl-title">프로젝트별 손익 상세 분석 대시보드</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">4일</div><div><span class="tag b">H3</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-13</div><div class="bl-title">팀 멤버 초대 & 공유 (Pro)</div><div><span class="tag">협업</span></div><div class="bl-effort">4일</div><div><span class="tag b">H3</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-14</div><div class="bl-title">레퍼럴 시스템 & 초대 인센티브</div><div><span class="tag">성장</span></div><div class="bl-effort">3일</div><div><span class="tag b">H4</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-15</div><div class="bl-title">이탈 유저 자동 재활성화 이메일</div><div><span class="tag">성장</span></div><div class="bl-effort">2일</div><div><span class="tag">리텐션</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-16</div><div class="bl-title">카카오톡 알림 연동</div><div><span class="tag">알림</span></div><div class="bl-effort">3일</div><div><span class="tag">UX</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-17</div><div class="bl-title">다중 프로젝트 비교 리포트</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">3일</div><div><span class="tag b">H3</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-18</div><div class="bl-title">클라이언트 포털 (읽기 전용 공유)</div><div><span class="tag p">영역 B</span></div><div class="bl-effort">4일</div><div><span class="tag b">H2</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-19</div><div class="bl-title">범위 협의 히스토리 타임라인</div><div><span class="tag r">영역 A</span></div><div class="bl-effort">2일</div><div><span class="tag">UX</span></div><div><span class="pill p1">대기</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-20</div><div class="bl-title">견적 템플릿 생성 (과거 데이터 기반)</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">4일</div><div><span class="tag b">H3</span></div><div><span class="pill p1">대기</span></div></div>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="phase-block">
+    <div class="phase-head">
+      <div><div class="phase-title">🔮 Phase 3 — 확장 & 엔터프라이즈</div><div style="font-size:12px;color:var(--t3);margin-top:2px">성장 궤도 진입 후 · 검증 데이터 기반 결정</div></div>
+      <span class="pill p2">9개 아이템</span>
+    </div>
+    <div class="phase-body">
+      <div class="bl-row header"><div>ID</div><div>기능명</div><div>영역</div><div>공수</div><div>가설</div><div>상태</div></div>
+      <div class="bl-row"><div class="bl-id">F-21</div><div class="bl-title">Slack / Notion 연동</div><div><span class="tag">연동</span></div><div class="bl-effort">5일</div><div><span class="tag">UX</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-22</div><div class="bl-title">AI 견적 자동 생성</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">7일</div><div><span class="tag b">H3</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-23</div><div class="bl-title">업계 평균 단가 벤치마크 (익명)</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">5일</div><div><span class="tag">데이터</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-24</div><div class="bl-title">전자 서명 기반 변경 계약서</div><div><span class="tag p">영역 B</span></div><div class="bl-effort">8일</div><div><span class="tag b">H2</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-25</div><div class="bl-title">API 제공 (외부 연동)</div><div><span class="tag">인프라</span></div><div class="bl-effort">6일</div><div><span class="tag">확장</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-26</div><div class="bl-title">다국어 지원 (글로벌 확장)</div><div><span class="tag">인프라</span></div><div class="bl-effort">5일</div><div><span class="tag">확장</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-27</div><div class="bl-title">엔터프라이즈 SSO · 권한 관리</div><div><span class="tag">인프라</span></div><div class="bl-effort">7일</div><div><span class="tag">엔터프라이즈</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-28</div><div class="bl-title">에이전시 포트폴리오 수익성 리포트</div><div><span class="tag g">영역 C</span></div><div class="bl-effort">4일</div><div><span class="tag b">H3</span></div><div><span class="pill p2">미확정</span></div></div>
+      <div class="bl-row"><div class="bl-id">F-29</div><div class="bl-title">화이트라벨 (에이전시 브랜드 적용)</div><div><span class="tag">확장</span></div><div class="bl-effort">6일</div><div><span class="tag">엔터프라이즈</span></div><div><span class="pill p2">미확정</span></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════
+  TAB 5: 우선순위 매트릭스
+══════════════════ -->
+<div id="page-matrix" class="page">
+  <div class="ptitle">기능 우선순위 매트릭스</div>
+  <div class="pdesc">사용자 가치(Value) × 구현 노력(Effort) 2×2 매트릭스로 기능 우선순위를 시각화합니다.</div>
+
+  <div class="g2 mb18">
+    <div class="card">
+      <div class="slabel">Value × Effort 매트릭스</div>
+      <div class="matrix-wrap">
+        <!-- Q1: High Value / Low Effort → 즉시 개발 -->
+        <div class="mx-cell q1">
+          <div class="mx-label g">즉시 개발 ⚡</div>
+          <div class="mx-item"><strong>F-01</strong> 범위 등록</div>
+          <div class="mx-item"><strong>F-02</strong> 추가 요구 기록</div>
+          <div class="mx-item"><strong>F-04</strong> 리포트 생성</div>
+          <div class="mx-item"><strong>F-05</strong> 온보딩 설문</div>
+          <div class="mx-item"><strong>F-08</strong> 인증·결제</div>
+        </div>
+        <!-- Q2: High Value / High Effort → 계획적 개발 -->
+        <div class="mx-cell q2">
+          <div class="mx-label b">계획적 개발 📋</div>
+          <div class="mx-item"><strong>F-03</strong> AI 판정 엔진</div>
+          <div class="mx-item"><strong>F-10</strong> PDF 파싱</div>
+          <div class="mx-item"><strong>F-12</strong> 손익 대시보드</div>
+          <div class="mx-item"><strong>F-22</strong> AI 견적 생성</div>
+          <div class="mx-item"><strong>F-24</strong> 전자 서명</div>
+        </div>
+        <!-- Q3: Low Value / Low Effort → 여유시 추가 -->
+        <div class="mx-cell q3">
+          <div class="mx-label y">여유 시 추가 💡</div>
+          <div class="mx-item"><strong>F-09</strong> 이메일 발송</div>
+          <div class="mx-item"><strong>F-15</strong> 재활성화 이메일</div>
+          <div class="mx-item"><strong>F-19</strong> 히스토리</div>
+          <div class="mx-item"><strong>F-16</strong> 카카오 알림</div>
+        </div>
+        <!-- Q4: Low Value / High Effort → 보류 -->
+        <div class="mx-cell q4">
+          <div class="mx-label r">보류 / 재검토 ⛔</div>
+          <div class="mx-item"><strong>F-25</strong> API 제공</div>
+          <div class="mx-item"><strong>F-26</strong> 다국어 지원</div>
+          <div class="mx-item"><strong>F-27</strong> 엔터프라이즈 SSO</div>
+          <div class="mx-item"><strong>F-29</strong> 화이트라벨</div>
+        </div>
+        <!-- Axis labels -->
+        <div class="mx-axis vert" style="grid-column:1;grid-row:1/3">↑ 가치 높음</div>
+        <div class="mx-axis" style="grid-column:2/4;grid-row:3">노력 낮음 ←————————→ 노력 높음</div>
+        <div class="mx-empty" style="grid-column:1;grid-row:3"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="slabel">우선순위 결정 기준</div>
+        <ul class="bl mt10">
+          <li><strong>가설 연결성</strong> — H1·H2 직결 기능이 최우선 (MVP 생존 조건)</li>
+          <li><strong>AHA 경로 단축</strong> — 가입→첫 리포트까지 클릭 수 최소화</li>
+          <li><strong>공수 대비 임팩트</strong> — 3일 이하로 핵심 가치 전달 가능한 기능 우선</li>
+          <li><strong>검증 결과 반영</strong> — 6주 후 행동 데이터로 Phase 2 순서 재조정</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="slabel">MVP 공수 분배</div>
+        <div class="mt10">
+          <div class="prog-row">
+            <div class="prog-lbl"><span>영역 A (범위 관리)</span><span>10일</span></div>
+            <div class="prog-bar"><div class="prog-fill fr" style="width:48%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-lbl"><span>영역 B (리포트)</span><span>3일</span></div>
+            <div class="prog-bar"><div class="prog-fill fp" style="width:14%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-lbl"><span>영역 C (손익)</span><span>4일</span></div>
+            <div class="prog-bar"><div class="prog-fill fb" style="width:19%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-lbl"><span>인프라 (인증·결제·온보딩)</span><span>5일</span></div>
+            <div class="prog-bar"><div class="prog-fill fg" style="width:24%"></div></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--t3)">총 MVP 예상 공수: <strong style="color:var(--blue)">22일</strong> (1인 개발 기준, AI 도구 활용)</div>
       </div>
     </div>
   </div>
 
-  <div class="sprint-col">
-    <div class="sp-left">
-      <div class="sp-num">Sprint 2</div>
-      <div class="sp-week">W3–W4</div>
-      <div class="sp-pts">10pt</div>
-    </div>
-    <div class="sp-right">
-      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">📄 리포트 출력 및 베타 런칭</div>
-      <div class="sp-items">
-        <div class="sp-item"><div class="sp-item-code">F-030</div><div class="sp-item-name">범위 초과 리포트 UI 렌더링 (5pt)</div></div>
-        <div class="sp-item"><div class="sp-item-code">F-090</div><div class="sp-item-name">Public 공유 링크 생성 (RLS 정책 설정) (3pt)</div></div>
-        <div class="sp-item"><div class="sp-item-code">F-060</div><div class="sp-item-name">기본 히스토리 목록 뷰 (2pt)</div></div>
-      </div>
-    </div>
+  <div class="card">
+    <div class="slabel">기능별 우선순위 스코어카드</div>
+    <table class="tbl" style="margin-top:10px">
+      <thead><tr><th>ID</th><th>기능명</th><th>가설</th><th>사용자 가치</th><th>구현 노력</th><th>우선순위</th></tr></thead>
+      <tbody>
+        <tr><td class="bl2">F-03</td><td class="t1">AI 범위 판정 엔진</td><td><span class="tag b">H2</span></td><td><span style="color:var(--red);font-weight:700">최고</span></td><td>중간 (5일)</td><td><span class="pill mvp">MVP P1</span></td></tr>
+        <tr><td class="bl2">F-04</td><td class="t1">리포트 자동 생성</td><td><span class="tag b">H2</span></td><td><span style="color:var(--red);font-weight:700">최고 (AHA)</span></td><td>낮음 (3일)</td><td><span class="pill mvp">MVP P1</span></td></tr>
+        <tr><td class="bl2">F-01</td><td class="t1">계약 범위 등록</td><td><span class="tag b">H1·H2</span></td><td><span style="color:var(--red);font-weight:700">최고</span></td><td>낮음 (3일)</td><td><span class="pill mvp">MVP P1</span></td></tr>
+        <tr><td class="bl2">F-02</td><td class="t1">추가 요구 기록</td><td><span class="tag b">H1</span></td><td><span style="color:var(--yellow);font-weight:700">높음</span></td><td>낮음 (2일)</td><td><span class="pill mvp">MVP P1</span></td></tr>
+        <tr><td class="bl2">F-12</td><td class="t1">손익 대시보드</td><td><span class="tag b">H3</span></td><td><span style="color:var(--yellow);font-weight:700">높음</span></td><td>중간 (4일)</td><td><span class="pill p1">Phase 2 P1</span></td></tr>
+        <tr><td class="bl2">F-14</td><td class="t1">레퍼럴 시스템</td><td><span class="tag b">H4</span></td><td><span style="color:var(--yellow);font-weight:700">높음</span></td><td>낮음 (3일)</td><td><span class="pill p1">Phase 2 P2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ══════════════════
+  TAB 6: 로드맵
+══════════════════ -->
+<div id="page-roadmap" class="page">
+  <div class="ptitle">제품 로드맵</div>
+  <div class="pdesc">MVP 배포 후 검증 결과에 따라 단계적으로 기능을 확장합니다.<br>모든 Phase 전환은 <strong>행동 데이터 기반 판단</strong>을 거칩니다.</div>
+
+  <div class="callout y mb18">
+    <div class="cot">⚠️ 로드맵은 가설이다 — 검증 결과에 따라 재조정</div>
+    <p>Phase 2·3의 기능 순서는 MVP 행동 데이터 결과에 따라 <strong>동적으로 변경</strong>됩니다. H3 검증 실패 시 수익 모델 전면 재검토, H4 실패 시 아웃바운드 채널로 전환합니다.</p>
   </div>
 
-  <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:16px 20px;margin-top:8px;display:flex;align-items:center;gap:12px">
-    <div style="font-size:20px">🚀</div>
+  <!-- Phase 타임라인 -->
+  <div style="display:flex;flex-direction:column;gap:0;margin-bottom:18px;border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+    <!-- MVP -->
+    <div style="border-bottom:1px solid var(--bd)">
+      <div style="padding:14px 20px;background:rgba(248,113,113,.07);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Phase 0 — MVP</div>
+          <div style="font-size:14px;font-weight:700;color:var(--t1)">가설 검증 최소 기능 · W1~W3 (3주)</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="tag b">H1 검증</span><span class="tag b">H2 검증</span><span class="tag r">배포 우선</span>
+        </div>
+      </div>
+      <div style="padding:14px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:4px">W1</div><div style="font-size:12px;color:var(--t3)">F-01 범위 등록<br>F-05 온보딩·설문<br>F-08 인증 기본</div></div>
+        <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:4px">W2</div><div style="font-size:12px;color:var(--t3)">F-02 추가 요구 기록<br>F-03 AI 판정 엔진<br>F-06 대시보드</div></div>
+        <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:4px">W3</div><div style="font-size:12px;color:var(--t3)">F-04 리포트 생성<br>F-07 손익 기본<br>F-08 결제 연동</div></div>
+        <div style="background:rgba(16,185,129,.07);border-radius:8px;padding:10px 12px;border:1px solid rgba(16,185,129,.2)"><div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:4px">배포 🚀</div><div style="font-size:12px;color:var(--t3)">MVP 라이브<br>행동 데이터 수집<br>H1·H2 검증 시작</div></div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div style="border-bottom:1px solid var(--bd)">
+      <div style="padding:14px 20px;background:rgba(251,191,36,.05);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Phase 1 — 검증 후 확장</div>
+          <div style="font-size:14px;font-weight:700;color:var(--t1)">H2 강화 + H3·H4 검증 · W4~W10 (7주)</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="tag y">H3 검증</span><span class="tag y">H4 검증</span><span class="tag">MVP 성공 조건부</span>
+        </div>
+      </div>
+      <div style="padding:14px 20px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:10px">조건: MVP에서 리포트 생성율 &gt; 20% + 재방문율 &gt; 30% 달성 시 착수</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--yellow);font-weight:700;margin-bottom:4px">AHA 강화</div><div style="font-size:12px;color:var(--t3)">F-09 이메일 발송<br>F-11 청구금액 자동화<br>F-18 클라이언트 포털</div></div>
+          <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--yellow);font-weight:700;margin-bottom:4px">수익 강화</div><div style="font-size:12px;color:var(--t3)">F-12 손익 대시보드<br>F-13 팀 공유(Pro)<br>F-20 견적 템플릿</div></div>
+          <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--yellow);font-weight:700;margin-bottom:4px">성장 엔진</div><div style="font-size:12px;color:var(--t3)">F-14 레퍼럴 시스템<br>F-15 재활성화 이메일<br>F-16 카카오 알림</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
     <div>
-      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:3px">W4 완료 시점 = 클로즈드 베타 즉시 오픈</div>
-      <div style="font-size:11px;color:var(--t3)">사전 섭외된 10팀에게 링크 배포 → W5부터 즉각적인 H1·H2·H3 가설 실증 데이터 트래킹 돌입</div>
+      <div style="padding:14px 20px;background:rgba(79,128,255,.05);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Phase 2 — 확장 & 글로벌</div>
+          <div style="font-size:14px;font-weight:700;color:var(--t1)">데이터 네트워크 효과 + 엔터프라이즈 · W11+</div>
+        </div>
+        <span class="tag b">MRR 500만원 달성 후 검토</span>
+      </div>
+      <div style="padding:14px 20px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:10px">조건: MRR 500만원 + Churn &lt; 5% + NPS &gt; 30 달성 시 착수</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:4px">AI 고도화</div><div style="font-size:12px;color:var(--t3)">F-10 PDF 파싱<br>F-22 AI 견적 생성<br>F-23 업계 벤치마크</div></div>
+          <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:4px">엔터프라이즈</div><div style="font-size:12px;color:var(--t3)">F-24 전자 서명<br>F-27 SSO·권한 관리<br>F-29 화이트라벨</div></div>
+          <div style="background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--bd)"><div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:4px">글로벌</div><div style="font-size:12px;color:var(--t3)">F-25 API 제공<br>F-26 다국어 지원<br>F-28 포트폴리오 리포트</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="slabel">Phase 전환 판단 기준</div>
+      <ul class="bl mt10">
+        <li><strong>MVP → Phase 1 조건</strong> — 리포트 생성율 &gt;20% + 재방문율 &gt;30% (6주)</li>
+        <li><strong>Phase 1 → Phase 2 조건</strong> — MRR 500만원 + Churn &lt;5% + NPS &gt;30</li>
+        <li><strong>피벗 트리거</strong> — H1 실패(포기율 &lt;30%) → 문제 재정의, 전면 재설계</li>
+        <li><strong>스톱 트리거</strong> — 6주 후 유료 전환자 0명 → 가격·가치 모두 재검토</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="slabel">기술 스택 (AI 도구 활용)</div>
+      <ul class="bl mt10">
+        <li><strong>프론트엔드</strong> — React + Tailwind (Cursor AI 활용 개발)</li>
+        <li><strong>백엔드</strong> — Supabase (DB + Auth + Storage 올인원)</li>
+        <li><strong>AI 판정 엔진</strong> — Claude API (Anthropic) 텍스트 분류</li>
+        <li><strong>결제</strong> — Toss Payments (국내 최적화)</li>
+        <li><strong>분석</strong> — PostHog (행동 데이터) + Hotjar (히트맵)</li>
+      </ul>
     </div>
   </div>
 </div>
 
-
-<div class="page" id="page-outofscope">
-  <div class="sec mb20">MVP 제외 기능 — 빌드 속도를 위한 배제 원칙</div>
-  <div style="font-size:12px;color:var(--t3);margin-bottom:20px;line-height:1.7">W1~W4 내에 개발이 불가능하거나, 현재 단계에서 가설 검증과 무관하여 버려지는 기능들입니다.</div>
-
-  <div class="oos-list">
-    <div class="oos-item">
-      <div class="oos-x">✕</div>
-      <div>
-        <div class="oos-name">계약서 PDF AI 자동 요약 (F-002 폐기)</div>
-        <div class="oos-reason">PDF 파싱의 복잡도로 인한 개발 지연 리스크 큼. 대신 사용자가 계약서 핵심 텍스트를 그대로 <b>수동 복사/붙여넣기(F-001)</b> 하도록 우회하여 토큰 제약을 활용.</div>
-      </div>
-    </div>
-    <div class="oos-item">
-      <div class="oos-x">✕</div>
-      <div>
-        <div class="oos-name">클라이언트 직접 발송 (이메일 연동)</div>
-        <div class="oos-reason">초기 베타에서는 시스템이 클라이언트와 직접 소통하는 데 대한 PM들의 거부감이 큼. 공유 URL(F-090)을 발급받아 PM이 카톡이나 메일로 직접 전달하게 함.</div>
-      </div>
-    </div>
-    <div class="oos-item">
-      <div class="oos-x">✕</div>
-      <div>
-        <div class="oos-name">카카오톡 채팅 내역 텍스트 파싱 연동</div>
-        <div class="oos-reason">사용자 입력 마찰을 줄이려다 개발 마찰이 폭발함. 카톡 텍스트 내보내기 구조는 비정형적임. 3버튼 수동 입력을 통한 습관 형성을 먼저 검증.</div>
-      </div>
-    </div>
-    <div class="oos-item">
-      <div class="oos-x">✕</div>
-      <div>
-        <div class="oos-name">팀 멤버 권한 분리 및 멀티 어카운트</div>
-        <div class="oos-reason">베타 테스터는 10팀의 메인 담당자(1인)로 구성됨. 협업 기능 구현에 들어가는 DB 릴레이션 및 RLS 세팅 공수를 아껴 AI 엔진(F-020) 고도화에 투자.</div>
-      </div>
-    </div>
-  </div>
-
-  <div style="background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px 20px;margin-top:8px">
-    <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px">💡 MVP 백로그 통제 기준</div>
-    <div style="font-size:12px;color:var(--t3);line-height:1.8">
-      "이 기능이 없으면 청구 성공률(OMTM)을 측정할 수 없는가?" <br>
-      이 질문에 'Yes'가 아닌 모든 개발 요소는 Phase 2 (W7 이후)로 과감히 미룹니다.
-    </div>
-  </div>
-</div>
-
+</main>
 
 <script>
-function switchTab(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('page-' + id).classList.add('on');
-  el.classList.add('on');
-  window.scrollTo({top: 0, behavior: 'smooth'});
+function showTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
 }
-
-function toggleAc(el) {
-  const body = el.nextElementSibling;
-  const ch = el.querySelector('.chev');
-  body.classList.toggle('open');
-  ch.classList.toggle('open');
+function toggleMode() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('togBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
 }
 </script>
 </body>
