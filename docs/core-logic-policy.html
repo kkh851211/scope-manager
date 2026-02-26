@@ -15,9 +15,34 @@
   body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
 
-  header{background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;
-    display:flex;align-items:center;justify-content:space-between;gap:12px;
-    position:sticky;top:0;z-index:100;transition:background .2s,border-color .2s;}
+  /* [추가] 본문과 동일한 폭을 유지하기 위한 컨테이너 */
+  .inner-wrap {
+    max-width: 1000px; /* main과 동일 */
+    margin: 0 auto;    /* 중앙 정렬 */
+    padding: 0 24px;   /* main의 좌우 패딩과 동일 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* [수정] HEADER: 배경만 유지하고 배치는 내부로 위임 */
+  header {
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    padding: 14px 0;   /* 상하 패딩만 남김 */
+    display: block;    /* flex 제거 */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background .2s, border-color .2s;
+  }
+  
+  /* [추가] 헤더 내부 콘텐츠 배치용 */
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
   .hl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .logo{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.5px;}
   .logo span{color:var(--t1);}
@@ -30,8 +55,22 @@
     transition:background .2s,color .2s,border-color .2s;white-space:nowrap;}
   #tbtn:hover{border-color:var(--blue);color:var(--blue);}
 
-  nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;
-    display:flex;overflow-x:auto;scrollbar-width:none;transition:background .2s,border-color .2s;}
+  /* [수정] NAV: 배경만 유지하고 배치는 내부로 위임 */
+  nav {
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    padding: 0;        /* 패딩 제거 */
+    display: block;    /* flex 제거 */
+    transition: background .2s, border-color .2s;
+  }
+
+  /* [추가] 네비게이션 내부 스크롤 및 배치용 */
+  .nav-content {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-content::-webkit-scrollbar { display: none; }
   nav::-webkit-scrollbar{display:none;}
   .tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);
     cursor:pointer;font-size:13px;font-weight:600;padding:12px 16px;white-space:nowrap;
@@ -151,32 +190,43 @@
   .priv-table tr:last-child td{border-bottom:none;}
 
   @media(max-width:560px){
-    main{padding:14px;}header{padding:12px 14px;}nav{padding:0 14px;}
+    main{padding:14px;}
+    
+    /* 기존 header, nav 패딩 설정은 삭제 */
+    /* header{padding:12px 14px;}  <-- 삭제 */
+    /* nav{padding:0 14px;}        <-- 삭제 */
+    
+    /* 대신 inner-wrap의 패딩을 본문과 동일한 14px로 조절 */
+    .inner-wrap { padding: 0 14px; }
+    
     .g2,.g3,.impact-grid{grid-template-columns:1fr;}
-    .pol-body{grid-template-columns:1fr;}
-    .tb{padding:10px 11px;font-size:12px;}
+    /* ... 이하 생략 ... */
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="hl">
-    <div class="logo">My<span>ROI</span></div>
-    <span class="badge bv">v1.0</span>
-    <span class="badge bt">Core Logic & Policy</span>
-    <span class="badge bs">데이터 정책 & 로직</span>
+  <div class="inner-wrap header-content">
+    <div class="hl">
+      <div class="logo">My<span>ROI</span></div>
+      <span class="badge bv">v1.0</span>
+      <span class="badge bt">Core Logic & Policy</span>
+      <span class="badge bs">데이터 정책 & 로직</span>
+    </div>
+    <button id="tbtn" onclick="tog()">☀️ 라이트</button>
   </div>
-  <button id="tbtn" onclick="tog()">☀️ 라이트</button>
 </header>
 
 <nav>
-  <button class="tb active" onclick="sw('overview',this)">🗺️ 로직 전체 흐름</button>
-  <button class="tb" onclick="sw('scoring',this)">🧮 임팩트 산정 로직</button>
-  <button class="tb" onclick="sw('data',this)">🗄️ 데이터 모델</button>
-  <button class="tb" onclick="sw('privacy',this)">🔒 개인정보 정책</button>
-  <button class="tb" onclick="sw('access',this)">🚦 접근 제어</button>
-  <button class="tb" onclick="sw('retention',this)">🗑️ 데이터 보존 정책</button>
+  <div class="inner-wrap nav-content">
+    <button class="tb active" onclick="sw('overview',this)">🗺️ 로직 전체 흐름</button>
+    <button class="tb" onclick="sw('scoring',this)">🧮 임팩트 산정 로직</button>
+    <button class="tb" onclick="sw('data',this)">🗄️ 데이터 모델</button>
+    <button class="tb" onclick="sw('privacy',this)">🔒 개인정보 정책</button>
+    <button class="tb" onclick="sw('access',this)">🚦 접근 제어</button>
+    <button class="tb" onclick="sw('retention',this)">🗑️ 데이터 보존 정책</button>
+  </div>
 </nav>
 
 <main>
