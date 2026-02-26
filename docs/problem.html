@@ -35,21 +35,39 @@
     min-height: 100vh;
   }
 
-  /* HEADER */
+  /* --- 1. 공통 레이아웃 클래스 추가 --- */
+  /* main과 동일한 너비 규칙을 적용할 클래스입니다 */
+  .inner-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px; /* main의 padding과 동일하게 맞춤 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* --- 2. Header 수정 --- */
   header {
     background: var(--s1);
     border-bottom: 1px solid var(--bd);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    /* padding: 14px 24px;  <-- 기존 패딩 삭제 (inner-wrap이 담당) */
+    padding: 14px 0;     /* 상하 패딩만 남김 */
+    
+    /* display: flex; ... <-- 기존 정렬 속성 삭제 (내부 div로 이동) */
+    display: block; 
+    
     position: sticky;
     top: 0;
     z-index: 100;
     transition: var(--transition);
   }
   .header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  /* 헤더 내부의 정렬을 담당할 새로운 스타일 */
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
   .logo {
     font-size: 18px;
     font-weight: 800;
@@ -82,17 +100,27 @@
   }
   #toggle-btn:hover { border-color: var(--blue); color: var(--blue); }
 
-  /* NAV TABS */
+ /* --- 3. Nav 수정 --- */
   nav {
     background: var(--s1);
     border-bottom: 1px solid var(--bd);
-    padding: 0 24px;
+    /* padding: 0 24px; <-- 기존 패딩 삭제 */
+    padding: 0;
+    
+    /* display: flex; ... <-- 기존 정렬 속성 삭제 */
+    display: block;
+    
+    transition: var(--transition);
+  }
+
+  /* 네비게이션 내부 스크롤 및 정렬 담당 */
+  .nav-content {
     display: flex;
     gap: 0;
     overflow-x: auto;
     scrollbar-width: none;
-    transition: var(--transition);
   }
+  .nav-content::-webkit-scrollbar { display: none; }
   nav::-webkit-scrollbar { display: none; }
   .tab-btn {
     background: none;
@@ -333,36 +361,45 @@
   .section-title { font-size: 20px; font-weight: 800; color: var(--t1); margin-bottom: 6px; }
   .section-sub { font-size: 13px; color: var(--t3); margin-bottom: 20px; }
 
-  /* RESPONSIVE */
   @media (max-width: 560px) {
     main { padding: 14px; }
-    header { padding: 12px 14px; }
-    nav { padding: 0 14px; }
+    
+    /* 기존 header, nav 패딩 설정은 삭제하거나 inner-wrap으로 변경 */
+    /* header { padding: 12px 14px; }  <-- 삭제 */
+    /* nav { padding: 0 14px; }        <-- 삭제 */
+    
+    /* 대신 inner-wrap의 패딩을 줄여줍니다 */
+    .inner-wrap { padding: 0 14px; } 
+    
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .tab-btn { padding: 10px 12px; font-size: 12px; }
-  }
+  }  
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="logo">My<span>ROI</span></div>
-    <span class="badge badge-ver">v1.3</span>
-    <span class="badge badge-stage">Problem-Solution Fit 탐색기</span>
-    <span class="badge badge-scope">B2B HR SaaS</span>
+  <div class="inner-wrap header-content">
+    <div class="header-left">
+      <div class="logo">My<span>ROI</span></div>
+      <span class="badge badge-ver">v1.3</span>
+      <span class="badge badge-stage">Problem-Solution Fit 탐색기</span>
+      <span class="badge badge-scope">B2B HR SaaS</span>
+    </div>
+    <button id="toggle-btn" onclick="toggleMode()">🌙 다크</button>
   </div>
-  <button id="toggle-btn" onclick="toggleMode()">🌙 다크</button>
 </header>
 
 <nav>
-  <button class="tab-btn active" onclick="switchTab('overview')">📋 문제 개요</button>
-  <button class="tab-btn" onclick="switchTab('market')">🎯 시장 정의</button>
-  <button class="tab-btn" onclick="switchTab('persona')">👤 페르소나</button>
-  <button class="tab-btn" onclick="switchTab('evidence')">🔍 문제 근거</button>
-  <button class="tab-btn" onclick="switchTab('competitive')">⚔️ 경쟁 대안</button>
-  <button class="tab-btn" onclick="switchTab('value')">💡 비즈니스 가치</button>
-  <button class="tab-btn" onclick="switchTab('validation')">✅ 검증 현황</button>
+  <div class="inner-wrap nav-content">
+    <button class="tab-btn active" onclick="switchTab('overview')">📋 문제 개요</button>
+    <button class="tab-btn" onclick="switchTab('market')">🎯 시장 정의</button>
+    <button class="tab-btn" onclick="switchTab('persona')">👤 페르소나</button>
+    <button class="tab-btn" onclick="switchTab('evidence')">🔍 문제 근거</button>
+    <button class="tab-btn" onclick="switchTab('competitive')">⚔️ 경쟁 대안</button>
+    <button class="tab-btn" onclick="switchTab('value')">💡 비즈니스 가치</button>
+    <button class="tab-btn" onclick="switchTab('validation')">✅ 검증 현황</button>
+  </div>
 </nav>
 
 <main>
