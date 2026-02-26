@@ -37,15 +37,32 @@ body {
   min-height: 100vh;
 }
 
-/* HEADER */
+/* [추가] 본문과 동일한 폭을 유지하기 위한 컨테이너 */
+.inner-wrap {
+  max-width: 1100px; /* main의 max-width와 동일하게 설정 */
+  margin: 0 auto;    /* 중앙 정렬 */
+  padding: 0 24px;   /* main의 좌우 패딩과 동일하게 설정 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* [수정] HEADER: 배경만 유지하고 배치는 내부 컨테이너로 위임 */
 header {
   position: sticky; top: 0; z-index: 100;
   background: var(--s1);
   border-bottom: 1px solid var(--bd);
-  padding: 0 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  padding: 0;        /* 기존 패딩 제거 */
   height: 56px;
+  display: block;    /* flex 제거 */
   transition: background 0.2s;
+}
+
+/* [추가] 헤더 내부 콘텐츠 실제 배치용 */
+.header-content {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  height: 100%;
 }
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-icon {
@@ -73,15 +90,22 @@ header {
 }
 .toggle-btn:hover { background: var(--bd); }
 
-/* NAV */
+/* [수정] NAV: 배경만 유지하고 배치는 내부 컨테이너로 위임 */
 nav {
   background: var(--s1);
   border-bottom: 1px solid var(--bd);
-  padding: 0 24px;
-  display: flex; gap: 0;
-  overflow-x: auto;
+  padding: 0;        /* 기존 패딩 제거 */
+  display: block;    /* flex 제거 */
   transition: background 0.2s;
 }
+
+/* [추가] 네비게이션 내부 스크롤 및 배치용 */
+.nav-content {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-content::-webkit-scrollbar { height: 0; }
 nav::-webkit-scrollbar { height: 0; }
 .tab {
   padding: 14px 18px; cursor: pointer; font-size: 13px; font-weight: 500;
@@ -215,12 +239,13 @@ body.light .wf-label { background: var(--bg); }
 
 /* RESPONSIVE */
 @media (max-width: 700px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .col-span-2, .col-span-3 { grid-column: span 1; }
+  /* ... 기존 코드 ... */
   main { padding: 16px 14px; }
-  .tab { padding: 12px 12px; font-size: 12px; }
-  .flow { gap: 8px; }
-  .flow-step:not(:last-child)::after { display: none; }
+  
+  /* 추가: 모바일에서 상단 여백도 본문과 동일하게 줄임 */
+  .inner-wrap { padding: 0 14px; } 
+  
+  /* 기존 header, nav 패딩 관련 코드가 있다면 삭제 */
 }
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: 1fr 1fr; }
@@ -231,23 +256,27 @@ body.light .wf-label { background: var(--bg); }
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-icon">M</div>
-    <div class="logo-text">My<span>ROI</span></div>
-    <span class="badge">MVP 집중형</span>
-    <span class="badge green">v6.0</span>
-  </div>
-  <div class="header-right">
-    <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+  <div class="inner-wrap header-content">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <div class="logo-text">My<span>ROI</span></div>
+      <span class="badge">MVP 집중형</span>
+      <span class="badge green">v6.0</span>
+    </div>
+    <div class="header-right">
+      <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+    </div>
   </div>
 </header>
 
 <nav>
-  <div class="tab active" onclick="showTab('overview')">🗺️ 전체 구조</div>
-  <div class="tab" onclick="showTab('strategy')">🎯 전략 & 섹션별 목적</div>
-  <div class="tab" onclick="showTab('wireframe')">🖥️ 섹션 와이어프레임</div>
-  <div class="tab" onclick="showTab('copy')">✍️ 카피 & CTA</div>
-  <div class="tab" onclick="showTab('metrics')">📊 검증 지표</div>
+  <div class="inner-wrap nav-content">
+    <div class="tab active" onclick="showTab('overview')">🗺️ 전체 구조</div>
+    <div class="tab" onclick="showTab('strategy')">🎯 전략 & 섹션별 목적</div>
+    <div class="tab" onclick="showTab('wireframe')">🖥️ 섹션 와이어프레임</div>
+    <div class="tab" onclick="showTab('copy')">✍️ 카피 & CTA</div>
+    <div class="tab" onclick="showTab('metrics')">📊 검증 지표</div>
+  </div>
 </nav>
 
 <main>
