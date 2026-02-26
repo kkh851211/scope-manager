@@ -29,13 +29,33 @@
     transition: background 0.2s, color 0.2s; min-height: 100vh;
   }
 
-  /* HEADER */
+  /* [추가] 공통으로 사용할 내부 정렬 컨테이너 */
+  .inner-wrap {
+    max-width: 1000px; /* main과 동일한 너비 */
+    margin: 0 auto;    /* 중앙 정렬 */
+    padding: 0 24px;   /* main의 좌우 패딩과 동일하게 설정 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* [수정] HEADER: Flex 속성을 제거하고 배경과 높이만 담당 */
   header {
-    background: var(--s1); border-bottom: 1px solid var(--bd);
-    padding: 14px 24px; display: flex; align-items: center;
-    justify-content: space-between; gap: 12px;
-    position: sticky; top: 0; z-index: 100;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    padding: 14px 0;   /* 좌우 패딩 제거 (inner-wrap이 담당) */
+    display: block;    /* flex 제거 */
+    position: sticky;
+    top: 0;
+    z-index: 100;
     transition: background 0.2s, border-color 0.2s;
+  }
+
+  /* [추가] 헤더 내부 콘텐츠 정렬용 */
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
   .header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .logo { font-size: 18px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; }
@@ -52,11 +72,22 @@
   #toggle-btn:hover { border-color: var(--blue); color: var(--blue); }
 
   /* NAV */
+  /* [수정] NAV: Flex 속성 제거 */
   nav {
-    background: var(--s1); border-bottom: 1px solid var(--bd);
-    padding: 0 24px; display: flex; overflow-x: auto; scrollbar-width: none;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    padding: 0;        /* 좌우 패딩 제거 */
+    display: block;    /* flex 제거 */
     transition: background 0.2s, border-color 0.2s;
   }
+  
+  /* [추가] 네비게이션 내부 스크롤 및 정렬용 */
+  .nav-content {
+    display: flex;
+    overflow-x: auto; 
+    scrollbar-width: none;
+  }
+  .nav-content::-webkit-scrollbar { display: none; }
   nav::-webkit-scrollbar { display: none; }
   .tab-btn {
     background: none; border: none; border-bottom: 2px solid transparent;
@@ -223,8 +254,14 @@
 
   @media (max-width: 560px) {
     main { padding: 14px; }
-    header { padding: 12px 14px; }
-    nav { padding: 0 14px; }
+    
+    /* 기존 header, nav 패딩 설정은 삭제하거나 inner-wrap으로 대체 */
+    /* header { padding: 12px 14px; }  <-- 삭제 */
+    /* nav { padding: 0 14px; }        <-- 삭제 */
+
+    /* [추가] 모바일에서 inner-wrap 패딩 줄이기 */
+    .inner-wrap { padding: 0 14px; } 
+    
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .hypo-body { grid-template-columns: 1fr; }
     .decision-answers { grid-template-columns: 1fr; }
@@ -237,22 +274,26 @@
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="logo">My<span>ROI</span></div>
-    <span class="badge badge-ver">v1.0</span>
-    <span class="badge badge-tag">가설 & 지표</span>
-    <span class="badge badge-type">MVP 행동 검증형</span>
+  <div class="inner-wrap header-content">
+    <div class="header-left">
+      <div class="logo">My<span>ROI</span></div>
+      <span class="badge badge-ver">v1.0</span>
+      <span class="badge badge-tag">가설 & 지표</span>
+      <span class="badge badge-type">MVP 행동 검증형</span>
+    </div>
+    <button id="toggle-btn" onclick="toggleMode()">☀️ 라이트</button>
   </div>
-  <button id="toggle-btn" onclick="toggleMode()">☀️ 라이트</button>
 </header>
 
 <nav>
-  <button class="tab-btn active" onclick="switchTab('strategy', this)">🧭 전략 배경</button>
-  <button class="tab-btn" onclick="switchTab('hypothesis', this)">🔬 핵심 가설</button>
-  <button class="tab-btn" onclick="switchTab('metrics', this)">📊 성공 지표</button>
-  <button class="tab-btn" onclick="switchTab('funnel', this)">🔽 전환 퍼널</button>
-  <button class="tab-btn" onclick="switchTab('roadmap', this)">🗓️ 검증 로드맵</button>
-  <button class="tab-btn" onclick="switchTab('decision', this)">🔀 의사결정 기준</button>
+  <div class="inner-wrap nav-content">
+    <button class="tab-btn active" onclick="switchTab('strategy', this)">🧭 전략 배경</button>
+    <button class="tab-btn" onclick="switchTab('hypothesis', this)">🔬 핵심 가설</button>
+    <button class="tab-btn" onclick="switchTab('metrics', this)">📊 성공 지표</button>
+    <button class="tab-btn" onclick="switchTab('funnel', this)">🔽 전환 퍼널</button>
+    <button class="tab-btn" onclick="switchTab('roadmap', this)">🗓️ 검증 로드맵</button>
+    <button class="tab-btn" onclick="switchTab('decision', this)">🔀 의사결정 기준</button>
+  </div>
 </nav>
 
 <main>
