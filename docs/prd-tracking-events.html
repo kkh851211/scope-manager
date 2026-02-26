@@ -18,8 +18,33 @@ body.light {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);transition:background .2s,color .2s;min-height:100vh;font-size:14px;line-height:1.6;}
 
-/* ── HEADER ── */
-header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:background .2s;}
+/* [추가] 본문과 동일한 폭을 유지하기 위한 컨테이너 */
+.inner-wrap {
+  max-width: 1140px; /* main의 max-width와 동일하게 설정 */
+  margin: 0 auto;    /* 중앙 정렬 */
+  padding: 0 24px;   /* main의 좌우 패딩과 동일하게 설정 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* [수정] HEADER: 배경만 유지하고 레이아웃은 내부로 위임 */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0;        /* 기존 패딩 제거 */
+  height: 56px;
+  display: block;    /* flex 제거 */
+  transition: background 0.2s;
+}
+
+/* [추가] 헤더 내부 콘텐츠 실제 배치용 */
+.header-content {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  height: 100%;
+}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;}
 .logo-text{font-size:18px;font-weight:700;color:var(--t1);}
@@ -30,8 +55,21 @@ header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px 
 .toggle-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:5px 11px;cursor:pointer;font-size:13px;color:var(--t1);transition:background .2s;}
 .toggle-btn:hover{background:var(--bd);}
 
-/* ── NAV ── */
-nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;overflow-x:auto;transition:background .2s;}
+/* [수정] NAV: 배경만 유지하고 레이아웃은 내부로 위임 */
+nav {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0;        /* 기존 패딩 제거 */
+  display: block;    /* flex 제거 */
+  transition: background 0.2s;
+}
+
+/* [추가] 네비게이션 내부 스크롤 및 배치용 */
+.nav-content {
+  display: flex;
+  overflow-x: auto;
+}
+.nav-content::-webkit-scrollbar { height: 0; }
 nav::-webkit-scrollbar{height:0;}
 .tab{padding:14px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;user-select:none;}
 .tab:hover{color:var(--t2);}
@@ -141,11 +179,14 @@ code{background:var(--s3);color:var(--cyan);padding:2px 6px;border-radius:4px;fo
 .hyp-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
 
 @media(max-width:700px){
-  .g2,.g3{grid-template-columns:1fr;}
-  .span2{grid-column:span 1;}
-  main{padding:14px 12px;}
-  .tab{padding:12px 10px;font-size:11px;}
-  th,td{padding:7px 8px;}
+  main { padding: 14px 12px; }
+  
+  /* [추가] 모바일에서도 상단 영역의 여백을 본문과 일치시킴 */
+  .inner-wrap { padding: 0 12px; }
+  
+  /* 기존 header, nav 패딩 설정이 남아있다면 삭제하거나 무시됨 */
+  .g2, .g3 { grid-template-columns: 1fr; }
+  /* ... 나머지 기존 코드 ... */
 }
 @media(max-width:900px){.g3{grid-template-columns:1fr 1fr;}}
 </style>
@@ -153,23 +194,27 @@ code{background:var(--s3);color:var(--cyan);padding:2px 6px;border-radius:4px;fo
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-icon">M</div>
-    <div class="logo-text">My<span>ROI</span></div>
-    <div style="display:flex;gap:6px;">
-      <span class="bdg bdg-blue">PRD for AI</span>
-      <span class="bdg bdg-green">트래킹 정의</span>
+  <div class="inner-wrap header-content">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <div class="logo-text">My<span>ROI</span></div>
+      <div style="display:flex;gap:6px;">
+        <span class="bdg bdg-blue">PRD for AI</span>
+        <span class="bdg bdg-green">트래킹 정의</span>
+      </div>
     </div>
+    <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
   </div>
-  <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
 </header>
 
 <nav id="mainNav">
-  <div class="tab active">📋 PRD 개요</div>
-  <div class="tab">🧩 기능 요구사항</div>
-  <div class="tab">🤖 AI 프롬프트 설계</div>
-  <div class="tab">📡 트래킹 이벤트</div>
-  <div class="tab">🔬 가설 검증 매트릭스</div>
+  <div class="inner-wrap nav-content">
+    <div class="tab active">📋 PRD 개요</div>
+    <div class="tab">🧩 기능 요구사항</div>
+    <div class="tab">🤖 AI 프롬프트 설계</div>
+    <div class="tab">📡 트래킹 이벤트</div>
+    <div class="tab">🔬 가설 검증 매트릭스</div>
+  </div>
 </nav>
 
 <main>
