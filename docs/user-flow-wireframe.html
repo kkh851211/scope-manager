@@ -33,8 +33,33 @@ body.light {
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);transition:background .2s,color .2s;min-height:100vh;font-size:14px;}
 
-/* HEADER */
-header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;transition:background .2s;}
+/* [추가] 본문과 동일한 폭을 유지하기 위한 컨테이너 */
+.inner-wrap {
+  max-width: 1140px; /* main의 max-width와 동일하게 설정 */
+  margin: 0 auto;    /* 중앙 정렬 */
+  padding: 0 24px;   /* main의 좌우 패딩과 동일하게 설정 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* [수정] HEADER: 배경만 남기고 flex 속성은 제거 */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0;        /* 기존 패딩 제거 */
+  height: 56px;
+  display: block;    /* 기존 display: flex 제거 */
+  transition: background 0.2s;
+}
+
+/* [추가] 헤더 내부 콘텐츠 실제 배치용 */
+.header-content {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  height: 100%;
+}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;}
 .logo-text{font-size:18px;font-weight:700;color:var(--t1);}
@@ -47,7 +72,21 @@ header{position:sticky;top:0;z-index:100;background:var(--s1);border-bottom:1px 
 .toggle-btn:hover{background:var(--bd);}
 
 /* NAV */
-nav{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;overflow-x:auto;transition:background .2s;}
+/* [수정] NAV: 배경만 남기고 내부 정렬 속성은 제거 */
+nav {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0;        /* 기존 패딩 제거 */
+  display: block;    /* 기존 display: flex 제거 */
+  transition: background 0.2s;
+}
+
+/* [추가] 네비게이션 내부 스크롤 및 배치용 */
+.nav-content {
+  display: flex;
+  overflow-x: auto;
+}
+.nav-content::-webkit-scrollbar { height: 0; }
 nav::-webkit-scrollbar{height:0;}
 .tab{padding:14px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;user-select:none;}
 .tab:hover{color:var(--t2);}
@@ -152,12 +191,14 @@ body.light .wf-lbl{background:var(--bg);}
 .persona{display:inline-flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--t2);}
 .persona .pa{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;}
 
-@media(max-width:700px){
-  .g2,.g3{grid-template-columns:1fr;}
-  .span2{grid-column:span 1;}
-  main{padding:14px 12px;}
-  .tab{padding:12px 10px;font-size:11px;}
-  .fnode{width:100px;}
+@media (max-width: 700px) {
+  /* ... 기존 코드 ... */
+  main { padding: 16px 14px; }
+  
+  /* 추가: 모바일에서 상단 여백도 본문(14px)과 동일하게 줄임 */
+  .inner-wrap { padding: 0 14px; } 
+  
+  /* 기존 header, nav 패딩 설정은 이미 위에서 삭제했으므로 무시 */
 }
 @media(max-width:900px){
   .g3{grid-template-columns:1fr 1fr;}
@@ -167,28 +208,31 @@ body.light .wf-lbl{background:var(--bg);}
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-icon">M</div>
-    <div class="logo-text">My<span>ROI</span></div>
-    <div class="badges">
-      <span class="badge">유저 플로우</span>
-      <span class="badge green">와이어프레임</span>
+  <div class="inner-wrap header-content">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <div class="logo-text">My<span>ROI</span></div>
+      <div class="badges">
+        <span class="badge">유저 플로우</span>
+        <span class="badge green">와이어프레임</span>
+      </div>
     </div>
-  </div>
-  <div class="header-right">
-    <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+    <div class="header-right">
+      <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">☀️ 라이트</button>
+    </div>
   </div>
 </header>
 
 <nav>
-  <div class="tab active" onclick="showTab('overview','this')">🗺️ 전체 플로우</div>
-  <div class="tab" onclick="showTab('onboarding','this')">👋 온보딩</div>
-  <div class="tab" onclick="showTab('core','this')">🤖 AI 환산기</div>
-  <div class="tab" onclick="showTab('pitchdeck','this')">📄 피치덱</div>
-  <div class="tab" onclick="showTab('dashboard','this')">📊 B2B 대시보드</div>
-  <div class="tab" onclick="showTab('states','this')">📋 화면 목록</div>
+  <div class="inner-wrap nav-content">
+    <div class="tab active" onclick="showTab('overview','this')">🗺️ 전체 플로우</div>
+    <div class="tab" onclick="showTab('onboarding','this')">👋 온보딩</div>
+    <div class="tab" onclick="showTab('core','this')">🤖 AI 환산기</div>
+    <div class="tab" onclick="sw('pitchdeck','this')">📄 피치덱</div>
+    <div class="tab" onclick="sw('dashboard','this')">📊 B2B 대시보드</div>
+    <div class="tab" onclick="sw('states','this')">📋 화면 목록</div>
+  </div>
 </nav>
-
 <main>
 
 <!-- ══════════════════════════════════════════
