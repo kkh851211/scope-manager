@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager Design System</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  /* 1. 기본 테마 (다크 모드 유지) */
+:root {
+  /* 기존 다크 모드 값 유지 */
+  --bg-base: #0F1117;
+  --bg-surface: #171B26;
+  --bg-elevated: #1E2333;
+  --bg-overlay: #252A3D;
+  --border-subtle: #2A3050;
+  --border-default: #374168;
+  --border-strong: #4A5580;
+
+  --text-primary: #F0F2FA;
+  --text-secondary: #A8B0CC;
+  --text-tertiary: #636B8A;
+  --text-disabled: #3D4566;
+
+  /* 브랜드/시맨틱 컬러는 모드 공용으로 써도 되지만, 가독성을 위해 일부 조정 가능 */
+  --brand-primary: #5B73FF;
+  --brand-hover: #7088FF;
+  --brand-subtle: rgba(91,115,255,0.15);
+
+  --semantic-in-scope: #22C55E;
+  --semantic-in-scope-bg: rgba(34,197,94,0.1);
+  --semantic-out-scope: #F97316;
+  --semantic-out-scope-bg: rgba(249,115,22,0.1);
+  --semantic-unclear: #EAB308;
+  --semantic-unclear-bg: rgba(234,179,8,0.1);
+  --semantic-error: #EF4444;
+  --semantic-error-bg: rgba(239,68,68,0.1);
+
+  --font-sans: 'Pretendard', 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* 2. 라이트 모드 오버라이딩 (추가할 부분) */
+[data-theme="light"] {
+  --bg-base: #F8F9FC;           /* 밝은 배경 */
+  --bg-surface: #FFFFFF;        /* 카드 배경 흰색 */
+  --bg-elevated: #EFF2F6;       /* 호버/구분영역 */
+  --bg-overlay: #E2E5EB;        /* 칩, 태그 배경 */
+  
+  --border-subtle: #E5E8EB;
+  --border-default: #D1D6DB;
+  --border-strong: #B0B8C1;
+
+  --text-primary: #191F28;      /* 짙은 검정 */
+  --text-secondary: #4E5968;    /* 짙은 회색 */
+  --text-tertiary: #8B95A1;     /* 연한 회색 */
+  --text-disabled: #C4C9CF;
+
+  /* 브랜드 컬러는 그대로 두거나 미세 조정 */
+  --brand-subtle: rgba(91,115,255,0.1); 
+  
+  /* 시맨틱 배경색을 조금 더 진하게 (흰 배경에서 잘 보이도록) */
+  --semantic-in-scope-bg: rgba(34,197,94,0.15);
+  --semantic-out-scope-bg: rgba(249,115,22,0.15);
+  --semantic-unclear-bg: rgba(234,179,8,0.15);
+  --semantic-error-bg: rgba(239,68,68,0.15);
+}
+
+/* 3. 부드러운 전환 효과 추가 */
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  padding: 0;
+  /* 색상 변경 시 부드럽게 전환 */
+  transition: background 0.3s ease, color 0.3s ease; 
+}
+/* 카드 등 주요 요소에도 트랜지션 적용 */
+.doc-header, .sidebar, .judgment-card, .grid-demo, .input-field, .btn {
+   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+  /* ── Layout ── */
+  .doc-header {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .doc-header .logo { display: flex; align-items: center; gap: 10px; }
+  .doc-header .logo-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--brand-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: #fff;
+  }
+  .doc-header h1 { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .doc-header .meta { font-size: 12px; color: var(--text-tertiary); }
+  .version-badge {
+    background: var(--brand-subtle);
+    color: var(--brand-primary);
+    border: 1px solid rgba(91,115,255,0.3);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .doc-body { display: flex; min-height: calc(100vh - 73px); }
+
+  .sidebar {
+    width: 220px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-subtle);
+    padding: 24px 0;
+    position: sticky;
+    top: 73px;
+    height: calc(100vh - 73px);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-section { margin-bottom: 8px; }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 20px;
+    margin-bottom: 4px;
+  }
+  .sidebar-item {
+    display: block;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sidebar-item:hover, .sidebar-item.active {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+  }
+  .sidebar-item.active { border-right: 2px solid var(--brand-primary); }
+
+  .main { flex: 1; padding: 48px 56px; max-width: 960px; }
+
+  .section { margin-bottom: 72px; }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    margin-bottom: 32px;
+  }
+  .subsection { margin-bottom: 40px; }
+  .subsection-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* ── Token Tables ── */
+  .token-table { width: 100%; border-collapse: collapse; }
+  .token-table th {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .token-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+  .token-table tr:last-child td { border-bottom: none; }
+  .token-table tr:hover td { background: var(--bg-elevated); }
+
+  .token-name {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--brand-primary);
+    white-space: nowrap;
+  }
+  .token-value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .token-desc { color: var(--text-secondary); font-size: 12px; }
+
+  /* ── Color Swatches ── */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .swatch {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+  }
+  .swatch-color { height: 56px; }
+  .swatch-info { padding: 10px 12px; background: var(--bg-surface); }
+  .swatch-name { font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+  .swatch-hex { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+
+  /* ── Typography ── */
+  .type-sample {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .type-preview { flex: 1; }
+  .type-meta { text-align: right; flex-shrink: 0; }
+  .type-token { font-family: var(--font-mono); font-size: 11px; color: var(--brand-primary); }
+  .type-spec { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+  /* ── Button Components ── */
+  .component-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-sans);
+    font-weight: 500; cursor: pointer;
+    border-radius: 8px; border: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--brand-primary); color: #fff;
+    padding: 9px 18px; font-size: 14px;
+  }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-secondary {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    padding: 8px 18px; font-size: 14px;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 8px 18px; font-size: 14px;
+  }
+  .btn-ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+  .btn-danger {
+    background: var(--semantic-error-bg);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--semantic-error);
+    padding: 8px 18px; font-size: 14px;
+  }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-lg { padding: 12px 24px; font-size: 15px; border-radius: 10px; }
+  .btn-disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── Input ── */
+  .input-demo {
+    display: flex; flex-direction: column; gap: 12px;
+    max-width: 360px;
+  }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+  .input-field {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-field:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 3px var(--brand-subtle); }
+  .input-field::placeholder { color: var(--text-disabled); }
+  .input-field.input-error { border-color: var(--semantic-error); }
+  .input-hint { font-size: 11px; color: var(--text-tertiary); }
+  .input-hint.error { color: var(--semantic-error); }
+
+  /* ── AI Judgment Card ── */
+  .judgment-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .judgment-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .judgment-card.in-scope::before { background: var(--semantic-in-scope); }
+  .judgment-card.out-scope::before { background: var(--semantic-out-scope); }
+  .judgment-card.unclear::before { background: var(--semantic-unclear); }
+
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.4; flex: 1; }
+  .verdict-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
+  .verdict-badge.in-scope {
+    background: var(--semantic-in-scope-bg);
+    color: var(--semantic-in-scope);
+    border: 1px solid rgba(34,197,94,0.25);
+  }
+  .verdict-badge.out-scope {
+    background: var(--semantic-out-scope-bg);
+    color: var(--semantic-out-scope);
+    border: 1px solid rgba(249,115,22,0.25);
+  }
+  .verdict-badge.unclear {
+    background: var(--semantic-unclear-bg);
+    color: var(--semantic-unclear);
+    border: 1px solid rgba(234,179,8,0.25);
+  }
+  .verdict-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  .confidence-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .confidence-label { font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .confidence-bar { flex: 1; height: 6px; background: var(--bg-overlay); border-radius: 3px; overflow: hidden; }
+  .confidence-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .confidence-fill.high { background: var(--semantic-in-scope); }
+  .confidence-fill.mid { background: var(--semantic-unclear); }
+  .confidence-fill.low { background: var(--semantic-out-scope); }
+  .confidence-pct { font-size: 12px; font-weight: 700; color: var(--text-primary); min-width: 36px; text-align: right; }
+
+  .card-reason {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    padding: 14px 16px;
+    background: var(--bg-elevated);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .card-reason strong { color: var(--text-primary); }
+
+  .card-meta { display: flex; gap: 16px; align-items: center; }
+  .meta-tag {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-overlay);
+    border: 1px solid var(--border-subtle);
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+  .meta-time { font-size: 11px; color: var(--text-disabled); margin-left: auto; }
+
+  /* ── Grid ── */
+  .grid-demo {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 16px;
+    min-height: 200px;
+  }
+  .grid-sidebar-demo {
+    background: var(--bg-elevated);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .grid-content-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .grid-cell {
+    background: var(--bg-overlay);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spacing-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .spacing-block { background: var(--brand-subtle); border: 1px dashed rgba(91,115,255,0.4); display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+  .spacing-label { font-size: 10px; color: var(--brand-primary); font-family: var(--font-mono); }
+
+  .divider { height: 1px; background: var(--border-subtle); margin: 40px 0; }
+
+  .callout {
+    background: var(--brand-subtle);
+    border: 1px solid rgba(91,115,255,0.25);
+    border-left: 3px solid var(--brand-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  .callout strong { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<header class="doc-header">
+  <div class="logo">
+    </div>
+  
+  <div style="display:flex; align-items:center; gap:16px;">
+    <button id="theme-toggle-btn" class="btn btn-ghost btn-sm" style="font-size: 16px;">
+      🌙 </button>
+    
+    <span class="version-badge">v0.1 MVP</span>
+    <span class="meta">Figma Token Reference</span>
+  </div>
+</header>
+
+<div class="doc-body">
+
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Foundation</div>
+      <a class="sidebar-item active" href="#colors">색상 토큰</a>
+      <a class="sidebar-item" href="#typography">타이포그래피</a>
+      <a class="sidebar-item" href="#spacing">스페이싱</a>
+      <a class="sidebar-item" href="#radius">Border Radius</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Components</div>
+      <a class="sidebar-item" href="#buttons">버튼</a>
+      <a class="sidebar-item" href="#inputs">인풋</a>
+      <a class="sidebar-item" href="#judgment">AI 판단 카드</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Layout</div>
+      <a class="sidebar-item" href="#grid">그리드 & 레이아웃</a>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ───────── 색상 ───────── -->
+    <section class="section" id="colors">
+      <div class="section-title">🎨 색상 토큰</div>
+      <div class="section-desc">다크 모드 기준 정의. Figma Variables → Color 컬렉션에 동일 이름으로 등록하세요.</div>
+
+      <div class="callout">
+        <strong>Tone: Calm Authority</strong> — 판단을 내리는 도구답게 차갑지 않고 침착한 네이비 계열 기반. 브랜드 컬러(인디고)는 강조에만 사용하고, 바탕은 최대한 조용하게 유지합니다.
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Background</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#0F1117;"></div><div class="swatch-info"><div class="swatch-name">bg/base</div><div class="swatch-hex">#0F1117</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#171B26;"></div><div class="swatch-info"><div class="swatch-name">bg/surface</div><div class="swatch-hex">#171B26</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#1E2333;"></div><div class="swatch-info"><div class="swatch-name">bg/elevated</div><div class="swatch-hex">#1E2333</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#252A3D;"></div><div class="swatch-info"><div class="swatch-name">bg/overlay</div><div class="swatch-hex">#252A3D</div></div></div>
+        </div>
+        <table class="token-table">
+          <tr><th>Token</th><th>Value</th><th>사용 위치</th></tr>
+          <tr><td class="token-name">bg/base</td><td class="token-value">#0F1117</td><td class="token-desc">최하단 배경, body</td></tr>
+          <tr><td class="token-name">bg/surface</td><td class="token-value">#171B26</td><td class="token-desc">카드, 패널, 사이드바</td></tr>
+          <tr><td class="token-name">bg/elevated</td><td class="token-value">#1E2333</td><td class="token-desc">hover 상태, 중첩 요소</td></tr>
+          <tr><td class="token-name">bg/overlay</td><td class="token-value">#252A3D</td><td class="token-desc">칩, 태그, 코드블록</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Border</div>
+        <table class="token-table">
+          <tr><th>Token</th><th>Value</th><th>사용 위치</th></tr>
+          <tr><td class="token-name">border/subtle</td><td class="token-value">#2A3050</td><td class="token-desc">섹션 구분선, 비활성 카드</td></tr>
+          <tr><td class="token-name">border/default</td><td class="token-value">#374168</td><td class="token-desc">인풋, 기본 카드</td></tr>
+          <tr><td class="token-name">border/strong</td><td class="token-value">#4A5580</td><td class="token-desc">focus 인접, 강조 테두리</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Text</div>
+        <table class="token-table">
+          <tr><th>Token</th><th>Value</th><th>사용 위치</th></tr>
+          <tr><td class="token-name">text/primary</td><td class="token-value">#F0F2FA</td><td class="token-desc">제목, 본문 핵심 텍스트</td></tr>
+          <tr><td class="token-name">text/secondary</td><td class="token-value">#A8B0CC</td><td class="token-desc">설명문, 부제목</td></tr>
+          <tr><td class="token-name">text/tertiary</td><td class="token-value">#636B8A</td><td class="token-desc">플레이스홀더, 레이블</td></tr>
+          <tr><td class="token-name">text/disabled</td><td class="token-value">#3D4566</td><td class="token-desc">비활성 요소</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Brand</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#5B73FF;"></div><div class="swatch-info"><div class="swatch-name">brand/primary</div><div class="swatch-hex">#5B73FF</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#7088FF;"></div><div class="swatch-info"><div class="swatch-name">brand/hover</div><div class="swatch-hex">#7088FF</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:rgba(91,115,255,0.15);"></div><div class="swatch-info"><div class="swatch-name">brand/subtle</div><div class="swatch-hex">rgba(91,115,255,0.15)</div></div></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Semantic — AI 판단 결과 전용</div>
+        <div class="callout" style="margin-bottom:16px;">
+          <strong>중요:</strong> 이 색상들은 AI 판단 결과(스코프 인/아웃/불명확)와 시스템 상태에만 사용합니다. 장식 목적으로 사용하지 마세요.
+        </div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#22C55E;"></div><div class="swatch-info"><div class="swatch-name">semantic/in-scope</div><div class="swatch-hex">#22C55E</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#F97316;"></div><div class="swatch-info"><div class="swatch-name">semantic/out-scope</div><div class="swatch-hex">#F97316</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#EAB308;"></div><div class="swatch-info"><div class="swatch-name">semantic/unclear</div><div class="swatch-hex">#EAB308</div></div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#EF4444;"></div><div class="swatch-info"><div class="swatch-name">semantic/error</div><div class="swatch-hex">#EF4444</div></div></div>
+        </div>
+        <table class="token-table">
+          <tr><th>Token</th><th>배경 (10% opacity)</th><th>의미</th></tr>
+          <tr><td class="token-name">semantic/in-scope</td><td class="token-value">rgba(34,197,94,0.1)</td><td class="token-desc">계약 범위 내 — 안심, 긍정</td></tr>
+          <tr><td class="token-name">semantic/out-scope</td><td class="token-value">rgba(249,115,22,0.1)</td><td class="token-desc">범위 초과 — 주의, 추가비용 발생</td></tr>
+          <tr><td class="token-name">semantic/unclear</td><td class="token-value">rgba(234,179,8,0.1)</td><td class="token-desc">판단 불가 — 낮은 신뢰도</td></tr>
+          <tr><td class="token-name">semantic/error</td><td class="token-value">rgba(239,68,68,0.1)</td><td class="token-desc">시스템 오류</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── 타이포그래피 ───────── -->
+    <section class="section" id="typography">
+      <div class="section-title">🔤 타이포그래피 토큰</div>
+      <div class="section-desc">한글: Pretendard / 영문&숫자: Inter / 코드: JetBrains Mono. Figma Variables → Typography 컬렉션.</div>
+
+      <div class="subsection">
+        <div class="subsection-title">Type Scale</div>
+
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:32px; font-weight:700; color:#F0F2FA; line-height:1.2;">대시보드 제목</span></div>
+          <div class="type-meta"><div class="type-token">type/display</div><div class="type-spec">32px · 700 · -0.02em</div></div>
+        </div>
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:22px; font-weight:700; color:#F0F2FA;">섹션 헤딩</span></div>
+          <div class="type-meta"><div class="type-token">type/heading-lg</div><div class="type-spec">22px · 700 · -0.015em</div></div>
+        </div>
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:16px; font-weight:600; color:#F0F2FA;">카드 제목 / 모달 헤더</span></div>
+          <div class="type-meta"><div class="type-token">type/heading-sm</div><div class="type-spec">16px · 600 · -0.01em</div></div>
+        </div>
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:14px; font-weight:400; color:#A8B0CC; line-height:1.7;">본문 텍스트. AI 판단 이유, 설명글 등에 사용합니다. 가독성을 위해 line-height를 1.7로 넉넉하게 유지하세요.</span></div>
+          <div class="type-meta"><div class="type-token">type/body-md</div><div class="type-spec">14px · 400 · 1.7</div></div>
+        </div>
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:13px; font-weight:400; color:#A8B0CC;">보조 텍스트, 설명 문구</span></div>
+          <div class="type-meta"><div class="type-token">type/body-sm</div><div class="type-spec">13px · 400 · 1.6</div></div>
+        </div>
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:12px; font-weight:500; color:#636B8A; letter-spacing:0.08em; text-transform:uppercase;">LABEL / META TEXT</span></div>
+          <div class="type-meta"><div class="type-token">type/label</div><div class="type-spec">12px · 500 · 0.08em · uppercase</div></div>
+        </div>
+        <div class="type-sample">
+          <div class="type-preview"><span style="font-size:12px; font-family:'JetBrains Mono', monospace; color:#5B73FF;">token/name · #5B73FF · 1.0ms</span></div>
+          <div class="type-meta"><div class="type-token">type/mono</div><div class="type-spec">12px · JetBrains Mono</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── 스페이싱 ───────── -->
+    <section class="section" id="spacing">
+      <div class="section-title">📐 스페이싱 토큰</div>
+      <div class="section-desc">4px 베이스 그리드. Figma Variables → Spacing 컬렉션.</div>
+
+      <div class="spacing-row">
+        <div><div class="spacing-block" style="width:4px; height:24px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/1<br>4px</div></div>
+        <div><div class="spacing-block" style="width:8px; height:32px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/2<br>8px</div></div>
+        <div><div class="spacing-block" style="width:12px; height:40px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/3<br>12px</div></div>
+        <div><div class="spacing-block" style="width:16px; height:48px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/4<br>16px</div></div>
+        <div><div class="spacing-block" style="width:20px; height:56px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/5<br>20px</div></div>
+        <div><div class="spacing-block" style="width:24px; height:64px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/6<br>24px</div></div>
+        <div><div class="spacing-block" style="width:32px; height:72px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/8<br>32px</div></div>
+        <div><div class="spacing-block" style="width:40px; height:80px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/10<br>40px</div></div>
+        <div><div class="spacing-block" style="width:48px; height:88px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/12<br>48px</div></div>
+        <div><div class="spacing-block" style="width:64px; height:96px;"></div><div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; text-align:center;">sp/16<br>64px</div></div>
+      </div>
+
+      <table class="token-table">
+        <tr><th>Token</th><th>Value</th><th>주요 사용 예</th></tr>
+        <tr><td class="token-name">spacing/1</td><td class="token-value">4px</td><td class="token-desc">아이콘-텍스트 간격</td></tr>
+        <tr><td class="token-name">spacing/2</td><td class="token-value">8px</td><td class="token-desc">뱃지 패딩, 칩 내부</td></tr>
+        <tr><td class="token-name">spacing/3</td><td class="token-value">12px</td><td class="token-desc">버튼 세로 패딩</td></tr>
+        <tr><td class="token-name">spacing/4</td><td class="token-value">16px</td><td class="token-desc">카드 내부 기본 패딩</td></tr>
+        <tr><td class="token-name">spacing/6</td><td class="token-value">24px</td><td class="token-desc">카드 패딩(여유), 섹션 간격</td></tr>
+        <tr><td class="token-name">spacing/8</td><td class="token-value">32px</td><td class="token-desc">컴포넌트 그룹 간격</td></tr>
+        <tr><td class="token-name">spacing/12</td><td class="token-value">48px</td><td class="token-desc">섹션 헤더 여백</td></tr>
+        <tr><td class="token-name">spacing/16</td><td class="token-value">64px</td><td class="token-desc">페이지 콘텐츠 패딩</td></tr>
+      </table>
+    </section>
+
+    <!-- ───────── Border Radius ───────── -->
+    <section class="section" id="radius">
+      <div class="section-title">⚪ Border Radius 토큰</div>
+
+      <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
+        <div style="text-align:center;">
+          <div style="width:48px; height:48px; background:var(--bg-surface); border:1px solid var(--border-default); border-radius:4px; margin-bottom:8px;"></div>
+          <div class="swatch-hex">radius/sm</div><div class="swatch-hex">4px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px; height:48px; background:var(--bg-surface); border:1px solid var(--border-default); border-radius:8px; margin-bottom:8px;"></div>
+          <div class="swatch-hex">radius/md</div><div class="swatch-hex">8px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px; height:48px; background:var(--bg-surface); border:1px solid var(--border-default); border-radius:10px; margin-bottom:8px;"></div>
+          <div class="swatch-hex">radius/lg</div><div class="swatch-hex">10px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px; height:48px; background:var(--bg-surface); border:1px solid var(--border-default); border-radius:14px; margin-bottom:8px;"></div>
+          <div class="swatch-hex">radius/xl</div><div class="swatch-hex">14px</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:48px; height:48px; background:var(--bg-surface); border:1px solid var(--border-default); border-radius:24px; margin-bottom:8px;"></div>
+          <div class="swatch-hex">radius/pill</div><div class="swatch-hex">9999px</div>
+        </div>
+      </div>
+
+      <table class="token-table">
+        <tr><th>Token</th><th>Value</th><th>사용 위치</th></tr>
+        <tr><td class="token-name">radius/sm</td><td class="token-value">4px</td><td class="token-desc">태그, 뱃지, 칩, 코드 인라인</td></tr>
+        <tr><td class="token-name">radius/md</td><td class="token-value">8px</td><td class="token-desc">버튼, 인풋, 드롭다운</td></tr>
+        <tr><td class="token-name">radius/lg</td><td class="token-value">10px</td><td class="token-desc">소형 카드, 툴팁</td></tr>
+        <tr><td class="token-name">radius/xl</td><td class="token-value">14px</td><td class="token-desc">AI 판단 카드, 모달, 주요 패널</td></tr>
+        <tr><td class="token-name">radius/pill</td><td class="token-value">9999px</td><td class="token-desc">verdict 뱃지, 상태 표시</td></tr>
+      </table>
+    </section>
+
+    <!-- ───────── 버튼 ───────── -->
+    <section class="section" id="buttons">
+      <div class="section-title">🔘 버튼 컴포넌트</div>
+
+      <div class="subsection">
+        <div class="subsection-title">Variant</div>
+        <div class="component-row">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-danger">Danger</button>
+        </div>
+        <table class="token-table">
+          <tr><th>Variant</th><th>사용 시점</th><th>핵심 규칙</th></tr>
+          <tr><td class="token-name">Primary</td><td class="token-desc">페이지당 1개. 가장 중요한 CTA</td><td class="token-desc">brand/primary 배경. 남발 금지</td></tr>
+          <tr><td class="token-name">Secondary</td><td class="token-desc">보조 액션, Primary 옆에 병치</td><td class="token-desc">bg/elevated + border/default</td></tr>
+          <tr><td class="token-name">Ghost</td><td class="token-desc">취소, 뒤로가기, 덜 중요한 액션</td><td class="token-desc">배경 없음, hover에만 표시</td></tr>
+          <tr><td class="token-name">Danger</td><td class="token-desc">삭제, 되돌릴 수 없는 액션</td><td class="token-desc">semantic/error 계열, 확인 모달 필수</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Size</div>
+        <div class="component-row">
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-lg">Large</button>
+          <button class="btn btn-primary btn-disabled" disabled>Disabled</button>
+        </div>
+        <table class="token-table">
+          <tr><th>Size</th><th>Padding</th><th>Font</th><th>사용 위치</th></tr>
+          <tr><td class="token-name">sm</td><td class="token-value">6px 12px</td><td class="token-value">12px</td><td class="token-desc">테이블 내 액션, 칩 내부</td></tr>
+          <tr><td class="token-name">md (default)</td><td class="token-value">9px 18px</td><td class="token-value">14px</td><td class="token-desc">카드, 폼 내부</td></tr>
+          <tr><td class="token-name">lg</td><td class="token-value">12px 24px</td><td class="token-value">15px</td><td class="token-desc">랜딩, 온보딩, 모달 CTA</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── 인풋 ───────── -->
+    <section class="section" id="inputs">
+      <div class="section-title">📝 인풋 컴포넌트</div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:32px;">
+        <div class="input-demo">
+          <div class="input-group">
+            <label class="input-label">Default</label>
+            <input class="input-field" type="text" placeholder="클라이언트 요청 내용 입력">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Focus 상태</label>
+            <input class="input-field" type="text" value="로그인 페이지 디자인 변경" style="border-color: var(--brand-primary); box-shadow: 0 0 0 3px var(--brand-subtle);">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Error 상태</label>
+            <input class="input-field input-error" type="text" value="잘못된 입력값">
+            <span class="input-hint error">⚠ 필수 항목입니다</span>
+          </div>
+        </div>
+
+        <div>
+          <table class="token-table">
+            <tr><th>상태</th><th>Border</th><th>Shadow</th></tr>
+            <tr><td class="token-name">Default</td><td class="token-value">border/default</td><td class="token-value">—</td></tr>
+            <tr><td class="token-name">Focus</td><td class="token-value">brand/primary</td><td class="token-value">brand/subtle ring 3px</td></tr>
+            <tr><td class="token-name">Error</td><td class="token-value">semantic/error</td><td class="token-value">—</td></tr>
+            <tr><td class="token-name">Disabled</td><td class="token-value">border/subtle</td><td class="token-value">opacity 0.4</td></tr>
+          </table>
+          <div style="margin-top:16px; font-size:13px; color:var(--text-secondary);">
+            <strong style="color:var(--text-primary);">Textarea 규칙</strong><br>
+            스코프 판단 입력창은 min-height: 120px, resize: vertical. AI 판단 요청 버튼은 항상 우측 하단 고정.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── AI 판단 카드 ───────── -->
+    <section class="section" id="judgment">
+      <div class="section-title">🤖 AI 판단 결과 카드</div>
+      <div class="section-desc">스코프매니저의 핵심 UI. 이 카드 하나가 제품의 신뢰도를 결정합니다.</div>
+
+      <div class="callout">
+        <strong>설계 원칙:</strong> 판단 결과(in/out/unclear)는 3가지 신호로 동시에 전달 — 상단 컬러 바, verdict 뱃지, 신뢰도 바. 사용자가 카드를 보는 0.5초 안에 결론을 파악해야 합니다.
+      </div>
+
+      <div class="judgment-card in-scope">
+        <div class="card-header">
+          <div class="card-title">메인 배너 카피 수정 (2회 이내)</div>
+          <span class="verdict-badge in-scope"><span class="verdict-dot"></span>스코프 내</span>
+        </div>
+        <div class="confidence-row">
+          <span class="confidence-label">신뢰도</span>
+          <div class="confidence-bar"><div class="confidence-fill high" style="width:92%;"></div></div>
+          <span class="confidence-pct">92%</span>
+        </div>
+        <div class="card-reason">계약서 5조 2항 <strong>"텍스트 수정은 계약 기간 내 3회까지 무상 제공"</strong> 조건에 해당합니다. 현재 요청은 1회차이며 범위를 초과하지 않습니다.</div>
+        <div class="card-meta">
+          <span class="meta-tag">계약서 5조</span>
+          <span class="meta-tag">텍스트 수정</span>
+          <span class="meta-time">3초 전</span>
+        </div>
+      </div>
+
+      <div class="judgment-card out-scope">
+        <div class="card-header">
+          <div class="card-title">결제 모듈 추가 연동 (카카오페이)</div>
+          <span class="verdict-badge out-scope"><span class="verdict-dot"></span>스코프 초과</span>
+        </div>
+        <div class="confidence-row">
+          <span class="confidence-label">신뢰도</span>
+          <div class="confidence-bar"><div class="confidence-fill high" style="width:87%;"></div></div>
+          <span class="confidence-pct">87%</span>
+        </div>
+        <div class="card-reason">계약서에 명시된 결제 수단은 <strong>신용카드 단일 PG</strong>입니다. 카카오페이 연동은 별도 API 개발 공수(예상 3일)가 발생하는 추가 작업으로 판단됩니다.</div>
+        <div class="card-meta">
+          <span class="meta-tag">결제 시스템</span>
+          <span class="meta-tag">API 연동</span>
+          <span class="meta-time">방금 전</span>
+        </div>
+      </div>
+
+      <div class="judgment-card unclear">
+        <div class="card-header">
+          <div class="card-title">모바일 앱 푸시 알림 설정 페이지</div>
+          <span class="verdict-badge unclear"><span class="verdict-dot"></span>판단 불가</span>
+        </div>
+        <div class="confidence-row">
+          <span class="confidence-label">신뢰도</span>
+          <div class="confidence-bar"><div class="confidence-fill mid" style="width:41%;"></div></div>
+          <span class="confidence-pct">41%</span>
+        </div>
+        <div class="card-reason">계약서 내 <strong>모바일 앱 범위가 명확히 정의되지 않았습니다.</strong> "앱 유지보수" 조항이 푸시 알림 UI 개발을 포함하는지 모호합니다. 계약서 원문 확인이 필요합니다.</div>
+        <div class="card-meta">
+          <span class="meta-tag">계약 모호 구간</span>
+          <span class="meta-tag">확인 필요</span>
+          <span class="meta-time">5초 전</span>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <table class="token-table">
+          <tr><th>요소</th><th>Token / 규칙</th><th>비고</th></tr>
+          <tr><td class="token-name">상단 컬러바</td><td class="token-value">semantic/* · height: 3px</td><td class="token-desc">카드 최상단 position:absolute</td></tr>
+          <tr><td class="token-name">카드 배경</td><td class="token-value">bg/surface + radius/xl</td><td class="token-desc">hover 시 bg/elevated로 전환</td></tr>
+          <tr><td class="token-name">verdict 뱃지</td><td class="token-value">semantic/*/bg + border + radius/pill</td><td class="token-desc">텍스트 + dot로 색맹 접근성 보장</td></tr>
+          <tr><td class="token-name">신뢰도 바</td><td class="token-value">bg/overlay 트랙 · semantic/* 채움</td><td class="token-desc">height: 6px · border-radius: 3px</td></tr>
+          <tr><td class="token-name">근거 박스</td><td class="token-value">bg/elevated · radius/md · body-sm</td><td class="token-desc">핵심 키워드는 text/primary bold</td></tr>
+          <tr><td class="token-name">태그</td><td class="token-value">bg/overlay · border/subtle · radius/sm</td><td class="token-desc">계약 조항 참조 표시</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── 그리드 & 레이아웃 ───────── -->
+    <section class="section" id="grid">
+      <div class="section-title">🗂 그리드 & 레이아웃</div>
+
+      <div class="subsection">
+        <div class="subsection-title">대시보드 기본 구조</div>
+        <div class="grid-demo">
+          <div class="grid-sidebar-demo">
+            <div style="font-size:11px; color:var(--text-tertiary); margin-bottom:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Sidebar</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="height:28px; background:var(--brand-subtle); border-radius:6px; border-right:2px solid var(--brand-primary);"></div>
+              <div style="height:28px; background:var(--bg-overlay); border-radius:6px;"></div>
+              <div style="height:28px; background:var(--bg-overlay); border-radius:6px;"></div>
+              <div style="height:28px; background:var(--bg-overlay); border-radius:6px;"></div>
+            </div>
+          </div>
+          <div class="grid-content-demo">
+            <div class="grid-cell" style="grid-column: span 3; background:var(--bg-elevated); height:40px; font-size:11px; color:var(--text-tertiary);">Topbar — 프로젝트 선택 · 검색</div>
+            <div class="grid-cell">KPI 카드</div>
+            <div class="grid-cell">KPI 카드</div>
+            <div class="grid-cell">KPI 카드</div>
+            <div class="grid-cell" style="grid-column: span 2;">AI 판단 결과 피드</div>
+            <div class="grid-cell">최근 활동</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection" style="margin-top:24px;">
+        <div class="subsection-title">레이아웃 토큰</div>
+        <table class="token-table">
+          <tr><th>Token</th><th>Value</th><th>용도</th></tr>
+          <tr><td class="token-name">layout/sidebar-width</td><td class="token-value">240px</td><td class="token-desc">좌측 네비게이션 고정 폭</td></tr>
+          <tr><td class="token-name">layout/topbar-height</td><td class="token-value">56px</td><td class="token-desc">상단 바 고정 높이</td></tr>
+          <tr><td class="token-name">layout/content-maxwidth</td><td class="token-value">1200px</td><td class="token-desc">콘텐츠 영역 최대 폭</td></tr>
+          <tr><td class="token-name">layout/content-padding</td><td class="token-value">40px</td><td class="token-desc">콘텐츠 좌우 여백</td></tr>
+          <tr><td class="token-name">layout/card-gap</td><td class="token-value">16px</td><td class="token-desc">카드 간 갭 (grid)</td></tr>
+          <tr><td class="token-name">layout/section-gap</td><td class="token-value">32px</td><td class="token-desc">섹션 간 갭</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">반응형 브레이크포인트</div>
+        <table class="token-table">
+          <tr><th>이름</th><th>범위</th><th>레이아웃 변화</th></tr>
+          <tr><td class="token-name">desktop</td><td class="token-value">≥ 1280px</td><td class="token-desc">사이드바 고정 + 3열 그리드</td></tr>
+          <tr><td class="token-name">tablet</td><td class="token-value">768–1279px</td><td class="token-desc">사이드바 축소(아이콘) + 2열</td></tr>
+          <tr><td class="token-name">mobile</td><td class="token-value">< 768px</td><td class="token-desc">사이드바 숨김(햄버거) + 1열</td></tr>
+        </table>
+        <div style="margin-top:12px; font-size:12px; color:var(--text-tertiary);">
+          💡 MVP 단계에서는 desktop 우선 개발. tablet/mobile은 v1.1 이후 대응.
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const rootElement = document.documentElement; // <html> 태그
+  
+  // 1. 초기 상태 설정 (로컬 스토리지 확인 또는 시스템 설정 확인)
+  const localTheme = localStorage.getItem('theme');
+  const systemTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  
+  // 저장된 테마가 있으면 그것을, 없으면 시스템 설정을 따름 (기본은 다크)
+  let currentTheme = localTheme || 'dark'; // 여기서는 기본을 다크로 설정
+
+  function updateTheme(theme) {
+    rootElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    // 버튼 아이콘 변경
+    toggleBtn.innerHTML = theme === 'light' ? '☀️' : '🌙';
+  }
+
+  // 초기화 실행
+  updateTheme(currentTheme);
+
+  // 2. 버튼 클릭 이벤트
+  toggleBtn.addEventListener('click', () => {
+    const newTheme = rootElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    updateTheme(newTheme);
+  });
+</script>
+
+</body>
+</html>
