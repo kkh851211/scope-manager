@@ -633,11 +633,10 @@ function loadFrame(src, el) {
 }
 
 // 다크/라이트 모드 전환
-function toggleMode() {
+document.getElementById('themeToggle').addEventListener('click', () => {
   document.body.classList.toggle('light');
-  document.getElementById('modeBtn').textContent =
-    document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
-}
+  document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+});
 </script>
 </body>
 </html>
