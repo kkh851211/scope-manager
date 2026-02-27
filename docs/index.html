@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyROI · 문서 대시보드</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --s1: #1a1f2e;
+    --t1: #e8eaf0;
+    --t3: #8c95aa;
+    --bd: #232b3e;
+    --blue: #4f80ff;
+    --green: #10b981;
+  }
+  body.light {
+    --bg: #f5f7fa;
+    --s1: #ffffff;
+    --t1: #1a1f2e;
+    --t3: #5a6478;
+    --bd: #d1d9e6;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--t1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: background 0.2s, color 0.2s;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--t1); font-weight: 400; font-size: 0.95rem; margin-left: 6px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--bd);
+    color: var(--t3);
+    background: var(--bg);
+    letter-spacing: 0.3px;
+  }
+  .badge.blue { border-color: var(--blue); color: var(--blue); background: transparent; }
+  .badge.green { border-color: var(--green); color: var(--green); background: transparent; }
+  .toggle-btn {
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    color: var(--t1);
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .toggle-btn:hover { background: var(--bd); }
+
+  /* NAV */
+  nav {
+    display: flex;
+    gap: 0;
+    padding: 0 28px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--t3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--t1); }
+  .tab.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
+
+  /* PAGES */
+  .page { display: none; padding: 28px; }
+  .page.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 24px;
+  }
+  .page-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--t1);
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    color: var(--t3);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  /* CARD */
+  .card {
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid var(--bd);
+    background: var(--s1);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .card:hover { border-color: var(--blue); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  /* DOC CARD */
+  .doc-card {
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--bd);
+    background: var(--s1);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  }
+  .doc-card:hover {
+    border-color: var(--blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(79,128,255,0.12);
+  }
+  .doc-card .icon {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+  .doc-card .doc-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--t1);
+  }
+  .doc-card .doc-desc {
+    font-size: 0.8rem;
+    color: var(--t3);
+    line-height: 1.55;
+    flex: 1;
+  }
+  .doc-card .doc-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--blue);
+    background: rgba(79,128,255,0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    align-self: flex-start;
+  }
+  .doc-card .open-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--blue);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .open-link svg {
+    width: 13px; height: 13px;
+    stroke: var(--blue);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* OVERVIEW TABLE */
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .doc-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--bd);
+    background: var(--s1);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s;
+  }
+  .doc-row:hover { border-color: var(--blue); }
+  .doc-row .num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--blue);
+    background: rgba(79,128,255,0.1);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .doc-row .row-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .doc-row .row-info { flex: 1; min-width: 0; }
+  .doc-row .row-title { font-size: 0.9rem; font-weight: 600; color: var(--t1); }
+  .doc-row .row-sub { font-size: 0.78rem; color: var(--t3); margin-top: 2px; }
+  .doc-row .row-filename {
+    font-size: 0.72rem;
+    color: var(--t3);
+    font-family: monospace;
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .arrow-icon {
+    width: 14px; height: 14px;
+    stroke: var(--t3);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+
+  /* PHASE SECTION */
+  .phase-section { margin-bottom: 28px; }
+  .phase-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--t3);
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  @media (max-width: 560px) {
+    header { padding: 12px 16px; }
+    nav { padding: 0 12px; }
+    .page { padding: 16px; }
+    .grid { grid-template-columns: 1fr; }
+    .tab { padding: 12px 11px; font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MyROI <span>문서 대시보드</span></div>
+  <div class="badges">
+    <span class="badge blue">MVP 진행중</span>
+    <span class="badge green">Lean Startup</span>
+    <span class="badge">B2B HR SaaS</span>
+    <span class="badge">문서 12종</span>
+  </div>
+  <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()">☀️ 라이트</button>
+</header>
+
+<nav>
+  <div class="tab active" onclick="showPage('overview', this)">📋 전체 개요</div>
+  <div class="tab" onclick="showPage('strategy', this)">🎯 전략/기획</div>
+  <div class="tab" onclick="showPage('product', this)">📦 제품 정의</div>
+  <div class="tab" onclick="showPage('tech', this)">⚙️ 기술/설계</div>
+  <div class="tab" onclick="showPage('ux', this)">🖼️ UX/UI</div>
+  <div class="tab" onclick="showPage('qa', this)">✅ QA/검증</div>
+</nav>
+
+<!-- PAGE: OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="page-header">
+    <h2>📋 전체 문서 목록</h2>
+    <p>MyROI 제품 개발을 위한 12종 핵심 문서입니다. 각 문서를 클릭해 바로 열어보세요.</p>
+  </div>
+  <div class="grid">
+    <a class="doc-card" href="problem.html" target="_blank">
+      <div class="icon">🔍</div>
+      <div class="doc-tag">MARKET</div>
+      <div class="doc-title">시장 문제 정의서</div>
+      <div class="doc-desc">직장 내 비공식 기여(위기 관리, 예방 업무, 역할 오버랩)의 금전적 가치가 측정되지 않는 핵심 문제를 정의합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="leancanvas.html" target="_blank">
+      <div class="icon">🗺️</div>
+      <div class="doc-tag">BUSINESS MODEL</div>
+      <div class="doc-title">린캔버스</div>
+      <div class="doc-desc">6차례 반복 개선된 린캔버스. 듀얼 사이드 마켓 접근법으로 직원과 임원 양측의 가치를 동시에 제시합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="hypothesis-metrics.html" target="_blank">
+      <div class="icon">📊</div>
+      <div class="doc-tag">METRICS</div>
+      <div class="doc-title">가설 및 성공 지표 설정</div>
+      <div class="doc-desc">AHA 모먼트(첫 AI 금액 생성)와 활성화(첫 PDF 완성)를 중심으로 한 검증 가설과 KPI 체계를 정의합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="user-research-validation.html" target="_blank">
+      <div class="icon">👥</div>
+      <div class="doc-tag">VALIDATION</div>
+      <div class="doc-title">사용자 리서치 및 문제 검증</div>
+      <div class="doc-desc">인터뷰 대신 실제 행동 데이터를 기반으로 가설을 검증하는 린 스타트업 방법론을 적용합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="feature-definition.html" target="_blank">
+      <div class="icon">📝</div>
+      <div class="doc-tag">FEATURE</div>
+      <div class="doc-title">기능 정의서 및 백로그</div>
+      <div class="doc-desc">MVP 범위 내 핵심 기능을 정의하고 우선순위화한 제품 백로그. 피처 크리프 방지를 위한 스코프 기준 포함.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="tech-check.html" target="_blank">
+      <div class="icon">⚙️</div>
+      <div class="doc-tag">ARCHITECTURE</div>
+      <div class="doc-title">기술 타당성 및 아키텍처 검토</div>
+      <div class="doc-desc">기술 스택 선정 근거, 시스템 아키텍처 설계도. GitHub Pages 호환 배포 전략 포함.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="core-logic-policy.html" target="_blank">
+      <div class="icon">🧠</div>
+      <div class="doc-tag">CORE LOGIC</div>
+      <div class="doc-title">핵심 데이터 정책 및 로직 설계</div>
+      <div class="doc-desc">LLM 프롬프트 엔지니어링으로 텍스트를 금액으로 변환하는 핵심 알고리즘. 데이터 프라이버시 정책 포함.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="landing-page-architecture.html" target="_blank">
+      <div class="icon">🏗️</div>
+      <div class="doc-tag">LANDING PAGE</div>
+      <div class="doc-title">랜딩 페이지 구조도</div>
+      <div class="doc-desc">섹션별 구성, CTA 배치, 전환 최적화 설계. 한국 중소기업 타겟 직원·임원 이중 가치 제안 구조.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="user-flow-wireframe.html" target="_blank">
+      <div class="icon">🖼️</div>
+      <div class="doc-tag">USER FLOW</div>
+      <div class="doc-title">유저 플로우 및 와이어프레임</div>
+      <div class="doc-desc">온보딩부터 PDF 피치덱 생성까지의 전체 사용자 여정. AHA 모먼트 트리거 포인트 명시.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="prd-tracking-events.html" target="_blank">
+      <div class="icon">📡</div>
+      <div class="doc-tag">PRD</div>
+      <div class="doc-title">요구사항 정의서 + 트래킹 이벤트</div>
+      <div class="doc-desc">제품 요구사항 문서(PRD)와 Mixpanel · GA4 트래킹 이벤트 스펙. 트래킹 이벤트는 제품의 눈입니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="qa-scenarios.html" target="_blank">
+      <div class="icon">✅</div>
+      <div class="doc-tag">QA</div>
+      <div class="doc-title">인수 조건 및 QA 시나리오</div>
+      <div class="doc-desc">기능별 인수 조건(Acceptance Criteria) 정의, 테스트 시나리오, 엣지 케이스 및 경계값 테스트 목록.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="analytics-verification.html" target="_blank">
+      <div class="icon">🔗</div>
+      <div class="doc-tag">ANALYTICS</div>
+      <div class="doc-title">데이터 트래킹 실제 연동 검증</div>
+      <div class="doc-desc">애널리틱스 실연동 검증 절차. 이벤트 파이어링, 페이로드 형식, Slack 알림 정상 수신 여부 확인.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- PAGE: STRATEGY -->
+<div class="page" id="page-strategy">
+  <div class="page-header">
+    <h2>🎯 전략 / 기획 문서</h2>
+    <p>시장 분석, 비즈니스 모델, 가설 검증 관련 문서입니다.</p>
+  </div>
+  <div class="grid">
+    <a class="doc-card" href="problem.html" target="_blank">
+      <div class="icon">🔍</div>
+      <div class="doc-tag">MARKET</div>
+      <div class="doc-title">시장 문제 정의서</div>
+      <div class="doc-desc">직장 내 비공식 기여(위기 관리, 예방 업무, 역할 오버랩)의 금전적 가치가 측정되지 않는 핵심 문제를 정의합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="leancanvas.html" target="_blank">
+      <div class="icon">🗺️</div>
+      <div class="doc-tag">BUSINESS MODEL</div>
+      <div class="doc-title">린캔버스</div>
+      <div class="doc-desc">6차례 반복 개선된 린캔버스. 듀얼 사이드 마켓 접근법으로 직원과 임원 양측의 가치를 동시에 제시합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="hypothesis-metrics.html" target="_blank">
+      <div class="icon">📊</div>
+      <div class="doc-tag">METRICS</div>
+      <div class="doc-title">가설 및 성공 지표</div>
+      <div class="doc-desc">AHA 모먼트(첫 AI 금액 생성)와 활성화(첫 PDF 완성)를 중심으로 한 검증 가설과 KPI 체계를 정의합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="user-research-validation.html" target="_blank">
+      <div class="icon">👥</div>
+      <div class="doc-tag">VALIDATION</div>
+      <div class="doc-title">사용자 리서치 및 문제 검증</div>
+      <div class="doc-desc">인터뷰 대신 실제 행동 데이터를 기반으로 가설을 검증하는 린 스타트업 방법론을 적용합니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- PAGE: PRODUCT -->
+<div class="page" id="page-product">
+  <div class="page-header">
+    <h2>📦 제품 정의 문서</h2>
+    <p>기능 범위, 요구사항, 트래킹 이벤트를 포함한 제품 스펙 문서입니다.</p>
+  </div>
+  <div class="grid">
+    <a class="doc-card" href="feature-definition.html" target="_blank">
+      <div class="icon">📝</div>
+      <div class="doc-tag">FEATURE</div>
+      <div class="doc-title">기능 정의서 및 백로그</div>
+      <div class="doc-desc">MVP 범위 내 핵심 기능을 정의하고 우선순위화한 제품 백로그. 피처 크리프 방지를 위한 스코프 기준 포함.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="prd-tracking-events.html" target="_blank">
+      <div class="icon">📡</div>
+      <div class="doc-tag">PRD</div>
+      <div class="doc-title">요구사항 정의서 + 트래킹 이벤트</div>
+      <div class="doc-desc">제품 요구사항 문서(PRD)와 Mixpanel · GA4 트래킹 이벤트 스펙. 트래킹 이벤트는 제품의 눈입니다.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- PAGE: TECH -->
+<div class="page" id="page-tech">
+  <div class="page-header">
+    <h2>⚙️ 기술 / 설계 문서</h2>
+    <p>아키텍처, 핵심 로직, 데이터 정책을 다루는 기술 문서입니다.</p>
+  </div>
+  <div class="grid">
+    <a class="doc-card" href="tech-check.html" target="_blank">
+      <div class="icon">⚙️</div>
+      <div class="doc-tag">ARCHITECTURE</div>
+      <div class="doc-title">기술 타당성 및 아키텍처 검토</div>
+      <div class="doc-desc">기술 스택 선정 근거, 시스템 아키텍처 설계도. GitHub Pages 호환 배포 전략 포함.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="core-logic-policy.html" target="_blank">
+      <div class="icon">🧠</div>
+      <div class="doc-tag">CORE LOGIC</div>
+      <div class="doc-title">핵심 데이터 정책 및 로직 설계</div>
+      <div class="doc-desc">LLM 프롬프트 엔지니어링으로 텍스트를 금액으로 변환하는 핵심 알고리즘. 데이터 프라이버시 정책 포함.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="analytics-verification.html" target="_blank">
+      <div class="icon">🔗</div>
+      <div class="doc-tag">ANALYTICS</div>
+      <div class="doc-title">데이터 트래킹 실제 연동 검증</div>
+      <div class="doc-desc">Mixpanel · GA4 · Slack 웹훅 실연동 검증 절차. 페이로드 검증 및 이벤트 파이어링 확인 방법.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- PAGE: UX -->
+<div class="page" id="page-ux">
+  <div class="page-header">
+    <h2>🖼️ UX / UI 문서</h2>
+    <p>랜딩 페이지 구조, 유저 플로우, 와이어프레임 문서입니다.</p>
+  </div>
+  <div class="grid">
+    <a class="doc-card" href="landing-page-architecture.html" target="_blank">
+      <div class="icon">🏗️</div>
+      <div class="doc-tag">LANDING PAGE</div>
+      <div class="doc-title">랜딩 페이지 구조도</div>
+      <div class="doc-desc">섹션별 구성, CTA 배치, 전환 최적화 설계. 한국 중소기업 타겟 직원·임원 이중 가치 제안 구조.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="user-flow-wireframe.html" target="_blank">
+      <div class="icon">🖼️</div>
+      <div class="doc-tag">USER FLOW</div>
+      <div class="doc-title">유저 플로우 및 와이어프레임</div>
+      <div class="doc-desc">온보딩부터 PDF 피치덱 생성까지의 전체 사용자 여정. AHA 모먼트 트리거 포인트 명시.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- PAGE: QA -->
+<div class="page" id="page-qa">
+  <div class="page-header">
+    <h2>✅ QA / 검증 문서</h2>
+    <p>인수 조건, QA 시나리오, 트래킹 연동 검증 문서입니다.</p>
+  </div>
+  <div class="grid">
+    <a class="doc-card" href="qa-scenarios.html" target="_blank">
+      <div class="icon">✅</div>
+      <div class="doc-tag">QA</div>
+      <div class="doc-title">인수 조건 및 QA 시나리오</div>
+      <div class="doc-desc">기능별 인수 조건(Acceptance Criteria) 정의, 테스트 시나리오, 엣지 케이스 및 경계값 테스트 목록.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+    <a class="doc-card" href="analytics-verification.html" target="_blank">
+      <div class="icon">🔗</div>
+      <div class="doc-tag">ANALYTICS</div>
+      <div class="doc-title">데이터 트래킹 실제 연동 검증</div>
+      <div class="doc-desc">애널리틱스 실연동 검증 절차. 이벤트 파이어링, 페이로드 형식, Slack 알림 정상 수신 여부 확인.</div>
+      <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<script>
+  function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light');
+    document.getElementById('themeToggle').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+  }
+</script>
+</body>
+</html>
