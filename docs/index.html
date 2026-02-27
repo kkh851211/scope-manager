@@ -13,10 +13,6 @@
     --bd: #232b3e;
     --blue: #4f80ff;
     --green: #10b981;
-    --red: #f87171;
-    --amber: #fbbf24;
-    --transition: background 0.2s, color 0.2s, border-color 0.2s;
-
   }
   body.light {
     --bg: #f5f7fa;
@@ -32,44 +28,19 @@
     background: var(--bg);
     color: var(--t1);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    transition: var(--transition);
+    transition: background 0.2s, color 0.2s;
     min-height: 100vh;
   }
-  
-  /* --- 1. 공통 레이아웃 클래스 추가 --- */
-  /* main과 동일한 너비 규칙을 적용할 클래스입니다 */
-  .inner-wrap {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 24px; /* main의 padding과 동일하게 맞춤 */
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* --- 2. Header 수정 --- */
+
+  /* HEADER */
   header {
-    background: var(--s1);
-    border-bottom: 1px solid var(--bd);
-    /* padding: 14px 24px;  <-- 기존 패딩 삭제 (inner-wrap이 담당) */
-    padding: 14px 0;     /* 상하 패딩만 남김 */
-    
-    /* display: flex; ... <-- 기존 정렬 속성 삭제 (내부 div로 이동) */
-    display: block; 
-    
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    transition: var(--transition);
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  /* 헤더 내부의 정렬을 담당할 새로운 스타일 */
-  .header-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 12px;
+    padding: 16px 28px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    flex-wrap: wrap;
   }
   .logo {
     font-size: 18px;
@@ -111,41 +82,16 @@
   }
   .toggle-btn:hover { background: var(--bd); }
 
-  /* --- 3. Nav 수정 --- */
+  /* NAV */
   nav {
-    background: var(--s1);
-    border-bottom: 1px solid var(--bd);
-    /* padding: 0 24px; <-- 기존 패딩 삭제 */
-    padding: 0;
-    
-    /* display: flex; ... <-- 기존 정렬 속성 삭제 */
-    display: block;
-    
-    transition: var(--transition);
-  }
-
-  /* 네비게이션 내부 스크롤 및 정렬 담당 */
-  .nav-content {
     display: flex;
     gap: 0;
+    padding: 0 28px;
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .nav-content::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--t3);
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 12px 16px;
-    white-space: nowrap;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .tab-btn.active { border-bottom: 2px solid var(--blue); color: var(--blue); }
-  .tab-btn:hover:not(.active) { color: var(--t1); }
   nav::-webkit-scrollbar { display: none; }
   .tab {
     padding: 14px 16px;
@@ -333,7 +279,7 @@
 <body>
 
 <header>
-  <div class="logo">My<span>ROI</span></div>
+  <div class="logo">MyROI <span>문서 대시보드</span></div>
   <div class="badges">
     <span class="badge blue">MVP 진행중</span>
     <span class="badge green">Lean Startup</span>
