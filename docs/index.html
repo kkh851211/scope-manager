@@ -35,34 +35,33 @@ body {
   transition: background 0.2s, color 0.2s;
 }
 
-/* [추가] 본문과 동일한 폭을 유지하기 위한 컨테이너 */
+/* [신규] 공통으로 사용할 중앙 정렬 박스 */
 .inner-wrap {
-  max-width: 1060px; /* .page의 max-width와 동일하게 설정 */
-  margin: 0 auto;    /* 중앙 정렬 */
-  padding: 0 28px;   /* .page의 좌우 패딩과 동일하게 설정 */
+  max-width: 1060px;     /* main과 동일한 너비 제한 */
+  margin: 0 auto;        /* 중앙 정렬 */
+  padding: 0 20px;       /* main의 좌우 패딩(20px)과 동일하게 맞춤 */
   width: 100%;
-  box-sizing: border-box;
+  height: 100%;
 }
-
-/* [수정] HEADER: 배경만 유지하고 레이아웃은 내부로 위임 */
+  
+/* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
 header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
   background: var(--s1);
   border-bottom: 1px solid var(--bd);
-  padding: 0;        /* 기존 패딩(0 28px) 제거 */
-  height: 58px;
-  display: block;    /* 기존 display: flex 제거 */
+  padding: 13px 0;       /* 좌우 패딩 제거 (inner-wrap이 담당) */
+  /* display: flex;      <-- 삭제 (block 요소로 변경) */
+  /* align-items...      <-- 삭제 */
+  /* justify-content...  <-- 삭제 */
+  position: sticky;
+  top: 0;
+  z-index: 200;
   transition: background 0.2s;
 }
-
-/* [추가] 헤더 내부 콘텐츠 실제 배치용 */
+  /* [신규] Header 내부 정렬용 */
 .header-content {
   display: flex;
   align-items: center;
-  gap: 14px;
-  height: 100%;
+  justify-content: space-between;
 }
 .logo{font-size:17px;font-weight:700;color:var(--blue);letter-spacing:-.3px;white-space:nowrap}
 .logo span{color:var(--t1)}
