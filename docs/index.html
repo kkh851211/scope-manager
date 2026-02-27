@@ -32,38 +32,33 @@
     min-height: 100vh;
   }
 
-  /* 전체 레이아웃 중앙 정렬 */
-  header, nav, .page {
-    max-width: 1100px; /* 화면에 보여질 최대 너비 (필요에 따라 조절 가능) */
-    margin: 0 auto;    /* 양쪽 여백을 자동 할당하여 가운데 정렬 */
+  /* LAYOUT WRAPPER */
+  .inner {
+    max-width: 960px;
+    margin: 0 auto;
     width: 100%;
   }
-  
+
   /* HEADER */
   header {
+    background: var(--s1);
+    border-bottom: 1px solid var(--bd);
+    padding: 0 28px;
+  }
+  header .inner {
     display: flex;
     align-items: center;
     gap: 12px;
-    /* 수정됨: 화면 크기에 맞춰 좌우 여백을 자동 계산해 중앙 정렬 (최대 1100px 기준) */
-    padding: 16px max(28px, calc(50vw - 550px));
-    background: var(--s1);
-    border-bottom: 1px solid var(--bd);
     flex-wrap: wrap;
+    padding: 16px 0;
   }
   .logo {
-    font-size: 18px;
-    font-weight: 800;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--blue);
     letter-spacing: -0.5px;
   }
-  .logo span { color: var(--t1); }
-  .badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-  }
+  .logo span { color: var(--t1); font-weight: 400; font-size: 0.95rem; margin-left: 6px; }
   .badges { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
   .badge {
     font-size: 0.7rem;
@@ -92,16 +87,17 @@
 
   /* NAV */
   nav {
-    display: flex;
-    gap: 0;
-    /* 수정됨 */
-    padding: 0 max(28px, calc(50vw - 550px));
     background: var(--s1);
     border-bottom: 1px solid var(--bd);
+    padding: 0 28px;
     overflow-x: auto;
     scrollbar-width: none;
   }
   nav::-webkit-scrollbar { display: none; }
+  nav .inner {
+    display: flex;
+    gap: 0;
+  }
   .tab {
     padding: 14px 16px;
     font-size: 0.82rem;
@@ -117,12 +113,9 @@
   .tab.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
 
   /* PAGES */
-  /* 수정됨 */
-  .page { 
-    display: none; 
-    padding: 28px max(28px, calc(50vw - 550px)); 
-  }
+  .page { display: none; padding: 28px; }
   .page.active { display: block; }
+  .page > * { max-width: 960px; margin-left: auto; margin-right: auto; }
 
   /* PAGE HEADER */
   .page-header {
@@ -292,23 +285,27 @@
 <body>
 
 <header>
-  <div class="logo">My<span>ROI</span></div>
-  <div class="badges">
-    <span class="badge blue">MVP 진행중</span>
-    <span class="badge green">Lean Startup</span>
-    <span class="badge">B2B HR SaaS</span>
-    <span class="badge">문서 12종</span>
+  <div class="inner">
+    <div class="logo">MyROI <span>문서 대시보드</span></div>
+    <div class="badges">
+      <span class="badge blue">MVP 진행중</span>
+      <span class="badge green">Lean Startup</span>
+      <span class="badge">B2B HR SaaS</span>
+      <span class="badge">문서 12종</span>
+    </div>
+    <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()">☀️ 라이트</button>
   </div>
-  <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()">☀️ 라이트</button>
 </header>
 
 <nav>
-  <div class="tab active" onclick="showPage('overview', this)">📋 전체 개요</div>
-  <div class="tab" onclick="showPage('strategy', this)">🎯 전략/기획</div>
-  <div class="tab" onclick="showPage('product', this)">📦 제품 정의</div>
-  <div class="tab" onclick="showPage('tech', this)">⚙️ 기술/설계</div>
-  <div class="tab" onclick="showPage('ux', this)">🖼️ UX/UI</div>
-  <div class="tab" onclick="showPage('qa', this)">✅ QA/검증</div>
+  <div class="inner">
+    <div class="tab active" onclick="showPage('overview', this)">📋 전체 개요</div>
+    <div class="tab" onclick="showPage('strategy', this)">🎯 전략/기획</div>
+    <div class="tab" onclick="showPage('product', this)">📦 제품 정의</div>
+    <div class="tab" onclick="showPage('tech', this)">⚙️ 기술/설계</div>
+    <div class="tab" onclick="showPage('ux', this)">🖼️ UX/UI</div>
+    <div class="tab" onclick="showPage('qa', this)">✅ QA/검증</div>
+  </div>
 </nav>
 
 <!-- PAGE: OVERVIEW -->
@@ -320,86 +317,86 @@
   <div class="grid">
     <a class="doc-card" href="problem.html" target="_blank">
       <div class="icon">🔍</div>
-      <div class="doc-tag">MARKET</div>
+      <div class="doc-tag">01 · MARKET</div>
       <div class="doc-title">시장 문제 정의서</div>
-      <div class="doc-desc">직장 내 비공식 기여(위기 관리, 예방 업무, 역할 오버랩)의 금전적 가치가 측정되지 않는 핵심 문제를 정의합니다.</div>
+      <div class="doc-desc">타겟 시장의 핵심 문제와 고객 페인포인트 분석. 비공식 기여의 금전적 가치 미측정 문제 정의.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="leancanvas.html" target="_blank">
       <div class="icon">🗺️</div>
-      <div class="doc-tag">BUSINESS MODEL</div>
+      <div class="doc-tag">02 · BUSINESS MODEL</div>
       <div class="doc-title">린캔버스</div>
-      <div class="doc-desc">6차례 반복 개선된 린캔버스. 듀얼 사이드 마켓 접근법으로 직원과 임원 양측의 가치를 동시에 제시합니다.</div>
+      <div class="doc-desc">6차례 반복 개선된 린캔버스. 듀얼 사이드 마켓 접근법으로 직원·임원 양측 가치 제시.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="hypothesis-metrics.html" target="_blank">
       <div class="icon">📊</div>
-      <div class="doc-tag">METRICS</div>
+      <div class="doc-tag">03 · METRICS</div>
       <div class="doc-title">가설 및 성공 지표 설정</div>
-      <div class="doc-desc">AHA 모먼트(첫 AI 금액 생성)와 활성화(첫 PDF 완성)를 중심으로 한 검증 가설과 KPI 체계를 정의합니다.</div>
+      <div class="doc-desc">AHA 모먼트(첫 AI 금액 생성)·활성화(첫 PDF 완성) 중심의 검증 가설과 KPI 체계.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="user-research-validation.html" target="_blank">
       <div class="icon">👥</div>
-      <div class="doc-tag">VALIDATION</div>
+      <div class="doc-tag">04 · VALIDATION</div>
       <div class="doc-title">사용자 리서치 및 문제 검증</div>
-      <div class="doc-desc">인터뷰 대신 실제 행동 데이터를 기반으로 가설을 검증하는 린 스타트업 방법론을 적용합니다.</div>
+      <div class="doc-desc">인터뷰 대신 실제 행동 데이터로 가설을 검증하는 린 스타트업 방법론 적용.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="feature-definition.html" target="_blank">
       <div class="icon">📝</div>
-      <div class="doc-tag">FEATURE</div>
+      <div class="doc-tag">05 · FEATURE</div>
       <div class="doc-title">기능 정의서 및 백로그</div>
-      <div class="doc-desc">MVP 범위 내 핵심 기능을 정의하고 우선순위화한 제품 백로그. 피처 크리프 방지를 위한 스코프 기준 포함.</div>
+      <div class="doc-desc">MVP 범위 내 핵심 기능 정의 및 우선순위화. 피처 크리프 방지 스코프 기준 포함.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="tech-check.html" target="_blank">
       <div class="icon">⚙️</div>
-      <div class="doc-tag">ARCHITECTURE</div>
+      <div class="doc-tag">06 · ARCHITECTURE</div>
       <div class="doc-title">기술 타당성 및 아키텍처 검토</div>
-      <div class="doc-desc">기술 스택 선정 근거, 시스템 아키텍처 설계도. GitHub Pages 호환 배포 전략 포함.</div>
+      <div class="doc-desc">기술 스택 선정 근거, 시스템 아키텍처 설계. GitHub Pages 호환 배포 전략 포함.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="core-logic-policy.html" target="_blank">
       <div class="icon">🧠</div>
-      <div class="doc-tag">CORE LOGIC</div>
+      <div class="doc-tag">07 · CORE LOGIC</div>
       <div class="doc-title">핵심 데이터 정책 및 로직 설계</div>
-      <div class="doc-desc">LLM 프롬프트 엔지니어링으로 텍스트를 금액으로 변환하는 핵심 알고리즘. 데이터 프라이버시 정책 포함.</div>
+      <div class="doc-desc">LLM 프롬프트 엔지니어링으로 텍스트를 금액으로 변환하는 핵심 알고리즘. 데이터 프라이버시 정책.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="landing-page-architecture.html" target="_blank">
       <div class="icon">🏗️</div>
-      <div class="doc-tag">LANDING PAGE</div>
+      <div class="doc-tag">08 · LANDING PAGE</div>
       <div class="doc-title">랜딩 페이지 구조도</div>
-      <div class="doc-desc">섹션별 구성, CTA 배치, 전환 최적화 설계. 한국 중소기업 타겟 직원·임원 이중 가치 제안 구조.</div>
+      <div class="doc-desc">섹션별 구성, CTA 배치, 전환 최적화 설계. 직원·임원 이중 가치 제안 구조.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="user-flow-wireframe.html" target="_blank">
       <div class="icon">🖼️</div>
-      <div class="doc-tag">USER FLOW</div>
+      <div class="doc-tag">09 · USER FLOW</div>
       <div class="doc-title">유저 플로우 및 와이어프레임</div>
-      <div class="doc-desc">온보딩부터 PDF 피치덱 생성까지의 전체 사용자 여정. AHA 모먼트 트리거 포인트 명시.</div>
+      <div class="doc-desc">온보딩~PDF 생성까지 전체 사용자 여정. AHA 모먼트 트리거 포인트 명시.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="prd-tracking-events.html" target="_blank">
       <div class="icon">📡</div>
-      <div class="doc-tag">PRD</div>
+      <div class="doc-tag">10 · PRD</div>
       <div class="doc-title">요구사항 정의서 + 트래킹 이벤트</div>
-      <div class="doc-desc">제품 요구사항 문서(PRD)와 Mixpanel · GA4 트래킹 이벤트 스펙. 트래킹 이벤트는 제품의 눈입니다.</div>
+      <div class="doc-desc">PRD와 Mixpanel · GA4 트래킹 이벤트 스펙. 트래킹 이벤트는 제품의 눈입니다.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="qa-scenarios.html" target="_blank">
       <div class="icon">✅</div>
-      <div class="doc-tag">QA</div>
+      <div class="doc-tag">11 · QA</div>
       <div class="doc-title">인수 조건 및 QA 시나리오</div>
-      <div class="doc-desc">기능별 인수 조건(Acceptance Criteria) 정의, 테스트 시나리오, 엣지 케이스 및 경계값 테스트 목록.</div>
+      <div class="doc-desc">기능별 인수 조건 정의, 테스트 시나리오, 엣지 케이스 및 경계값 테스트 목록.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
     <a class="doc-card" href="analytics-verification.html" target="_blank">
       <div class="icon">🔗</div>
-      <div class="doc-tag">ANALYTICS</div>
+      <div class="doc-tag">12 · ANALYTICS</div>
       <div class="doc-title">데이터 트래킹 실제 연동 검증</div>
-      <div class="doc-desc">애널리틱스 실연동 검증 절차. 이벤트 파이어링, 페이로드 형식, Slack 알림 정상 수신 여부 확인.</div>
+      <div class="doc-desc">Mixpanel · GA4 · Slack 웹훅 실연동 검증 절차. 페이로드 검증 및 이벤트 파이어링 확인.</div>
       <span class="open-link">열기 <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
     </a>
   </div>
