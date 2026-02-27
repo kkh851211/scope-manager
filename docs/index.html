@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager — 문서 허브</title>
+<style>
+/* ── CSS 변수 ── */
+:root {
+  --bg:   #0f1117;
+  --s1:   #1a1f2e;
+  --t1:   #e8eaf0;
+  --t3:   #8c95aa;
+  --bd:   #232b3e;
+  --blue: #4f80ff;
+  --green:#10b981;
+}
+body.light {
+  --bg:   #f5f7fa;
+  --s1:   #ffffff;
+  --t1:   #1a1f2e;
+  --t3:   #5a6478;
+  --bd:   #d1d9e6;
+}
+
+/* ── 리셋 & 베이스 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* [추가] 본문과 동일한 폭을 유지하기 위한 컨테이너 */
+.inner-wrap {
+  max-width: 1060px; /* .page의 max-width와 동일하게 설정 */
+  margin: 0 auto;    /* 중앙 정렬 */
+  padding: 0 28px;   /* .page의 좌우 패딩과 동일하게 설정 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* [수정] HEADER: 배경만 유지하고 레이아웃은 내부로 위임 */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0;        /* 기존 패딩(0 28px) 제거 */
+  height: 58px;
+  display: block;    /* 기존 display: flex 제거 */
+  transition: background 0.2s;
+}
+
+/* [추가] 헤더 내부 콘텐츠 실제 배치용 */
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+}
+.logo {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+.logo em { color: var(--t3); font-style: normal; font-weight: 400; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--bd);
+  color: var(--t3);
+  white-space: nowrap;
+}
+.badge.b { border-color: var(--blue);  color: var(--blue); }
+.badge.g { border-color: var(--green); color: var(--green);}
+.spacer { flex: 1; }
+.mode-btn {
+  width: 36px; height: 36px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  color: var(--t1);
+}
+.mode-btn:hover { border-color: var(--blue); }
+
+/* [수정] NAV: 배경만 유지하고 레이아웃은 내부로 위임 */
+nav {
+  background: var(--s1);
+  border-bottom: 1px solid var(--bd);
+  padding: 0;        /* 기존 패딩(0 28px) 제거 */
+  display: block;    /* 기존 display: flex 제거 */
+  transition: background 0.2s;
+}
+
+/* [추가] 네비게이션 내부 스크롤 및 배치용 */
+.nav-content {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-content::-webkit-scrollbar { display: none; }
+nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--t3);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 14px 15px;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--t1); }
+.tab-btn.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
+
+/* ── 페이지 ── */
+.page { display: none; padding: 36px 28px; max-width: 1060px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── 섹션 헤더 ── */
+.page-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.page-sub   { color: var(--t3); font-size: 13px; margin-bottom: 28px; }
+
+/* ── 카드 그리드 ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+/* ── 카드 ── */
+.card {
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid var(--bd);
+  background: var(--s1);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background 0.2s;
+}
+.card:hover {
+  border-color: var(--blue);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.card-top { display: flex; align-items: center; gap: 10px; }
+.card-icon {
+  width: 38px; height: 38px;
+  background: var(--bg);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1px solid var(--bd);
+  transition: background 0.2s;
+}
+.card-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+.card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t1);
+  line-height: 1.4;
+}
+.card-file {
+  font-size: 11px;
+  color: var(--t3);
+  font-family: 'Menlo', 'Consolas', monospace;
+  background: var(--bg);
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--bd);
+  align-self: flex-start;
+  transition: background 0.2s;
+}
+.card-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.6;
+  flex: 1;
+}
+.card-arrow {
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 600;
+  align-self: flex-end;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.card:hover .card-arrow { opacity: 1; }
+
+/* ── 문서 뷰어 탭 ── */
+.viewer-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  height: calc(100vh - 170px);
+}
+.viewer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.viewer-list-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--bd);
+  background: var(--s1);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--t3);
+  transition: border-color 0.15s, color 0.15s, background 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.viewer-list-item:hover { border-color: var(--blue); color: var(--t1); }
+.viewer-list-item.selected { border-color: var(--blue); color: var(--blue); background: rgba(79,128,255,.08); font-weight: 600; }
+.viewer-frame {
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+  overflow: hidden;
+}
+.viewer-frame iframe { width: 100%; height: 100%; border: none; background: #fff; }
+
+/* ── 반응형 ── */
+@media (max-width: 560px) {
+  /* 기존 header, nav 패딩 설정은 삭제합니다 */
+  /* header { padding: 0 16px; } <-- 삭제 */
+  /* nav    { padding: 0 16px; } <-- 삭제 */
+  
+  .page  { padding: 24px 16px; }
+  
+  /* [추가] 모바일에서도 상단 영역의 좌우 여백을 본문(16px)과 일치시킴 */
+  .inner-wrap { padding: 0 16px; }
+
+  .card-grid { grid-template-columns: 1fr; }
+  /* ... 나머지 기존 코드 ... */
+}
+@media (min-width: 561px) and (max-width: 860px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ 헤더 ════ -->
+<header>
+  <div class="inner-wrap header-content">
+    <span class="logo">Scope<em>Manager</em></span>
+    <div class="badges">
+      <span class="badge b">MVP Phase</span>
+      <span class="badge g">Build · Measure · Learn</span>
+      <span class="badge">웹 에이전시 특화</span>
+      <span class="badge">v0.1</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="mode-btn" id="modeBtn" onclick="toggleMode()">🌙</button>
+  </div>
+</header>
+
+<!-- ════ 탭 네비게이션 ════ -->
+<nav>
+  <div class="inner-wrap nav-content">
+    <button class="tab-btn active" onclick="showTab('home',this)">🗂 전체 문서</button>
+    <button class="tab-btn" onclick="showTab('discovery',this)">🔎 문제 발굴</button>
+    <button class="tab-btn" onclick="showTab('strategy',this)">🎯 전략 수립</button>
+    <button class="tab-btn" onclick="showTab('build',this)">🛠 개발 설계</button>
+    <button class="tab-btn" onclick="showTab('validate',this)">✅ 검증·QA</button>
+    <button class="tab-btn" onclick="showTab('viewer',this)">👁 문서 뷰어</button>
+  </div>
+</nav>
+
+<!-- ════ 페이지: 전체 문서 ════ -->
+<div id="page-home" class="page active">
+  <div class="page-title">Scope Manager 문서 허브</div>
+  <div class="page-sub">총 12개 기획 문서 · 클릭하면 해당 문서가 열립니다</div>
+  <div class="card-grid">
+
+    <a class="card" href="problem.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📌</div>
+        <div><div class="card-num">01</div><div class="card-name">시장 문제 정의서</div></div>
+      </div>
+      <div class="card-file">problem.html</div>
+      <div class="card-desc">스코프 크립으로 인한 에이전시 수익성 문제의 근본 원인 분석</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="leancanvas.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📊</div>
+        <div><div class="card-num">02</div><div class="card-name">린 캔버스</div></div>
+      </div>
+      <div class="card-file">leancanvas.html</div>
+      <div class="card-desc">비즈니스 모델 전체 요약 — 문제·솔루션·UVP·수익 모델</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="hypothesis-metrics.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📈</div>
+        <div><div class="card-num">03</div><div class="card-name">가설 및 성공 지표</div></div>
+      </div>
+      <div class="card-file">hypothesis-metrics.html</div>
+      <div class="card-desc">검증할 핵심 가설과 BML 사이클 기반 성공 측정 지표</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="user-research-validation.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🔍</div>
+        <div><div class="card-num">04</div><div class="card-name">사용자 리서치 및 검증</div></div>
+      </div>
+      <div class="card-file">user-research-validation.html</div>
+      <div class="card-desc">PM 직접 경험 기반 도메인 지식 + 페르소나 정의 및 문제 검증</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="feature-definition.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">⚙️</div>
+        <div><div class="card-num">05</div><div class="card-name">기능 정의서 및 백로그</div></div>
+      </div>
+      <div class="card-file">feature-definition.html</div>
+      <div class="card-desc">MVP P0 필수 기능과 이후 단계 백로그 우선순위 정의</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="tech-check.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🏗️</div>
+        <div><div class="card-num">06</div><div class="card-name">기술 타당성 및 아키텍처</div></div>
+      </div>
+      <div class="card-file">tech-check.html</div>
+      <div class="card-desc">Next.js · Supabase · Claude API · Railway 스택 선택 근거</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="core-logic-policy.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🧠</div>
+        <div><div class="card-num">07</div><div class="card-name">핵심 로직 및 데이터 정책</div></div>
+      </div>
+      <div class="card-file">core-logic-policy.html</div>
+      <div class="card-desc">AI 스코프 판단 엔진 동작 원리, 테넌트 격리, 비용 추적 로직</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="landing-page-architecture.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🏠</div>
+        <div><div class="card-num">08</div><div class="card-name">랜딩 페이지 구조도</div></div>
+      </div>
+      <div class="card-file">landing-page-architecture.html</div>
+      <div class="card-desc">전환 최적화 랜딩 페이지 섹션 구성 및 CTA 흐름 설계</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="user-flow-wireframe.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🖼️</div>
+        <div><div class="card-num">09</div><div class="card-name">유저 플로우 및 와이어프레임</div></div>
+      </div>
+      <div class="card-file">user-flow-wireframe.html</div>
+      <div class="card-desc">12스크린 프로토타입 기반 온보딩·핵심 기능·리포트 UX 흐름</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="prd-tracking-events.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📋</div>
+        <div><div class="card-num">10</div><div class="card-name">요구사항 정의서 + 트래킹 이벤트</div></div>
+      </div>
+      <div class="card-file">prd-tracking-events.html</div>
+      <div class="card-desc">기능 요구사항 명세 및 PostHog 이벤트 정의서</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="qa-scenarios.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">✅</div>
+        <div><div class="card-num">11</div><div class="card-name">인수 조건 및 QA 시나리오</div></div>
+      </div>
+      <div class="card-file">qa-scenarios.html</div>
+      <div class="card-desc">기능별 합격 기준, 테스트 케이스, 테넌트 격리 검증 시나리오</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="analytics-verification.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📡</div>
+        <div><div class="card-num">12</div><div class="card-name">데이터 트래킹 실제 연동 검증</div></div>
+      </div>
+      <div class="card-file">analytics-verification.html</div>
+      <div class="card-desc">PostHog 이벤트 수신 검증, 품질 기준, Funnel·Retention 정합성 확인</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ════ 페이지: 문제 발굴 ════ -->
+<div id="page-discovery" class="page">
+  <div class="page-title">🔎 문제 발굴</div>
+  <div class="page-sub">시장 문제 정의부터 사용자 리서치까지 — 왜 만드는가</div>
+  <div class="card-grid">
+
+    <a class="card" href="problem.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📌</div>
+        <div><div class="card-num">01</div><div class="card-name">시장 문제 정의서</div></div>
+      </div>
+      <div class="card-file">problem.html</div>
+      <div class="card-desc">스코프 크립으로 인한 에이전시 수익성 문제의 근본 원인 분석</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="user-research-validation.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🔍</div>
+        <div><div class="card-num">04</div><div class="card-name">사용자 리서치 및 검증</div></div>
+      </div>
+      <div class="card-file">user-research-validation.html</div>
+      <div class="card-desc">PM 직접 경험 기반 도메인 지식 + 페르소나 정의 및 문제 검증</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="leancanvas.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📊</div>
+        <div><div class="card-num">02</div><div class="card-name">린 캔버스</div></div>
+      </div>
+      <div class="card-file">leancanvas.html</div>
+      <div class="card-desc">비즈니스 모델 전체 요약 — 문제·솔루션·UVP·수익 모델</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ════ 페이지: 전략 수립 ════ -->
+<div id="page-strategy" class="page">
+  <div class="page-title">🎯 전략 수립</div>
+  <div class="page-sub">가설 설정, 기능 정의, 랜딩 전략 — 무엇을 어떻게 만드는가</div>
+  <div class="card-grid">
+
+    <a class="card" href="hypothesis-metrics.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📈</div>
+        <div><div class="card-num">03</div><div class="card-name">가설 및 성공 지표</div></div>
+      </div>
+      <div class="card-file">hypothesis-metrics.html</div>
+      <div class="card-desc">검증할 핵심 가설과 BML 사이클 기반 성공 측정 지표</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="feature-definition.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">⚙️</div>
+        <div><div class="card-num">05</div><div class="card-name">기능 정의서 및 백로그</div></div>
+      </div>
+      <div class="card-file">feature-definition.html</div>
+      <div class="card-desc">MVP P0 필수 기능과 이후 단계 백로그 우선순위 정의</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="landing-page-architecture.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🏠</div>
+        <div><div class="card-num">08</div><div class="card-name">랜딩 페이지 구조도</div></div>
+      </div>
+      <div class="card-file">landing-page-architecture.html</div>
+      <div class="card-desc">전환 최적화 랜딩 페이지 섹션 구성 및 CTA 흐름 설계</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ════ 페이지: 개발 설계 ════ -->
+<div id="page-build" class="page">
+  <div class="page-title">🛠 개발 설계</div>
+  <div class="page-sub">기술 스택, 핵심 로직, UX 설계 — 어떻게 구현하는가</div>
+  <div class="card-grid">
+
+    <a class="card" href="tech-check.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🏗️</div>
+        <div><div class="card-num">06</div><div class="card-name">기술 타당성 및 아키텍처</div></div>
+      </div>
+      <div class="card-file">tech-check.html</div>
+      <div class="card-desc">Next.js · Supabase · Claude API · Railway 스택 선택 근거</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="core-logic-policy.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🧠</div>
+        <div><div class="card-num">07</div><div class="card-name">핵심 로직 및 데이터 정책</div></div>
+      </div>
+      <div class="card-file">core-logic-policy.html</div>
+      <div class="card-desc">AI 스코프 판단 엔진 동작 원리, 테넌트 격리, 비용 추적 로직</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="user-flow-wireframe.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">🖼️</div>
+        <div><div class="card-num">09</div><div class="card-name">유저 플로우 및 와이어프레임</div></div>
+      </div>
+      <div class="card-file">user-flow-wireframe.html</div>
+      <div class="card-desc">12스크린 프로토타입 기반 온보딩·핵심 기능·리포트 UX 흐름</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="prd-tracking-events.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📋</div>
+        <div><div class="card-num">10</div><div class="card-name">요구사항 정의서 + 트래킹 이벤트</div></div>
+      </div>
+      <div class="card-file">prd-tracking-events.html</div>
+      <div class="card-desc">기능 요구사항 명세 및 PostHog 이벤트 정의서</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ════ 페이지: 검증·QA ════ -->
+<div id="page-validate" class="page">
+  <div class="page-title">✅ 검증·QA</div>
+  <div class="page-sub">인수 조건, QA 시나리오, 분석 데이터 검증</div>
+  <div class="card-grid">
+
+    <a class="card" href="qa-scenarios.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">✅</div>
+        <div><div class="card-num">11</div><div class="card-name">인수 조건 및 QA 시나리오</div></div>
+      </div>
+      <div class="card-file">qa-scenarios.html</div>
+      <div class="card-desc">기능별 합격 기준, 테스트 케이스, 테넌트 격리 검증 시나리오</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="analytics-verification.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📡</div>
+        <div><div class="card-num">12</div><div class="card-name">데이터 트래킹 실제 연동 검증</div></div>
+      </div>
+      <div class="card-file">analytics-verification.html</div>
+      <div class="card-desc">PostHog 이벤트 수신 검증, 품질 기준, Funnel·Retention 정합성 확인</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+    <a class="card" href="hypothesis-metrics.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">📈</div>
+        <div><div class="card-num">03</div><div class="card-name">가설 및 성공 지표</div></div>
+      </div>
+      <div class="card-file">hypothesis-metrics.html</div>
+      <div class="card-desc">검증할 핵심 가설과 BML 사이클 기반 성공 측정 지표</div>
+      <div class="card-arrow">열기 →</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- ════ 페이지: 문서 뷰어 ════ -->
+<div id="page-viewer" class="page">
+  <div class="page-title">👁 문서 뷰어</div>
+  <div class="page-sub">왼쪽에서 문서를 선택하면 오른쪽에 바로 표시됩니다</div>
+  <div class="viewer-grid">
+    <div class="viewer-list" id="viewerList">
+      <div class="viewer-list-item" onclick="loadFrame('problem.html',this)">📌 시장 문제 정의서</div>
+      <div class="viewer-list-item" onclick="loadFrame('leancanvas.html',this)">📊 린 캔버스</div>
+      <div class="viewer-list-item" onclick="loadFrame('hypothesis-metrics.html',this)">📈 가설 및 성공 지표</div>
+      <div class="viewer-list-item" onclick="loadFrame('user-research-validation.html',this)">🔍 사용자 리서치 및 검증</div>
+      <div class="viewer-list-item" onclick="loadFrame('feature-definition.html',this)">⚙️ 기능 정의서 및 백로그</div>
+      <div class="viewer-list-item" onclick="loadFrame('tech-check.html',this)">🏗️ 기술 타당성 및 아키텍처</div>
+      <div class="viewer-list-item" onclick="loadFrame('core-logic-policy.html',this)">🧠 핵심 로직 및 데이터 정책</div>
+      <div class="viewer-list-item" onclick="loadFrame('landing-page-architecture.html',this)">🏠 랜딩 페이지 구조도</div>
+      <div class="viewer-list-item" onclick="loadFrame('user-flow-wireframe.html',this)">🖼️ 유저 플로우 & 와이어프레임</div>
+      <div class="viewer-list-item" onclick="loadFrame('prd-tracking-events.html',this)">📋 PRD + 트래킹 이벤트</div>
+      <div class="viewer-list-item" onclick="loadFrame('qa-scenarios.html',this)">✅ 인수 조건 및 QA</div>
+      <div class="viewer-list-item" onclick="loadFrame('analytics-verification.html',this)">📡 데이터 트래킹 검증</div>
+    </div>
+    <div class="viewer-frame">
+      <iframe id="docFrame" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// 탭 전환
+function showTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// 뷰어 iframe 로드
+function loadFrame(src, el) {
+  document.getElementById('docFrame').src = src;
+  document.querySelectorAll('.viewer-list-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// 다크/라이트 모드 전환
+function toggleMode() {
+  document.body.classList.toggle('light');
+  document.getElementById('modeBtn').textContent =
+    document.body.classList.contains('light') ? '☀️' : '🌙';
+}
+</script>
+</body>
+</html>
