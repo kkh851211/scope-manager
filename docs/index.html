@@ -269,10 +269,10 @@ nav::-webkit-scrollbar { display: none; }
 </head>
 <body>
 
-<!-- ════ 헤더 ════ -->
+<!-- HEADER -->
 <header>
   <div class="inner-wrap header-content">
-    <div style="display:flex;align-items:center;">
+    <div class="header-left">
       <div class="logo">Scope<span>Manager</span></div>
       <div class="badges">
         <span class="badge b">MVP Phase</span>
@@ -281,7 +281,7 @@ nav::-webkit-scrollbar { display: none; }
         <span class="badge">v0.1</span>
       </div>
     </div>
-    <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
+    <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
   </div>
 </header>
 
