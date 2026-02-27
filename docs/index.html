@@ -44,7 +44,8 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 28px;
+    /* 수정됨: 화면 크기에 맞춰 좌우 여백을 자동 계산해 중앙 정렬 (최대 1100px 기준) */
+    padding: 16px max(28px, calc(50vw - 550px));
     background: var(--s1);
     border-bottom: 1px solid var(--bd);
     flex-wrap: wrap;
@@ -93,7 +94,8 @@
   nav {
     display: flex;
     gap: 0;
-    padding: 0 28px;
+    /* 수정됨 */
+    padding: 0 max(28px, calc(50vw - 550px));
     background: var(--s1);
     border-bottom: 1px solid var(--bd);
     overflow-x: auto;
@@ -115,7 +117,11 @@
   .tab.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
 
   /* PAGES */
-  .page { display: none; padding: 28px; }
+  /* 수정됨 */
+  .page { 
+    display: none; 
+    padding: 28px max(28px, calc(50vw - 550px)); 
+  }
   .page.active { display: block; }
 
   /* PAGE HEADER */
