@@ -39,16 +39,38 @@
     width: 100%;
   }
   
-  /* HEADER */
+  /* --- 1. 공통 레이아웃 클래스 추가 --- */
+  /* main과 동일한 너비 규칙을 적용할 클래스입니다 */
+  .inner-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px; /* main의 padding과 동일하게 맞춤 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* --- 2. Header 수정 --- */
   header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 28px;
     background: var(--s1);
     border-bottom: 1px solid var(--bd);
-    flex-wrap: wrap;
-    background: transparent; /* var(--s1)에서 변경 */
+    /* padding: 14px 24px;  <-- 기존 패딩 삭제 (inner-wrap이 담당) */
+    padding: 14px 0;     /* 상하 패딩만 남김 */
+    
+    /* display: flex; ... <-- 기존 정렬 속성 삭제 (내부 div로 이동) */
+    display: block; 
+    
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: var(--transition);
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  /* 헤더 내부의 정렬을 담당할 새로운 스타일 */
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
   .logo {
     font-size: 18px;
