@@ -132,20 +132,28 @@
     }
 
     .toggle-btn {
-      background: var(--s2);
-      border: 1px solid var(--bd);
-      color: var(--t1);
-      border-radius: 8px;
-      padding: 7px 12px;
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 600;
       white-space: nowrap;
-      transition: background 0.15s;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
       flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
     }
 
     .toggle-btn:hover {
-      background: var(--bd);
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
+
+    .toggle-btn:active {
+      transform: translateY(0);
     }
 
     /* NAV TABS */
