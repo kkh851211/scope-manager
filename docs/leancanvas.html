@@ -53,16 +53,17 @@
     /* [신규] 공통으로 사용할 중앙 정렬 박스 */
     .inner-wrap {
       width: 100%;
-      max-width: 1000px;
+      max-width: 1060px;
       margin: 0 auto;
-      padding: 0 40px;
+      padding: 0 28px;
+      height: 100%;
     }
 
     /* ── HEADER ── */
     header {
       background: var(--s1);
       border-bottom: 1px solid var(--bd);
-      padding: 16px 0;
+      padding: 13px 0;
       position: sticky;
       top: 0;
       z-index: 200;
@@ -167,10 +168,20 @@
     /* [신규] Nav 내부 정렬 및 스크롤용 */
     .nav-content {
       display: flex;
-      gap: 0;
       overflow-x: auto;
       scrollbar-width: none;
-      height: 100%;
+    }
+
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-content .tab-btn:first-child {
+      padding-left: 0;
     }
 
     .nav-content::-webkit-scrollbar {
@@ -187,12 +198,12 @@
       border-bottom: 2px solid transparent;
       color: var(--t3);
       cursor: pointer;
-      font-size: 14px;
+      font-family: inherit;
+      font-size: 13px;
       font-weight: 500;
-      padding: 16px 20px;
+      padding: 14px 15px;
       white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
-      flex-shrink: 0;
     }
 
     .tab-btn:hover {
@@ -212,8 +223,8 @@
 
     .page {
       display: none;
-      padding: 40px 0 80px;
-      max-width: 1000px;
+      padding: 36px 28px;
+      max-width: 1060px;
       margin: 0 auto;
     }
 
@@ -826,16 +837,16 @@
       }
 
       header {
-        padding: 14px 0;
+        padding: 11px 14px;
       }
 
       .page {
-        padding: 30px 20px 60px;
+        padding: 36px 20px;
       }
 
       .tab-btn {
-        padding: 14px 16px;
-        font-size: 13px;
+        padding: 11px 11px;
+        font-size: 12px;
       }
 
       .lc-grid {
@@ -1174,7 +1185,8 @@
               "PM이 아쉬운 소리 하지 않아도<br>범위 초과 비용을 받아낼 수 있는 구조"
             </div>
             <div class="card-body" style="margin-top:10px">기존 도구가 과업 <strong>'관리'</strong>에 집중했다면, Scope Manager는
-              <strong>관계 보호 + 수익 방어</strong>에 집중한다.</div>
+              <strong>관계 보호 + 수익 방어</strong>에 집중한다.
+            </div>
           </div>
           <div>
             <div class="card-title">포지셔닝 차별화</div>
