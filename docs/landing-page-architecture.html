@@ -59,12 +59,11 @@
     header {
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: var(--bg);
+      z-index: 200;
+      background: var(--s1);
       border-bottom: 1px solid var(--bd);
-      padding: 0;
+      padding: 13px 0;
       display: block;
-      border-bottom: 1px solid var(--bd);
       transition: background 0.2s;
     }
 
@@ -73,7 +72,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 13px 0;
     }
 
     .header-left {
@@ -630,7 +628,7 @@
           <span class="badge">v1.0</span>
         </div>
       </div>
-      <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
+      <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
     </div>
   </header>
 
@@ -1460,12 +1458,11 @@
   </main>
 
   <script>
-    // Theme toggle
-    const btn = document.getElementById('themeToggle');
-    btn.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
-    });
+    // 다크/라이트 모드 전환
+    function toggleMode() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+    }
 
     // Tab navigation
     const tabs = document.querySelectorAll('.tab-btn');
