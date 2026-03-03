@@ -1,961 +1,1485 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — Landing Page Architecture</title>
-<style>
-  :root {
-    --bg: #0f1117;
-    --s1: #1a1f2e;
-    --t1: #e8eaf0;
-    --t3: #8c95aa;
-    --bd: #232b3e;
-    --blue: #4f80ff;
-    --green: #10b981;
-    --red: #f87171;
-    --yellow: #fbbf24;
-    transition: background 0.2s, color 0.2s;
-  }
-  body.light {
-    --bg: #f5f7fa;
-    --s1: #ffffff;
-    --t1: #1a1f2e;
-    --t3: #5a6478;
-    --bd: #d1d9e6;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--t1);
-    font-family: -apple-system, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    transition: background 0.2s, color 0.2s;
-    min-height: 100vh;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — Landing Page Architecture</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      transition: background 0.2s, color 0.2s;
+    }
 
-  /* [신규] 공통으로 사용할 중앙 정렬 박스 */
-  .inner-wrap {
-    max-width: 1100px;     /* main과 동일한 너비 제한 */
-    margin: 0 auto;        /* 중앙 정렬 */
-    padding: 0 24px;       /* main의 좌우 패딩과 동일하게 맞춤 */
-    width: 100%;
-    height: 100%;
-  }
-  
-  /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
-  header {
-    position: sticky; 
-    top: 0; 
-    z-index: 100;
-    background: var(--bg);
-    border-bottom: 1px solid var(--bd);
-    padding: 0;            /* 패딩 제거 */
-    /* display: flex;      <-- 삭제 (block 요소로 변경) */
-    /* align-items...      <-- 삭제 */
-    /* justify-content...  <-- 삭제 */
-    height: 56px;
-    transition: background 0.2s;
-  }
-  /* [신규] Header 내부 정렬용 */
-  .header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; }
-  .logo { font-weight: 700; font-size: 16px; color: var(--t1); letter-spacing: -0.3px; }
-  .logo span { color: var(--blue); }
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
-  .badge {
-    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
-    border: 1px solid var(--bd); color: var(--t3);
-  }
-  .badge.blue { border-color: var(--blue); color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent); }
-  .badge.green { border-color: var(--green); color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent); }
-  .toggle-btn {
-    background: var(--s1); border: 1px solid var(--bd); border-radius: 8px;
-    color: var(--t1); cursor: pointer; padding: 6px 12px; font-size: 13px;
-    transition: background 0.2s, color 0.2s;
-  }
-  .toggle-btn:hover { border-color: var(--blue); }
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+    }
 
-  /* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
-  nav {
-    background: var(--bg);
-    border-bottom: 1px solid var(--bd);
-    padding: 0;            /* 패딩 제거 */
-    /* display: flex;      <-- 삭제 */
-    /* overflow-x...       <-- 삭제 */
-    transition: background 0.2s;
-  }
-  nav::-webkit-scrollbar { display: none; }
-  /* [신규] Nav 내부 정렬 및 스크롤용 */
-  .nav-content {
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    height: 100%;
-  }
-.nav-content::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    background: none; border: none; color: var(--t3);
-    padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 500;
-    border-bottom: 2px solid transparent; white-space: nowrap;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .tab-btn:hover { color: var(--t1); }
-  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  /* MAIN */
-  main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
-  .page { display: none; }
-  .page.active { display: block; }
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background 0.2s, color 0.2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
 
-  /* CARD */
-  .card {
-    border-radius: 12px; padding: 18px;
-    border: 1px solid var(--bd);
-    background: var(--s1);
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .card:hover { border-color: var(--blue); }
+    /* [신규] 공통으로 사용할 중앙 정렬 박스 */
+    .inner-wrap {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 100%;
+    }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      display: block;
+      border-bottom: 1px solid var(--bd);
+      transition: background 0.2s;
+    }
 
-  h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--t1); }
-  h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--t1); }
-  h4 { font-size: 12px; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  p { color: var(--t3); font-size: 13px; }
+    /* [신규] Header 내부 정렬용 */
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+    }
 
-  .section-header { margin-bottom: 20px; }
-  .section-header p { margin-top: 4px; }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
 
-  .tag {
-    display: inline-block; font-size: 11px; font-weight: 600;
-    padding: 2px 7px; border-radius: 4px; margin-right: 4px; margin-bottom: 4px;
-  }
-  .tag-blue { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }
-  .tag-green { background: color-mix(in srgb, var(--green) 15%, transparent); color: var(--green); }
-  .tag-red { background: color-mix(in srgb, var(--red) 15%, transparent); color: var(--red); }
-  .tag-yellow { background: color-mix(in srgb, var(--yellow) 15%, transparent); color: var(--yellow); }
-  .tag-gray { background: color-mix(in srgb, var(--t3) 15%, transparent); color: var(--t3); }
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
 
-  /* FLOW */
-  .flow { display: flex; flex-direction: column; gap: 0; }
-  .flow-item {
-    display: flex; gap: 14px; align-items: flex-start;
-    padding: 14px 0; border-bottom: 1px solid var(--bd);
-  }
-  .flow-item:last-child { border-bottom: none; }
-  .flow-num {
-    min-width: 28px; height: 28px; border-radius: 50%;
-    background: var(--blue); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; flex-shrink: 0;
-  }
-  .flow-num.green { background: var(--green); }
-  .flow-num.yellow { background: var(--yellow); color: #1a1f2e; }
-  .flow-num.red { background: var(--red); }
-  .flow-body h3 { margin-bottom: 3px; }
+    .logo span {
+      color: var(--t1);
+    }
 
-  /* SECTION LABEL */
-  .section-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-    color: var(--blue); margin-bottom: 6px;
-  }
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
 
-  /* KV */
-  .kv { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .kv:last-child { margin-bottom: 0; }
-  .kv-key { color: var(--t3); font-size: 13px; }
-  .kv-val { font-weight: 600; font-size: 13px; color: var(--t1); }
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
 
-  /* DIVIDER */
-  hr { border: none; border-top: 1px solid var(--bd); margin: 20px 0; }
+    .badge.blue {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: transparent;
+    }
 
-  /* STAT */
-  .stat-val { font-size: 28px; font-weight: 800; color: var(--t1); line-height: 1.1; }
-  .stat-label { font-size: 12px; color: var(--t3); margin-top: 2px; }
-  .stat-delta { font-size: 12px; font-weight: 600; color: var(--green); margin-top: 4px; }
+    .badge.green {
+      border-color: var(--green);
+      color: var(--green);
+      background: transparent;
+    }
 
-  /* TABLE */
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid var(--bd); }
-  td { padding: 10px 10px; border-bottom: 1px solid var(--bd); font-size: 13px; color: var(--t3); }
-  td:first-child { color: var(--t1); font-weight: 500; }
-  tr:last-child td { border-bottom: none; }
+    .toggle-btn {
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
+    }
 
-  /* HIGHLIGHT CARD */
-  .highlight { border-left: 3px solid var(--blue); padding-left: 16px; }
-  .highlight.green { border-left-color: var(--green); }
-  .highlight.yellow { border-left-color: var(--yellow); }
-  .highlight.red { border-left-color: var(--red); }
+    .toggle-btn:hover {
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
 
-  /* CHECKLIST */
-  .checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-  .checklist li { display: flex; align-items: flex-start; gap: 8px; color: var(--t3); font-size: 13px; }
-  .checklist li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-  .checklist li.warn::before { content: '⚠'; color: var(--yellow); }
-  .checklist li.no::before { content: '✕'; color: var(--red); }
+    .toggle-btn:active {
+      transform: translateY(0);
+    }
 
-  /* ARCH VISUAL */
-  .arch-row { display: flex; align-items: stretch; gap: 12px; margin-bottom: 12px; }
-  .arch-section {
-    flex: 1; border: 1px solid var(--bd); border-radius: 10px;
-    padding: 14px; background: var(--s1);
-    transition: background 0.2s;
-  }
-  .arch-section.hero { border-color: var(--blue); }
-  .arch-section.pain { border-color: var(--red); }
-  .arch-section.sol { border-color: var(--green); }
-  .arch-arrow {
-    display: flex; align-items: center; justify-content: center;
-    color: var(--t3); font-size: 18px; min-width: 20px;
-  }
+    /* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
+    nav {
+      background: var(--bg);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      display: block;
+      transition: background 0.2s;
+    }
 
-  /* CTA PILL */
-  .cta-pill {
-    display: inline-block; background: var(--blue); color: #fff;
-    border-radius: 8px; padding: 8px 20px; font-size: 13px; font-weight: 700;
-    margin-right: 8px; margin-top: 8px;
-  }
-  .cta-pill.ghost {
-    background: transparent; border: 1px solid var(--bd); color: var(--t1);
-  }
+    /* [신규] Nav 내부 정렬 및 스크롤용 */
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
 
-  /* RESPONSIVE */
-  @media (max-width: 560px) {
-    main { padding: 16px 12px; }
-    header { padding: 0 12px; }
-    nav { padding: 0 12px; }
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .badges { display: none; }
-    .arch-row { flex-direction: column; }
-    .arch-arrow { transform: rotate(90deg); }
-    .stat-val { font-size: 22px; }
-  }
-</style>
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-content .tab-btn:first-child {
+      padding-left: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--t1);
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    /* MAIN */
+    main {
+      width: 100%;
+    }
+
+    .page {
+      display: none;
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* CARD */
+    .card {
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--blue);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .grid-auto {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--t1);
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--t1);
+    }
+
+    h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .section-header p {
+      color: var(--t3);
+      font-size: 13px;
+      margin-bottom: 28px;
+      line-height: 1.75;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    .tag-blue {
+      background: color-mix(in srgb, var(--blue) 15%, transparent);
+      color: var(--blue);
+    }
+
+    .tag-green {
+      background: color-mix(in srgb, var(--green) 15%, transparent);
+      color: var(--green);
+    }
+
+    .tag-red {
+      background: color-mix(in srgb, var(--red) 15%, transparent);
+      color: var(--red);
+    }
+
+    .tag-yellow {
+      background: color-mix(in srgb, var(--yellow) 15%, transparent);
+      color: var(--yellow);
+    }
+
+    .tag-gray {
+      background: color-mix(in srgb, var(--t3) 15%, transparent);
+      color: var(--t3);
+    }
+
+    /* FLOW */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .flow-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .flow-item:last-child {
+      border-bottom: none;
+    }
+
+    .flow-num {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .flow-num.green {
+      background: var(--green);
+    }
+
+    .flow-num.yellow {
+      background: var(--yellow);
+      color: #1a1f2e;
+    }
+
+    .flow-num.red {
+      background: var(--red);
+    }
+
+    .flow-body h3 {
+      margin-bottom: 3px;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 12px;
+    }
+
+    /* KV */
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .kv:last-child {
+      margin-bottom: 0;
+    }
+
+    .kv-key {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .kv-val {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--t1);
+    }
+
+    /* DIVIDER */
+    hr {
+      border: none;
+      border-top: 1px solid var(--bd);
+      margin: 20px 0;
+    }
+
+    /* STAT */
+    .stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--t1);
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--t3);
+      margin-top: 2px;
+    }
+
+    .stat-delta {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      margin-top: 4px;
+    }
+
+    /* TABLE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--bd);
+      font-size: 13px;
+      color: var(--t3);
+    }
+
+    td:first-child {
+      color: var(--t1);
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* HIGHLIGHT CARD */
+    .highlight {
+      border-left: 3px solid var(--blue);
+      padding-left: 16px;
+    }
+
+    .highlight.green {
+      border-left-color: var(--green);
+    }
+
+    .highlight.yellow {
+      border-left-color: var(--yellow);
+    }
+
+    .highlight.red {
+      border-left-color: var(--red);
+    }
+
+    /* CHECKLIST */
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .checklist li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .checklist li.warn::before {
+      content: '⚠';
+      color: var(--yellow);
+    }
+
+    .checklist li.no::before {
+      content: '✕';
+      color: var(--red);
+    }
+
+    /* ARCH VISUAL */
+    .arch-row {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .arch-section {
+      flex: 1;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--s1);
+      transition: background 0.2s;
+    }
+
+    .arch-section.hero {
+      border-color: var(--blue);
+    }
+
+    .arch-section.pain {
+      border-color: var(--red);
+    }
+
+    .arch-section.sol {
+      border-color: var(--green);
+    }
+
+    .arch-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--t3);
+      font-size: 18px;
+      min-width: 20px;
+    }
+
+    /* CTA PILL */
+    .cta-pill {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+
+    .cta-pill.ghost {
+      background: transparent;
+      border: 1px solid var(--bd);
+      color: var(--t1);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 560px) {
+      .inner-wrap {
+        padding: 0 20px;
+      }
+
+      header {
+        padding: 11px 14px;
+      }
+
+      .page {
+        padding: 36px 20px;
+      }
+
+      .tab-btn {
+        padding: 11px 11px;
+        font-size: 12px;
+      }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .badges {
+        display: none;
+      }
+
+      .arch-row {
+        flex-direction: column;
+      }
+
+      .arch-arrow {
+        transform: rotate(90deg);
+      }
+
+      .stat-val {
+        font-size: 22px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="inner-wrap header-content">
-    <div class="header-left">
-      <div class="logo">Scope<span>Manager</span></div>
-      <div class="badges">
-        <span class="badge blue">랜딩 페이지 구조도</span>
-        <span class="badge green">MVP 검증 전략</span>
-        <span class="badge">v1.0</span>
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="header-left">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="badge blue">랜딩 페이지 구조도</span>
+          <span class="badge green">MVP 검증 전략</span>
+          <span class="badge">v1.0</span>
+        </div>
       </div>
+      <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
     </div>
-    <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
-  </div>
-</header>
+  </header>
 
-<nav id="tabNav">
-  <div class="inner-wrap nav-content">
-    <button class="tab-btn active" data-tab="overview">🗺 전체 구조</button>
-    <button class="tab-btn" data-tab="strategy">🎯 검증 전략</button>
-    <button class="tab-btn" data-tab="sections">📐 섹션 설계</button>
-    <button class="tab-btn" data-tab="copy">✍️ 카피 프레임</button>
-    <button class="tab-btn" data-tab="cta">🔘 CTA 설계</button>
-    <button class="tab-btn" data-tab="metrics">📊 검증 지표</button>
-  </div>
-</nav>
-
-<main>
-
-  <!-- ===== TAB 1: 전체 구조 ===== -->
-  <div class="page active" id="page-overview">
-    <div class="section-header">
-      <h2>랜딩 페이지 전체 구조도</h2>
-      <p>방문자가 페이지 상단에서 하단까지 이동하는 설계 흐름과 각 섹션의 역할</p>
+  <nav id="tabNav">
+    <div class="inner-wrap nav-content">
+      <button class="tab-btn active" data-tab="overview">🗺 전체 구조</button>
+      <button class="tab-btn" data-tab="strategy">🎯 검증 전략</button>
+      <button class="tab-btn" data-tab="sections">📐 섹션 설계</button>
+      <button class="tab-btn" data-tab="copy">✍️ 카피 프레임</button>
+      <button class="tab-btn" data-tab="cta">🔘 CTA 설계</button>
+      <button class="tab-btn" data-tab="metrics">📊 검증 지표</button>
     </div>
+  </nav>
 
-    <div class="arch-row">
-      <div class="arch-section hero">
-        <div class="section-label">Section 01 · 최상단</div>
-        <h3>Hero — 핵심 가치 선언</h3>
-        <p>첫 3초 안에 "나를 위한 도구"임을 인식시킴. 문제 공감 → 솔루션 한 줄 요약 → CTA 버튼</p>
-        <div style="margin-top:10px;"><span class="tag tag-blue">고통 공감</span><span class="tag tag-green">주요 CTA</span></div>
-      </div>
-    </div>
-    <div class="arch-row">
-      <div class="arch-section pain">
-        <div class="section-label">Section 02</div>
-        <h3>Pain — 문제 증폭</h3>
-        <p>PM이 매일 겪는 3가지 고통 구체화. 숫자·상황 묘사로 "맞아, 이게 내 문제야" 유도</p>
-        <div style="margin-top:10px;"><span class="tag tag-red">문제 심화</span><span class="tag tag-yellow">AI 인식 격차</span></div>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-section sol">
-        <div class="section-label">Section 03</div>
-        <h3>Solution — 구조 제안</h3>
-        <p>Scope Manager가 제공하는 3가지 역할: 판정자 / 근거 생성자 / 수익성 가시화</p>
-        <div style="margin-top:10px;"><span class="tag tag-green">기능 → 가치</span><span class="tag tag-blue">Before/After</span></div>
-      </div>
-    </div>
-    <div class="arch-row">
-      <div class="arch-section" style="border-color:var(--yellow)">
-        <div class="section-label">Section 04</div>
-        <h3>Social Proof — 신뢰 형성</h3>
-        <p>데이터 통계 + PM 인터뷰 인용구 + 업계 조사 수치 활용. 초기엔 정성 데이터 우선</p>
-        <div style="margin-top:10px;"><span class="tag tag-yellow">신뢰 구축</span><span class="tag tag-gray">PMI / 업계 통계</span></div>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-section" style="border-color:var(--blue)">
-        <div class="section-label">Section 05</div>
-        <h3>Demo Preview — 제품 체험 힌트</h3>
-        <p>스크린샷 또는 GIF로 핵심 판정 화면 공개. "이렇게 생겼어요" → 실체 증명</p>
-        <div style="margin-top:10px;"><span class="tag tag-blue">제품 실체</span><span class="tag tag-green">행동 유도</span></div>
-      </div>
-    </div>
-    <div class="arch-row">
-      <div class="arch-section" style="border-color:var(--blue)">
-        <div class="section-label">Section 06</div>
-        <h3>Pricing / Early Access</h3>
-        <p>얼리 액세스 프레임으로 가격 저항 최소화. 무료 체험 → 전환 유도</p>
-        <div style="margin-top:10px;"><span class="tag tag-blue">전환</span><span class="tag tag-green">얼리버드</span></div>
-      </div>
-      <div class="arch-arrow">↓</div>
-      <div class="arch-section" style="border-color:var(--green)">
-        <div class="section-label">Section 07 · 하단</div>
-        <h3>Final CTA + Footer</h3>
-        <p>마지막 행동 촉구. "지금 바로 시작" + FAQ 3개 + 간단 푸터</p>
-        <div style="margin-top:10px;"><span class="tag tag-green">최종 전환</span><span class="tag tag-gray">신뢰 보강</span></div>
-      </div>
-    </div>
+  <main>
 
-    <hr>
+    <!-- ===== TAB 1: 전체 구조 ===== -->
+    <div class="page active" id="page-overview">
+      <div class="section-header">
+        <h2>랜딩 페이지 전체 구조도</h2>
+        <p>방문자가 페이지 상단에서 하단까지 이동하는 설계 흐름과 각 섹션의 역할</p>
+      </div>
 
-    <div class="grid-3">
-      <div class="card">
-        <h4>목표 전환 행동</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num">1</div>
-            <div class="flow-body"><h3>이메일 등록</h3><p>얼리 액세스 신청 (최우선)</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num green">2</div>
-            <div class="flow-body"><h3>무료 체험 시작</h3><p>즉시 사용 가능한 경우</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num yellow">3</div>
-            <div class="flow-body"><h3>데모 요청</h3><p>B2B 리드 확보 fallback</p></div>
+      <div class="arch-row">
+        <div class="arch-section hero">
+          <div class="section-label">Section 01 · 최상단</div>
+          <h3>Hero — 핵심 가치 선언</h3>
+          <p>첫 3초 안에 "나를 위한 도구"임을 인식시킴. 문제 공감 → 솔루션 한 줄 요약 → CTA 버튼</p>
+          <div style="margin-top:10px;"><span class="tag tag-blue">고통 공감</span><span class="tag tag-green">주요 CTA</span>
           </div>
         </div>
       </div>
-      <div class="card">
-        <h4>핵심 타겟 방문자</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num">P</div>
-            <div class="flow-body"><h3>PM 겸직 대표</h3><p>5~20인, 매출-수익 괴리 경험자</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num">P</div>
-            <div class="flow-body"><h3>전담 PM</h3><p>클라이언트와 요금 협상 어려움</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num red">X</div>
-            <div class="flow-body"><h3>20인 이상 에이전시</h3><p>자체 솔루션 보유, 핏 낮음</p></div>
+      <div class="arch-row">
+        <div class="arch-section pain">
+          <div class="section-label">Section 02</div>
+          <h3>Pain — 문제 증폭</h3>
+          <p>PM이 매일 겪는 3가지 고통 구체화. 숫자·상황 묘사로 "맞아, 이게 내 문제야" 유도</p>
+          <div style="margin-top:10px;"><span class="tag tag-red">문제 심화</span><span class="tag tag-yellow">AI 인식
+              격차</span></div>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-section sol">
+          <div class="section-label">Section 03</div>
+          <h3>Solution — 구조 제안</h3>
+          <p>Scope Manager가 제공하는 3가지 역할: 판정자 / 근거 생성자 / 수익성 가시화</p>
+          <div style="margin-top:10px;"><span class="tag tag-green">기능 → 가치</span><span
+              class="tag tag-blue">Before/After</span></div>
+        </div>
+      </div>
+      <div class="arch-row">
+        <div class="arch-section" style="border-color:var(--yellow)">
+          <div class="section-label">Section 04</div>
+          <h3>Social Proof — 신뢰 형성</h3>
+          <p>데이터 통계 + PM 인터뷰 인용구 + 업계 조사 수치 활용. 초기엔 정성 데이터 우선</p>
+          <div style="margin-top:10px;"><span class="tag tag-yellow">신뢰 구축</span><span class="tag tag-gray">PMI / 업계
+              통계</span></div>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-section" style="border-color:var(--blue)">
+          <div class="section-label">Section 05</div>
+          <h3>Demo Preview — 제품 체험 힌트</h3>
+          <p>스크린샷 또는 GIF로 핵심 판정 화면 공개. "이렇게 생겼어요" → 실체 증명</p>
+          <div style="margin-top:10px;"><span class="tag tag-blue">제품 실체</span><span class="tag tag-green">행동 유도</span>
           </div>
         </div>
       </div>
-      <div class="card">
-        <h4>페이지 설계 원칙</h4>
-        <ul class="checklist">
-          <li>첫 화면에서 "누구를 위한 제품"인지 명시</li>
-          <li>PM의 감정 노동을 공감 언어로 묘사</li>
-          <li>기능 설명보다 "구조 변화" 강조</li>
-          <li>데이터/수치로 신뢰 구축</li>
-          <li class="warn">초기: 과도한 기능 나열 금지</li>
-          <li class="no">완벽한 제품 완성 후 공개 금지</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== TAB 2: 검증 전략 ===== -->
-  <div class="page" id="page-strategy">
-    <div class="section-header">
-      <h2>MVP 우선 검증 전략</h2>
-      <p>고객 인터뷰를 건너뛰고 MVP 배포로 직접 검증하는 근거와 방법론</p>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:16px;">
-      <div class="card highlight red">
-        <h4>기존 방법론 (전통적 린 스타트업)</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3)">1</div>
-            <div class="flow-body"><h3>고객 인터뷰</h3><p>문제 가설 검증</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3)">2</div>
-            <div class="flow-body"><h3>문제 검증</h3><p>인터뷰 결과 분석</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3)">3</div>
-            <div class="flow-body"><h3>솔루션 검증</h3><p>프로토타입 피드백</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3)">4</div>
-            <div class="flow-body"><h3>MVP 개발</h3><p>수개월 소요</p></div>
+      <div class="arch-row">
+        <div class="arch-section" style="border-color:var(--blue)">
+          <div class="section-label">Section 06</div>
+          <h3>Pricing / Early Access</h3>
+          <p>얼리 액세스 프레임으로 가격 저항 최소화. 무료 체험 → 전환 유도</p>
+          <div style="margin-top:10px;"><span class="tag tag-blue">전환</span><span class="tag tag-green">얼리버드</span>
           </div>
         </div>
-        <div style="margin-top:12px;padding:10px;background:color-mix(in srgb,var(--red) 10%,transparent);border-radius:8px;">
-          <p style="color:var(--red);font-size:12px;font-weight:600;">⚠ 문제: 말(intention)과 행동(behavior) 불일치 가능. 시간 비용 높음.</p>
-        </div>
-      </div>
-      <div class="card highlight green">
-        <h4>채택 방법론 (AI 시대 역전 전략)</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num green">1</div>
-            <div class="flow-body"><h3>가설 정의</h3><p>문제 정의서 기반 내부 검토</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num green">2</div>
-            <div class="flow-body"><h3>MVP 즉시 배포</h3><p>AI 도구로 개발 비용 최소화</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num green">3</div>
-            <div class="flow-body"><h3>행동 데이터 수집</h3><p>이탈률, 전환율, 사용 패턴</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num green">4</div>
-            <div class="flow-body"><h3>반복 개선</h3><p>데이터 기반 피벗/유지 결정</p></div>
-          </div>
-        </div>
-        <div style="margin-top:12px;padding:10px;background:color-mix(in srgb,var(--green) 10%,transparent);border-radius:8px;">
-          <p style="color:var(--green);font-size:12px;font-weight:600;">✓ 실제 사용/이탈 패턴이 더 정직한 검증 신호</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid-3">
-      <div class="card">
-        <h4>비용 역전 논리</h4>
-        <div style="text-align:center;padding:16px 0;">
-          <div class="stat-val" style="color:var(--red)">↓ 90%</div>
-          <div class="stat-label">AI 도구로 MVP 개발 비용 감소</div>
-        </div>
-        <hr style="margin:12px 0;">
-        <p>AI 코딩 도구 도입 이전: MVP = 수천만원 + 수개월<br><br>현재: MVP = 수백만원 + 수주 이내<br><br>인터뷰 설계·진행 비용보다 MVP 개발 비용이 낮아진 역전 현상 발생</p>
-      </div>
-      <div class="card">
-        <h4>랜딩 페이지의 역할</h4>
-        <ul class="checklist" style="margin-top:8px;">
-          <li>MVP 배포 전 수요 신호 수집</li>
-          <li>이메일 등록 = 구매 의향 대리 지표</li>
-          <li>스크롤 깊이 = 관심도 측정</li>
-          <li>섹션별 이탈율 = 메시지 fit 검증</li>
-          <li>CTA 클릭률 = 가격 저항 측정</li>
-          <li class="warn">인터뷰 대체재, 완전 대체는 불가</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h4>검증 판단 기준</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num green">GO</div>
-            <div class="flow-body"><h3>얼리 액세스 등록 ≥ 50건</h3><p>2주 이내 → 수요 검증 완료</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num yellow">WAIT</div>
-            <div class="flow-body"><h3>등록 20~49건</h3><p>메시지 A/B 테스트 후 재판단</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num red">PIVOT</div>
-            <div class="flow-body"><h3>등록 &lt; 20건</h3><p>타겟 또는 메시지 재검토</p></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== TAB 3: 섹션 설계 ===== -->
-  <div class="page" id="page-sections">
-    <div class="section-header">
-      <h2>섹션별 상세 설계</h2>
-      <p>각 섹션의 목적, 핵심 메시지, 포함 요소, 성공 지표</p>
-    </div>
-
-    <div class="flow" style="gap:12px;">
-
-      <div class="card" style="margin-bottom:0;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div class="flow-num">01</div>
-          <div>
-            <div class="section-label">Hero Section</div>
-            <h3 style="margin:0;">핵심 가치 선언 — 첫 3초 승부</h3>
-          </div>
-          <div style="margin-left:auto;"><span class="tag tag-blue">Primary CTA</span></div>
-        </div>
-        <div class="grid-3">
-          <div>
-            <h4>목적</h4>
-            <p>방문자가 "나를 위한 도구" 즉시 인식. 스크롤 유인</p>
-          </div>
-          <div>
-            <h4>포함 요소</h4>
-            <ul class="checklist">
-              <li>헤드라인 (문제 공감)</li>
-              <li>서브카피 (솔루션 한 줄)</li>
-              <li>주요 CTA 버튼 1개</li>
-              <li>타겟 명시 뱃지</li>
-            </ul>
-          </div>
-          <div>
-            <h4>성공 지표</h4>
-            <div class="kv"><span class="kv-key">스크롤 통과율</span><span class="kv-val" style="color:var(--green)">≥ 60%</span></div>
-            <div class="kv"><span class="kv-key">CTA 클릭률</span><span class="kv-val" style="color:var(--blue)">≥ 5%</span></div>
-            <div class="kv"><span class="kv-key">평균 체류</span><span class="kv-val">≥ 15초</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-section" style="border-color:var(--green)">
+          <div class="section-label">Section 07 · 하단</div>
+          <h3>Final CTA + Footer</h3>
+          <p>마지막 행동 촉구. "지금 바로 시작" + FAQ 3개 + 간단 푸터</p>
+          <div style="margin-top:10px;"><span class="tag tag-green">최종 전환</span><span class="tag tag-gray">신뢰 보강</span>
           </div>
         </div>
       </div>
 
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div class="flow-num" style="background:var(--red)">02</div>
-          <div>
-            <div class="section-label" style="color:var(--red)">Pain Section</div>
-            <h3 style="margin:0;">문제 증폭 — 고통의 구체화</h3>
-          </div>
-          <div style="margin-left:auto;"><span class="tag tag-red">공감 유발</span></div>
-        </div>
-        <div class="grid-3">
-          <div>
-            <h4>목적</h4>
-            <p>PM이 일상에서 반복하는 3가지 고통 카드. "맞아, 정확히 이 느낌" 반응 유도</p>
-          </div>
-          <div>
-            <h4>포함 요소</h4>
-            <ul class="checklist">
-              <li>3개 Pain 카드 (아이콘 + 상황 묘사)</li>
-              <li>AI 인식 격차 통계 (52%)</li>
-              <li>PM 감정 노동 묘사 문장</li>
-              <li class="warn">솔루션 언급 자제</li>
-            </ul>
-          </div>
-          <div>
-            <h4>3가지 핵심 고통</h4>
-            <div class="kv"><span class="kv-key">① 돈 달라는 말</span><span class="kv-val" style="color:var(--red)">감정 노동</span></div>
-            <div class="kv"><span class="kv-key">② AI 때문에 더 싸야 해</span><span class="kv-val" style="color:var(--red)">인식 격차</span></div>
-            <div class="kv"><span class="kv-key">③ 카카오톡·엑셀 의존</span><span class="kv-val" style="color:var(--red)">도구 공백</span></div>
-          </div>
-        </div>
-      </div>
+      <hr>
 
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div class="flow-num green">03</div>
-          <div>
-            <div class="section-label" style="color:var(--green)">Solution Section</div>
-            <h3 style="margin:0;">구조 제안 — 3가지 역할</h3>
-          </div>
-          <div style="margin-left:auto;"><span class="tag tag-green">Before/After</span></div>
-        </div>
-        <div class="grid-3">
-          <div>
-            <h4>판정자</h4>
-            <p>클라이언트 요구가 범위 초과인지 시스템이 판정. PM의 주관 대신 데이터가 말함</p>
-          </div>
-          <div>
-            <h4>근거 생성자</h4>
-            <p>"시스템상 과업 범위를 초과하였습니다" — PM이 아닌 도구가 문장을 만들어 줌</p>
-          </div>
-          <div>
-            <h4>수익성 가시화</h4>
-            <p>프로젝트별 실제 손익 누적. 다음 견적·계약의 기준이 데이터로 만들어짐</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div class="flow-num" style="background:var(--yellow);color:#1a1f2e">04</div>
-          <div>
-            <div class="section-label" style="color:var(--yellow)">Social Proof Section</div>
-            <h3 style="margin:0;">신뢰 형성 — 데이터 기반 설득</h3>
-          </div>
-          <div style="margin-left:auto;"><span class="tag tag-yellow">신뢰</span></div>
-        </div>
-        <div class="grid-3">
-          <div>
-            <h4>통계 카드 (3개)</h4>
-            <div class="kv"><span class="kv-key">전 세계 스코프 크리프</span><span class="kv-val" style="color:var(--yellow)">52%</span></div>
-            <div class="kv"><span class="kv-key">예산 초과 프로젝트</span><span class="kv-val" style="color:var(--red)">85%</span></div>
-            <div class="kv"><span class="kv-key">평균 비용 초과율</span><span class="kv-val" style="color:var(--red)">27%</span></div>
-          </div>
-          <div>
-            <h4>인용구</h4>
-            <p style="font-style:italic; border-left:2px solid var(--bd); padding-left:10px;">"클라이언트들은 AI 때문에 더 낮은 금액을 기대하지만, 그 기대치는 실제 필요 인력을 반영하지 않는다"<br><span style="color:var(--t3);font-size:11px;margin-top:4px;display:block;">— 글로벌 에이전시 실태조사, Productive.io</span></p>
-          </div>
-          <div>
-            <h4>초기 단계 대안</h4>
-            <ul class="checklist">
-              <li>PM 1.5년 실무 경험 언급</li>
-              <li>베타 사용자 피드백 (론칭 후)</li>
-              <li>업계 보고서 수치 활용</li>
-              <li class="warn">초기엔 정성 데이터 우선</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div class="flow-num">05</div>
-          <div>
-            <div class="section-label">Demo Preview Section</div>
-            <h3 style="margin:0;">제품 실체 증명 — 화면으로 보여주기</h3>
-          </div>
-          <div style="margin-left:auto;"><span class="tag tag-blue">실체 증명</span></div>
-        </div>
-        <div class="grid-2">
-          <div>
-            <h4>포함 요소</h4>
-            <ul class="checklist">
-              <li>핵심 판정 화면 스크린샷/GIF</li>
-              <li>판정 결과 예시 문장 공개</li>
-              <li>"이렇게 작동합니다" 3단계 설명</li>
-              <li>Secondary CTA (무료 체험)</li>
-            </ul>
-          </div>
-          <div>
-            <h4>핵심 화면 우선순위</h4>
-            <div class="kv"><span class="kv-key">1순위</span><span class="kv-val">범위 초과 판정 결과 화면</span></div>
-            <div class="kv"><span class="kv-key">2순위</span><span class="kv-val">청구 근거 문장 생성 화면</span></div>
-            <div class="kv"><span class="kv-key">3순위</span><span class="kv-val">프로젝트 손익 대시보드</span></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ===== TAB 4: 카피 프레임 ===== -->
-  <div class="page" id="page-copy">
-    <div class="section-header">
-      <h2>카피라이팅 프레임워크</h2>
-      <p>각 섹션의 헤드라인 방향, 어조, 금지어 가이드</p>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:16px;">
-      <div class="card">
-        <h4>Hero 헤드라인 후보</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num green">A</div>
-            <div class="flow-body">
-              <h3>"추가 요금 청구, 이제 PM이 말 안 해도 됩니다"</h3>
-              <p>직접적 공감. PM 감정 노동 정조준</p>
+      <div class="grid-3">
+        <div class="card">
+          <h4>목표 전환 행동</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num">1</div>
+              <div class="flow-body">
+                <h3>이메일 등록</h3>
+                <p>얼리 액세스 신청 (최우선)</p>
+              </div>
             </div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num green">B</div>
-            <div class="flow-body">
-              <h3>"계약 범위 밖이면, 시스템이 먼저 말합니다"</h3>
-              <p>솔루션 메커니즘 강조. 차별성 명확</p>
+            <div class="flow-item">
+              <div class="flow-num green">2</div>
+              <div class="flow-body">
+                <h3>무료 체험 시작</h3>
+                <p>즉시 사용 가능한 경우</p>
+              </div>
             </div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num yellow">C</div>
-            <div class="flow-body">
-              <h3>"PM이 아쉬운 소리를 하지 않아도 되는 구조"</h3>
-              <p>문서 핵심 문장 직접 활용. 내부용에 가까움</p>
+            <div class="flow-item">
+              <div class="flow-num yellow">3</div>
+              <div class="flow-body">
+                <h3>데모 요청</h3>
+                <p>B2B 리드 확보 fallback</p>
+              </div>
             </div>
           </div>
         </div>
+        <div class="card">
+          <h4>핵심 타겟 방문자</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num">P</div>
+              <div class="flow-body">
+                <h3>PM 겸직 대표</h3>
+                <p>5~20인, 매출-수익 괴리 경험자</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num">P</div>
+              <div class="flow-body">
+                <h3>전담 PM</h3>
+                <p>클라이언트와 요금 협상 어려움</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num red">X</div>
+              <div class="flow-body">
+                <h3>20인 이상 에이전시</h3>
+                <p>자체 솔루션 보유, 핏 낮음</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>페이지 설계 원칙</h4>
+          <ul class="checklist">
+            <li>첫 화면에서 "누구를 위한 제품"인지 명시</li>
+            <li>PM의 감정 노동을 공감 언어로 묘사</li>
+            <li>기능 설명보다 "구조 변화" 강조</li>
+            <li>데이터/수치로 신뢰 구축</li>
+            <li class="warn">초기: 과도한 기능 나열 금지</li>
+            <li class="no">완벽한 제품 완성 후 공개 금지</li>
+          </ul>
+        </div>
       </div>
-      <div class="card">
-        <h4>서브카피 프레임</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num">1</div>
-            <div class="flow-body">
-              <h3>타겟 명시</h3>
-              <p>→ "5~20인 웹 에이전시 PM을 위한"</p>
+    </div>
+
+    <!-- ===== TAB 2: 검증 전략 ===== -->
+    <div class="page" id="page-strategy">
+      <div class="section-header">
+        <h2>MVP 우선 검증 전략</h2>
+        <p>고객 인터뷰를 건너뛰고 MVP 배포로 직접 검증하는 근거와 방법론</p>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card highlight red">
+          <h4>기존 방법론 (전통적 린 스타트업)</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3)">1</div>
+              <div class="flow-body">
+                <h3>고객 인터뷰</h3>
+                <p>문제 가설 검증</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3)">2</div>
+              <div class="flow-body">
+                <h3>문제 검증</h3>
+                <p>인터뷰 결과 분석</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3)">3</div>
+              <div class="flow-body">
+                <h3>솔루션 검증</h3>
+                <p>프로토타입 피드백</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3)">4</div>
+              <div class="flow-body">
+                <h3>MVP 개발</h3>
+                <p>수개월 소요</p>
+              </div>
             </div>
           </div>
-          <div class="flow-item">
-            <div class="flow-num">2</div>
-            <div class="flow-body">
-              <h3>솔루션 한 줄 요약</h3>
-              <p>→ "클라이언트 추가 요구를 자동 판정하고 청구 근거를 만들어드립니다"</p>
+          <div
+            style="margin-top:12px;padding:10px;background:color-mix(in srgb,var(--red) 10%,transparent);border-radius:8px;">
+            <p style="color:var(--red);font-size:12px;font-weight:600;">⚠ 문제: 말(intention)과 행동(behavior) 불일치 가능. 시간 비용
+              높음.</p>
+          </div>
+        </div>
+        <div class="card highlight green">
+          <h4>채택 방법론 (AI 시대 역전 전략)</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num green">1</div>
+              <div class="flow-body">
+                <h3>가설 정의</h3>
+                <p>문제 정의서 기반 내부 검토</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num green">2</div>
+              <div class="flow-body">
+                <h3>MVP 즉시 배포</h3>
+                <p>AI 도구로 개발 비용 최소화</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num green">3</div>
+              <div class="flow-body">
+                <h3>행동 데이터 수집</h3>
+                <p>이탈률, 전환율, 사용 패턴</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num green">4</div>
+              <div class="flow-body">
+                <h3>반복 개선</h3>
+                <p>데이터 기반 피벗/유지 결정</p>
+              </div>
             </div>
           </div>
-          <div class="flow-item">
-            <div class="flow-num">3</div>
-            <div class="flow-body">
-              <h3>신뢰 보강</h3>
-              <p>→ "1.5년 에이전시 PM 경험에서 시작한 실무 도구"</p>
+          <div
+            style="margin-top:12px;padding:10px;background:color-mix(in srgb,var(--green) 10%,transparent);border-radius:8px;">
+            <p style="color:var(--green);font-size:12px;font-weight:600;">✓ 실제 사용/이탈 패턴이 더 정직한 검증 신호</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h4>비용 역전 논리</h4>
+          <div style="text-align:center;padding:16px 0;">
+            <div class="stat-val" style="color:var(--red)">↓ 90%</div>
+            <div class="stat-label">AI 도구로 MVP 개발 비용 감소</div>
+          </div>
+          <hr style="margin:12px 0;">
+          <p>AI 코딩 도구 도입 이전: MVP = 수천만원 + 수개월<br><br>현재: MVP = 수백만원 + 수주 이내<br><br>인터뷰 설계·진행 비용보다 MVP 개발 비용이 낮아진 역전 현상
+            발생</p>
+        </div>
+        <div class="card">
+          <h4>랜딩 페이지의 역할</h4>
+          <ul class="checklist" style="margin-top:8px;">
+            <li>MVP 배포 전 수요 신호 수집</li>
+            <li>이메일 등록 = 구매 의향 대리 지표</li>
+            <li>스크롤 깊이 = 관심도 측정</li>
+            <li>섹션별 이탈율 = 메시지 fit 검증</li>
+            <li>CTA 클릭률 = 가격 저항 측정</li>
+            <li class="warn">인터뷰 대체재, 완전 대체는 불가</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>검증 판단 기준</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num green">GO</div>
+              <div class="flow-body">
+                <h3>얼리 액세스 등록 ≥ 50건</h3>
+                <p>2주 이내 → 수요 검증 완료</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num yellow">WAIT</div>
+              <div class="flow-body">
+                <h3>등록 20~49건</h3>
+                <p>메시지 A/B 테스트 후 재판단</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num red">PIVOT</div>
+              <div class="flow-body">
+                <h3>등록 &lt; 20건</h3>
+                <p>타겟 또는 메시지 재검토</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="grid-3">
-      <div class="card">
-        <h4>어조 (Tone) 가이드</h4>
-        <ul class="checklist">
-          <li>동료 PM이 건네는 조언 톤</li>
-          <li>감정 공감 후 실용적 해결책</li>
-          <li>한국어 비즈니스 문어체 적절 혼용</li>
-          <li>숫자/데이터는 명확하게</li>
-          <li class="no">과도한 기술 용어 금지</li>
-          <li class="no">영어 약어 남발 금지</li>
-          <li class="warn">AI 강조는 부차적으로</li>
-        </ul>
+    <!-- ===== TAB 3: 섹션 설계 ===== -->
+    <div class="page" id="page-sections">
+      <div class="section-header">
+        <h2>섹션별 상세 설계</h2>
+        <p>각 섹션의 목적, 핵심 메시지, 포함 요소, 성공 지표</p>
       </div>
-      <div class="card">
-        <h4>Pain Section 카피 방향</h4>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
-          <div style="padding:10px;background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 20%,transparent)">
-            <p style="color:var(--t1);font-size:13px;font-style:italic;">"추가 작업인 건 저도 알아요. 근데 말을 어떻게 꺼내요."</p>
-          </div>
-          <div style="padding:10px;background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 20%,transparent)">
-            <p style="color:var(--t1);font-size:13px;font-style:italic;">"AI가 다 해줬으면 왜 이렇게 시간이 걸리냐고 하더라고요."</p>
-          </div>
-          <div style="padding:10px;background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 20%,transparent)">
-            <p style="color:var(--t1);font-size:13px;font-style:italic;">"카카오톡에서 언제 뭘 요청했는지 뒤져봐야 하는 상황."</p>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h4>금지 표현 목록</h4>
-        <ul class="checklist">
-          <li class="no">AI가 모든 걸 해결해드립니다</li>
-          <li class="no">완벽한 스코프 관리</li>
-          <li class="no">클라이언트를 설득하세요</li>
-          <li class="no">혁신적인 SaaS 플랫폼</li>
-          <li class="no">글로벌 스탠다드</li>
-          <li class="warn">과도한 할인 강조 주의</li>
-          <li class="warn">미완성 기능 언급 주의</li>
-        </ul>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== TAB 5: CTA 설계 ===== -->
-  <div class="page" id="page-cta">
-    <div class="section-header">
-      <h2>CTA 설계 전략</h2>
-      <p>전환율을 높이는 CTA 배치, 문구, 단계별 설계</p>
-    </div>
+      <div class="flow" style="gap:12px;">
 
-    <div class="grid-2" style="margin-bottom:16px;">
-      <div class="card">
-        <h4>CTA 배치 맵</h4>
-        <table>
-          <thead><tr><th>위치</th><th>CTA 유형</th><th>문구</th></tr></thead>
-          <tbody>
-            <tr><td>Hero</td><td><span class="tag tag-blue">Primary</span></td><td>얼리 액세스 신청하기</td></tr>
-            <tr><td>Solution 하단</td><td><span class="tag tag-green">Secondary</span></td><td>무료로 시작하기</td></tr>
-            <tr><td>Demo 하단</td><td><span class="tag tag-green">Secondary</span></td><td>직접 써보기</td></tr>
-            <tr><td>Pricing</td><td><span class="tag tag-blue">Primary</span></td><td>베타 무료 체험</td></tr>
-            <tr><td>Footer CTA</td><td><span class="tag tag-blue">Primary</span></td><td>지금 바로 시작하기</td></tr>
-            <tr><td>상단 고정바</td><td><span class="tag tag-gray">Sticky</span></td><td>얼리 액세스</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <h4>CTA 문구 A/B 테스트 후보</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num green">A</div>
-            <div class="flow-body">
-              <h3>얼리 액세스 신청하기</h3>
-              <p>희소성 프레임. 얼리버드 혜택 암시</p>
-              <span class="cta-pill" style="font-size:12px;padding:5px 14px;margin-top:6px;display:inline-block;">얼리 액세스 신청하기 →</span>
+        <div class="card" style="margin-bottom:0;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="flow-num">01</div>
+            <div>
+              <div class="section-label">Hero Section</div>
+              <h3 style="margin:0;">핵심 가치 선언 — 첫 3초 승부</h3>
             </div>
+            <div style="margin-left:auto;"><span class="tag tag-blue">Primary CTA</span></div>
           </div>
-          <div class="flow-item">
-            <div class="flow-num green">B</div>
-            <div class="flow-body">
-              <h3>무료로 시작하기</h3>
-              <p>진입 장벽 최소화. 직접 행동 유도</p>
-              <span class="cta-pill" style="background:var(--green);font-size:12px;padding:5px 14px;margin-top:6px;display:inline-block;">무료로 시작하기 →</span>
+          <div class="grid-3">
+            <div>
+              <h4>목적</h4>
+              <p>방문자가 "나를 위한 도구" 즉시 인식. 스크롤 유인</p>
             </div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num yellow">C</div>
-            <div class="flow-body">
-              <h3>PM 동료에게 먼저 보여주기</h3>
-              <p>바이럴 유도. 공유 행동 촉진</p>
+            <div>
+              <h4>포함 요소</h4>
+              <ul class="checklist">
+                <li>헤드라인 (문제 공감)</li>
+                <li>서브카피 (솔루션 한 줄)</li>
+                <li>주요 CTA 버튼 1개</li>
+                <li>타겟 명시 뱃지</li>
+              </ul>
+            </div>
+            <div>
+              <h4>성공 지표</h4>
+              <div class="kv"><span class="kv-key">스크롤 통과율</span><span class="kv-val" style="color:var(--green)">≥
+                  60%</span></div>
+              <div class="kv"><span class="kv-key">CTA 클릭률</span><span class="kv-val" style="color:var(--blue)">≥
+                  5%</span></div>
+              <div class="kv"><span class="kv-key">평균 체류</span><span class="kv-val">≥ 15초</span></div>
             </div>
           </div>
         </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="flow-num" style="background:var(--red)">02</div>
+            <div>
+              <div class="section-label" style="color:var(--red)">Pain Section</div>
+              <h3 style="margin:0;">문제 증폭 — 고통의 구체화</h3>
+            </div>
+            <div style="margin-left:auto;"><span class="tag tag-red">공감 유발</span></div>
+          </div>
+          <div class="grid-3">
+            <div>
+              <h4>목적</h4>
+              <p>PM이 일상에서 반복하는 3가지 고통 카드. "맞아, 정확히 이 느낌" 반응 유도</p>
+            </div>
+            <div>
+              <h4>포함 요소</h4>
+              <ul class="checklist">
+                <li>3개 Pain 카드 (아이콘 + 상황 묘사)</li>
+                <li>AI 인식 격차 통계 (52%)</li>
+                <li>PM 감정 노동 묘사 문장</li>
+                <li class="warn">솔루션 언급 자제</li>
+              </ul>
+            </div>
+            <div>
+              <h4>3가지 핵심 고통</h4>
+              <div class="kv"><span class="kv-key">① 돈 달라는 말</span><span class="kv-val" style="color:var(--red)">감정
+                  노동</span></div>
+              <div class="kv"><span class="kv-key">② AI 때문에 더 싸야 해</span><span class="kv-val"
+                  style="color:var(--red)">인식 격차</span></div>
+              <div class="kv"><span class="kv-key">③ 카카오톡·엑셀 의존</span><span class="kv-val" style="color:var(--red)">도구
+                  공백</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="flow-num green">03</div>
+            <div>
+              <div class="section-label" style="color:var(--green)">Solution Section</div>
+              <h3 style="margin:0;">구조 제안 — 3가지 역할</h3>
+            </div>
+            <div style="margin-left:auto;"><span class="tag tag-green">Before/After</span></div>
+          </div>
+          <div class="grid-3">
+            <div>
+              <h4>판정자</h4>
+              <p>클라이언트 요구가 범위 초과인지 시스템이 판정. PM의 주관 대신 데이터가 말함</p>
+            </div>
+            <div>
+              <h4>근거 생성자</h4>
+              <p>"시스템상 과업 범위를 초과하였습니다" — PM이 아닌 도구가 문장을 만들어 줌</p>
+            </div>
+            <div>
+              <h4>수익성 가시화</h4>
+              <p>프로젝트별 실제 손익 누적. 다음 견적·계약의 기준이 데이터로 만들어짐</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="flow-num" style="background:var(--yellow);color:#1a1f2e">04</div>
+            <div>
+              <div class="section-label" style="color:var(--yellow)">Social Proof Section</div>
+              <h3 style="margin:0;">신뢰 형성 — 데이터 기반 설득</h3>
+            </div>
+            <div style="margin-left:auto;"><span class="tag tag-yellow">신뢰</span></div>
+          </div>
+          <div class="grid-3">
+            <div>
+              <h4>통계 카드 (3개)</h4>
+              <div class="kv"><span class="kv-key">전 세계 스코프 크리프</span><span class="kv-val"
+                  style="color:var(--yellow)">52%</span></div>
+              <div class="kv"><span class="kv-key">예산 초과 프로젝트</span><span class="kv-val"
+                  style="color:var(--red)">85%</span></div>
+              <div class="kv"><span class="kv-key">평균 비용 초과율</span><span class="kv-val"
+                  style="color:var(--red)">27%</span></div>
+            </div>
+            <div>
+              <h4>인용구</h4>
+              <p style="font-style:italic; border-left:2px solid var(--bd); padding-left:10px;">"클라이언트들은 AI 때문에 더 낮은 금액을
+                기대하지만, 그 기대치는 실제 필요 인력을 반영하지 않는다"<br><span
+                  style="color:var(--t3);font-size:11px;margin-top:4px;display:block;">— 글로벌 에이전시 실태조사,
+                  Productive.io</span></p>
+            </div>
+            <div>
+              <h4>초기 단계 대안</h4>
+              <ul class="checklist">
+                <li>PM 1.5년 실무 경험 언급</li>
+                <li>베타 사용자 피드백 (론칭 후)</li>
+                <li>업계 보고서 수치 활용</li>
+                <li class="warn">초기엔 정성 데이터 우선</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="flow-num">05</div>
+            <div>
+              <div class="section-label">Demo Preview Section</div>
+              <h3 style="margin:0;">제품 실체 증명 — 화면으로 보여주기</h3>
+            </div>
+            <div style="margin-left:auto;"><span class="tag tag-blue">실체 증명</span></div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <h4>포함 요소</h4>
+              <ul class="checklist">
+                <li>핵심 판정 화면 스크린샷/GIF</li>
+                <li>판정 결과 예시 문장 공개</li>
+                <li>"이렇게 작동합니다" 3단계 설명</li>
+                <li>Secondary CTA (무료 체험)</li>
+              </ul>
+            </div>
+            <div>
+              <h4>핵심 화면 우선순위</h4>
+              <div class="kv"><span class="kv-key">1순위</span><span class="kv-val">범위 초과 판정 결과 화면</span></div>
+              <div class="kv"><span class="kv-key">2순위</span><span class="kv-val">청구 근거 문장 생성 화면</span></div>
+              <div class="kv"><span class="kv-key">3순위</span><span class="kv-val">프로젝트 손익 대시보드</span></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <div class="grid-3">
-      <div class="card">
-        <h4>마찰 제거 전략</h4>
-        <ul class="checklist">
-          <li>신용카드 불필요 명시</li>
-          <li>가입 30초 이내 완료</li>
-          <li>이메일만으로 시작 가능</li>
-          <li>언제든 취소 가능 명시</li>
-          <li class="warn">폼 필드 3개 이하 유지</li>
-          <li class="no">결제 정보 초기 요구 금지</li>
-        </ul>
+    <!-- ===== TAB 4: 카피 프레임 ===== -->
+    <div class="page" id="page-copy">
+      <div class="section-header">
+        <h2>카피라이팅 프레임워크</h2>
+        <p>각 섹션의 헤드라인 방향, 어조, 금지어 가이드</p>
       </div>
-      <div class="card">
-        <h4>얼리 액세스 혜택 프레이밍</h4>
-        <div class="kv"><span class="kv-key">베타 기간</span><span class="kv-val" style="color:var(--green)">무료 사용</span></div>
-        <div class="kv"><span class="kv-key">피드백 반영</span><span class="kv-val" style="color:var(--blue)">우선 적용</span></div>
-        <div class="kv"><span class="kv-key">정식 출시</span><span class="kv-val" style="color:var(--yellow)">할인 혜택</span></div>
-        <div class="kv"><span class="kv-key">커뮤니티</span><span class="kv-val">PM 네트워크</span></div>
-        <hr style="margin:12px 0;">
-        <p style="font-size:12px;">희소성 요소: "현재 00명이 대기 중"(수 등록 후 노출)</p>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>Hero 헤드라인 후보</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num green">A</div>
+              <div class="flow-body">
+                <h3>"추가 요금 청구, 이제 PM이 말 안 해도 됩니다"</h3>
+                <p>직접적 공감. PM 감정 노동 정조준</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num green">B</div>
+              <div class="flow-body">
+                <h3>"계약 범위 밖이면, 시스템이 먼저 말합니다"</h3>
+                <p>솔루션 메커니즘 강조. 차별성 명확</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num yellow">C</div>
+              <div class="flow-body">
+                <h3>"PM이 아쉬운 소리를 하지 않아도 되는 구조"</h3>
+                <p>문서 핵심 문장 직접 활용. 내부용에 가까움</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>서브카피 프레임</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num">1</div>
+              <div class="flow-body">
+                <h3>타겟 명시</h3>
+                <p>→ "5~20인 웹 에이전시 PM을 위한"</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num">2</div>
+              <div class="flow-body">
+                <h3>솔루션 한 줄 요약</h3>
+                <p>→ "클라이언트 추가 요구를 자동 판정하고 청구 근거를 만들어드립니다"</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num">3</div>
+              <div class="flow-body">
+                <h3>신뢰 보강</h3>
+                <p>→ "1.5년 에이전시 PM 경험에서 시작한 실무 도구"</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h4>FAQ 3개 (Footer용)</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3);font-size:10px;">Q1</div>
-            <div class="flow-body"><h3>기존 협업 도구와 다른 점?</h3><p>Jira·Notion은 관리 도구. 범위 초과 판정과 청구 근거 생성은 Scope Manager만의 기능</p></div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h4>어조 (Tone) 가이드</h4>
+          <ul class="checklist">
+            <li>동료 PM이 건네는 조언 톤</li>
+            <li>감정 공감 후 실용적 해결책</li>
+            <li>한국어 비즈니스 문어체 적절 혼용</li>
+            <li>숫자/데이터는 명확하게</li>
+            <li class="no">과도한 기술 용어 금지</li>
+            <li class="no">영어 약어 남발 금지</li>
+            <li class="warn">AI 강조는 부차적으로</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Pain Section 카피 방향</h4>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+            <div
+              style="padding:10px;background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 20%,transparent)">
+              <p style="color:var(--t1);font-size:13px;font-style:italic;">"추가 작업인 건 저도 알아요. 근데 말을 어떻게 꺼내요."</p>
+            </div>
+            <div
+              style="padding:10px;background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 20%,transparent)">
+              <p style="color:var(--t1);font-size:13px;font-style:italic;">"AI가 다 해줬으면 왜 이렇게 시간이 걸리냐고 하더라고요."</p>
+            </div>
+            <div
+              style="padding:10px;background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:8px;border:1px solid color-mix(in srgb,var(--red) 20%,transparent)">
+              <p style="color:var(--t1);font-size:13px;font-style:italic;">"카카오톡에서 언제 뭘 요청했는지 뒤져봐야 하는 상황."</p>
+            </div>
           </div>
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3);font-size:10px;">Q2</div>
-            <div class="flow-body"><h3>클라이언트가 반발하지 않을까?</h3><p>시스템 판정 결과는 PM 개인 의견이 아닌 객관적 데이터. 협상 구조가 바뀜</p></div>
+        </div>
+        <div class="card">
+          <h4>금지 표현 목록</h4>
+          <ul class="checklist">
+            <li class="no">AI가 모든 걸 해결해드립니다</li>
+            <li class="no">완벽한 스코프 관리</li>
+            <li class="no">클라이언트를 설득하세요</li>
+            <li class="no">혁신적인 SaaS 플랫폼</li>
+            <li class="no">글로벌 스탠다드</li>
+            <li class="warn">과도한 할인 강조 주의</li>
+            <li class="warn">미완성 기능 언급 주의</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 5: CTA 설계 ===== -->
+    <div class="page" id="page-cta">
+      <div class="section-header">
+        <h2>CTA 설계 전략</h2>
+        <p>전환율을 높이는 CTA 배치, 문구, 단계별 설계</p>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>CTA 배치 맵</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>위치</th>
+                <th>CTA 유형</th>
+                <th>문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Hero</td>
+                <td><span class="tag tag-blue">Primary</span></td>
+                <td>얼리 액세스 신청하기</td>
+              </tr>
+              <tr>
+                <td>Solution 하단</td>
+                <td><span class="tag tag-green">Secondary</span></td>
+                <td>무료로 시작하기</td>
+              </tr>
+              <tr>
+                <td>Demo 하단</td>
+                <td><span class="tag tag-green">Secondary</span></td>
+                <td>직접 써보기</td>
+              </tr>
+              <tr>
+                <td>Pricing</td>
+                <td><span class="tag tag-blue">Primary</span></td>
+                <td>베타 무료 체험</td>
+              </tr>
+              <tr>
+                <td>Footer CTA</td>
+                <td><span class="tag tag-blue">Primary</span></td>
+                <td>지금 바로 시작하기</td>
+              </tr>
+              <tr>
+                <td>상단 고정바</td>
+                <td><span class="tag tag-gray">Sticky</span></td>
+                <td>얼리 액세스</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h4>CTA 문구 A/B 테스트 후보</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num green">A</div>
+              <div class="flow-body">
+                <h3>얼리 액세스 신청하기</h3>
+                <p>희소성 프레임. 얼리버드 혜택 암시</p>
+                <span class="cta-pill" style="font-size:12px;padding:5px 14px;margin-top:6px;display:inline-block;">얼리
+                  액세스 신청하기 →</span>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num green">B</div>
+              <div class="flow-body">
+                <h3>무료로 시작하기</h3>
+                <p>진입 장벽 최소화. 직접 행동 유도</p>
+                <span class="cta-pill"
+                  style="background:var(--green);font-size:12px;padding:5px 14px;margin-top:6px;display:inline-block;">무료로
+                  시작하기 →</span>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num yellow">C</div>
+              <div class="flow-body">
+                <h3>PM 동료에게 먼저 보여주기</h3>
+                <p>바이럴 유도. 공유 행동 촉진</p>
+              </div>
+            </div>
           </div>
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3);font-size:10px;">Q3</div>
-            <div class="flow-body"><h3>베타 이후 가격은?</h3><p>정식 출시 전 얼리 액세스 사용자에게 별도 안내 예정</p></div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h4>마찰 제거 전략</h4>
+          <ul class="checklist">
+            <li>신용카드 불필요 명시</li>
+            <li>가입 30초 이내 완료</li>
+            <li>이메일만으로 시작 가능</li>
+            <li>언제든 취소 가능 명시</li>
+            <li class="warn">폼 필드 3개 이하 유지</li>
+            <li class="no">결제 정보 초기 요구 금지</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>얼리 액세스 혜택 프레이밍</h4>
+          <div class="kv"><span class="kv-key">베타 기간</span><span class="kv-val" style="color:var(--green)">무료 사용</span>
+          </div>
+          <div class="kv"><span class="kv-key">피드백 반영</span><span class="kv-val" style="color:var(--blue)">우선 적용</span>
+          </div>
+          <div class="kv"><span class="kv-key">정식 출시</span><span class="kv-val" style="color:var(--yellow)">할인 혜택</span>
+          </div>
+          <div class="kv"><span class="kv-key">커뮤니티</span><span class="kv-val">PM 네트워크</span></div>
+          <hr style="margin:12px 0;">
+          <p style="font-size:12px;">희소성 요소: "현재 00명이 대기 중"(수 등록 후 노출)</p>
+        </div>
+        <div class="card">
+          <h4>FAQ 3개 (Footer용)</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3);font-size:10px;">Q1</div>
+              <div class="flow-body">
+                <h3>기존 협업 도구와 다른 점?</h3>
+                <p>Jira·Notion은 관리 도구. 범위 초과 판정과 청구 근거 생성은 Scope Manager만의 기능</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3);font-size:10px;">Q2</div>
+              <div class="flow-body">
+                <h3>클라이언트가 반발하지 않을까?</h3>
+                <p>시스템 판정 결과는 PM 개인 의견이 아닌 객관적 데이터. 협상 구조가 바뀜</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3);font-size:10px;">Q3</div>
+              <div class="flow-body">
+                <h3>베타 이후 가격은?</h3>
+                <p>정식 출시 전 얼리 액세스 사용자에게 별도 안내 예정</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== TAB 6: 검증 지표 ===== -->
-  <div class="page" id="page-metrics">
-    <div class="section-header">
-      <h2>검증 지표 설계</h2>
-      <p>랜딩 페이지 배포 후 수집할 행동 데이터와 판단 기준</p>
-    </div>
+    <!-- ===== TAB 6: 검증 지표 ===== -->
+    <div class="page" id="page-metrics">
+      <div class="section-header">
+        <h2>검증 지표 설계</h2>
+        <p>랜딩 페이지 배포 후 수집할 행동 데이터와 판단 기준</p>
+      </div>
 
-    <div class="grid-3" style="margin-bottom:16px;">
-      <div class="card">
-        <h4>1차 검증 지표 (수요)</h4>
-        <div class="kv"><span class="kv-key">얼리액세스 등록</span><span class="kv-val" style="color:var(--green)">≥ 50건</span></div>
-        <div class="kv"><span class="kv-key">등록 기간</span><span class="kv-val">2주 이내</span></div>
-        <div class="kv"><span class="kv-key">이메일 오픈율</span><span class="kv-val" style="color:var(--blue)">≥ 40%</span></div>
-        <div class="kv"><span class="kv-key">공유/추천</span><span class="kv-val">≥ 10건</span></div>
-        <hr style="margin:10px 0;">
-        <p style="font-size:12px;">PostHog로 실시간 트래킹. 등록 즉시 자동 슬랙 알림 설정</p>
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>1차 검증 지표 (수요)</h4>
+          <div class="kv"><span class="kv-key">얼리액세스 등록</span><span class="kv-val" style="color:var(--green)">≥
+              50건</span></div>
+          <div class="kv"><span class="kv-key">등록 기간</span><span class="kv-val">2주 이내</span></div>
+          <div class="kv"><span class="kv-key">이메일 오픈율</span><span class="kv-val" style="color:var(--blue)">≥ 40%</span>
+          </div>
+          <div class="kv"><span class="kv-key">공유/추천</span><span class="kv-val">≥ 10건</span></div>
+          <hr style="margin:10px 0;">
+          <p style="font-size:12px;">PostHog로 실시간 트래킹. 등록 즉시 자동 슬랙 알림 설정</p>
+        </div>
+        <div class="card">
+          <h4>2차 검증 지표 (메시지 fit)</h4>
+          <div class="kv"><span class="kv-key">평균 스크롤 깊이</span><span class="kv-val" style="color:var(--blue)">≥
+              60%</span></div>
+          <div class="kv"><span class="kv-key">Pain 섹션 이탈율</span><span class="kv-val" style="color:var(--green)">&lt;
+              40%</span></div>
+          <div class="kv"><span class="kv-key">Demo 클릭률</span><span class="kv-val" style="color:var(--blue)">≥
+              15%</span></div>
+          <div class="kv"><span class="kv-key">재방문율</span><span class="kv-val">≥ 20%</span></div>
+          <hr style="margin:10px 0;">
+          <p style="font-size:12px;">섹션별 이탈 포인트로 메시지 문제 구간 특정</p>
+        </div>
+        <div class="card">
+          <h4>3차 검증 지표 (전환 질)</h4>
+          <div class="kv"><span class="kv-key">Hero CTA 클릭률</span><span class="kv-val" style="color:var(--green)">≥
+              5%</span></div>
+          <div class="kv"><span class="kv-key">등록 완료율</span><span class="kv-val" style="color:var(--blue)">≥ 80%</span>
+          </div>
+          <div class="kv"><span class="kv-key">타겟 업종 일치</span><span class="kv-val">≥ 70%</span></div>
+          <div class="kv"><span class="kv-key">인터뷰 수락률</span><span class="kv-val">≥ 30%</span></div>
+          <hr style="margin:10px 0;">
+          <p style="font-size:12px;">등록 폼에 "에이전시 규모" 필드 1개 추가로 타겟 적합도 측정</p>
+        </div>
       </div>
-      <div class="card">
-        <h4>2차 검증 지표 (메시지 fit)</h4>
-        <div class="kv"><span class="kv-key">평균 스크롤 깊이</span><span class="kv-val" style="color:var(--blue)">≥ 60%</span></div>
-        <div class="kv"><span class="kv-key">Pain 섹션 이탈율</span><span class="kv-val" style="color:var(--green)">&lt; 40%</span></div>
-        <div class="kv"><span class="kv-key">Demo 클릭률</span><span class="kv-val" style="color:var(--blue)">≥ 15%</span></div>
-        <div class="kv"><span class="kv-key">재방문율</span><span class="kv-val">≥ 20%</span></div>
-        <hr style="margin:10px 0;">
-        <p style="font-size:12px;">섹션별 이탈 포인트로 메시지 문제 구간 특정</p>
-      </div>
-      <div class="card">
-        <h4>3차 검증 지표 (전환 질)</h4>
-        <div class="kv"><span class="kv-key">Hero CTA 클릭률</span><span class="kv-val" style="color:var(--green)">≥ 5%</span></div>
-        <div class="kv"><span class="kv-key">등록 완료율</span><span class="kv-val" style="color:var(--blue)">≥ 80%</span></div>
-        <div class="kv"><span class="kv-key">타겟 업종 일치</span><span class="kv-val">≥ 70%</span></div>
-        <div class="kv"><span class="kv-key">인터뷰 수락률</span><span class="kv-val">≥ 30%</span></div>
-        <hr style="margin:10px 0;">
-        <p style="font-size:12px;">등록 폼에 "에이전시 규모" 필드 1개 추가로 타겟 적합도 측정</p>
-      </div>
-    </div>
 
-    <div class="grid-2">
-      <div class="card">
-        <h4>결과별 액션 플랜</h4>
-        <table>
-          <thead><tr><th>시나리오</th><th>판단</th><th>다음 액션</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>등록 ≥ 50 (2주)</td>
-              <td><span class="tag tag-green">GO</span></td>
-              <td>MVP 개발 가속 + 초기 사용자 온보딩</td>
-            </tr>
-            <tr>
-              <td>등록 20~49</td>
-              <td><span class="tag tag-yellow">TEST</span></td>
-              <td>헤드라인 A/B 교체 + 채널 다변화</td>
-            </tr>
-            <tr>
-              <td>등록 &lt; 20</td>
-              <td><span class="tag tag-red">PIVOT</span></td>
-              <td>타겟 재정의 또는 메시지 전면 수정</td>
-            </tr>
-            <tr>
-              <td>스크롤 &lt; 30%</td>
-              <td><span class="tag tag-red">COPY</span></td>
-              <td>Hero 카피 즉시 교체</td>
-            </tr>
-            <tr>
-              <td>Pain 이탈 ≥ 60%</td>
-              <td><span class="tag tag-yellow">REWRITE</span></td>
-              <td>Pain 섹션 언어 재작성</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <h4>분배 채널 전략 (초기)</h4>
-        <div class="flow">
-          <div class="flow-item">
-            <div class="flow-num green">1</div>
-            <div class="flow-body"><h3>LinkedIn</h3><p>PM 대상 문제 공감 콘텐츠 → 랜딩 유입. Jey 개인 네트워크 활용</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num green">2</div>
-            <div class="flow-body"><h3>Brunch</h3><p>에이전시 PM 커뮤니티. 장문 아티클로 신뢰 구축 후 전환</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num yellow">3</div>
-            <div class="flow-body"><h3>카카오오픈채팅</h3><p>웹 에이전시 PM 오픈채팅 직접 공유. 콜드 아웃리치</p></div>
-          </div>
-          <div class="flow-item">
-            <div class="flow-num" style="background:var(--t3)">4</div>
-            <div class="flow-body"><h3>Product Hunt (추후)</h3><p>영문 버전 론칭 시 글로벌 수요 테스트</p></div>
+      <div class="grid-2">
+        <div class="card">
+          <h4>결과별 액션 플랜</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>시나리오</th>
+                <th>판단</th>
+                <th>다음 액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>등록 ≥ 50 (2주)</td>
+                <td><span class="tag tag-green">GO</span></td>
+                <td>MVP 개발 가속 + 초기 사용자 온보딩</td>
+              </tr>
+              <tr>
+                <td>등록 20~49</td>
+                <td><span class="tag tag-yellow">TEST</span></td>
+                <td>헤드라인 A/B 교체 + 채널 다변화</td>
+              </tr>
+              <tr>
+                <td>등록 &lt; 20</td>
+                <td><span class="tag tag-red">PIVOT</span></td>
+                <td>타겟 재정의 또는 메시지 전면 수정</td>
+              </tr>
+              <tr>
+                <td>스크롤 &lt; 30%</td>
+                <td><span class="tag tag-red">COPY</span></td>
+                <td>Hero 카피 즉시 교체</td>
+              </tr>
+              <tr>
+                <td>Pain 이탈 ≥ 60%</td>
+                <td><span class="tag tag-yellow">REWRITE</span></td>
+                <td>Pain 섹션 언어 재작성</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h4>분배 채널 전략 (초기)</h4>
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-num green">1</div>
+              <div class="flow-body">
+                <h3>LinkedIn</h3>
+                <p>PM 대상 문제 공감 콘텐츠 → 랜딩 유입. Jey 개인 네트워크 활용</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num green">2</div>
+              <div class="flow-body">
+                <h3>Brunch</h3>
+                <p>에이전시 PM 커뮤니티. 장문 아티클로 신뢰 구축 후 전환</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num yellow">3</div>
+              <div class="flow-body">
+                <h3>카카오오픈채팅</h3>
+                <p>웹 에이전시 PM 오픈채팅 직접 공유. 콜드 아웃리치</p>
+              </div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-num" style="background:var(--t3)">4</div>
+              <div class="flow-body">
+                <h3>Product Hunt (추후)</h3>
+                <p>영문 버전 론칭 시 글로벌 수요 테스트</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-</main>
+  </main>
 
-<script>
-  // Theme toggle
-  const btn = document.getElementById('themeToggle');
-  btn.addEventListener('click', () => {
-    document.body.classList.toggle('light');
-    btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
-  });
-
-  // Tab navigation
-  const tabs = document.querySelectorAll('.tab-btn');
-  const pages = document.querySelectorAll('.page');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      pages.forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      const id = 'page-' + tab.dataset.tab;
-      document.getElementById(id).classList.add('active');
+  <script>
+    // Theme toggle
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
     });
-  });
-</script>
+
+    // Tab navigation
+    const tabs = document.querySelectorAll('.tab-btn');
+    const pages = document.querySelectorAll('.page');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        pages.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const id = 'page-' + tab.dataset.tab;
+        document.getElementById(id).classList.add('active');
+      });
+    });
+  </script>
 </body>
+
 </html>
