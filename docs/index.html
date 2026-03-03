@@ -862,11 +862,19 @@
       el.classList.add('selected');
     }
 
-    // 다크/라이트 모드 전환
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+    // 문서 뷰어 탭 초기화 설정 (첫 번째 문서 표시)
+    window.addEventListener('DOMContentLoaded', () => {
+      const firstDoc = document.querySelector('.viewer-list-item');
+      if (firstDoc) {
+        firstDoc.click();
+      }
     });
+
+    // 다크/라이트 모드 전환
+    function toggleMode() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+    }
   </script>
 </body>
 
