@@ -7,7 +7,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { ScopeJudgeForm } from "@/components/scope/ScopeJudgeForm";
+import { ScopeJudgeResult, Judgment } from "@/components/scope/ScopeJudgeResult";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useState } from "react";
 
 // Mock data
 const project = {
@@ -43,6 +45,13 @@ const judgmentHistory = [
 ];
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+    const [judgmentResult, setJudgmentResult] = useState<{
+        judgment: Judgment;
+        confidence: number;
+        reason: string;
+        suggestion: string;
+    } | null>(null);
+
     return (
         <div className="flex-1 space-y-6 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -85,11 +94,28 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                                 </CollapsibleContent>
                             </Collapsible>
                         </CardHeader>
-                        <ScopeJudgeForm
-                            projectId={project.id}
-                            contractContent={project.scopeText}
-                            onResult={(res) => alert(`판단 결과: ${res.result}\n신뢰도: ${(res.confidence * 100).toFixed(0)}%\n이유: ${res.reason}`)}
-                        />
+                        {judgmentResult ? (
+                            <div className="p-6 border-t">
+                                <ScopeJudgeResult
+                                    judgment={judgmentResult.judgment}
+                                    confidence={judgmentResult.confidence}
+                                    reason={judgmentResult.reason}
+                                    suggestion={judgmentResult.suggestion}
+                                    onReset={() => setJudgmentResult(null)}
+                                />
+                            </div>
+                        ) : (
+                            <ScopeJudgeForm
+                                projectId={project.id}
+                                contractContent={project.scopeText}
+                                onResult={(res) => setJudgmentResult({
+                                    judgment: res.result,
+                                    confidence: res.confidence,
+                                    reason: res.reason,
+                                    suggestion: res.suggestion
+                                })}
+                            />
+                        )}
                     </Card>
                 </TabsContent>
                 <TabsContent value="history">
