@@ -1,10 +1,12 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { ScopeJudgeForm } from "@/components/projects/ScopeJudgeForm";
+import { ScopeJudgeForm } from "@/components/scope/ScopeJudgeForm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Mock data
@@ -83,9 +85,11 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                                 </CollapsibleContent>
                             </Collapsible>
                         </CardHeader>
-                        <CardContent>
-                            <ScopeJudgeForm />
-                        </CardContent>
+                        <ScopeJudgeForm
+                            projectId={project.id}
+                            contractContent={project.scopeText}
+                            onResult={(res) => alert(`판단 결과: ${res.result}\n신뢰도: ${(res.confidence * 100).toFixed(0)}%\n이유: ${res.reason}`)}
+                        />
                     </Card>
                 </TabsContent>
                 <TabsContent value="history">
