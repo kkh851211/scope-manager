@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MyROI Hi-fi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+:root{
+  --bg:#07090f;--s1:#0d1117;--s2:#111827;--s3:#1a2234;--s4:#1f2a3e;
+  --b1:#1e2d45;--b2:#263550;--b3:#2e3f60;
+  --tp:#f8faff;--ts:#94aac8;--tm:#4a6080;--td:#2a3a52;
+  --ind:#5c6ff7;--indl:#818cf8;--indll:#a5b4fc;--indd:#12164a;--inddd:#0a0d2e;
+  --sky:#38bdf8;--skyl:#7dd3fc;--skyd:#0a1f30;
+  --grn:#34d399;--grnl:#6ee7b7;--grnd:#062018;
+  --amb:#fbbf24;--ambl:#fcd34d;--ambd:#1a1200;
+  --red:#f87171;--redl:#fca5a5;--redd:#1a0808;
+  --pur:#a78bfa;--purd:#1a1040;
+  --r:14px;--rsm:10px;--rxs:7px;--rround:999px;
+  --sh:0 4px 24px rgba(0,0,0,.5);
+  --sh2:0 8px 40px rgba(0,0,0,.6);
+  --glow-ind:0 0 24px rgba(92,111,247,.25);
+  --glow-sky:0 0 20px rgba(56,189,248,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Inter','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--tp);min-width:960px}
+
+/* ── Doc Header ── */
+.doc-h{padding:40px 44px 0}
+.doc-h h1{font-size:22px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(120deg,var(--tp),var(--indll));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.doc-h p{font-size:11px;color:var(--ts);margin-top:5px}
+.tag-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tag{font-size:10px;font-weight:700;padding:4px 11px;border-radius:var(--rround);border:1px solid}
+
+/* ── Tab Nav ── */
+.tab-nav{display:flex;padding:0 44px;margin-top:24px;border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;background:rgba(7,9,15,.92);backdrop-filter:blur(16px)}
+.tab-btn{padding:13px 20px;font-size:12px;font-weight:600;color:var(--tm);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:7px;transition:color .2s}
+.tab-btn:hover{color:var(--ts)}
+.tab-btn.active{color:var(--tp);border-bottom-color:var(--ind)}
+.tab-dot{width:7px;height:7px;border-radius:50%}
+
+/* ── Panels ── */
+.panel{display:none;padding:40px 44px 80px}
+.panel.active{display:block}
+.sec{margin-bottom:60px}
+.sec-title{font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--b1);margin-bottom:32px;color:var(--ts)}
+.sec-dot{width:7px;height:7px;border-radius:50%}
+.screens{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.ann{font-size:10px;color:var(--tm);border-left:2px solid var(--b2);padding-left:8px;margin-top:10px;line-height:1.7}
+.ann b{color:var(--ts)}
+
+/* ── Browser Chrome ── */
+.browser{border-radius:16px;border:1px solid var(--b2);overflow:hidden;box-shadow:var(--sh2);background:var(--s1)}
+.chrome{background:#080c14;padding:11px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1)}
+.dots{display:flex;gap:6px}
+.dots span{width:10px;height:10px;border-radius:50%}
+.dots .r{background:#ff5f57}.dots .y{background:#febc2e}.dots .g{background:#28c840}
+.url-bar{flex:1;background:var(--s2);border-radius:6px;padding:5px 12px;font-size:10px;color:var(--tm);display:flex;align-items:center;gap:6px}
+.url-icon{font-size:9px}
+.scr-label{font-size:9px;font-weight:700;color:var(--tm);text-align:center;padding:8px 0 0;letter-spacing:.5px;text-transform:uppercase}
+
+/* ══════════════════════════
+   DESIGN SYSTEM COMPONENTS
+══════════════════════════ */
+
+/* Gradient backgrounds */
+.grad-hero{background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(92,111,247,.18) 0%,transparent 70%),linear-gradient(180deg,#0d1117 0%,var(--bg) 100%)}
+.grad-card{background:linear-gradient(135deg,rgba(92,111,247,.08),rgba(56,189,248,.05))}
+
+/* Glassmorphism card */
+.glass{background:rgba(17,24,39,.7);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06)}
+
+/* Navbar */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:rgba(13,17,23,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1)}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--ind),var(--sky));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;box-shadow:var(--glow-ind)}
+.logo-text{font-size:15px;font-weight:800;color:var(--tp);letter-spacing:-.3px}
+.nav-links{display:flex;gap:2px}
+.nav-link{padding:6px 13px;font-size:12px;font-weight:500;color:var(--ts);border-radius:var(--rxs);cursor:default;transition:all .15s}
+.nav-link.active,.nav-link:hover{color:var(--tp);background:var(--s3)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:var(--rxs);font-weight:600;cursor:default;white-space:nowrap;transition:all .15s;font-family:inherit}
+.btn-xs{font-size:10px;padding:4px 10px;height:26px}
+.btn-sm{font-size:11px;padding:6px 14px;height:30px}
+.btn-md{font-size:12px;padding:9px 20px;height:38px}
+.btn-lg{font-size:13px;padding:11px 26px;height:44px}
+.btn-xl{font-size:14px;padding:13px 32px;height:50px}
+.btn-primary{background:linear-gradient(135deg,var(--ind),#7c3aed);color:#fff;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 14px rgba(92,111,247,.35)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(92,111,247,.5)}
+.btn-sky{background:linear-gradient(135deg,#0284c7,var(--sky));color:#fff;border:1px solid rgba(255,255,255,.1);box-shadow:var(--glow-sky)}
+.btn-ghost{background:transparent;color:var(--ts);border:1px solid var(--b2)}
+.btn-ghost:hover{border-color:var(--b3);color:var(--tp)}
+.btn-outline{background:transparent;color:var(--indl);border:1px solid rgba(92,111,247,.4)}
+.btn-outline:hover{background:var(--indd)}
+.btn-danger{background:var(--redd);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-success{background:var(--grnd);color:var(--grn);border:1px solid rgba(52,211,153,.2)}
+
+/* Input */
+.ig{display:flex;flex-direction:column;gap:6px}
+.lbl{font-size:11px;font-weight:600;color:var(--ts);letter-spacing:.2px}
+.inp{height:40px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rxs);padding:0 14px;font-size:12px;color:var(--tp);width:100%;display:flex;align-items:center;font-family:inherit;transition:all .15s}
+.inp.focus{border-color:var(--ind);box-shadow:0 0 0 3px rgba(92,111,247,.15),var(--glow-ind)}
+.inp-hint{font-size:10px;color:var(--tm)}
+.inp-icon{position:relative}
+.inp-icon .inp{padding-left:36px}
+.inp-icon .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--tm)}
+.textarea{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rxs);padding:12px 14px;font-size:12px;color:var(--tp);width:100%;line-height:1.65;font-family:inherit;resize:none}
+.textarea.focus{border-color:var(--ind);box-shadow:0 0 0 3px rgba(92,111,247,.15)}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a6080' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* Card */
+.card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:20px;transition:border-color .2s}
+.card-sm{padding:14px;border-radius:var(--rsm)}
+.card-hover:hover{border-color:var(--b3)}
+.card-glow{box-shadow:var(--glow-ind)}
+
+/* Chips / Badges */
+.chip{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 10px;border-radius:var(--rround);border:1px solid;white-space:nowrap;letter-spacing:.2px}
+.chip-ind{background:var(--indd);color:var(--indll);border-color:rgba(92,111,247,.3)}
+.chip-sky{background:var(--skyd);color:var(--skyl);border-color:rgba(56,189,248,.25)}
+.chip-grn{background:var(--grnd);color:var(--grnl);border-color:rgba(52,211,153,.25)}
+.chip-amb{background:var(--ambd);color:var(--ambl);border-color:rgba(251,191,36,.25)}
+.chip-red{background:var(--redd);color:var(--redl);border-color:rgba(248,113,113,.2)}
+.chip-pur{background:var(--purd);color:var(--pur);border-color:rgba(167,139,250,.25)}
+.chip-muted{background:var(--s3);color:var(--ts);border-color:var(--b2)}
+.chip-active{background:linear-gradient(135deg,var(--indd),var(--skyd));color:var(--indll);border-color:rgba(92,111,247,.4);box-shadow:var(--glow-ind)}
+
+/* Steps */
+.steps{display:flex;align-items:center}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.step-c{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;transition:all .2s}
+.step-c.done{background:var(--grnd);border:1.5px solid var(--grn);color:var(--grn);box-shadow:0 0 10px rgba(52,211,153,.2)}
+.step-c.active{background:linear-gradient(135deg,var(--ind),#7c3aed);border:none;color:#fff;box-shadow:var(--glow-ind)}
+.step-c.idle{background:var(--s3);border:1.5px solid var(--b2);color:var(--tm)}
+.step-lbl{font-size:9px;color:var(--tm);font-weight:600;letter-spacing:.3px}
+.step-lbl.active{color:var(--indll)}
+.step-lbl.done{color:var(--grnl)}
+.step-line{flex:1;height:1.5px;margin-top:-13px}
+.step-line.done{background:linear-gradient(90deg,var(--grn),rgba(52,211,153,.3))}
+.step-line.idle{background:var(--b1)}
+
+/* Social btn */
+.social-btn{flex:1;height:40px;background:var(--s3);border:1px solid var(--b2);border-radius:var(--rxs);display:flex;align-items:center;justify-content:center;gap:9px;font-size:12px;font-weight:600;color:var(--ts);transition:all .15s}
+.social-btn:hover{background:var(--s4);border-color:var(--b3);color:var(--tp)}
+
+/* Divider */
+.divider{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--tm)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+/* Progress bar */
+.prog{height:5px;background:var(--s3);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ind),var(--sky))}
+
+/* Slider */
+.slider-wrap{display:flex;flex-direction:column;gap:8px}
+.slider-track{height:6px;background:var(--s3);border-radius:3px;position:relative}
+.slider-fill{height:100%;background:linear-gradient(90deg,var(--ind),var(--sky));border-radius:3px}
+.slider-thumb{width:18px;height:18px;background:#fff;border:2.5px solid var(--ind);border-radius:50%;position:absolute;top:-6px;box-shadow:0 2px 8px rgba(92,111,247,.4);cursor:pointer}
+.slider-vals{display:flex;justify-content:space-between;font-size:9px;color:var(--tm)}
+
+/* Upload zone */
+.upload-zone{border:1.5px dashed var(--b3);border-radius:var(--rsm);padding:22px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(92,111,247,.03);transition:all .2s}
+.upload-zone:hover{border-color:var(--ind);background:rgba(92,111,247,.06)}
+
+/* Toggle */
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--b1)}
+.toggle-row:last-child{border-bottom:none}
+.toggle{width:38px;height:21px;background:var(--s4);border-radius:12px;position:relative;flex-shrink:0;border:1px solid var(--b2);cursor:pointer;transition:all .2s}
+.toggle.on{background:linear-gradient(135deg,var(--ind),#7c3aed);border-color:var(--ind);box-shadow:0 0 12px rgba(92,111,247,.3)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:13px;height:13px;background:var(--ts);border-radius:50%;transition:all .2s}
+.toggle.on::after{left:20px;background:#fff}
+
+/* App Shell */
+.app-shell{display:flex}
+.sidebar{flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;padding:18px 12px}
+.s-logo{display:flex;align-items:center;gap:9px;padding:4px 10px;margin-bottom:24px}
+.grp-lbl{font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--tm);padding:6px 10px 5px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rsm);font-size:12px;font-weight:500;color:var(--ts);cursor:default;margin-bottom:2px;transition:all .15s}
+.nav-item:hover{background:var(--s3);color:var(--tp)}
+.nav-item.active{background:linear-gradient(135deg,var(--indd),rgba(92,111,247,.08));color:var(--indll);font-weight:700;border:1px solid rgba(92,111,247,.15);box-shadow:var(--glow-ind)}
+.nav-icon{width:17px;text-align:center;font-size:14px;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:9px;font-weight:800;background:linear-gradient(135deg,var(--ind),#7c3aed);color:#fff;padding:2px 7px;border-radius:var(--rround)}
+.sb-bot{margin-top:auto;border-top:1px solid var(--b1);padding-top:14px}
+.user-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--rsm);cursor:default;transition:background .15s}
+.user-row:hover{background:var(--s3)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--ind),var(--sky));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:var(--glow-ind)}
+.main-col{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--b1);background:rgba(13,17,23,.6);backdrop-filter:blur(10px)}
+.pg-title{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.pg-sub{font-size:11px;color:var(--ts);margin-top:3px}
+.content{padding:22px;display:flex;flex-direction:column;gap:18px;overflow:auto}
+
+/* Stat card */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rsm);padding:16px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.stat-card.sky::before{background:linear-gradient(90deg,var(--sky),var(--ind))}
+.stat-card.grn::before{background:linear-gradient(90deg,var(--grn),var(--sky))}
+.stat-card.amb::before{background:linear-gradient(90deg,var(--amb),var(--red))}
+.stat-card.ind::before{background:linear-gradient(90deg,var(--ind),var(--pur))}
+.stat-lbl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat-val{font-size:22px;font-weight:900;letter-spacing:-.5px;line-height:1}
+.stat-delta{font-size:10px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:3px}
+.delta-up{color:var(--grn)}
+.delta-neu{color:var(--tm)}
+
+/* Chart */
+.chart-wrap{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rsm);padding:18px}
+.chart-area{display:flex;align-items:flex-end;gap:10px;height:88px;padding:0 4px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.bar{border-radius:5px 5px 0 0;width:100%;min-height:4px;transition:all .2s}
+
+/* Table */
+.table-wrap{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rsm);overflow:hidden}
+.t-head{display:grid;padding:10px 18px;background:var(--s3);border-bottom:1px solid var(--b1)}
+.t-hcell{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px}
+.t-row{display:grid;padding:11px 18px;border-bottom:1px solid var(--b1);align-items:center;transition:background .15s;cursor:default}
+.t-row:last-child{border-bottom:none}
+.t-row:hover{background:var(--s3)}
+.t-cell{font-size:11px;color:var(--ts)}
+.t-cell.pri{font-size:12px;font-weight:600;color:var(--tp)}
+.t-cell.amt{font-size:12px;font-weight:800;color:var(--sky)}
+
+/* Settings */
+.s-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 22px;background:rgba(13,17,23,.6)}
+.s-tab{padding:13px 16px;font-size:12px;font-weight:600;color:var(--tm);cursor:default;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.s-tab.active{color:var(--indll);border-bottom-color:var(--ind)}
+.s-tab:hover{color:var(--ts)}
+.settings-sec{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rsm);padding:22px;display:flex;flex-direction:column;gap:16px}
+.ss-title{font-size:13px;font-weight:700;color:var(--tp);padding-bottom:12px;border-bottom:1px solid var(--b1)}
+
+/* Plan card */
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plan-card{border-radius:var(--rsm);padding:20px;display:flex;flex-direction:column;gap:12px}
+.plan-feature{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ts)}
+.plan-feature.off{color:var(--tm)}
+.plan-feature .ck{font-size:12px}
+
+/* PDF preview */
+.pdf-preview{background:linear-gradient(180deg,#fff 0%,#f8faff 100%);border-radius:var(--rsm);padding:18px;display:flex;flex-direction:column;gap:10px;color:#1a2030}
+.pdf-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #e8ecf4}
+.pdf-row:last-of-type{border-bottom:none}
+
+/* AI card */
+.ai-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rsm);padding:14px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s}
+.ai-card:hover{border-color:var(--b3)}
+.ai-card.hi{border-color:rgba(92,111,247,.3);box-shadow:var(--glow-ind)}
+
+/* Total bar */
+.total-bar{background:linear-gradient(135deg,var(--indd),var(--skyd));border:1px solid rgba(92,111,247,.2);border-radius:var(--rsm);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--glow-ind)}
+
+/* Hero section */
+.hero{padding:56px 40px 40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(92,111,247,.15),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--indll);background:var(--indd);border:1px solid rgba(92,111,247,.25);padding:5px 14px;border-radius:var(--rround);margin-bottom:20px;box-shadow:var(--glow-ind)}
+.hero-h1{font-size:32px;font-weight:900;line-height:1.2;letter-spacing:-.8px;margin-bottom:14px}
+.hero-h1 span{background:linear-gradient(120deg,var(--indll),var(--sky),var(--grnl));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:13px;color:var(--ts);line-height:1.75;max-width:440px;margin:0 auto 28px}
+.hero-cta{display:flex;gap:12px;justify-content:center}
+
+/* Social proof */
+.social-proof{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:14px;font-size:10px;color:var(--tm)}
+.avatars{display:flex}
+.avatars span{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--ind),var(--sky));border:2px solid var(--s1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;margin-left:-6px}
+.avatars span:first-child{margin-left:0}
+
+/* Value cards */
+.value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.value-card{background:rgba(17,24,39,.6);border:1px solid var(--b1);border-radius:var(--r);padding:20px;backdrop-filter:blur(10px);transition:border-color .2s,transform .2s}
+.value-card:hover{border-color:rgba(92,111,247,.3);transform:translateY(-2px)}
+.value-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+
+/* Notification dot */
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--ind);position:absolute;top:2px;right:2px;box-shadow:0 0 6px rgba(92,111,247,.6)}
+
+/* Helpers */
+.flex{display:flex}.ic{align-items:center}.jsb{justify-content:space-between}.jc{justify-content:center}
+.g4{gap:4px}.g6{gap:6px}.g8{gap:8px}.g10{gap:10px}.g12{gap:12px}.g16{gap:16px}.g20{gap:20px}
+.g2c{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3c{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.mt4{margin-top:4px}.mt6{margin-top:6px}.mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.p16{padding:16px}.p20{padding:20px}.p24{padding:24px}.p28{padding:28px}
+.txs{font-size:10px}.tsm{font-size:11px}.tb{font-size:12px}.tlg{font-size:14px}.txl{font-size:16px}
+.f5{font-weight:500}.f6{font-weight:600}.f7{font-weight:700}.f8{font-weight:800}.f9{font-weight:900}
+.tp{color:var(--tp)}.ts{color:var(--ts)}.tm{color:var(--tm)}
+.t-sky{color:var(--sky)}.t-grn{color:var(--grn)}.t-ind{color:var(--indll)}.t-amb{color:var(--ambl)}.t-red{color:var(--red)}.t-pur{color:var(--pur)}
+.w100{width:100%}.tc{text-align:center}.tr{text-align:right}
+.rel{position:relative}
+</style>
+</head>
+<body>
+
+<div class="doc-h">
+  <h1>MyROI — Hi-fi Wireframe</h1>
+  <p>데스크톱 1280px · 전체 11화면 · 실제 앱 수준 Hi-fi</p>
+  <div class="tag-row">
+    <span class="tag" style="background:#1a1040;color:#c4b5fd;border-color:#3a2060">① 온보딩 3</span>
+    <span class="tag" style="background:#0a1f30;color:#7dd3fc;border-color:#1a3a50">② 핵심 기능 4</span>
+    <span class="tag" style="background:#062018;color:#6ee7b7;border-color:#1a3a2a">③ 대시보드 2</span>
+    <span class="tag" style="background:#1a1200;color:#fcd34d;border-color:#3a2a00">④ 설정 2</span>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('ob',this)"><div class="tab-dot" style="background:#8b5cf6"></div>① 온보딩</button>
+  <button class="tab-btn" onclick="showTab('core',this)"><div class="tab-dot" style="background:#0ea5e9"></div>② 핵심 기능</button>
+  <button class="tab-btn" onclick="showTab('dash',this)"><div class="tab-dot" style="background:#10b981"></div>③ 대시보드</button>
+  <button class="tab-btn" onclick="showTab('cfg',this)"><div class="tab-dot" style="background:#f59e0b"></div>④ 설정</button>
+</div>
+
+<!-- ══════════════ ① 온보딩 ══════════════ -->
+<div id="ob" class="panel active">
+<div class="sec">
+  <div class="sec-title"><div class="sec-dot" style="background:#8b5cf6"></div><span style="color:#c4b5fd">① ONBOARDING</span></div>
+  <div class="screens">
+
+  <!-- S1 랜딩 -->
+  <div>
+    <div class="browser" style="width:660px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app</div></div>
+      <div class="scr-label">SCREEN 01 · LANDING</div>
+      <div class="navbar">
+        <div class="logo"><div class="logo-mark">M</div><span class="logo-text">MyROI</span></div>
+        <div class="nav-links"><span class="nav-link">기능</span><span class="nav-link">사례</span><span class="nav-link">요금제</span><span class="nav-link">블로그</span></div>
+        <div class="flex g8"><button class="btn btn-sm btn-ghost">로그인</button><button class="btn btn-sm btn-primary">무료 시작 →</button></div>
+      </div>
+      <div class="grad-hero">
+        <div class="hero">
+          <div class="hero-eyebrow">✦ AI 기반 성과 재무화 플랫폼</div>
+          <h2 class="hero-h1">내 헌신을<br/><span>재무적 성과로 증명하세요</span></h2>
+          <p class="hero-sub">공식 KPI에 잡히지 않는 위기 방어·프로젝트 수습 비용을 AI가 즉시 환산해 연봉 협상 피치덱으로 만들어 드립니다.</p>
+          <div class="hero-cta">
+            <button class="btn btn-xl btn-primary">무료로 시작하기 →</button>
+            <button class="btn btn-xl btn-ghost">데모 보기 ▶</button>
+          </div>
+          <div class="social-proof">
+            <div class="avatars"><span>김</span><span>이</span><span>박</span><span>최</span></div>
+            <span>PM·기획자 1,200명이 이미 사용 중</span>
+          </div>
+        </div>
+        <div class="value-grid" style="padding:0 28px 28px">
+          <div class="value-card">
+            <div class="value-icon" style="background:var(--indd)">⚡</div>
+            <div class="tb f7 tp" style="margin-bottom:6px">즉시 환산</div>
+            <div class="txs ts" style="line-height:1.7">텍스트 입력만으로 AI가 M/M 단위 방어 금액 산출</div>
+          </div>
+          <div class="value-card">
+            <div class="value-icon" style="background:var(--skyd)">🎯</div>
+            <div class="tb f7 tp" style="margin-bottom:6px">내가 검토</div>
+            <div class="txs ts" style="line-height:1.7">AI 초안을 슬라이더로 직접 조정·증빙 첨부</div>
+          </div>
+          <div class="value-card">
+            <div class="value-icon" style="background:var(--grnd)">📄</div>
+            <div class="tb f7 tp" style="margin-bottom:6px">원클릭 피치덱</div>
+            <div class="txs ts" style="line-height:1.7">협상 자리에 바로 들고 갈 수 있는 PDF 생성</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="width:660px"><b>Radial gradient Hero</b> + 소셜 프루프 | <b>Glassmorphism Value Cards</b> hover 인터랙션</div>
+  </div>
+
+  <!-- S2 회원가입 -->
+  <div>
+    <div class="browser" style="width:360px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/signup</div></div>
+      <div class="scr-label">SCREEN 02 · SIGN UP</div>
+      <div class="p24" style="display:flex;flex-direction:column;gap:16px;background:var(--s1)">
+        <div class="tc">
+          <div class="logo-mark" style="margin:0 auto 12px;width:42px;height:42px;font-size:18px;border-radius:12px">M</div>
+          <div class="txl f8 tp">계정 만들기</div>
+          <div class="txs ts mt6">이미 계정이 있으신가요? <span class="t-ind" style="cursor:pointer">로그인 →</span></div>
+        </div>
+        <div class="flex g8">
+          <div class="social-btn"><div style="width:16px;height:16px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#333">G</div>Google로 계속</div>
+          <div class="social-btn"><div style="width:16px;height:16px;border-radius:50%;background:#1877f2;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff">f</div>Facebook</div>
+        </div>
+        <div class="divider">또는 이메일로 가입</div>
+        <div class="g2c">
+          <div class="ig"><span class="lbl">이름</span><div class="inp">홍길동</div></div>
+          <div class="ig"><span class="lbl">닉네임</span><div class="inp">gildong</div></div>
+        </div>
+        <div class="ig"><span class="lbl">이메일</span><div class="inp focus" style="border-color:var(--ind)">gildong@company.com</div></div>
+        <div class="ig">
+          <div class="flex jsb ic"><span class="lbl">비밀번호</span><span class="txs" style="color:var(--grn)">강함 ✓</span></div>
+          <div class="inp">••••••••••</div>
+          <div class="prog"><div class="prog-fill" style="width:85%"></div></div>
+          <div class="inp-hint">영문·숫자·특수문자 포함 8자 이상</div>
+        </div>
+        <div class="txs ts" style="line-height:1.6;background:var(--s3);border-radius:var(--rxs);padding:10px 14px;border:1px solid var(--b1)">가입 시 <span class="t-ind">이용약관</span> 및 <span class="t-ind">개인정보처리방침</span>에 동의합니다.</div>
+        <button class="btn btn-lg btn-primary w100">계정 만들기</button>
+      </div>
+    </div>
+    <div class="ann" style="width:360px"><b>글로우 Focus 인풋</b> | 실시간 <b>비밀번호 강도 바</b> | 그라디언트 CTA</div>
+  </div>
+
+  <!-- S3 프로필 -->
+  <div>
+    <div class="browser" style="width:400px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/onboarding</div></div>
+      <div class="scr-label">SCREEN 03 · PROFILE SETUP</div>
+      <div class="p20" style="display:flex;flex-direction:column;gap:16px;background:var(--s1)">
+        <div class="steps">
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">계정</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c active">2</div><span class="step-lbl active">프로필</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">3</div><span class="step-lbl">완료</span></div>
+        </div>
+        <div>
+          <div class="tlg f8 tp">어떤 일을 하시나요?</div>
+          <div class="txs ts mt6">더 정확한 방어 금액 산출에 활용됩니다</div>
+        </div>
+        <div class="ig"><span class="lbl">직군</span>
+          <div class="g3c">
+            <div class="chip chip-active" style="justify-content:center;padding:9px 0;border-radius:var(--rxs)">PM / 기획</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:9px 0;border-radius:var(--rxs)">개발</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:9px 0;border-radius:var(--rxs)">디자인</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:9px 0;border-radius:var(--rxs)">마케팅</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:9px 0;border-radius:var(--rxs)">영업</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:9px 0;border-radius:var(--rxs)">기타</div>
+          </div>
+        </div>
+        <div class="ig"><span class="lbl">연차</span>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <div class="chip chip-muted" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">1~3년</div>
+            <div class="chip chip-active" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">4~7년</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">8~12년</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">13년+</div>
+          </div>
+        </div>
+        <div class="ig"><span class="lbl">기업 규모</span>
+          <div class="g3c">
+            <div class="chip chip-muted" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">50인 미만</div>
+            <div class="chip chip-grn" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">50~200인</div>
+            <div class="chip chip-muted" style="justify-content:center;padding:8px 0;border-radius:var(--rxs)">200인+</div>
+          </div>
+        </div>
+        <div class="flex g8 mt4"><button class="btn btn-md btn-ghost">← 이전</button><button class="btn btn-md btn-primary w100">저장 후 시작 →</button></div>
+      </div>
+    </div>
+    <div class="ann" style="width:400px"><b>Glow Step bar</b> (done·active·idle) | <b>chip-active</b> 선택 상태 글로우 효과</div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ ② 핵심기능 ══════════════ -->
+<div id="core" class="panel">
+<div class="sec">
+  <div class="sec-title"><div class="sec-dot" style="background:#0ea5e9"></div><span style="color:#7dd3fc">② CORE FEATURE — MVP</span></div>
+  <div class="screens">
+
+  <!-- S4 이슈 입력 -->
+  <div>
+    <div class="browser" style="width:480px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/input</div></div>
+      <div class="scr-label">SCREEN 04 · ISSUE INPUT</div>
+      <div class="p20" style="display:flex;flex-direction:column;gap:16px;background:var(--s1)">
+        <div class="steps">
+          <div class="step-item"><div class="step-c active">1</div><span class="step-lbl active">이슈 입력</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">2</div><span class="step-lbl">AI 산출</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">3</div><span class="step-lbl">검토</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">4</div><span class="step-lbl">피치덱</span></div>
+        </div>
+        <div class="flex jsb ic">
+          <div><div class="tb f8 tp">방어한 이슈를 입력해 주세요</div><div class="txs ts mt6">최대 3건 · 자세할수록 더 정확한 금액이 나와요</div></div>
+          <span class="chip chip-ind">이슈 1 / 3</span>
+        </div>
+        <div class="card card-glow" style="border-color:rgba(92,111,247,.3);background:linear-gradient(135deg,rgba(92,111,247,.05),rgba(56,189,248,.03))">
+          <div class="ig"><span class="lbl">이슈 제목</span><div class="inp focus">Q3 출시 일정 지연 위기 — 3주 일정 당겨 납품 성공</div></div>
+          <div class="ig mt10"><span class="lbl">상황 설명 <span class="txs tm">(자세할수록 정확해요)</span></span>
+            <div class="textarea focus" style="height:80px">클라이언트사 핵심 기능 스펙이 개발 중 변경되면서 3주 납기 지연 위기가 발생했습니다. 야근 및 주말 스프린트를 조율하여 원래 일정 내 납품을 완료하였고, 계약 위약금 3,000만 원 발생을 사전에 방어했습니다.</div>
+          </div>
+          <div class="ig mt10"><span class="lbl">카테고리</span>
+            <div class="flex g6" style="flex-wrap:wrap">
+              <span class="chip chip-active">✓ 프로젝트 지연 방어</span>
+              <span class="chip chip-muted">비용 절감</span>
+              <span class="chip chip-muted">장애 수습</span>
+              <span class="chip chip-muted">클라이언트 리텐션</span>
+              <span class="chip chip-muted">+ 직접 입력</span>
+            </div>
+          </div>
+        </div>
+        <div style="border:1.5px dashed var(--b3);border-radius:var(--rsm);padding:12px;text-align:center;color:var(--tm);font-size:11px;font-weight:600;transition:all .15s">+ 이슈 추가 (2/3)</div>
+        <div class="flex g8" style="justify-content:flex-end"><button class="btn btn-md btn-ghost">나중에</button><button class="btn btn-md btn-primary">AI 분석 시작 →</button></div>
+      </div>
+    </div>
+    <div class="ann" style="width:480px"><b>Gradient border card</b> 포커스 글로우 | <b>chip-active</b> 선택 카테고리</div>
+  </div>
+
+  <!-- S5 AI 산출 -->
+  <div>
+    <div class="browser" style="width:480px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/result</div></div>
+      <div class="scr-label">SCREEN 05 · AI RESULT</div>
+      <div class="p20" style="display:flex;flex-direction:column;gap:16px;background:var(--s1)">
+        <div class="steps">
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">이슈 입력</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c active">2</div><span class="step-lbl active">AI 산출</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">3</div><span class="step-lbl">검토</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">4</div><span class="step-lbl">피치덱</span></div>
+        </div>
+        <div>
+          <div class="tb f8 tp">AI 분석 결과</div>
+          <div class="txs ts mt6">입력하신 이슈를 재무적 성과로 환산했습니다 · 다음 단계에서 조정 가능</div>
+        </div>
+        <div class="ai-card hi">
+          <div class="flex jsb ic g8">
+            <div style="flex:1">
+              <div class="tsm f7 tp">Q3 출시 일정 지연 위기 방어</div>
+              <div class="flex g4 mt6"><span class="chip chip-sky">지연 방어</span><span class="chip chip-amb">High Impact</span></div>
+            </div>
+            <div class="tr flex-shrink:0">
+              <div style="font-size:16px;font-weight:900;color:var(--sky)">₩3,000만</div>
+              <div class="txs tm mt4">예상 위약금 방어</div>
+            </div>
+          </div>
+          <div class="txs ts" style="line-height:1.6;padding:10px 12px;background:var(--s3);border-radius:var(--rxs);border:1px solid var(--b1)">계약 위약금 조항(3,000만 원) 발동을 사전 방어. 추가 스프린트 운영에 따른 야근 수당 절감 효과(약 200만 원) 포함.</div>
+        </div>
+        <div class="ai-card">
+          <div class="flex jsb ic g8">
+            <div style="flex:1">
+              <div class="tsm f7 tp">외부 API 장애 선제 수습</div>
+              <div class="flex g4 mt6"><span class="chip chip-ind">장애 수습</span><span class="chip chip-ind">Mid Impact</span></div>
+            </div>
+            <div class="tr">
+              <div style="font-size:16px;font-weight:900;color:var(--sky)">₩800만</div>
+              <div class="txs tm mt4">다운타임 손실 방어</div>
+            </div>
+          </div>
+          <div class="txs ts" style="line-height:1.6;padding:10px 12px;background:var(--s3);border-radius:var(--rxs);border:1px solid var(--b1)">4시간 서비스 중단 방어. 시간당 매출 손실 200만 원 × 4시간 기준 산출.</div>
+        </div>
+        <div class="total-bar"><span class="tb f7 ts">총 방어 금액 (예상)</span><span style="font-size:20px;font-weight:900;color:var(--sky)">₩3,800만</span></div>
+        <div class="flex g8" style="justify-content:flex-end"><button class="btn btn-md btn-ghost">← 다시 입력</button><button class="btn btn-md btn-primary">직접 검토하기 →</button></div>
+      </div>
+    </div>
+    <div class="ann" style="width:480px"><b>Glow AI result card</b> | 인용문 배경 블록 | <b>Gradient total bar</b></div>
+  </div>
+
+  </div>
+  <!-- Row 2 -->
+  <div class="screens" style="margin-top:32px">
+
+  <!-- S6 검토 -->
+  <div>
+    <div class="browser" style="width:480px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/review</div></div>
+      <div class="scr-label">SCREEN 06 · REVIEW</div>
+      <div class="p20" style="display:flex;flex-direction:column;gap:16px;background:var(--s1)">
+        <div class="steps">
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">이슈 입력</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">AI 산출</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c active">3</div><span class="step-lbl active">검토</span></div>
+          <div class="step-line idle" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c idle">4</div><span class="step-lbl">피치덱</span></div>
+        </div>
+        <div><div class="tb f8 tp">AI 결과를 검토하고 확정하세요</div><div class="txs ts mt6">금액을 조정하거나 증빙을 첨부할수록 신뢰도 ↑</div></div>
+        <div class="card" style="border-color:rgba(92,111,247,.3);background:linear-gradient(135deg,rgba(92,111,247,.05),transparent)">
+          <div class="flex jsb ic mt6" style="margin-bottom:12px"><div class="tsm f7 tp">Q3 출시 일정 지연 위기 방어</div><span class="chip chip-amb">High</span></div>
+          <div class="slider-wrap">
+            <div class="flex jsb ic"><span class="txs ts">방어 금액 조정</span><span class="tb f8 t-sky">₩3,000만</span></div>
+            <div class="slider-track"><div class="slider-fill" style="width:60%"></div><div class="slider-thumb" style="left:calc(60% - 9px)"></div></div>
+            <div class="slider-vals"><span>₩0</span><span>₩2,500만</span><span>₩5,000만</span></div>
+          </div>
+          <div class="upload-zone mt10">
+            <div style="width:36px;height:36px;background:var(--s3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">📎</div>
+            <div class="tsm f6 ts">증빙 자료 첨부</div>
+            <div class="txs tm">Slack 캡처 · 이메일 · 계약서 · PNG/PDF</div>
+            <button class="btn btn-sm btn-outline mt6">파일 선택</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex jsb ic" style="margin-bottom:12px"><div class="tsm f7 tp">외부 API 장애 선제 수습</div><span class="chip chip-ind">Mid</span></div>
+          <div class="slider-wrap">
+            <div class="flex jsb ic"><span class="txs ts">방어 금액 조정</span><span class="tb f8 t-sky">₩800만</span></div>
+            <div class="slider-track"><div class="slider-fill" style="width:40%"></div><div class="slider-thumb" style="left:calc(40% - 9px)"></div></div>
+            <div class="slider-vals"><span>₩0</span><span>₩1,000만</span><span>₩2,000만</span></div>
+          </div>
+        </div>
+        <div class="total-bar"><span class="tb f7 ts">최종 확정 금액</span><span style="font-size:20px;font-weight:900;color:var(--sky)">₩3,800만</span></div>
+        <div class="flex g8" style="justify-content:flex-end"><button class="btn btn-md btn-ghost">← 이전</button><button class="btn btn-md btn-primary">저장 & 피치덱 생성 →</button></div>
+      </div>
+    </div>
+    <div class="ann" style="width:480px"><b>Glow border 슬라이더</b> 카드 | <b>업로드 존</b> hover 글로우 | Gradient total bar</div>
+  </div>
+
+  <!-- S7 피치덱 -->
+  <div>
+    <div class="browser" style="width:520px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/pitchdeck/a3f9</div></div>
+      <div class="scr-label">SCREEN 07 · PITCH DECK</div>
+      <div class="p20" style="display:flex;flex-direction:column;gap:16px;background:var(--s1)">
+        <div class="steps">
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">이슈 입력</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">AI 산출</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c done">✓</div><span class="step-lbl done">검토</span></div>
+          <div class="step-line done" style="flex:1;margin-top:-13px"></div>
+          <div class="step-item"><div class="step-c active">4</div><span class="step-lbl active">피치덱</span></div>
+        </div>
+        <div class="flex jsb ic">
+          <div><div class="tb f8 tp">연봉 협상 피치덱 완성 🎉</div><div class="txs ts mt6">다운로드하거나 링크로 공유하세요</div></div>
+          <span class="chip chip-grn">✓ 생성 완료</span>
+        </div>
+        <div class="flex g14">
+          <!-- PDF -->
+          <div class="pdf-preview" style="flex:1;box-shadow:0 4px 24px rgba(0,0,0,.4)">
+            <div class="flex jsb ic" style="margin-bottom:4px">
+              <span style="font-size:14px;font-weight:900;color:var(--ind);letter-spacing:-.3px">MyROI</span>
+              <span style="font-size:10px;color:#6b7a99">2025년 연봉 협상 자료</span>
+            </div>
+            <div style="text-align:center;padding:10px 0;border-bottom:1px solid #e4eaf4;margin-bottom:4px">
+              <div style="font-size:13px;font-weight:800;color:#1a2030">홍길동 · PM/기획 · 4~7년차</div>
+              <div style="font-size:10px;color:#6b7a99;margin-top:3px">총 방어 금액 ₩3,800만 · 이슈 2건</div>
+            </div>
+            <div class="pdf-row"><span style="font-size:11px;color:#3a4a60">Q3 출시 지연 방어</span><span style="font-size:12px;font-weight:800;color:#2563eb">₩3,000만</span></div>
+            <div class="pdf-row"><span style="font-size:11px;color:#3a4a60">API 장애 수습</span><span style="font-size:12px;font-weight:800;color:#2563eb">₩800만</span></div>
+            <div style="background:linear-gradient(135deg,#eff2ff,#e0f0ff);border-radius:8px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+              <span style="font-size:12px;font-weight:700;color:#2a3a5a">총 방어 금액</span>
+              <span style="font-size:17px;font-weight:900;color:#1d4ed8">₩3,800만</span>
+            </div>
+          </div>
+          <!-- Actions -->
+          <div style="width:148px;display:flex;flex-direction:column;gap:10px">
+            <div class="card card-sm" style="display:flex;flex-direction:column;gap:8px">
+              <div class="txs f7 ts">공유 링크</div>
+              <div style="height:32px;background:var(--bg);border:1px solid var(--b2);border-radius:var(--rxs);padding:0 10px;font-size:10px;color:var(--tm);display:flex;align-items:center">myroi.app/p/a3f9</div>
+              <button class="btn btn-sm btn-outline w100">🔗 링크 복사</button>
+            </div>
+            <button class="btn btn-md btn-primary w100">⬇ PDF 다운로드</button>
+            <button class="btn btn-sm btn-ghost w100">대시보드 →</button>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--indd),var(--skyd));border:1px solid rgba(92,111,247,.2);border-radius:var(--rxs);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--glow-ind)">
+          <div class="txs ts">새 이슈를 추가하면 피치덱이 자동 업데이트됩니다</div>
+          <button class="btn btn-sm btn-outline" style="flex-shrink:0">+ 이슈 추가</button>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="width:520px"><b>실제 화이트 PDF 미리보기</b> (밝은 배경) | 그라디언트 넛지 바 | 공유+다운로드 액션</div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ ③ 대시보드 ══════════════ -->
+<div id="dash" class="panel">
+<div class="sec">
+  <div class="sec-title"><div class="sec-dot" style="background:#10b981"></div><span style="color:#6ee7b7">③ DASHBOARD</span></div>
+  <div class="screens">
+
+  <!-- S8 홈 -->
+  <div>
+    <div class="browser" style="width:780px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/dashboard</div></div>
+      <div class="scr-label">SCREEN 08 · HOME DASHBOARD</div>
+      <div class="app-shell" style="height:540px">
+        <div class="sidebar" style="width:216px">
+          <div class="s-logo"><div class="logo-mark">M</div><span class="logo-text">MyROI</span></div>
+          <div class="grp-lbl">메인</div>
+          <div class="nav-item active"><span class="nav-icon">📊</span>대시보드</div>
+          <div class="nav-item"><span class="nav-icon">⚡</span>이슈 입력 <span class="nav-badge">NEW</span></div>
+          <div class="nav-item"><span class="nav-icon">📋</span>이슈 히스토리</div>
+          <div class="nav-item"><span class="nav-icon">📄</span>피치덱 목록</div>
+          <div class="grp-lbl">분석</div>
+          <div class="nav-item"><span class="nav-icon">📈</span>카테고리 분석</div>
+          <div class="nav-item"><span class="nav-icon">🏆</span>성과 리포트</div>
+          <div class="sb-bot">
+            <div class="nav-item"><span class="nav-icon">⚙️</span>설정</div>
+            <div class="user-row"><div class="avatar">홍</div><div><div class="txs f7 tp">홍길동</div><div style="font-size:9px;color:var(--tm)">PM · 4~7년차</div></div><div style="margin-left:auto;font-size:12px;color:var(--tm)">⋯</div></div>
+          </div>
+        </div>
+        <div class="main-col">
+          <div class="topbar">
+            <div><div class="pg-title">대시보드</div><div class="pg-sub">안녕하세요, 홍길동 님 👋 오늘도 기록해볼까요?</div></div>
+            <button class="btn btn-md btn-primary">+ 새 이슈 입력</button>
+          </div>
+          <div class="content">
+            <div class="stat-grid">
+              <div class="stat-card sky"><div class="stat-lbl">💰 총 방어 금액</div><div class="stat-val t-sky">₩3,800만</div><div class="stat-delta delta-up">↑ 이번 분기 +800만</div></div>
+              <div class="stat-card ind"><div class="stat-lbl">📝 등록 이슈</div><div class="stat-val">2건</div><div class="stat-delta delta-up">↑ 이번 달 +1건</div></div>
+              <div class="stat-card grn"><div class="stat-lbl">📄 생성 피치덱</div><div class="stat-val">1건</div><div class="stat-delta delta-neu">최근 3일 전</div></div>
+              <div class="stat-card amb"><div class="stat-lbl">🔥 연속 기록</div><div class="stat-val t-amb">3주</div><div class="stat-delta delta-up">↑ WAU 목표 달성</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1.65fr;gap:14px">
+              <div class="chart-wrap">
+                <div class="flex jsb ic" style="margin-bottom:14px"><div><div class="tsm f7 tp">월별 방어 금액</div><div class="txs tm mt4">2025년 기준</div></div><span class="chip chip-muted" style="font-size:9px">분기별</span></div>
+                <div class="chart-area">
+                  <div class="bar-col"><div class="txs tm" style="font-size:8px">500</div><div class="bar" style="height:20%;background:var(--b2)"></div><div class="txs tm" style="font-size:9px">1월</div></div>
+                  <div class="bar-col"><div class="txs tm" style="font-size:8px">—</div><div class="bar" style="height:4%;background:var(--s3)"></div><div class="txs tm" style="font-size:9px">2월</div></div>
+                  <div class="bar-col"><div class="txs tm" style="font-size:8px">1200</div><div class="bar" style="height:44%;background:var(--indd);border:1px solid rgba(92,111,247,.3)"></div><div class="txs tm" style="font-size:9px">3월</div></div>
+                  <div class="bar-col"><div class="txs tm" style="font-size:8px">800</div><div class="bar" style="height:30%;background:var(--indd);border:1px solid rgba(92,111,247,.3)"></div><div class="txs tm" style="font-size:9px">4월</div></div>
+                  <div class="bar-col"><div class="txs t-sky" style="font-size:8px;font-weight:700">3800</div><div class="bar" style="height:100%;background:linear-gradient(180deg,var(--sky),var(--ind));box-shadow:0 0 12px rgba(56,189,248,.3)"></div><div class="txs t-sky" style="font-size:9px;font-weight:700">5월</div></div>
+                  <div class="bar-col"><div class="txs tm" style="font-size:8px">—</div><div class="bar" style="height:4%;background:var(--s3)"></div><div class="txs tm" style="font-size:9px">6월</div></div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <div class="flex jsb ic" style="padding:11px 18px;border-bottom:1px solid var(--b1)"><div class="tsm f7 tp">최근 이슈</div><span class="txs t-ind" style="cursor:pointer">전체 보기 →</span></div>
+                <div class="t-head" style="grid-template-columns:2.5fr 1fr 1fr 0.8fr"><div class="t-hcell">이슈명</div><div class="t-hcell">카테고리</div><div class="t-hcell">방어 금액</div><div class="t-hcell">등록일</div></div>
+                <div class="t-row" style="grid-template-columns:2.5fr 1fr 1fr 0.8fr"><div class="t-cell pri">Q3 출시 일정 지연 위기 방어</div><div class="t-cell"><span class="chip chip-sky" style="font-size:9px">지연 방어</span></div><div class="t-cell amt">₩3,000만</div><div class="t-cell">05.12</div></div>
+                <div class="t-row" style="grid-template-columns:2.5fr 1fr 1fr 0.8fr"><div class="t-cell pri">외부 API 장애 선제 수습</div><div class="t-cell"><span class="chip chip-ind" style="font-size:9px">장애 수습</span></div><div class="t-cell amt">₩800만</div><div class="t-cell">04.28</div></div>
+                <div class="t-row" style="grid-template-columns:2.5fr 1fr 1fr 0.8fr;opacity:.35"><div class="t-cell" style="font-style:italic;color:var(--tm)">+ 이슈를 추가해 보세요</div><div></div><div></div><div></div></div>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <div class="flex jsb ic" style="margin-bottom:14px"><div class="tsm f7 tp">카테고리별 방어 금액</div></div>
+              <div class="flex g16 ic">
+                <div style="width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--sky) 0% 79%,var(--ind) 79% 100%);flex-shrink:0;box-shadow:inset 0 0 0 15px var(--s2),var(--glow-sky)"></div>
+                <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+                  <div class="flex jsb ic"><div class="flex ic g6"><div style="width:8px;height:8px;border-radius:2px;background:var(--sky)"></div><span class="txs ts">프로젝트 지연 방어</span></div><span class="txs f7 t-sky">₩3,000만 (79%)</span></div>
+                  <div class="flex jsb ic"><div class="flex ic g6"><div style="width:8px;height:8px;border-radius:2px;background:var(--ind)"></div><span class="txs ts">장애 수습</span></div><span class="txs f7 t-ind">₩800만 (21%)</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="width:780px"><b>Glow Stat Cards</b> 컬러 탑 보더 | <b>하이라이트 바 차트</b> (5월 sky glow) | <b>Glassmorphism 사이드바</b></div>
+  </div>
+
+  <!-- S9 이슈 상세 -->
+  <div>
+    <div class="browser" style="width:560px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/issue/001</div></div>
+      <div class="scr-label">SCREEN 09 · ISSUE DETAIL</div>
+      <div class="app-shell" style="min-height:470px">
+        <div class="sidebar" style="width:180px">
+          <div class="s-logo"><div class="logo-mark">M</div><span class="logo-text">MyROI</span></div>
+          <div class="nav-item"><span class="nav-icon">📊</span>대시보드</div>
+          <div class="nav-item active"><span class="nav-icon">📋</span>이슈 히스토리</div>
+          <div class="nav-item"><span class="nav-icon">📄</span>피치덱 목록</div>
+          <div class="sb-bot"><div class="user-row"><div class="avatar">홍</div><div><div class="txs f7 tp">홍길동</div></div></div></div>
+        </div>
+        <div class="main-col">
+          <div class="topbar">
+            <div class="flex ic g10"><button class="btn btn-sm btn-ghost">← 목록으로</button><div class="pg-title" style="font-size:13px">이슈 상세</div></div>
+            <div class="flex g8"><button class="btn btn-sm btn-ghost">수정</button><button class="btn btn-sm btn-danger">삭제</button></div>
+          </div>
+          <div class="content">
+            <div class="card" style="border-color:rgba(56,189,248,.3);background:linear-gradient(135deg,rgba(56,189,248,.04),transparent)">
+              <div class="flex jsb ic" style="margin-bottom:10px"><div class="tlg f8 tp">Q3 출시 일정 지연 위기 방어</div><span class="chip chip-amb">High Impact</span></div>
+              <div class="flex g6" style="margin-bottom:14px"><span class="chip chip-sky">프로젝트 지연 방어</span><span class="chip chip-muted">2025.05.12 등록</span></div>
+              <div style="background:var(--s3);border-radius:var(--rxs);padding:13px;font-size:12px;color:var(--ts);line-height:1.7;border:1px solid var(--b1)">클라이언트사 핵심 기능 스펙이 개발 중 변경되면서 3주 납기 지연 위기가 발생했습니다. 야근 및 주말 스프린트를 조율하여 원래 일정 내 납품을 완료하였고, 계약 위약금 3,000만 원 발생을 사전에 방어했습니다.</div>
+            </div>
+            <div class="g2c">
+              <div class="card card-sm"><div class="txs f7 tm" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">AI 산출 금액</div><div style="font-size:20px;font-weight:900;color:var(--ts)">₩3,000만</div><div class="txs tm mt4">계약 위약금 기준</div></div>
+              <div class="card card-sm" style="border-color:rgba(56,189,248,.25);background:var(--skyd)"><div class="txs f7 tm" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">확정 금액</div><div style="font-size:20px;font-weight:900;color:var(--sky)">₩3,000만</div><div class="txs tm mt4">직접 검토 후 확정</div></div>
+            </div>
+            <div class="card card-sm">
+              <div class="tsm f7 tp" style="margin-bottom:10px">증빙 자료</div>
+              <div class="flex g12 ic">
+                <div style="width:66px;height:50px;background:var(--s3);border-radius:var(--rxs);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:20px">📎</div>
+                <div><div class="txs f7 tp">slack_capture_0512.png</div><div class="txs tm mt4">PNG · 245KB · 2025.05.12</div><span class="txs t-ind mt4" style="display:block;cursor:pointer">원본 보기 →</span></div>
+              </div>
+            </div>
+            <div style="background:var(--indd);border:1px solid rgba(92,111,247,.2);border-radius:var(--rxs);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--glow-ind)"><div class="txs ts">이 이슈가 포함된 피치덱</div><button class="btn btn-sm btn-outline">피치덱 보기 →</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="width:560px"><b>Sky glow border card</b> | AI 산출 vs 확정 금액 비교 | 증빙 파일 + 피치덱 연결 넛지</div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ ④ 설정 ══════════════ -->
+<div id="cfg" class="panel">
+<div class="sec">
+  <div class="sec-title"><div class="sec-dot" style="background:#f59e0b"></div><span style="color:#fcd34d">④ SETTINGS</span></div>
+  <div class="screens">
+
+  <!-- S10 프로필·알림 -->
+  <div>
+    <div class="browser" style="width:640px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/settings</div></div>
+      <div class="scr-label">SCREEN 10 · SETTINGS — PROFILE & NOTIFICATIONS</div>
+      <div class="app-shell" style="min-height:510px">
+        <div class="sidebar" style="width:180px">
+          <div class="s-logo"><div class="logo-mark">M</div><span class="logo-text">MyROI</span></div>
+          <div class="nav-item"><span class="nav-icon">📊</span>대시보드</div>
+          <div class="nav-item"><span class="nav-icon">⚡</span>이슈 입력</div>
+          <div class="nav-item"><span class="nav-icon">📋</span>이슈 히스토리</div>
+          <div class="nav-item"><span class="nav-icon">📄</span>피치덱 목록</div>
+          <div class="sb-bot"><div class="nav-item active"><span class="nav-icon">⚙️</span>설정</div><div class="user-row"><div class="avatar">홍</div><div><div class="txs f7 tp">홍길동</div><div style="font-size:9px;color:var(--amb)">Free 플랜</div></div></div></div>
+        </div>
+        <div class="main-col">
+          <div class="topbar"><div><div class="pg-title">설정</div><div class="pg-sub">계정·알림·플랜을 관리하세요</div></div></div>
+          <div class="s-tabs">
+            <div class="s-tab active">프로필</div>
+            <div class="s-tab">알림</div>
+            <div class="s-tab">플랜 · 결제</div>
+            <div class="s-tab">보안</div>
+          </div>
+          <div class="content">
+            <div class="settings-sec">
+              <div class="ss-title">프로필 정보</div>
+              <div class="flex ic g14" style="padding-bottom:16px;border-bottom:1px solid var(--b1)">
+                <div class="avatar" style="width:52px;height:52px;font-size:20px;box-shadow:var(--glow-ind)">홍</div>
+                <div><div class="tsm f7 tp">프로필 사진</div><div class="txs tm mt4">JPG, PNG · 최대 2MB</div><button class="btn btn-sm btn-ghost" style="margin-top:7px">사진 변경</button></div>
+              </div>
+              <div class="g2c">
+                <div class="ig"><span class="lbl">이름</span><div class="inp">홍길동</div></div>
+                <div class="ig"><span class="lbl">닉네임</span><div class="inp focus">gildong</div></div>
+              </div>
+              <div class="ig"><span class="lbl">이메일</span><div class="inp">gildong@company.com</div></div>
+              <div class="g2c">
+                <div class="ig"><span class="lbl">직군</span><div class="inp">PM / 기획 ▾</div></div>
+                <div class="ig"><span class="lbl">연차</span><div class="inp">4~7년차 ▾</div></div>
+              </div>
+              <div style="display:flex;justify-content:flex-end"><button class="btn btn-md btn-primary">변경 사항 저장</button></div>
+            </div>
+            <div class="settings-sec">
+              <div class="ss-title">알림 설정</div>
+              <div class="toggle-row"><div><div class="tsm f7 tp">주간 기록 리마인더</div><div class="txs tm mt4">매주 월요일 오전 9시 · WAU 목표 달성 알림</div></div><div class="toggle on"></div></div>
+              <div class="toggle-row"><div><div class="tsm f7 tp">피치덱 공유 열람 알림</div><div class="txs tm mt4">공유 링크를 누군가 열람했을 때</div></div><div class="toggle on"></div></div>
+              <div class="toggle-row"><div><div class="tsm f7 tp">마케팅 · 뉴스레터</div><div class="txs tm mt4">제품 업데이트 및 사용 팁 이메일</div></div><div class="toggle"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="width:640px"><b>Glow avatar</b> | Focus inp 글로우 | <b>Gradient toggle</b> ON 상태 글로우</div>
+  </div>
+
+  <!-- S11 플랜·결제 -->
+  <div>
+    <div class="browser" style="width:540px">
+      <div class="chrome"><div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div><div class="url-bar"><span class="url-icon">🔒</span>myroi.app/settings/plan</div></div>
+      <div class="scr-label">SCREEN 11 · SETTINGS — PLAN & BILLING</div>
+      <div class="app-shell" style="min-height:510px">
+        <div class="sidebar" style="width:180px">
+          <div class="s-logo"><div class="logo-mark">M</div><span class="logo-text">MyROI</span></div>
+          <div class="nav-item"><span class="nav-icon">📊</span>대시보드</div>
+          <div class="nav-item"><span class="nav-icon">⚡</span>이슈 입력</div>
+          <div class="nav-item"><span class="nav-icon">📋</span>이슈 히스토리</div>
+          <div class="sb-bot"><div class="nav-item active"><span class="nav-icon">⚙️</span>설정</div><div class="user-row"><div class="avatar">홍</div><div><div class="txs f7 tp">홍길동</div><div style="font-size:9px;color:var(--amb)">Free 플랜</div></div></div></div>
+        </div>
+        <div class="main-col">
+          <div class="topbar"><div><div class="pg-title">플랜 · 결제</div></div></div>
+          <div class="s-tabs"><div class="s-tab">프로필</div><div class="s-tab">알림</div><div class="s-tab active">플랜 · 결제</div><div class="s-tab">보안</div></div>
+          <div class="content">
+            <div class="plan-grid">
+              <div class="plan-card" style="background:var(--s2);border:1px solid var(--b1)">
+                <div class="flex jsb ic"><div class="tsm f7 tp">Free</div><span class="chip chip-muted">현재 플랜</span></div>
+                <div style="font-size:22px;font-weight:900;color:var(--tp)">₩0 <span style="font-size:11px;color:var(--tm);font-weight:400">/ 월</span></div>
+                <div style="display:flex;flex-direction:column;gap:7px;padding-top:10px;border-top:1px solid var(--b1)">
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>이슈 등록 월 2건</div>
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>피치덱 월 1회 생성</div>
+                  <div class="plan-feature off"><span class="ck">✗</span>무제한 이슈 등록</div>
+                  <div class="plan-feature off"><span class="ck">✗</span>증빙 자료 무제한 첨부</div>
+                  <div class="plan-feature off"><span class="ck">✗</span>공유 링크 분석</div>
+                </div>
+                <button class="btn btn-md btn-ghost w100" style="opacity:.45">현재 플랜</button>
+              </div>
+              <div class="plan-card" style="background:linear-gradient(135deg,var(--indd),var(--skyd));border:1.5px solid rgba(92,111,247,.4);box-shadow:var(--glow-ind)">
+                <div class="flex jsb ic"><div class="tsm f7 t-ind">Premium</div><span class="chip chip-ind">추천 ✦</span></div>
+                <div>
+                  <div style="font-size:22px;font-weight:900;color:var(--indll)">₩9,900 <span style="font-size:11px;color:var(--tm);font-weight:400">/ 월</span></div>
+                  <div class="txs tm mt4">연간 결제 시 ₩7,900/월 · 20% 절약</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px;padding-top:10px;border-top:1px solid rgba(92,111,247,.2)">
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>이슈 등록 무제한</div>
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>피치덱 무제한 생성</div>
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>증빙 자료 무제한 첨부</div>
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>공유 링크 열람 분석</div>
+                  <div class="plan-feature"><span class="ck t-grn">✓</span>우선 고객 지원</div>
+                </div>
+                <button class="btn btn-lg btn-primary w100">업그레이드 →</button>
+              </div>
+            </div>
+            <div class="settings-sec">
+              <div class="ss-title">결제 수단</div>
+              <div style="background:var(--bg);border:1px solid var(--b2);border-radius:var(--rxs);padding:13px 16px;display:flex;align-items:center;gap:14px">
+                <div style="width:42px;height:27px;background:linear-gradient(135deg,#1a56c4,#2563eb);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:800;font-style:italic">VISA</div>
+                <div style="flex:1"><div class="txs f7 tp">•••• •••• •••• 4242</div><div class="txs tm mt4">만료 09/27</div></div>
+                <button class="btn btn-sm btn-ghost">변경</button>
+              </div>
+            </div>
+            <div class="settings-sec" style="border-color:rgba(248,113,113,.15)">
+              <div class="ss-title t-red">위험 구역</div>
+              <div class="flex jsb ic"><div><div class="tsm f6 tp">로그아웃</div><div class="txs tm mt4">현재 기기에서 로그아웃합니다</div></div><button class="btn btn-sm btn-ghost">로그아웃</button></div>
+              <div class="flex jsb ic" style="padding-top:12px;border-top:1px solid var(--b1)"><div><div class="tsm f7 t-red">회원 탈퇴</div><div class="txs tm mt4">계정과 모든 데이터가 영구 삭제됩니다</div></div><button class="btn btn-sm btn-danger">탈퇴하기</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann" style="width:540px"><b>Glow Premium card</b> 그라디언트 배경 | 실제 VISA 카드 스타일 | <b>Danger Zone</b> red border</div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+function showTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

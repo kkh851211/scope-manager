@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 코딩 툴 기반 MVP 기획 프로세스</title>
+<style>
+  :root {
+    --p1:#7C3AED; --p2:#0EA5E9; --p3:#F97316;
+    --bg:#0C0C18; --card:#14142A; --border:#22223A;
+    --text:#E8E8F5; --sub:#8888AA; --ai:#A78BFA;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh;}
+
+  header{
+    text-align:center;padding:56px 20px 36px;
+    background:linear-gradient(160deg,#1a0a3e 0%,#0c0c18 60%);
+    border-bottom:1px solid var(--border);position:relative;overflow:hidden;
+  }
+  header::before{
+    content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+    width:400px;height:400px;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .tag{display:inline-block;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);
+    color:var(--ai);font-size:.75rem;font-weight:700;padding:4px 12px;border-radius:20px;
+    letter-spacing:.8px;margin-bottom:14px;}
+  header h1{font-size:2rem;font-weight:800;line-height:1.3;}
+  header h1 span{background:linear-gradient(90deg,#7C3AED,#0EA5E9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  header p{color:var(--sub);margin-top:10px;font-size:.95rem;}
+
+  .legend{display:flex;justify-content:center;gap:20px;padding:18px 20px;flex-wrap:wrap;}
+  .li{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--sub);}
+  .ld{width:10px;height:10px;border-radius:50%;}
+
+  .stats{max-width:900px;margin:0 auto 36px;padding:0 20px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;}
+  .sn{font-size:1.9rem;font-weight:800;}
+  .s1{color:#7C3AED;} .s2{color:#0EA5E9;} .s3{color:#F97316;}
+  .sl{font-size:.78rem;color:var(--sub);margin-top:4px;}
+
+  .ai-tip{max-width:900px;margin:0 auto 32px;padding:0 20px;}
+  .ai-tip-inner{
+    background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);
+    border-radius:12px;padding:16px 20px;display:flex;gap:12px;align-items:flex-start;
+  }
+  .ai-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+  .ai-tip-text{font-size:.85rem;line-height:1.7;color:#ccc;}
+  .ai-tip-text strong{color:var(--ai);}
+
+  .timeline{max-width:900px;margin:0 auto;padding:0 20px 60px;}
+  .phase-block{margin-bottom:44px;}
+  .phase-label{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:8px 20px;border-radius:24px;font-weight:700;font-size:.88rem;
+    margin-bottom:22px;letter-spacing:.4px;
+  }
+  .ph1 .phase-label{background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.3);}
+  .ph2 .phase-label{background:rgba(14,165,233,.15);color:#7dd3fc;border:1px solid rgba(14,165,233,.3);}
+  .ph3 .phase-label{background:rgba(249,115,22,.15);color:#fdba74;border:1px solid rgba(249,115,22,.3);}
+
+  .steps{display:flex;flex-direction:column;}
+  .step-row{display:flex;align-items:stretch;}
+  .connector{display:flex;flex-direction:column;align-items:center;width:42px;flex-shrink:0;}
+  .dot{
+    width:38px;height:38px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0;z-index:1;
+  }
+  .ph1 .dot{background:var(--p1);color:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.2);}
+  .ph2 .dot{background:var(--p2);color:#fff;box-shadow:0 0 0 4px rgba(14,165,233,.2);}
+  .ph3 .dot{background:var(--p3);color:#fff;box-shadow:0 0 0 4px rgba(249,115,22,.2);}
+  .dot.is-key{animation:glow 2s infinite;}
+  .line{width:2px;flex:1;min-height:18px;}
+  .ph1 .line{background:linear-gradient(180deg,rgba(124,58,237,.4) 0%,transparent 100%);}
+  .ph2 .line{background:linear-gradient(180deg,rgba(14,165,233,.4) 0%,transparent 100%);}
+  .ph3 .line{background:linear-gradient(180deg,rgba(249,115,22,.4) 0%,transparent 100%);}
+  .line.hidden{background:transparent;}
+
+  .card{
+    flex:1;margin-left:14px;margin-bottom:18px;
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;
+  }
+  .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+  .ph1 .card::before{background:var(--p1);}
+  .ph2 .card::before{background:var(--p2);}
+  .ph3 .card::before{background:var(--p3);}
+  .card:hover{transform:translateX(4px);box-shadow:0 4px 24px rgba(0,0,0,.35);}
+  .ph1 .card:hover,.ph1 .card.open{border-color:rgba(124,58,237,.5);}
+  .ph2 .card:hover,.ph2 .card.open{border-color:rgba(14,165,233,.5);}
+  .ph3 .card:hover,.ph3 .card.open{border-color:rgba(249,115,22,.5);}
+
+  .ch{display:flex;align-items:center;gap:10px;}
+  .ct{font-weight:700;font-size:.97rem;flex:1;}
+  .cs{font-size:.76rem;color:var(--sub);margin-top:2px;}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+  .badge{font-size:.63rem;font-weight:800;padding:2px 7px;border-radius:10px;letter-spacing:.4px;}
+  .b-key{background:#FBBF24;color:#000;}
+  .b-ai{background:var(--ai);color:#000;}
+  .chevron{color:var(--sub);font-size:1rem;transition:transform .22s;flex-shrink:0;}
+  .open .chevron{transform:rotate(180deg);}
+
+  .cb{display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;}
+  .open .cb{display:block;}
+  .purpose{color:var(--sub);font-size:.83rem;line-height:1.65;margin-bottom:10px;}
+  .ph1 .purpose strong{color:#a78bfa;}
+  .ph2 .purpose strong{color:#7dd3fc;}
+  .ph3 .purpose strong{color:#fdba74;}
+  .ol{font-size:.72rem;font-weight:700;color:var(--sub);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;}
+  .ot{display:inline-block;background:rgba(255,255,255,.05);border:1px solid var(--border);
+    border-radius:6px;padding:3px 9px;font-size:.76rem;margin:2px 2px 2px 0;color:var(--text);}
+  .ex{margin-top:10px;background:rgba(255,255,255,.03);border-radius:0 8px 8px 0;
+    padding:9px 13px;font-size:.8rem;line-height:1.7;color:#ccc;}
+  .ph1 .ex{border-left:3px solid var(--p1);}
+  .ph2 .ex{border-left:3px solid var(--p2);}
+  .ph3 .ex{border-left:3px solid var(--p3);}
+
+  .phase-arrow{text-align:center;color:var(--sub);font-size:1.5rem;margin:-10px 0 24px;opacity:.5;}
+
+  @keyframes glow{0%,100%{box-shadow:0 0 0 4px rgba(251,191,36,.2);}50%{box-shadow:0 0 0 8px rgba(251,191,36,.08);}}
+
+  footer{text-align:center;padding:22px;color:var(--sub);font-size:.78rem;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">🤖 AI CODING TOOL BASED</div>
+  <h1>MVP + 랜딩 페이지<br><span>동시 오픈 기획 프로세스</span></h1>
+  <p>Claude Code · Cursor 등 AI 툴 기반의 실무 작업물 10단계 가이드</p>
+</header>
+
+<div class="legend">
+  <div class="li"><div class="ld" style="background:#7C3AED"></div>Phase 1 · 문제 정의 및 뼈대</div>
+  <div class="li"><div class="ld" style="background:#0EA5E9"></div>Phase 2 · 구조 및 화면 설계</div>
+  <div class="li"><div class="ld" style="background:#F97316"></div>Phase 3 · AI 연동 및 검증</div>
+  <div class="li"><div class="ld" style="background:#FBBF24"></div>KEY · 핵심 병목 단계</div>
+</div>
+
+<div class="stats">
+  <div class="sc"><div class="sn s1">5</div><div class="sl">Phase 1 단계</div></div>
+  <div class="sc"><div class="sn s2">2</div><div class="sl">Phase 2 단계</div></div>
+  <div class="sc"><div class="sn s3">3</div><div class="sl">Phase 3 단계</div></div>
+</div>
+
+<div class="ai-tip">
+  <div class="ai-tip-inner">
+    <div class="ai-icon">💡</div>
+    <div class="ai-tip-text">
+      <strong>AI 코딩 툴 활용의 핵심:</strong> 화려한 기획서 양식보다 <strong>8번(PRD for AI)</strong>과 <strong>9번(인수 조건)</strong>을 얼마나 촘촘하게 텍스트로 정리했느냐가 결과물 퀄리티를 결정합니다. 마크다운 형태로 명확하게 규칙을 나열하는 것이 Claude Code, Cursor에서 유리합니다.
+    </div>
+  </div>
+</div>
+
+<div class="timeline">
+  <div class="phase-block ph1">
+    <div class="phase-label">🔍 PHASE 1 &nbsp;·&nbsp; 문제 정의 및 뼈대 세우기</div>
+    <div class="steps" id="ph1"></div>
+  </div>
+  <div class="phase-arrow">↓</div>
+  <div class="phase-block ph2">
+    <div class="phase-label">🎨 PHASE 2 &nbsp;·&nbsp; 단일 페이지 구조 및 화면 설계</div>
+    <div class="steps" id="ph2"></div>
+  </div>
+  <div class="phase-arrow">↓</div>
+  <div class="phase-block ph3">
+    <div class="phase-label">🚀 PHASE 3 &nbsp;·&nbsp; AI 연동 설계 및 검증</div>
+    <div class="steps" id="ph3"></div>
+  </div>
+</div>
+
+<footer>AI 코딩 툴 기반 MVP 기획 프로세스 · Scope Manager Project</footer>
+
+<script>
+const steps = {
+  ph1:[
+    {
+      n:1, title:"가설 및 성공 지표 설정", sub:"Hypothesis & Metrics", badges:[],
+      purpose:"무엇을 테스트하고 <strong>어떤 숫자가 나오면 성공인지</strong> 정의합니다. 모든 후속 작업의 나침반이 됩니다.",
+      outputs:["타겟 고객 정의","해결할 문제 기술","정량적 성공 기준"],
+      ex:'「랜딩 페이지 방문자의 15%가 계산기를 사용하고 이메일을 남긴다」'
+    },
+    {
+      n:2, title:"사용자 리서치 및 문제 검증", sub:"User Research & Validation", badges:[],
+      purpose:"우리가 푼 문제가 <strong>진짜 고객의 문제인지</strong> 정성적으로 확인하고, 이를 기능 범위 확정의 '근거'로 명시적으로 연결합니다.",
+      outputs:["실무자 인터뷰 결과 요약","페인 포인트 우선순위","기능 결정 당위성 연결 문서"],
+      ex:'인터뷰 결과: "수익성 계산 실수로 적자 경험" → 마진율 계산기 In-Scope 근거로 연결'
+    },
+    {
+      n:3, title:"기능 정의서 및 백로그", sub:"Feature Definition", badges:[],
+      purpose:"2번 리서치 근거를 바탕으로 <strong>스코프를 극단적으로 좁힙니다.</strong> AI 툴 개발에서 범위 초과는 곧 프롬프트 혼란입니다.",
+      outputs:["In-Scope 기능 리스트","Out-of-Scope 기능 리스트","기능별 우선순위 (P0/P1/P2)"],
+      ex:'포함(O): 마진율 계산기, 이메일 CTA / 제외(X): 팀원 초대, PDF 다운로드, 다국어'
+    },
+    {
+      n:4, title:"기술 타당성 및 아키텍처 검토", sub:"Tech Feasibility Check", badges:[],
+      purpose:"3번 기능들이 <strong>현재 리소스 내에서 구현 가능한 기술 스택인지</strong> 확정합니다. 이 단계 없이는 AI에게 명확한 프롬프트를 줄 수 없습니다.",
+      outputs:["프론트/백엔드 필요 여부 결정","이메일 수집 방식 확정 (Notion API, 구글폼 등)","호스팅 방향 결정 (GitHub Pages, Vercel 등)"],
+      ex:'정적 HTML+JS로 계산기 구현 가능 / 이메일 수집: Google Form 임베드 → 추후 Notion API 전환'
+    },
+    {
+      n:5, title:"핵심 데이터 정책 및 로직 설계", sub:"Core Logic & Policy", badges:["KEY"],
+      purpose:"화면 뒤에서 돌아갈 <strong>수식을 확정합니다.</strong> Scope Manager처럼 계산이 핵심인 B2B SaaS에서 가장 중요한 병목 구간이며, 이 문서가 AI 프롬프트의 핵심이 됩니다.",
+      outputs:["M/M 계산 공식 문서","직급별 기본 단가표","예외 및 오류 처리 정책"],
+      ex:'수익성(%) = (예산 - 인건비합산) / 예산 × 100 / 투입공수 0 입력 시 → 오류 메시지 노출'
+    }
+  ],
+  ph2:[
+    {
+      n:6, title:"랜딩 페이지 구조도", sub:"Landing Page Architecture", badges:[],
+      purpose:"전통적인 다단계 IA 대신, <strong>스크롤을 내리며 설득되는 단일 페이지 스토리라인</strong>을 잡습니다.",
+      outputs:["페이지 블록 흐름도","CTA 위치 정의","핵심 MVP 기능 노출 위치"],
+      ex:'헤드라인(문제 제기) → 공감 섹션 → [계산기 폼] → 결과 표시 → 이메일 수집 CTA'
+    },
+    {
+      n:7, title:"유저 플로우 및 와이어프레임", sub:"User Flow & Wireframe", badges:[],
+      purpose:"사용자의 <strong>시선 이동과 클릭 동선, 입력창 및 결과 화면 레이아웃</strong>을 스케치합니다.",
+      outputs:["핵심 기능 화면 스케치","입력창/결과값 배치 정의","버튼 동선 정의"],
+      ex:'입력: 직급 선택 + 개월 수 입력 + 예산 입력 → 클릭 → 수익성 % 결과 즉시 표시'
+    }
+  ],
+  ph3:[
+    {
+      n:8, title:"요구사항 정의서 (PRD for AI) + 트래킹 이벤트 정의", sub:"PRD for AI Coding Tool", badges:["KEY","AI"],
+      purpose:"Claude Code·Cursor가 <strong>로직과 추적 코드를 한 번에</strong> 구현할 수 있도록 모든 지시사항을 통합합니다. 마크다운 형태가 AI 입력에 최적화됩니다.",
+      outputs:["5번 계산 로직 + 7번 UI 구조 통합 문서","트래킹 이벤트 태그 정의 포함","마크다운 기반 AI 프롬프트 가이드"],
+      ex:'「id=calculate_btn 클릭 시 GA4 이벤트 발송: event_name="calculate_click"」까지 PRD에 명시'
+    },
+    {
+      n:9, title:"인수 조건 (AC) 및 QA 시나리오", sub:"Acceptance Criteria & QA", badges:[],
+      purpose:"AI가 짜준 코드가 <strong>정책대로 정확히 작동하는지</strong> 검증할 채점표입니다. Given-When-Then 형식으로 작성합니다.",
+      outputs:["기능별 인수 조건 목록","극단값 테스트 케이스","예외 처리 시나리오"],
+      ex:'Given: 투입공수 0 입력 / When: 계산 버튼 클릭 / Then: 오류 메시지 노출 + 마이너스 마진 시 글자색 빨간색'
+    },
+    {
+      n:10, title:"데이터 트래킹 실제 연동 검증", sub:"Analytics Verification", badges:[],
+      purpose:"8번에서 AI에게 심어두도록 지시한 <strong>트래킹 코드가 GA/Mixpanel에 실제로 수집되는지</strong> 퍼블리싱 직전에 최종 테스트합니다.",
+      outputs:["데이터 수집 확인 완료 체크리스트","GA4 실시간 이벤트 확인 캡처","모니터링 대시보드 세팅"],
+      ex:'GA4 실시간 보기에서 calculate_click / email_submit 이벤트 정상 수집 확인 후 배포'
+    }
+  ]
+};
+
+const badgeMap = { KEY:'b-key', AI:'b-ai' };
+
+function build(phId, items){
+  const c = document.getElementById(phId);
+  items.forEach((item,i)=>{
+    const last = i===items.length-1;
+    const row = document.createElement('div');
+    row.className='step-row';
+    const dotClass=['dot', item.badges.includes('KEY')?'is-key':''].filter(Boolean).join(' ');
+    const badgeHTML=item.badges.map(b=>`<span class="badge ${badgeMap[b]}">${b}</span>`).join('');
+    row.innerHTML=`
+      <div class="connector">
+        <div class="${dotClass}">${item.n}</div>
+        <div class="line${last?' hidden':''}"></div>
+      </div>
+      <div class="card" onclick="this.classList.toggle('open')">
+        <div class="ch">
+          <div style="flex:1">
+            <div class="ct">${item.title}</div>
+            <div class="cs">${item.sub}</div>
+            ${badgeHTML?`<div class="badges">${badgeHTML}</div>`:''}
+          </div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="cb">
+          <p class="purpose">${item.purpose}</p>
+          <div class="ol">📋 산출물</div>
+          <div>${item.outputs.map(o=>`<span class="ot">${o}</span>`).join('')}</div>
+          <div class="ex">💡 ${item.ex}</div>
+        </div>
+      </div>`;
+    c.appendChild(row);
+  });
+}
+
+build('ph1', steps.ph1);
+build('ph2', steps.ph2);
+build('ph3', steps.ph3);
+</script>
+</body>
+</html>

@@ -1,1030 +1,2002 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — AC & QA</title>
-<style>
-:root{--bg:#0f1117;--s1:#1a1f2e;--t1:#e8eaf0;--t3:#8c95aa;--bd:#232b3e;--blue:#4f80ff;--green:#10b981;--red:#f87171;--yellow:#fbbf24;--purple:#a78bfa;--s2:#1e2536;}
-body.light{--bg:#f5f7fa;--s1:#ffffff;--t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;--s2:#eef1f7;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--t1);font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — AC & QA</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --s2: #1e2536;
+    }
 
-/* [신규] 공통으로 사용할 중앙 정렬 박스 */
-.inner-wrap {
-  max-width: 1120px;     /* main과 동일한 너비 제한 */
-  margin: 0 auto;        /* 중앙 정렬 */
-  padding: 0 24px;       /* main의 좌우 패딩과 동일하게 맞춤 */
-  width: 100%;
-  height: 100%;
-}  
-  
-/* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
-header {
-  position: sticky; 
-  top: 0; 
-  z-index: 100;
-  background: var(--bg);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 (block 요소로 변경) */
-  /* align-items...      <-- 삭제 */
-  /* justify-content...  <-- 삭제 */
-  height: 56px;
-  transition: background 0.2s;
-}
-  /* [신규] Header 내부 정렬용 */
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.logo{font-weight:700;font-size:16px;color:var(--t1);letter-spacing:-.3px;}.logo span{color:var(--blue);}
-.badges{display:flex;gap:6px;margin-left:12px;}
-.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--t3);}
-.badge.blue{border-color:var(--blue);color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,transparent);}
-.badge.green{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 10%,transparent);}
-.toggle-btn{background:var(--s1);border:1px solid var(--bd);border-radius:8px;color:var(--t1);cursor:pointer;padding:6px 12px;font-size:13px;transition:background .2s;}
-.toggle-btn:hover{border-color:var(--blue);}
-/* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
-nav {
-  background: var(--bg);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 */
-  /* overflow-x...       <-- 삭제 */
-  transition: background 0.2s;
-}
-nav::-webkit-scrollbar{display:none;}
-  /* [신규] Nav 내부 정렬 및 스크롤용 */
-.nav-content {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  height: 100%;
-}
-.nav-content::-webkit-scrollbar { display: none; }
-.tab-btn{background:none;border:none;color:var(--t3);padding:12px 16px;cursor:pointer;font-size:13px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;}
-.tab-btn:hover{color:var(--t1);}.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
-main{padding:28px 24px;max-width:1120px;margin:0 auto;}
-.page{display:none;}.page.active{display:block;}
-.card{border-radius:12px;padding:18px;border:1px solid var(--bd);background:var(--s1);transition:background .2s,border-color .2s;}
-h2{font-size:18px;font-weight:700;margin-bottom:4px;}
-h3{font-size:14px;font-weight:600;margin-bottom:5px;}
-h4{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
-p{color:var(--t3);font-size:13px;}
-.sec-hdr{margin-bottom:20px;}.sec-hdr p{margin-top:4px;}
-.sec-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
-hr{border:none;border-top:1px solid var(--bd);margin:18px 0;}
-.mb{margin-bottom:16px;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+      --s2: #eef1f7;
+    }
 
-/* TAGS */
-.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-right:3px;margin-bottom:2px;}
-.tb{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);}
-.tg{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
-.tr{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
-.ty{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
-.tp{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple);}
-.tgr{background:color-mix(in srgb,var(--t3) 15%,transparent);color:var(--t3);}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* PRIORITY */
-.pri{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;}
-.p0{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
-.p1{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
-.p2{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);}
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background .2s, color .2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
 
-/* STATUS */
-.status{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;}
-.s-pass{background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);}
-.s-fail{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);border:1px solid color-mix(in srgb,var(--red) 25%,transparent);}
-.s-block{background:color-mix(in srgb,var(--purple) 12%,transparent);color:var(--purple);border:1px solid color-mix(in srgb,var(--purple) 25%,transparent);}
-.s-todo{background:color-mix(in srgb,var(--t3) 12%,transparent);color:var(--t3);border:1px solid color-mix(in srgb,var(--t3) 25%,transparent);}
+    /* [신규] 공통으로 사용할 중앙 정렬 박스 */
+    .inner-wrap {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+      width: 100%;
+      height: 100%;
+    }
 
-/* AC BLOCK */
-.ac-block{border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
-.ac-head{background:var(--s2);padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
-.ac-head:hover{background:color-mix(in srgb,var(--blue) 5%,transparent);}
-.ac-id{font-size:11px;font-weight:700;color:var(--blue);min-width:60px;}
-.ac-title{font-weight:600;font-size:13px;color:var(--t1);flex:1;}
-.ac-toggle{color:var(--t3);font-size:12px;margin-left:auto;transition:transform .2s;}
-.ac-toggle.open{transform:rotate(180deg);}
-.ac-body{padding:0 14px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .2s;}
-.ac-body.open{max-height:2000px;padding:12px 14px;}
+    /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: background 0.2s;
+    }
 
-/* GIVEN-WHEN-THEN */
-.gwt{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
-.gwt-row{display:flex;gap:8px;align-items:flex-start;}
-.gwt-label{min-width:50px;font-size:11px;font-weight:700;padding:2px 0;border-radius:4px;text-align:center;flex-shrink:0;}
-.gwt-given{color:var(--blue);}
-.gwt-when{color:var(--yellow);}
-.gwt-then{color:var(--green);}
-.gwt-and{color:var(--t3);}
-.gwt-text{font-size:13px;color:var(--t3);line-height:1.5;}
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-/* SCENARIO TABLE */
-.sc-table{width:100%;border-collapse:collapse;}
-.sc-table th{text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);}
-.sc-table td{padding:9px 10px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--t3);vertical-align:top;}
-.sc-table td:first-child{color:var(--t1);font-weight:600;font-size:12px;white-space:nowrap;}
-.sc-table tr:last-child td{border-bottom:none;}
-.sc-table tr:hover td{background:color-mix(in srgb,var(--blue) 3%,transparent);}
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
 
-/* STEP LIST */
-.steps{counter-reset:step;display:flex;flex-direction:column;gap:4px;}
-.step{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--t3);}
-.step::before{counter-increment:step;content:counter(step);min-width:18px;height:18px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -.3px;
+      white-space: nowrap;
+    }
 
-/* CHECKLIST */
-.cl{list-style:none;display:flex;flex-direction:column;gap:6px;}
-.cl li{display:flex;align-items:flex-start;gap:7px;color:var(--t3);font-size:13px;}
-.cl li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
-.cl li.w::before{content:'⚠';color:var(--yellow);}
-.cl li.n::before{content:'✕';color:var(--red);}
-.cl li.p::before{content:'●';color:var(--blue);}
+    .logo span {
+      color: var(--t1);
+    }
 
-/* HIGHLIGHT */
-.hl{border-left:3px solid var(--blue);padding-left:14px;}
-.hl.g{border-left-color:var(--green);}
-.hl.r{border-left-color:var(--red);}
-.hl.y{border-left-color:var(--yellow);}
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
 
-/* ANN */
-.ann{background:color-mix(in srgb,var(--yellow) 8%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--t1);margin-top:8px;}
-.ann.blue{background:color-mix(in srgb,var(--blue) 8%,transparent);border-color:color-mix(in srgb,var(--blue) 25%,transparent);}
-.ann.green{background:color-mix(in srgb,var(--green) 8%,transparent);border-color:color-mix(in srgb,var(--green) 25%,transparent);}
-.ann.red{background:color-mix(in srgb,var(--red) 8%,transparent);border-color:color-mix(in srgb,var(--red) 25%,transparent);}
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
 
-/* KV */
-.kv{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;gap:8px;}
-.kv:last-child{margin-bottom:0;}
-.kk{color:var(--t3);font-size:13px;}
-.kv-v{font-weight:600;font-size:13px;color:var(--t1);text-align:right;}
+    .badge.b {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
 
-/* STAT */
-.stat-val{font-size:26px;font-weight:800;color:var(--t1);line-height:1.1;}
-.stat-label{font-size:12px;color:var(--t3);margin-top:2px;}
+    .badge.g {
+      border-color: var(--green);
+      color: var(--green);
+    }
 
-/* MATRIX */
-.matrix{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bd);border-radius:8px;overflow:hidden;border:1px solid var(--bd);}
-.mx-cell{background:var(--s1);padding:10px 12px;}
-.mx-head{background:var(--s2);font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;}
+    .toggle-btn {
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
+    }
 
-/* GROUP HEADER */
-.group-hdr{background:color-mix(in srgb,var(--blue) 6%,transparent);border:1px solid color-mix(in srgb,var(--blue) 20%,transparent);border-radius:8px;padding:8px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+    .toggle-btn:hover {
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
 
-/* INTERACTIVE TRACKER */
-.tracker-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--bd);transition:background .15s;}
-.tracker-row:last-child{border-bottom:none;}
-.tracker-row:hover{background:color-mix(in srgb,var(--blue) 3%,transparent);}
-.tracker-id{font-size:11px;font-weight:700;color:var(--blue);min-width:55px;font-family:monospace;}
-.tracker-name{flex:1;font-size:13px;color:var(--t1);}
-.tracker-status{cursor:pointer;user-select:none;}
-.tracker-status:hover .status{opacity:.8;}
+    .toggle-btn:active {
+      transform: translateY(0);
+    }
 
-@media(max-width:560px){
-  main{padding:16px 12px;}header{padding:0 12px;}nav{padding:0 12px;}
-  .g2,.g3{grid-template-columns:1fr;}.badges{display:none;}
-}
-</style>
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      display: block;
+      transition: background 0.2s;
+    }
+
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-content .tab-btn:first-child {
+      padding-left: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--t1);
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    main {
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .card {
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      transition: background .2s, border-color .2s;
+      margin-bottom: 0;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    h4 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .sec-hdr {
+      margin-bottom: 28px;
+    }
+
+    .sec-hdr p {
+      margin-top: 4px;
+    }
+
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--bd);
+      margin: 18px 0;
+    }
+
+    .mb {
+      margin-bottom: 16px;
+    }
+
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .g3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* TAGS */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 3px;
+      margin-bottom: 2px;
+    }
+
+    .tb {
+      background: color-mix(in srgb, var(--blue) 15%, transparent);
+      color: var(--blue);
+    }
+
+    .tg {
+      background: color-mix(in srgb, var(--green) 15%, transparent);
+      color: var(--green);
+    }
+
+    .tr {
+      background: color-mix(in srgb, var(--red) 15%, transparent);
+      color: var(--red);
+    }
+
+    .ty {
+      background: color-mix(in srgb, var(--yellow) 15%, transparent);
+      color: var(--yellow);
+    }
+
+    .tp {
+      background: color-mix(in srgb, var(--purple) 15%, transparent);
+      color: var(--purple);
+    }
+
+    .tgr {
+      background: color-mix(in srgb, var(--t3) 15%, transparent);
+      color: var(--t3);
+    }
+
+    /* PRIORITY */
+    .pri {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .p0 {
+      background: color-mix(in srgb, var(--red) 15%, transparent);
+      color: var(--red);
+    }
+
+    .p1 {
+      background: color-mix(in srgb, var(--yellow) 15%, transparent);
+      color: var(--yellow);
+    }
+
+    .p2 {
+      background: color-mix(in srgb, var(--blue) 15%, transparent);
+      color: var(--blue);
+    }
+
+    /* STATUS */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .s-pass {
+      background: color-mix(in srgb, var(--green) 12%, transparent);
+      color: var(--green);
+      border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
+    }
+
+    .s-fail {
+      background: color-mix(in srgb, var(--red) 12%, transparent);
+      color: var(--red);
+      border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+    }
+
+    .s-block {
+      background: color-mix(in srgb, var(--purple) 12%, transparent);
+      color: var(--purple);
+      border: 1px solid color-mix(in srgb, var(--purple) 25%, transparent);
+    }
+
+    .s-todo {
+      background: color-mix(in srgb, var(--t3) 12%, transparent);
+      color: var(--t3);
+      border: 1px solid color-mix(in srgb, var(--t3) 25%, transparent);
+    }
+
+    /* AC BLOCK */
+    .ac-block {
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .ac-head {
+      background: var(--s2);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ac-head:hover {
+      background: color-mix(in srgb, var(--blue) 5%, transparent);
+    }
+
+    .ac-id {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      min-width: 60px;
+    }
+
+    .ac-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--t1);
+      flex: 1;
+    }
+
+    .ac-toggle {
+      color: var(--t3);
+      font-size: 12px;
+      margin-left: auto;
+      transition: transform .2s;
+    }
+
+    .ac-toggle.open {
+      transform: rotate(180deg);
+    }
+
+    .ac-body {
+      padding: 0 14px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease, padding .2s;
+    }
+
+    .ac-body.open {
+      max-height: 2000px;
+      padding: 12px 14px;
+    }
+
+    /* GIVEN-WHEN-THEN */
+    .gwt {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .gwt-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .gwt-label {
+      min-width: 50px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 0;
+      border-radius: 4px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .gwt-given {
+      color: var(--blue);
+    }
+
+    .gwt-when {
+      color: var(--yellow);
+    }
+
+    .gwt-then {
+      color: var(--green);
+    }
+
+    .gwt-and {
+      color: var(--t3);
+    }
+
+    .gwt-text {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.5;
+    }
+
+    /* SCENARIO TABLE */
+    .sc-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .sc-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .sc-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--bd);
+      font-size: 12px;
+      color: var(--t3);
+      vertical-align: top;
+    }
+
+    .sc-table td:first-child {
+      color: var(--t1);
+      font-weight: 600;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .sc-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .sc-table tr:hover td {
+      background: color-mix(in srgb, var(--blue) 3%, transparent);
+    }
+
+    /* STEP LIST */
+    .steps {
+      counter-reset: step;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .step {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 12px;
+      color: var(--t3);
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* CHECKLIST */
+    .cl {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cl li {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .cl li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .cl li.w::before {
+      content: '⚠';
+      color: var(--yellow);
+    }
+
+    .cl li.n::before {
+      content: '✕';
+      color: var(--red);
+    }
+
+    .cl li.p::before {
+      content: '●';
+      color: var(--blue);
+    }
+
+    /* HIGHLIGHT */
+    .hl {
+      border-left: 3px solid var(--blue);
+      padding-left: 14px;
+    }
+
+    .hl.g {
+      border-left-color: var(--green);
+    }
+
+    .hl.r {
+      border-left-color: var(--red);
+    }
+
+    .hl.y {
+      border-left-color: var(--yellow);
+    }
+
+    /* ANN */
+    .ann {
+      background: color-mix(in srgb, var(--yellow) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--t1);
+      margin-top: 8px;
+    }
+
+    .ann.blue {
+      background: color-mix(in srgb, var(--blue) 8%, transparent);
+      border-color: color-mix(in srgb, var(--blue) 25%, transparent);
+    }
+
+    .ann.green {
+      background: color-mix(in srgb, var(--green) 8%, transparent);
+      border-color: color-mix(in srgb, var(--green) 25%, transparent);
+    }
+
+    .ann.red {
+      background: color-mix(in srgb, var(--red) 8%, transparent);
+      border-color: color-mix(in srgb, var(--red) 25%, transparent);
+    }
+
+    /* KV */
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 7px;
+      gap: 8px;
+    }
+
+    .kv:last-child {
+      margin-bottom: 0;
+    }
+
+    .kk {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .kv-v {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--t1);
+      text-align: right;
+    }
+
+    /* STAT */
+    .stat-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--t1);
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--t3);
+      margin-top: 2px;
+    }
+
+    /* MATRIX */
+    .matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--bd);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--bd);
+    }
+
+    .mx-cell {
+      background: var(--s1);
+      padding: 10px 12px;
+    }
+
+    .mx-head {
+      background: var(--s2);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    /* GROUP HEADER */
+    .group-hdr {
+      background: color-mix(in srgb, var(--blue) 6%, transparent);
+      border: 1px solid color-mix(in srgb, var(--blue) 20%, transparent);
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* INTERACTIVE TRACKER */
+    .tracker-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--bd);
+      transition: background .15s;
+    }
+
+    .tracker-row:last-child {
+      border-bottom: none;
+    }
+
+    .tracker-row:hover {
+      background: color-mix(in srgb, var(--blue) 3%, transparent);
+    }
+
+    .tracker-id {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      min-width: 55px;
+      font-family: monospace;
+    }
+
+    .tracker-name {
+      flex: 1;
+      font-size: 13px;
+      color: var(--t1);
+    }
+
+    .tracker-status {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tracker-status:hover .status {
+      opacity: .8;
+    }
+
+    @media(max-width:560px) {
+      .inner-wrap {
+        padding: 0 16px;
+      }
+
+      main {
+        padding: 24px 16px;
+      }
+
+      .g2,
+      .g3 {
+        grid-template-columns: 1fr;
+      }
+
+      .badges {
+        display: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="inner-wrap header-content">
-    <div style="display:flex;align-items:center;">
-      <div class="logo">Scope<span>Manager</span></div>
-      <div class="badges">
-        <span class="badge blue">인수 조건</span>
-        <span class="badge green">QA 시나리오</span>
-        <span class="badge">MVP v1.0</span>
-      </div>
-    </div>
-    <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
-  </div>
-</header>
-
-<nav>
-  <div class="inner-wrap nav-content">
-    <button class="tab-btn active" data-tab="overview">📋 개요 & 원칙</button>
-    <button class="tab-btn" data-tab="auth">🔐 인증 AC</button>
-    <button class="tab-btn" data-tab="judge">⚡ 판정 AC</button>
-    <button class="tab-btn" data-tab="doc">📄 문서 AC</button>
-    <button class="tab-btn" data-tab="qa">🧪 QA 시나리오</button>
-    <button class="tab-btn" data-tab="tracker">✅ QA 트래커</button>
-  </div>
-</nav>
-
-<main>
-
-<!-- ===== TAB 1: 개요 ===== -->
-<div class="page active" id="page-overview">
-  <div class="sec-hdr">
-    <h2>인수 조건 & QA 시나리오 개요</h2>
-    <p>MVP 배포 전 충족해야 할 기능 인수 기준과 품질 검증 시나리오 전체 체계</p>
-  </div>
-
-  <div class="g3 mb">
-    <div class="card hl">
-      <h4>문서 목적</h4>
-      <p style="margin-bottom:10px;">AI 개발 도구(Lovable + Claude Code)로 구현된 결과물이 "올바르게 동작하는가"를 검증하기 위한 기준 문서. 개발자, PM, AI 도구 모두가 공통으로 참조하는 완료 조건 정의.</p>
-      <ul class="cl">
-        <li>기능이 완료되었는지 판단하는 객관적 기준</li>
-        <li>회귀 테스트 자동화 기반</li>
-        <li>이탈/오류 발생 구간 사전 식별</li>
-        <li>MVP 출시 Go/No-Go 결정 근거</li>
-      </ul>
-    </div>
-    <div class="card hl g">
-      <h4>인수 조건 작성 원칙 (Given-When-Then)</h4>
-      <div class="gwt">
-        <div class="gwt-row">
-          <div class="gwt-label gwt-given">GIVEN</div>
-          <div class="gwt-text">사전 조건 — 테스트 실행 전 시스템 상태</div>
-        </div>
-        <div class="gwt-row">
-          <div class="gwt-label gwt-when">WHEN</div>
-          <div class="gwt-text">행동 — 사용자 또는 시스템이 취하는 액션</div>
-        </div>
-        <div class="gwt-row">
-          <div class="gwt-label gwt-then">THEN</div>
-          <div class="gwt-text">결과 — 기대되는 시스템 반응 / 상태 변화</div>
-        </div>
-        <div class="gwt-row">
-          <div class="gwt-label gwt-and">AND</div>
-          <div class="gwt-text">추가 조건 또는 결과 보완</div>
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="header-left">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="badge b">인수 조건</span>
+          <span class="badge g">QA 시나리오</span>
+          <span class="badge">MVP v1.0</span>
         </div>
       </div>
-      <div class="ann blue">각 AC는 독립적으로 Pass/Fail 판정 가능해야 하며, 주관적 표현을 사용하지 않는다.</div>
+      <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
     </div>
-    <div class="card hl y">
-      <h4>QA 단계 & 책임</h4>
-      <div class="kv"><span class="kk">Level 1</span><span class="kv-v">AI 도구 자체 검증</span></div>
-      <div class="kv"><span class="kk">Level 2</span><span class="kv-v">개발자 로컬 테스트</span></div>
-      <div class="kv"><span class="kk">Level 3</span><span class="kv-v">PM 인수 테스트</span></div>
-      <div class="kv"><span class="kk">Level 4</span><span class="kv-v">베타 사용자 실사용</span></div>
-      <hr>
-      <div class="kv"><span class="kk">P0 차단 조건</span><span class="kv-v" style="color:var(--red);">배포 불가</span></div>
-      <div class="kv"><span class="kk">P1 조건 미통과</span><span class="kv-v" style="color:var(--yellow);">조건부 배포</span></div>
-      <div class="kv"><span class="kk">P2 조건 미통과</span><span class="kv-v" style="color:var(--blue);">다음 릴리즈</span></div>
-    </div>
-  </div>
+  </header>
 
-  <div class="card mb">
-    <h4>인수 조건 커버리지 맵</h4>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">기능 그룹</th>
-            <th style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">AC 수</th>
-            <th style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">P0</th>
-            <th style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">P1</th>
-            <th style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">검증 방법</th>
-            <th style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">가설 연결</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">A. 인증</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">8개</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tr">5</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag ty">3</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">브라우저 수동 + 이메일 수신 확인</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tgr">기반 인프라</span></td></tr>
-          <tr><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">B. 프로젝트</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">7개</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tr">4</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag ty">3</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">CRUD 기능 검증</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tb">H1</span></td></tr>
-          <tr><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">C. AI 판정</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">10개</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tr">7</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag ty">3</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">Claude API 실호출 + 오류 주입</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tg">H2 핵심</span></td></tr>
-          <tr><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">D. 문서 생성</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">8개</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tr">5</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag ty">3</span></td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">클립보드 붙여넣기 실확인</td><td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tg">H2 완료</span></td></tr>
-          <tr><td style="padding:9px 10px;font-weight:600;color:var(--t1);font-size:13px;">E. 대시보드</td><td style="padding:9px 10px;font-size:13px;color:var(--t3);">5개</td><td style="padding:9px 10px;font-size:13px;"><span class="tag tr">3</span></td><td style="padding:9px 10px;font-size:13px;"><span class="tag ty">2</span></td><td style="padding:9px 10px;font-size:13px;color:var(--t3);">데이터 집계 정확성 검증</td><td style="padding:9px 10px;font-size:13px;"><span class="tag tp">리텐션</span></td></tr>
-        </tbody>
-      </table>
+  <nav>
+    <div class="inner-wrap nav-content">
+      <button class="tab-btn active" data-tab="overview">📋 개요 & 원칙</button>
+      <button class="tab-btn" data-tab="auth">🔐 인증 AC</button>
+      <button class="tab-btn" data-tab="judge">⚡ 판정 AC</button>
+      <button class="tab-btn" data-tab="doc">📄 문서 AC</button>
+      <button class="tab-btn" data-tab="qa">🧪 QA 시나리오</button>
+      <button class="tab-btn" data-tab="tracker">✅ QA 트래커</button>
     </div>
-  </div>
+  </nav>
 
-  <div class="g2">
-    <div class="card">
-      <h4>Go / No-Go 기준</h4>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);">
-          <span style="font-size:18px;">🚀</span>
-          <div><div style="font-weight:700;color:var(--green);font-size:13px;">GO — 배포 가능</div><p>P0 AC 전항목 PASS + P1 AC 80% 이상 PASS</p></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--yellow) 8%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);">
-          <span style="font-size:18px;">⚠️</span>
-          <div><div style="font-weight:700;color:var(--yellow);font-size:13px;">조건부 GO</div><p>P0 전항목 PASS + P1 미통과 항목 Known Issue 등록</p></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--red) 8%,transparent);border:1px solid color-mix(in srgb,var(--red) 25%,transparent);">
-          <span style="font-size:18px;">🛑</span>
-          <div><div style="font-weight:700;color:var(--red);font-size:13px;">NO-GO — 배포 차단</div><p>P0 항목 1개 이상 FAIL 또는 BLOCKER 존재</p></div>
-        </div>
+  <main>
+
+    <!-- ===== TAB 1: 개요 ===== -->
+    <div class="page active" id="page-overview">
+      <div class="sec-hdr">
+        <h2>인수 조건 & QA 시나리오 개요</h2>
+        <p>MVP 배포 전 충족해야 할 기능 인수 기준과 품질 검증 시나리오 전체 체계</p>
       </div>
-    </div>
-    <div class="card">
-      <h4>테스트 환경 정의</h4>
-      <div class="kv"><span class="kk">환경</span><span class="kv-v">Vercel Preview + Supabase Dev</span></div>
-      <div class="kv"><span class="kk">브라우저</span><span class="kv-v">Chrome 최신, Safari 최신, 모바일 Safari</span></div>
-      <div class="kv"><span class="kk">테스트 계정</span><span class="kv-v">qa-pm@scopemanager.io</span></div>
-      <div class="kv"><span class="kk">AI API</span><span class="kv-v">Claude API 실호출 (sandbox 없음)</span></div>
-      <div class="kv"><span class="kk">데이터 리셋</span><span class="kv-v">각 시나리오 전 DB 초기화</span></div>
-      <div class="kv"><span class="kk">네트워크</span><span class="kv-v">정상 + 오프라인 시뮬레이션</span></div>
-      <hr>
-      <div class="ann">⚠ 프로덕션 DB에서 테스트 금지. 반드시 Dev 환경 사용</div>
-    </div>
-  </div>
-</div>
 
-<!-- ===== TAB 2: 인증 AC ===== -->
-<div class="page" id="page-auth">
-  <div class="sec-hdr">
-    <h2>인증 & 온보딩 인수 조건</h2>
-    <p>회원가입, 이메일 인증, 로그인, 온보딩 플로우의 완료 기준</p>
-  </div>
-
-  <!-- AC-A-01 -->
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-A-01</div>
-      <div class="ac-title">이메일 회원가입 — 정상 케이스</div>
-      <span class="pri p0">P0</span>
-      <span class="tag tg" style="margin-left:6px;">필수</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body open">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">미인증 사용자가 /signup 페이지에 접속한 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">유효한 이메일과 8자 이상(영문+숫자 포함) 비밀번호를 입력하고 "가입하기" 버튼을 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"인증 메일을 발송했습니다" 토스트 메시지가 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">입력한 이메일로 인증 링크 메일이 60초 이내 수신된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">인증 링크 클릭 시 /onboarding으로 리다이렉트되며 로그인 상태가 된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">Supabase auth.users 테이블에 신규 레코드가 생성된다</div></div>
-      </div>
-      <div class="g2">
-        <div>
-          <h4>검증 항목</h4>
+      <div class="g3 mb">
+        <div class="card hl">
+          <h4>문서 목적</h4>
+          <p style="margin-bottom:10px;">AI 개발 도구(Lovable + Claude Code)로 구현된 결과물이 "올바르게 동작하는가"를 검증하기 위한 기준 문서. 개발자, PM,
+            AI 도구 모두가 공통으로 참조하는 완료 조건 정의.</p>
           <ul class="cl">
-            <li>인증 메일 60초 내 수신</li>
-            <li>링크 클릭 후 /onboarding 이동 확인</li>
-            <li>로그인 상태 유지 (새로고침 후도)</li>
-            <li>DB 레코드 생성 확인</li>
+            <li>기능이 완료되었는지 판단하는 객관적 기준</li>
+            <li>회귀 테스트 자동화 기반</li>
+            <li>이탈/오류 발생 구간 사전 식별</li>
+            <li>MVP 출시 Go/No-Go 결정 근거</li>
           </ul>
         </div>
-        <div>
-          <h4>실패 케이스 AC</h4>
-          <ul class="cl">
-            <li class="n">이미 등록된 이메일 → "이미 사용중인 이메일" 오류</li>
-            <li class="n">비밀번호 7자 → "8자 이상 입력" 오류</li>
-            <li class="n">이메일 형식 오류 → 인라인 validation 오류</li>
-            <li class="n">영문만 비밀번호 → "숫자 포함 필요" 오류</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AC-A-02 -->
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-A-02</div>
-      <div class="ac-title">이메일 인증 — 재발송 및 만료</div>
-      <span class="pri p0">P0</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">가입 완료 후 인증 메일 대기 화면에 있는 사용자</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"재발송" 버튼을 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">새 인증 링크가 발송되고, 이전 링크는 무효화된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">재발송 버튼이 30초간 비활성화된다 (스팸 방지)</div></div>
-      </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">인증 메일 발송 후 24시간 이상 경과</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">만료된 인증 링크를 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"인증 링크가 만료되었습니다" 메시지와 재발송 버튼이 표시된다</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AC-A-03 -->
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-A-03</div>
-      <div class="ac-title">로그인 — 세션 유지 및 만료</div>
-      <span class="pri p0">P0</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">인증 완료된 사용자가 로그인한 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">브라우저 탭을 닫고 다시 열거나, 새로고침한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">재로그인 없이 /dashboard로 이동된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">세션은 마지막 활동으로부터 7일 유지된다</div></div>
-      </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">비인증 사용자</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">/dashboard URL에 직접 접근한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">/login으로 리다이렉트된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">로그인 후 원래 접근하려던 URL로 돌아간다</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AC-A-04 -->
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-A-04</div>
-      <div class="ac-title">온보딩 — 단계 진행 및 건너뛰기</div>
-      <span class="pri p0">P0</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">신규 가입 후 /onboarding에 진입한 사용자 (onboarded=false)</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">각 단계를 순서대로 완료한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">진행률 바가 단계에 맞게 업데이트된다 (1/5, 2/5 ... 5/5)</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">5단계 완료 후 /dashboard로 이동하고 profiles.onboarded=true로 업데이트된다</div></div>
-      </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">온보딩 3단계(워크스페이스 설정)에 있는 사용자</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"건너뛰기" 버튼을 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">다음 단계(4단계)로 즉시 이동한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">건너뛴 단계의 데이터는 빈값으로 저장된다 (null 허용)</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AC-A-05 -->
-  <div class="ac-block">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-A-05</div>
-      <div class="ac-title">비밀번호 재설정 플로우</div>
-      <span class="pri p1">P1</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">로그인 페이지의 "비밀번호를 잊으셨나요?" 링크를 클릭한 사용자</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">등록된 이메일을 입력하고 "재설정 메일 보내기"를 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">재설정 링크가 이메일로 발송되고, 링크 유효시간은 1시간이다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">미등록 이메일 입력 시에도 동일한 성공 메시지를 표시한다 (보안상 이메일 존재 여부 미노출)</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">1시간 후 링크 클릭 시 "만료된 링크" 오류 페이지를 표시한다</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 3: 판정 AC ===== -->
-<div class="page" id="page-judge">
-  <div class="sec-hdr">
-    <h2>AI 범위 판정 인수 조건</h2>
-    <p>핵심 기능인 AI 판정의 정상/오류/엣지 케이스 인수 기준</p>
-  </div>
-
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-C-01</div>
-      <div class="ac-title">요청 입력 — 유효성 검사</div>
-      <span class="pri p0">P0</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body open">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">판정 페이지에 접속하고 프로젝트가 1개 이상 존재하는 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">텍스트 입력란에 2000자를 초과하는 텍스트를 붙여넣는다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">2000자 초과 경고 메시지가 표시되고, "자르기" 버튼이 나타난다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">입력란 하단에 현재 글자수 / 최대 글자수(예: 2043/2000)가 실시간으로 표시된다</div></div>
-      </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">판정 페이지에서 프로젝트를 선택하지 않은 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"판정 요청" 버튼을 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"프로젝트를 선택해주세요" 오류 메시지와 함께 API가 호출되지 않는다</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-C-02</div>
-      <div class="ac-title">AI 판정 실행 — 정상 케이스 (3가지 판정)</div>
-      <span class="pri p0">P0 핵심</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body open">
-      <div class="g2" style="margin-bottom:12px;">
-        <div>
-          <h4>IN SCOPE 케이스</h4>
+        <div class="card hl g">
+          <h4>인수 조건 작성 원칙 (Given-When-Then)</h4>
           <div class="gwt">
-            <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">계약 범위에 "버튼 색상 변경"이 포함된 프로젝트 선택</div></div>
-            <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"버튼 색상을 파란색으로 바꿔주세요"를 입력하고 판정 요청</div></div>
-            <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">결과가 <strong style="color:var(--green);">IN SCOPE</strong>(초록)으로 표시되고, 판정 근거 텍스트가 1~3문장으로 표시된다</div></div>
-            <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">응답 시간이 15초를 초과하지 않는다</div></div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">사전 조건 — 테스트 실행 전 시스템 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">행동 — 사용자 또는 시스템이 취하는 액션</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">결과 — 기대되는 시스템 반응 / 상태 변화</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">추가 조건 또는 결과 보완</div>
+            </div>
           </div>
+          <div class="ann blue">각 AC는 독립적으로 Pass/Fail 판정 가능해야 하며, 주관적 표현을 사용하지 않는다.</div>
         </div>
-        <div>
-          <h4>OUT OF SCOPE 케이스</h4>
-          <div class="gwt">
-            <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">계약 범위에 "채팅 기능"이 없는 프로젝트 선택</div></div>
-            <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"실시간 채팅 기능을 추가해주세요"를 입력하고 판정 요청</div></div>
-            <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">결과가 <strong style="color:var(--red);">OUT OF SCOPE</strong>(빨간)으로 표시된다</div></div>
-            <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">"문서 생성" 버튼이 활성화된다</div></div>
+        <div class="card hl y">
+          <h4>QA 단계 & 책임</h4>
+          <div class="kv"><span class="kk">Level 1</span><span class="kv-v">AI 도구 자체 검증</span></div>
+          <div class="kv"><span class="kk">Level 2</span><span class="kv-v">개발자 로컬 테스트</span></div>
+          <div class="kv"><span class="kk">Level 3</span><span class="kv-v">PM 인수 테스트</span></div>
+          <div class="kv"><span class="kk">Level 4</span><span class="kv-v">베타 사용자 실사용</span></div>
+          <hr>
+          <div class="kv"><span class="kk">P0 차단 조건</span><span class="kv-v" style="color:var(--red);">배포 불가</span>
+          </div>
+          <div class="kv"><span class="kk">P1 조건 미통과</span><span class="kv-v" style="color:var(--yellow);">조건부 배포</span>
+          </div>
+          <div class="kv"><span class="kk">P2 조건 미통과</span><span class="kv-v" style="color:var(--blue);">다음 릴리즈</span>
           </div>
         </div>
       </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">계약 범위에 "반응형"이 명시적으로 포함/제외되지 않은 프로젝트</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"모바일에서도 잘 보이게 해주세요"를 입력하고 판정 요청</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">결과가 <strong style="color:var(--yellow);">AMBIGUOUS</strong>(노란)으로 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">"직접 판정하기" 버튼이 활성화된다</div></div>
-      </div>
-    </div>
-  </div>
 
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-C-03</div>
-      <div class="ac-title">AI 판정 — 오류 처리 (타임아웃, API 실패)</div>
-      <span class="pri p0">P0</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">네트워크 연결이 불안정한 환경 (DevTools로 느린 네트워크 시뮬레이션)</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">판정 요청 후 15초가 경과한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"응답 시간이 초과되었습니다" 메시지와 "다시 시도" 버튼이 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">입력했던 텍스트는 초기화되지 않고 유지된다</div></div>
-      </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">Claude API 키가 만료된 상태 (테스트용 잘못된 키)</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">판정 요청을 실행한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">사용자에게 기술적 오류 메시지가 아닌 "잠시 후 다시 시도해주세요" 메시지를 표시한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">오류가 Sentry에 자동 기록된다</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-C-04</div>
-      <div class="ac-title">판정 결과 수동 수정</div>
-      <span class="pri p1">P1</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">AI가 IN SCOPE로 판정했으나 PM이 실제로는 범위 초과라고 판단한 상황</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"판정 수정" 버튼을 클릭하고 OUT으로 변경 후 저장한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">판정 결과가 OUT으로 업데이트되고 "수정됨" 배지가 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">judgments 테이블의 manual_override=true로 업데이트된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">"문서 생성" 버튼이 활성화된다</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ac-block">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-C-05</div>
-      <div class="ac-title">판정 히스토리 — 목록 및 필터</div>
-      <span class="pri p1">P1</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">판정 기록이 21건 이상인 프로젝트</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">히스토리 페이지에 접속한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">최신 20건이 역순으로 표시되고 "다음 페이지" 버튼이 노출된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">OUT 필터 클릭 시 OUT 판정 결과만 필터링되어 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">판정 0건 시 "아직 판정 기록이 없습니다" 빈 상태 UI가 표시된다</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 4: 문서 AC ===== -->
-<div class="page" id="page-doc">
-  <div class="sec-hdr">
-    <h2>문서 생성 & 내보내기 인수 조건</h2>
-    <p>청구 근거 문서 자동 생성, 편집, 복사 기능의 완료 기준</p>
-  </div>
-
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-D-01</div>
-      <div class="ac-title">문서 자동 생성 — 정상 케이스</div>
-      <span class="pri p0">P0 핵심</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body open">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">OUT OF SCOPE 판정이 완료된 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"문서 생성" 버튼을 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">3초 이내에 청구 근거 문서 초안이 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">문서에 마크다운 기호(#, *, `, **)가 포함되지 않는다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">문서 내 미완성 공란([])이 없다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">프로젝트명, 클라이언트명이 문서에 정확히 반영된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">documents 테이블에 신규 레코드가 생성된다</div></div>
-      </div>
-      <div class="ann red">🔴 P0: 마크다운 기호 포함 또는 공란 [존재 시 FAIL. 카카오톡 붙여넣기 테스트 필수</div>
-    </div>
-  </div>
-
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-D-02</div>
-      <div class="ac-title">문서 편집 — 자동 저장</div>
-      <span class="pri p0">P0</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">문서 생성이 완료된 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">문서 내용을 수정하고 1초 이상 입력을 멈춘다 (debounce)</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"저장됨" 표시가 나타나고 documents.updated_at이 갱신된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">페이지 새로고침 후에도 수정된 내용이 유지된다</div></div>
-      </div>
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">견적 금액 입력 필드</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">숫자가 아닌 값(예: "만원")을 입력한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"숫자만 입력 가능합니다" 인라인 오류가 표시된다</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ac-block mb">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-D-03</div>
-      <div class="ac-title">클립보드 복사 — 핵심 인수 조건</div>
-      <span class="pri p0">P0 최핵심</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body open">
-      <div class="gwt mb">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">문서가 생성/편집 완료된 상태</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">"클립보드 복사" 버튼을 클릭한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">"복사되었습니다" 토스트가 2초간 표시된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">카카오톡 입력창에 붙여넣기 시 줄바꿈이 정상적으로 유지된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">마크다운 기호 없이 순수 텍스트로 붙여넣어진다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">documents.copy_count가 1 증가하고 copied_at 타임스탬프가 기록된다</div></div>
-      </div>
-      <div class="ann green">✅ 최종 가치 행동: 이 AC가 통과해야 Aha Moment 완료로 간주. 실제 카카오톡 붙여넣기로 반드시 수동 검증</div>
-    </div>
-  </div>
-
-  <div class="ac-block">
-    <div class="ac-head" onclick="toggleAC(this)">
-      <div class="ac-id">AC-D-04</div>
-      <div class="ac-title">청구 상태 관리</div>
-      <span class="pri p1">P1</span>
-      <div class="ac-toggle">▼</div>
-    </div>
-    <div class="ac-body">
-      <div class="gwt">
-        <div class="gwt-row"><div class="gwt-label gwt-given">GIVEN</div><div class="gwt-text">OUT 판정 후 문서가 생성된 상태 (billing_status='unbilled')</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-when">WHEN</div><div class="gwt-text">상태 드롭다운에서 "청구완료"를 선택한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-then">THEN</div><div class="gwt-text">judgments.billing_status='billed'로 업데이트된다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">대시보드의 "미청구" 카운트가 1 감소한다</div></div>
-        <div class="gwt-row"><div class="gwt-label gwt-and">AND</div><div class="gwt-text">히스토리 목록에서 해당 항목의 상태 배지가 즉시 업데이트된다</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 5: QA 시나리오 ===== -->
-<div class="page" id="page-qa">
-  <div class="sec-hdr">
-    <h2>QA 시나리오 — 통합 테스트</h2>
-    <p>사용자 여정 기반 엔드투엔드 시나리오. 각 시나리오는 독립적으로 실행 가능해야 한다.</p>
-  </div>
-
-  <!-- 시나리오 1 -->
-  <div style="margin-bottom:20px;">
-    <div class="group-hdr">
-      <span style="font-size:16px;">🎯</span>
-      <div>
-        <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-01 · Aha Moment 달성 시나리오</div>
-        <p>신규 사용자가 가입부터 첫 OUT 판정 복사까지 10분 내 완료</p>
-      </div>
-      <span class="pri p0" style="margin-left:auto;">P0 최핵심</span>
-    </div>
-    <div class="card">
-      <div class="g2" style="margin-bottom:12px;">
-        <div>
-          <h4>전제 조건</h4>
-          <ul class="cl">
-            <li>테스트 이메일 계정 준비</li>
-            <li>샘플 계약서 텍스트 준비 (300자+)</li>
-            <li>OUT 판정이 예상되는 요청 텍스트 준비</li>
-            <li>카카오톡 계정 로그인 상태</li>
-          </ul>
-        </div>
-        <div>
-          <h4>성공 기준</h4>
-          <div class="kv"><span class="kk">총 소요 시간</span><span class="kv-v" style="color:var(--green);">10분 이내</span></div>
-          <div class="kv"><span class="kk">이탈 없이 완주</span><span class="kv-v" style="color:var(--green);">가능</span></div>
-          <div class="kv"><span class="kk">카카오톡 붙여넣기</span><span class="kv-v" style="color:var(--green);">정상</span></div>
-          <div class="kv"><span class="kk">PostHog 이벤트</span><span class="kv-v">5개 이상 수집</span></div>
+      <div class="card mb">
+        <h4>인수 조건 커버리지 맵</h4>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th
+                  style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">
+                  기능 그룹</th>
+                <th
+                  style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">
+                  AC 수</th>
+                <th
+                  style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">
+                  P0</th>
+                <th
+                  style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">
+                  P1</th>
+                <th
+                  style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">
+                  검증 방법</th>
+                <th
+                  style="text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--bd);">
+                  가설 연결</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td
+                  style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">
+                  A. 인증</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">8개</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag tr">5</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag ty">3</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">브라우저 수동 +
+                  이메일 수신 확인</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tgr">기반
+                    인프라</span></td>
+              </tr>
+              <tr>
+                <td
+                  style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">
+                  B. 프로젝트</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">7개</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag tr">4</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag ty">3</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">CRUD 기능
+                  검증</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag tb">H1</span></td>
+              </tr>
+              <tr>
+                <td
+                  style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">
+                  C. AI 판정</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">10개</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag tr">7</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag ty">3</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">Claude
+                  API 실호출 + 오류 주입</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tg">H2
+                    핵심</span></td>
+              </tr>
+              <tr>
+                <td
+                  style="padding:9px 10px;border-bottom:1px solid var(--bd);font-weight:600;color:var(--t1);font-size:13px;">
+                  D. 문서 생성</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">8개</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag tr">5</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span
+                    class="tag ty">3</span></td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);">클립보드 붙여넣기
+                  실확인</td>
+                <td style="padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;"><span class="tag tg">H2
+                    완료</span></td>
+              </tr>
+              <tr>
+                <td style="padding:9px 10px;font-weight:600;color:var(--t1);font-size:13px;">E. 대시보드</td>
+                <td style="padding:9px 10px;font-size:13px;color:var(--t3);">5개</td>
+                <td style="padding:9px 10px;font-size:13px;"><span class="tag tr">3</span></td>
+                <td style="padding:9px 10px;font-size:13px;"><span class="tag ty">2</span></td>
+                <td style="padding:9px 10px;font-size:13px;color:var(--t3);">데이터 집계 정확성 검증</td>
+                <td style="padding:9px 10px;font-size:13px;"><span class="tag tp">리텐션</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <h4>테스트 단계</h4>
-      <div class="steps">
-        <div class="step">이메일 회원가입 폼 진입 → 유효한 이메일/비밀번호 입력 → "가입하기" 클릭</div>
-        <div class="step">이메일 수신함 확인 (60초 내) → 인증 링크 클릭 → /onboarding 리다이렉트 확인</div>
-        <div class="step">온보딩 1단계: 에이전시명 입력 → 다음. 2단계: 담당자명 → 다음. 건너뛰기 없이 전체 완료</div>
-        <div class="step">온보딩 4단계: 프로젝트 생성 → "ABC 쇼핑몰 리뉴얼" / "ABC 주식회사" 입력</div>
-        <div class="step">온보딩 5단계: 샘플 계약서 텍스트 붙여넣기 → "AI 분석 시작" 클릭 → 파싱 결과 확인</div>
-        <div class="step">판정 페이지 진입 → 프로젝트 선택 → "동영상 배너와 실시간 채팅 기능을 추가해주세요" 입력</div>
-        <div class="step">"판정 요청" 클릭 → 로딩 상태 확인 → <strong style="color:var(--red);">OUT OF SCOPE 결과 및 빨간 배지 표시 확인</strong></div>
-        <div class="step">"문서 생성" 클릭 → 3초 내 초안 생성 확인 → 마크다운 기호 없음 확인</div>
-        <div class="step">"클립보드 복사" 클릭 → 토스트 확인 → 카카오톡에 실제 붙여넣기 → 줄바꿈 정상 확인</div>
-        <div class="step">PostHog에서 aha_moment_reached, document_copied 이벤트 수집 확인</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 시나리오 2 -->
-  <div style="margin-bottom:20px;">
-    <div class="group-hdr">
-      <span style="font-size:16px;">🔒</span>
-      <div>
-        <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-02 · 데이터 격리 (보안) 시나리오</div>
-        <p>사용자 A의 데이터가 사용자 B에게 절대 노출되지 않음을 검증</p>
-      </div>
-      <span class="pri p0" style="margin-left:auto;">P0 보안</span>
-    </div>
-    <div class="card">
-      <div class="steps">
-        <div class="step">사용자 A (qa-a@test.com) 로그인 → 프로젝트 "A의 프로젝트" 생성 → 판정 3건 실행</div>
-        <div class="step">사용자 A의 프로젝트 UUID 기록 (예: proj_abc123)</div>
-        <div class="step">사용자 B (qa-b@test.com) 로그인</div>
-        <div class="step">브라우저 주소창에 /project/proj_abc123 직접 입력</div>
-        <div class="step">결과: 404 페이지 또는 "접근 권한이 없습니다" 표시 확인 (사용자 A 데이터 미노출)</div>
-        <div class="step">사용자 B의 판정 히스토리에 사용자 A의 기록이 없음을 확인</div>
-        <div class="step">Supabase 로그에서 RLS 차단 로그 확인</div>
-      </div>
-      <div class="ann red" style="margin-top:10px;">🔴 이 시나리오가 FAIL이면 배포 절대 불가. 개인정보보호법 위반 가능성</div>
-    </div>
-  </div>
-
-  <!-- 시나리오 3 -->
-  <div style="margin-bottom:20px;">
-    <div class="group-hdr">
-      <span style="font-size:16px;">💥</span>
-      <div>
-        <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-03 · 오류 상황 복구 시나리오</div>
-        <p>AI API 실패, 네트워크 오류 시 사용자 경험 저하 없이 복구</p>
-      </div>
-      <span class="pri p0" style="margin-left:auto;">P0</span>
-    </div>
-    <div class="card">
-      <div class="steps">
-        <div class="step">Chrome DevTools 열기 → Network 탭 → Offline 모드 활성화</div>
-        <div class="step">판정 요청 클릭 → "네트워크 연결을 확인해주세요" 배너 표시 확인 (기술 오류 메시지 아닌지 확인)</div>
-        <div class="step">입력했던 요청 텍스트가 초기화되지 않고 유지되는지 확인</div>
-        <div class="step">Offline 해제 → "다시 시도" 버튼 클릭 → 정상 판정 완료 확인</div>
-        <div class="step">DevTools Network에서 판정 API 요청을 중단(Block) → 15초 후 타임아웃 메시지 확인</div>
-        <div class="step">Sentry 대시보드에서 오류 이벤트 자동 기록 확인</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 시나리오 4 -->
-  <div style="margin-bottom:20px;">
-    <div class="group-hdr">
-      <span style="font-size:16px;">📱</span>
-      <div>
-        <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-04 · 모바일 반응형 시나리오</div>
-        <p>iPhone SE (375px) 기준 핵심 플로우 동작 검증</p>
-      </div>
-      <span class="pri p1" style="margin-left:auto;">P1</span>
-    </div>
-    <div class="card">
-      <div class="steps">
-        <div class="step">Chrome DevTools → iPhone SE (375×667) 크기로 설정</div>
-        <div class="step">로그인 → 폼 필드, 버튼이 가로 스크롤 없이 표시되는지 확인</div>
-        <div class="step">판정 페이지 → 텍스트 입력란이 터치 키보드와 겹치지 않는지 확인</div>
-        <div class="step">판정 결과 카드가 1열로 정렬되는지 확인</div>
-        <div class="step">문서 복사 버튼이 손가락으로 탭하기 충분한 크기(44px+)인지 확인</div>
-        <div class="step">실제 iPhone Safari에서 동일 플로우 재실행 (에뮬레이션과 차이 확인)</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 시나리오 5 -->
-  <div>
-    <div class="group-hdr">
-      <span style="font-size:16px;">🔄</span>
-      <div>
-        <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-05 · 회귀 테스트 시나리오 (배포 후 매번 실행)</div>
-        <p>신규 배포 시마다 실행하는 핵심 스모크 테스트</p>
-      </div>
-      <span class="pri p0" style="margin-left:auto;">P0 반복</span>
-    </div>
-    <div class="card">
       <div class="g2">
-        <div>
-          <h4>5분 스모크 테스트 체크리스트</h4>
-          <ul class="cl">
-            <li>로그인 → 대시보드 진입 정상</li>
-            <li>프로젝트 목록 정상 로드</li>
-            <li>판정 페이지 진입 → 텍스트 입력 가능</li>
-            <li>판정 요청 → 결과 수신 (IN/OUT 중 하나)</li>
-            <li>문서 생성 → 초안 표시</li>
-            <li>클립보드 복사 → 토스트 표시</li>
-            <li>로그아웃 → 로그인 페이지 이동</li>
-          </ul>
+        <div class="card">
+          <h4>Go / No-Go 기준</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <div
+              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);">
+              <span style="font-size:18px;">🚀</span>
+              <div>
+                <div style="font-weight:700;color:var(--green);font-size:13px;">GO — 배포 가능</div>
+                <p>P0 AC 전항목 PASS + P1 AC 80% 이상 PASS</p>
+              </div>
+            </div>
+            <div
+              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--yellow) 8%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);">
+              <span style="font-size:18px;">⚠️</span>
+              <div>
+                <div style="font-weight:700;color:var(--yellow);font-size:13px;">조건부 GO</div>
+                <p>P0 전항목 PASS + P1 미통과 항목 Known Issue 등록</p>
+              </div>
+            </div>
+            <div
+              style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--red) 8%,transparent);border:1px solid color-mix(in srgb,var(--red) 25%,transparent);">
+              <span style="font-size:18px;">🛑</span>
+              <div>
+                <div style="font-weight:700;color:var(--red);font-size:13px;">NO-GO — 배포 차단</div>
+                <p>P0 항목 1개 이상 FAIL 또는 BLOCKER 존재</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <h4>회귀 테스트 실패 시 프로세스</h4>
+        <div class="card">
+          <h4>테스트 환경 정의</h4>
+          <div class="kv"><span class="kk">환경</span><span class="kv-v">Vercel Preview + Supabase Dev</span></div>
+          <div class="kv"><span class="kk">브라우저</span><span class="kv-v">Chrome 최신, Safari 최신, 모바일 Safari</span></div>
+          <div class="kv"><span class="kk">테스트 계정</span><span class="kv-v">qa-pm@scopemanager.io</span></div>
+          <div class="kv"><span class="kk">AI API</span><span class="kv-v">Claude API 실호출 (sandbox 없음)</span></div>
+          <div class="kv"><span class="kk">데이터 리셋</span><span class="kv-v">각 시나리오 전 DB 초기화</span></div>
+          <div class="kv"><span class="kk">네트워크</span><span class="kv-v">정상 + 오프라인 시뮬레이션</span></div>
+          <hr>
+          <div class="ann">⚠ 프로덕션 DB에서 테스트 금지. 반드시 Dev 환경 사용</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: 인증 AC ===== -->
+    <div class="page" id="page-auth">
+      <div class="sec-hdr">
+        <h2>인증 & 온보딩 인수 조건</h2>
+        <p>회원가입, 이메일 인증, 로그인, 온보딩 플로우의 완료 기준</p>
+      </div>
+
+      <!-- AC-A-01 -->
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-A-01</div>
+          <div class="ac-title">이메일 회원가입 — 정상 케이스</div>
+          <span class="pri p0">P0</span>
+          <span class="tag tg" style="margin-left:6px;">필수</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body open">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">미인증 사용자가 /signup 페이지에 접속한 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">유효한 이메일과 8자 이상(영문+숫자 포함) 비밀번호를 입력하고 "가입하기" 버튼을 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"인증 메일을 발송했습니다" 토스트 메시지가 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">입력한 이메일로 인증 링크 메일이 60초 이내 수신된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">인증 링크 클릭 시 /onboarding으로 리다이렉트되며 로그인 상태가 된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">Supabase auth.users 테이블에 신규 레코드가 생성된다</div>
+            </div>
+          </div>
+          <div class="g2">
+            <div>
+              <h4>검증 항목</h4>
+              <ul class="cl">
+                <li>인증 메일 60초 내 수신</li>
+                <li>링크 클릭 후 /onboarding 이동 확인</li>
+                <li>로그인 상태 유지 (새로고침 후도)</li>
+                <li>DB 레코드 생성 확인</li>
+              </ul>
+            </div>
+            <div>
+              <h4>실패 케이스 AC</h4>
+              <ul class="cl">
+                <li class="n">이미 등록된 이메일 → "이미 사용중인 이메일" 오류</li>
+                <li class="n">비밀번호 7자 → "8자 이상 입력" 오류</li>
+                <li class="n">이메일 형식 오류 → 인라인 validation 오류</li>
+                <li class="n">영문만 비밀번호 → "숫자 포함 필요" 오류</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AC-A-02 -->
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-A-02</div>
+          <div class="ac-title">이메일 인증 — 재발송 및 만료</div>
+          <span class="pri p0">P0</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">가입 완료 후 인증 메일 대기 화면에 있는 사용자</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"재발송" 버튼을 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">새 인증 링크가 발송되고, 이전 링크는 무효화된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">재발송 버튼이 30초간 비활성화된다 (스팸 방지)</div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">인증 메일 발송 후 24시간 이상 경과</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">만료된 인증 링크를 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"인증 링크가 만료되었습니다" 메시지와 재발송 버튼이 표시된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AC-A-03 -->
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-A-03</div>
+          <div class="ac-title">로그인 — 세션 유지 및 만료</div>
+          <span class="pri p0">P0</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">인증 완료된 사용자가 로그인한 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">브라우저 탭을 닫고 다시 열거나, 새로고침한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">재로그인 없이 /dashboard로 이동된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">세션은 마지막 활동으로부터 7일 유지된다</div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">비인증 사용자</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">/dashboard URL에 직접 접근한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">/login으로 리다이렉트된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">로그인 후 원래 접근하려던 URL로 돌아간다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AC-A-04 -->
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-A-04</div>
+          <div class="ac-title">온보딩 — 단계 진행 및 건너뛰기</div>
+          <span class="pri p0">P0</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">신규 가입 후 /onboarding에 진입한 사용자 (onboarded=false)</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">각 단계를 순서대로 완료한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">진행률 바가 단계에 맞게 업데이트된다 (1/5, 2/5 ... 5/5)</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">5단계 완료 후 /dashboard로 이동하고 profiles.onboarded=true로 업데이트된다</div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">온보딩 3단계(워크스페이스 설정)에 있는 사용자</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"건너뛰기" 버튼을 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">다음 단계(4단계)로 즉시 이동한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">건너뛴 단계의 데이터는 빈값으로 저장된다 (null 허용)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AC-A-05 -->
+      <div class="ac-block">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-A-05</div>
+          <div class="ac-title">비밀번호 재설정 플로우</div>
+          <span class="pri p1">P1</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">로그인 페이지의 "비밀번호를 잊으셨나요?" 링크를 클릭한 사용자</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">등록된 이메일을 입력하고 "재설정 메일 보내기"를 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">재설정 링크가 이메일로 발송되고, 링크 유효시간은 1시간이다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">미등록 이메일 입력 시에도 동일한 성공 메시지를 표시한다 (보안상 이메일 존재 여부 미노출)</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">1시간 후 링크 클릭 시 "만료된 링크" 오류 페이지를 표시한다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: 판정 AC ===== -->
+    <div class="page" id="page-judge">
+      <div class="sec-hdr">
+        <h2>AI 범위 판정 인수 조건</h2>
+        <p>핵심 기능인 AI 판정의 정상/오류/엣지 케이스 인수 기준</p>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-C-01</div>
+          <div class="ac-title">요청 입력 — 유효성 검사</div>
+          <span class="pri p0">P0</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body open">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">판정 페이지에 접속하고 프로젝트가 1개 이상 존재하는 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">텍스트 입력란에 2000자를 초과하는 텍스트를 붙여넣는다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">2000자 초과 경고 메시지가 표시되고, "자르기" 버튼이 나타난다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">입력란 하단에 현재 글자수 / 최대 글자수(예: 2043/2000)가 실시간으로 표시된다</div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">판정 페이지에서 프로젝트를 선택하지 않은 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"판정 요청" 버튼을 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"프로젝트를 선택해주세요" 오류 메시지와 함께 API가 호출되지 않는다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-C-02</div>
+          <div class="ac-title">AI 판정 실행 — 정상 케이스 (3가지 판정)</div>
+          <span class="pri p0">P0 핵심</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body open">
+          <div class="g2" style="margin-bottom:12px;">
+            <div>
+              <h4>IN SCOPE 케이스</h4>
+              <div class="gwt">
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-given">GIVEN</div>
+                  <div class="gwt-text">계약 범위에 "버튼 색상 변경"이 포함된 프로젝트 선택</div>
+                </div>
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-when">WHEN</div>
+                  <div class="gwt-text">"버튼 색상을 파란색으로 바꿔주세요"를 입력하고 판정 요청</div>
+                </div>
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-then">THEN</div>
+                  <div class="gwt-text">결과가 <strong style="color:var(--green);">IN SCOPE</strong>(초록)으로 표시되고, 판정 근거 텍스트가
+                    1~3문장으로 표시된다</div>
+                </div>
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-and">AND</div>
+                  <div class="gwt-text">응답 시간이 15초를 초과하지 않는다</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4>OUT OF SCOPE 케이스</h4>
+              <div class="gwt">
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-given">GIVEN</div>
+                  <div class="gwt-text">계약 범위에 "채팅 기능"이 없는 프로젝트 선택</div>
+                </div>
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-when">WHEN</div>
+                  <div class="gwt-text">"실시간 채팅 기능을 추가해주세요"를 입력하고 판정 요청</div>
+                </div>
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-then">THEN</div>
+                  <div class="gwt-text">결과가 <strong style="color:var(--red);">OUT OF SCOPE</strong>(빨간)으로 표시된다</div>
+                </div>
+                <div class="gwt-row">
+                  <div class="gwt-label gwt-and">AND</div>
+                  <div class="gwt-text">"문서 생성" 버튼이 활성화된다</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">계약 범위에 "반응형"이 명시적으로 포함/제외되지 않은 프로젝트</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"모바일에서도 잘 보이게 해주세요"를 입력하고 판정 요청</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">결과가 <strong style="color:var(--yellow);">AMBIGUOUS</strong>(노란)으로 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">"직접 판정하기" 버튼이 활성화된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-C-03</div>
+          <div class="ac-title">AI 판정 — 오류 처리 (타임아웃, API 실패)</div>
+          <span class="pri p0">P0</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">네트워크 연결이 불안정한 환경 (DevTools로 느린 네트워크 시뮬레이션)</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">판정 요청 후 15초가 경과한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"응답 시간이 초과되었습니다" 메시지와 "다시 시도" 버튼이 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">입력했던 텍스트는 초기화되지 않고 유지된다</div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">Claude API 키가 만료된 상태 (테스트용 잘못된 키)</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">판정 요청을 실행한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">사용자에게 기술적 오류 메시지가 아닌 "잠시 후 다시 시도해주세요" 메시지를 표시한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">오류가 Sentry에 자동 기록된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-C-04</div>
+          <div class="ac-title">판정 결과 수동 수정</div>
+          <span class="pri p1">P1</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">AI가 IN SCOPE로 판정했으나 PM이 실제로는 범위 초과라고 판단한 상황</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"판정 수정" 버튼을 클릭하고 OUT으로 변경 후 저장한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">판정 결과가 OUT으로 업데이트되고 "수정됨" 배지가 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">judgments 테이블의 manual_override=true로 업데이트된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">"문서 생성" 버튼이 활성화된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-C-05</div>
+          <div class="ac-title">판정 히스토리 — 목록 및 필터</div>
+          <span class="pri p1">P1</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">판정 기록이 21건 이상인 프로젝트</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">히스토리 페이지에 접속한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">최신 20건이 역순으로 표시되고 "다음 페이지" 버튼이 노출된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">OUT 필터 클릭 시 OUT 판정 결과만 필터링되어 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">판정 0건 시 "아직 판정 기록이 없습니다" 빈 상태 UI가 표시된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: 문서 AC ===== -->
+    <div class="page" id="page-doc">
+      <div class="sec-hdr">
+        <h2>문서 생성 & 내보내기 인수 조건</h2>
+        <p>청구 근거 문서 자동 생성, 편집, 복사 기능의 완료 기준</p>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-D-01</div>
+          <div class="ac-title">문서 자동 생성 — 정상 케이스</div>
+          <span class="pri p0">P0 핵심</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body open">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">OUT OF SCOPE 판정이 완료된 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"문서 생성" 버튼을 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">3초 이내에 청구 근거 문서 초안이 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">문서에 마크다운 기호(#, *, `, **)가 포함되지 않는다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">문서 내 미완성 공란([])이 없다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">프로젝트명, 클라이언트명이 문서에 정확히 반영된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">documents 테이블에 신규 레코드가 생성된다</div>
+            </div>
+          </div>
+          <div class="ann red">🔴 P0: 마크다운 기호 포함 또는 공란 [존재 시 FAIL. 카카오톡 붙여넣기 테스트 필수</div>
+        </div>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-D-02</div>
+          <div class="ac-title">문서 편집 — 자동 저장</div>
+          <span class="pri p0">P0</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">문서 생성이 완료된 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">문서 내용을 수정하고 1초 이상 입력을 멈춘다 (debounce)</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"저장됨" 표시가 나타나고 documents.updated_at이 갱신된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">페이지 새로고침 후에도 수정된 내용이 유지된다</div>
+            </div>
+          </div>
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">견적 금액 입력 필드</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">숫자가 아닌 값(예: "만원")을 입력한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"숫자만 입력 가능합니다" 인라인 오류가 표시된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-block mb">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-D-03</div>
+          <div class="ac-title">클립보드 복사 — 핵심 인수 조건</div>
+          <span class="pri p0">P0 최핵심</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body open">
+          <div class="gwt mb">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">문서가 생성/편집 완료된 상태</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">"클립보드 복사" 버튼을 클릭한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">"복사되었습니다" 토스트가 2초간 표시된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">카카오톡 입력창에 붙여넣기 시 줄바꿈이 정상적으로 유지된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">마크다운 기호 없이 순수 텍스트로 붙여넣어진다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">documents.copy_count가 1 증가하고 copied_at 타임스탬프가 기록된다</div>
+            </div>
+          </div>
+          <div class="ann green">✅ 최종 가치 행동: 이 AC가 통과해야 Aha Moment 완료로 간주. 실제 카카오톡 붙여넣기로 반드시 수동 검증</div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-head" onclick="toggleAC(this)">
+          <div class="ac-id">AC-D-04</div>
+          <div class="ac-title">청구 상태 관리</div>
+          <span class="pri p1">P1</span>
+          <div class="ac-toggle">▼</div>
+        </div>
+        <div class="ac-body">
+          <div class="gwt">
+            <div class="gwt-row">
+              <div class="gwt-label gwt-given">GIVEN</div>
+              <div class="gwt-text">OUT 판정 후 문서가 생성된 상태 (billing_status='unbilled')</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-when">WHEN</div>
+              <div class="gwt-text">상태 드롭다운에서 "청구완료"를 선택한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-then">THEN</div>
+              <div class="gwt-text">judgments.billing_status='billed'로 업데이트된다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">대시보드의 "미청구" 카운트가 1 감소한다</div>
+            </div>
+            <div class="gwt-row">
+              <div class="gwt-label gwt-and">AND</div>
+              <div class="gwt-text">히스토리 목록에서 해당 항목의 상태 배지가 즉시 업데이트된다</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 5: QA 시나리오 ===== -->
+    <div class="page" id="page-qa">
+      <div class="sec-hdr">
+        <h2>QA 시나리오 — 통합 테스트</h2>
+        <p>사용자 여정 기반 엔드투엔드 시나리오. 각 시나리오는 독립적으로 실행 가능해야 한다.</p>
+      </div>
+
+      <!-- 시나리오 1 -->
+      <div style="margin-bottom:20px;">
+        <div class="group-hdr">
+          <span style="font-size:16px;">🎯</span>
+          <div>
+            <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-01 · Aha Moment 달성 시나리오</div>
+            <p>신규 사용자가 가입부터 첫 OUT 판정 복사까지 10분 내 완료</p>
+          </div>
+          <span class="pri p0" style="margin-left:auto;">P0 최핵심</span>
+        </div>
+        <div class="card">
+          <div class="g2" style="margin-bottom:12px;">
+            <div>
+              <h4>전제 조건</h4>
+              <ul class="cl">
+                <li>테스트 이메일 계정 준비</li>
+                <li>샘플 계약서 텍스트 준비 (300자+)</li>
+                <li>OUT 판정이 예상되는 요청 텍스트 준비</li>
+                <li>카카오톡 계정 로그인 상태</li>
+              </ul>
+            </div>
+            <div>
+              <h4>성공 기준</h4>
+              <div class="kv"><span class="kk">총 소요 시간</span><span class="kv-v" style="color:var(--green);">10분
+                  이내</span></div>
+              <div class="kv"><span class="kk">이탈 없이 완주</span><span class="kv-v" style="color:var(--green);">가능</span>
+              </div>
+              <div class="kv"><span class="kk">카카오톡 붙여넣기</span><span class="kv-v" style="color:var(--green);">정상</span>
+              </div>
+              <div class="kv"><span class="kk">PostHog 이벤트</span><span class="kv-v">5개 이상 수집</span></div>
+            </div>
+          </div>
+          <h4>테스트 단계</h4>
           <div class="steps">
-            <div class="step">실패 항목 즉시 Slack #qa-alerts에 보고</div>
-            <div class="step">배포 롤백 여부 PM 판단 (P0 실패 시 즉시 롤백)</div>
-            <div class="step">원인 파악 → 핫픽스 → 재배포 전 전체 스모크 재실행</div>
+            <div class="step">이메일 회원가입 폼 진입 → 유효한 이메일/비밀번호 입력 → "가입하기" 클릭</div>
+            <div class="step">이메일 수신함 확인 (60초 내) → 인증 링크 클릭 → /onboarding 리다이렉트 확인</div>
+            <div class="step">온보딩 1단계: 에이전시명 입력 → 다음. 2단계: 담당자명 → 다음. 건너뛰기 없이 전체 완료</div>
+            <div class="step">온보딩 4단계: 프로젝트 생성 → "ABC 쇼핑몰 리뉴얼" / "ABC 주식회사" 입력</div>
+            <div class="step">온보딩 5단계: 샘플 계약서 텍스트 붙여넣기 → "AI 분석 시작" 클릭 → 파싱 결과 확인</div>
+            <div class="step">판정 페이지 진입 → 프로젝트 선택 → "동영상 배너와 실시간 채팅 기능을 추가해주세요" 입력</div>
+            <div class="step">"판정 요청" 클릭 → 로딩 상태 확인 → <strong style="color:var(--red);">OUT OF SCOPE 결과 및 빨간 배지 표시
+                확인</strong></div>
+            <div class="step">"문서 생성" 클릭 → 3초 내 초안 생성 확인 → 마크다운 기호 없음 확인</div>
+            <div class="step">"클립보드 복사" 클릭 → 토스트 확인 → 카카오톡에 실제 붙여넣기 → 줄바꿈 정상 확인</div>
+            <div class="step">PostHog에서 aha_moment_reached, document_copied 이벤트 수집 확인</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 시나리오 2 -->
+      <div style="margin-bottom:20px;">
+        <div class="group-hdr">
+          <span style="font-size:16px;">🔒</span>
+          <div>
+            <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-02 · 데이터 격리 (보안) 시나리오</div>
+            <p>사용자 A의 데이터가 사용자 B에게 절대 노출되지 않음을 검증</p>
+          </div>
+          <span class="pri p0" style="margin-left:auto;">P0 보안</span>
+        </div>
+        <div class="card">
+          <div class="steps">
+            <div class="step">사용자 A (qa-a@test.com) 로그인 → 프로젝트 "A의 프로젝트" 생성 → 판정 3건 실행</div>
+            <div class="step">사용자 A의 프로젝트 UUID 기록 (예: proj_abc123)</div>
+            <div class="step">사용자 B (qa-b@test.com) 로그인</div>
+            <div class="step">브라우저 주소창에 /project/proj_abc123 직접 입력</div>
+            <div class="step">결과: 404 페이지 또는 "접근 권한이 없습니다" 표시 확인 (사용자 A 데이터 미노출)</div>
+            <div class="step">사용자 B의 판정 히스토리에 사용자 A의 기록이 없음을 확인</div>
+            <div class="step">Supabase 로그에서 RLS 차단 로그 확인</div>
+          </div>
+          <div class="ann red" style="margin-top:10px;">🔴 이 시나리오가 FAIL이면 배포 절대 불가. 개인정보보호법 위반 가능성</div>
+        </div>
+      </div>
+
+      <!-- 시나리오 3 -->
+      <div style="margin-bottom:20px;">
+        <div class="group-hdr">
+          <span style="font-size:16px;">💥</span>
+          <div>
+            <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-03 · 오류 상황 복구 시나리오</div>
+            <p>AI API 실패, 네트워크 오류 시 사용자 경험 저하 없이 복구</p>
+          </div>
+          <span class="pri p0" style="margin-left:auto;">P0</span>
+        </div>
+        <div class="card">
+          <div class="steps">
+            <div class="step">Chrome DevTools 열기 → Network 탭 → Offline 모드 활성화</div>
+            <div class="step">판정 요청 클릭 → "네트워크 연결을 확인해주세요" 배너 표시 확인 (기술 오류 메시지 아닌지 확인)</div>
+            <div class="step">입력했던 요청 텍스트가 초기화되지 않고 유지되는지 확인</div>
+            <div class="step">Offline 해제 → "다시 시도" 버튼 클릭 → 정상 판정 완료 확인</div>
+            <div class="step">DevTools Network에서 판정 API 요청을 중단(Block) → 15초 후 타임아웃 메시지 확인</div>
+            <div class="step">Sentry 대시보드에서 오류 이벤트 자동 기록 확인</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 시나리오 4 -->
+      <div style="margin-bottom:20px;">
+        <div class="group-hdr">
+          <span style="font-size:16px;">📱</span>
+          <div>
+            <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-04 · 모바일 반응형 시나리오</div>
+            <p>iPhone SE (375px) 기준 핵심 플로우 동작 검증</p>
+          </div>
+          <span class="pri p1" style="margin-left:auto;">P1</span>
+        </div>
+        <div class="card">
+          <div class="steps">
+            <div class="step">Chrome DevTools → iPhone SE (375×667) 크기로 설정</div>
+            <div class="step">로그인 → 폼 필드, 버튼이 가로 스크롤 없이 표시되는지 확인</div>
+            <div class="step">판정 페이지 → 텍스트 입력란이 터치 키보드와 겹치지 않는지 확인</div>
+            <div class="step">판정 결과 카드가 1열로 정렬되는지 확인</div>
+            <div class="step">문서 복사 버튼이 손가락으로 탭하기 충분한 크기(44px+)인지 확인</div>
+            <div class="step">실제 iPhone Safari에서 동일 플로우 재실행 (에뮬레이션과 차이 확인)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 시나리오 5 -->
+      <div>
+        <div class="group-hdr">
+          <span style="font-size:16px;">🔄</span>
+          <div>
+            <div style="font-weight:700;color:var(--t1);font-size:14px;">QA-S-05 · 회귀 테스트 시나리오 (배포 후 매번 실행)</div>
+            <p>신규 배포 시마다 실행하는 핵심 스모크 테스트</p>
+          </div>
+          <span class="pri p0" style="margin-left:auto;">P0 반복</span>
+        </div>
+        <div class="card">
+          <div class="g2">
+            <div>
+              <h4>5분 스모크 테스트 체크리스트</h4>
+              <ul class="cl">
+                <li>로그인 → 대시보드 진입 정상</li>
+                <li>프로젝트 목록 정상 로드</li>
+                <li>판정 페이지 진입 → 텍스트 입력 가능</li>
+                <li>판정 요청 → 결과 수신 (IN/OUT 중 하나)</li>
+                <li>문서 생성 → 초안 표시</li>
+                <li>클립보드 복사 → 토스트 표시</li>
+                <li>로그아웃 → 로그인 페이지 이동</li>
+              </ul>
+            </div>
+            <div>
+              <h4>회귀 테스트 실패 시 프로세스</h4>
+              <div class="steps">
+                <div class="step">실패 항목 즉시 Slack #qa-alerts에 보고</div>
+                <div class="step">배포 롤백 여부 PM 판단 (P0 실패 시 즉시 롤백)</div>
+                <div class="step">원인 파악 → 핫픽스 → 재배포 전 전체 스모크 재실행</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ===== TAB 6: QA 트래커 ===== -->
-<div class="page" id="page-tracker">
-  <div class="sec-hdr">
-    <h2>QA 진행 상황 트래커</h2>
-    <p>클릭으로 상태를 변경하며 실시간 QA 진행 현황을 추적 (새로고침 시 초기화)</p>
-  </div>
+    <!-- ===== TAB 6: QA 트래커 ===== -->
+    <div class="page" id="page-tracker">
+      <div class="sec-hdr">
+        <h2>QA 진행 상황 트래커</h2>
+        <p>클릭으로 상태를 변경하며 실시간 QA 진행 현황을 추적 (새로고침 시 초기화)</p>
+      </div>
 
-  <div class="g3 mb" id="tracker-summary">
-    <div class="card" style="text-align:center;">
-      <div class="stat-val" id="cnt-total">0</div>
-      <div class="stat-label">전체 항목</div>
+      <div class="g3 mb" id="tracker-summary">
+        <div class="card" style="text-align:center;">
+          <div class="stat-val" id="cnt-total">0</div>
+          <div class="stat-label">전체 항목</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="stat-val" style="color:var(--green);" id="cnt-pass">0</div>
+          <div class="stat-label">✅ PASS</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="stat-val" style="color:var(--red);" id="cnt-fail">0</div>
+          <div class="stat-label">❌ FAIL / 🟣 BLOCK</div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="card mb" style="padding:14px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;font-weight:600;color:var(--t3);">전체 진행률</span>
+          <span style="font-size:12px;font-weight:700;color:var(--t1);" id="progress-pct">0%</span>
+        </div>
+        <div style="background:var(--bd);height:8px;border-radius:4px;overflow:hidden;">
+          <div id="progress-bar"
+            style="background:var(--green);height:8px;width:0%;border-radius:4px;transition:width .3s;"></div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="status s-todo">⬜ TODO</span>
+          <span class="status s-pass">✅ PASS</span>
+          <span class="status s-fail">❌ FAIL</span>
+          <span class="status s-block">🟣 BLOCKER</span>
+          <span style="font-size:12px;color:var(--t3);margin-left:auto;align-self:center;">클릭으로 상태 변경</span>
+        </div>
+      </div>
+
+      <!-- TRACKER TABLE -->
+      <div class="card" id="tracker-list">
+        <!-- 동적으로 생성 -->
+      </div>
     </div>
-    <div class="card" style="text-align:center;">
-      <div class="stat-val" style="color:var(--green);" id="cnt-pass">0</div>
-      <div class="stat-label">✅ PASS</div>
-    </div>
-    <div class="card" style="text-align:center;">
-      <div class="stat-val" style="color:var(--red);" id="cnt-fail">0</div>
-      <div class="stat-label">❌ FAIL / 🟣 BLOCK</div>
-    </div>
-  </div>
 
-  <!-- Progress bar -->
-  <div class="card mb" style="padding:14px 18px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-size:12px;font-weight:600;color:var(--t3);">전체 진행률</span>
-      <span style="font-size:12px;font-weight:700;color:var(--t1);" id="progress-pct">0%</span>
-    </div>
-    <div style="background:var(--bd);height:8px;border-radius:4px;overflow:hidden;">
-      <div id="progress-bar" style="background:var(--green);height:8px;width:0%;border-radius:4px;transition:width .3s;"></div>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-      <span class="status s-todo">⬜ TODO</span>
-      <span class="status s-pass">✅ PASS</span>
-      <span class="status s-fail">❌ FAIL</span>
-      <span class="status s-block">🟣 BLOCKER</span>
-      <span style="font-size:12px;color:var(--t3);margin-left:auto;align-self:center;">클릭으로 상태 변경</span>
-    </div>
-  </div>
+  </main>
 
-  <!-- TRACKER TABLE -->
-  <div class="card" id="tracker-list">
-    <!-- 동적으로 생성 -->
-  </div>
-</div>
+  <script>
+    // THEME
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+    });
 
-</main>
+    // TABS
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('page-' + tab.dataset.tab).classList.add('active');
+      });
+    });
 
-<script>
-// THEME
-const btn = document.getElementById('themeToggle');
-btn.addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
-});
-
-// TABS
-document.querySelectorAll('.tab-btn').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('page-' + tab.dataset.tab).classList.add('active');
-  });
-});
-
-// ACCORDION
-function toggleAC(head) {
-  const body = head.nextElementSibling;
-  const arrow = head.querySelector('.ac-toggle');
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  arrow.classList.toggle('open', !isOpen);
-}
-
-// TRACKER DATA
-const trackerItems = [
-  // Auth
-  { id:'AC-A-01', name:'이메일 회원가입 정상 케이스', group:'🔐 인증', pri:'P0' },
-  { id:'AC-A-02', name:'이메일 인증 재발송 및 만료', group:'🔐 인증', pri:'P0' },
-  { id:'AC-A-03', name:'로그인 세션 유지', group:'🔐 인증', pri:'P0' },
-  { id:'AC-A-04', name:'비인증 사용자 접근 차단', group:'🔐 인증', pri:'P0' },
-  { id:'AC-A-05', name:'온보딩 단계 진행 및 건너뛰기', group:'🔐 인증', pri:'P0' },
-  { id:'AC-A-06', name:'비밀번호 재설정 플로우', group:'🔐 인증', pri:'P1' },
-  { id:'AC-A-07', name:'로그아웃 후 세션 삭제', group:'🔐 인증', pri:'P0' },
-  { id:'AC-A-08', name:'미인증 상태 기능 비활성화', group:'🔐 인증', pri:'P1' },
-  // Project
-  { id:'AC-B-01', name:'프로젝트 생성 정상', group:'📁 프로젝트', pri:'P0' },
-  { id:'AC-B-02', name:'계약서 텍스트 파싱', group:'📁 프로젝트', pri:'P0' },
-  { id:'AC-B-03', name:'계약서 파싱 실패 fallback', group:'📁 프로젝트', pri:'P0' },
-  { id:'AC-B-04', name:'프로젝트 목록 표시', group:'📁 프로젝트', pri:'P1' },
-  { id:'AC-B-05', name:'샘플 프로젝트 생성', group:'📁 프로젝트', pri:'P1' },
-  { id:'AC-B-06', name:'계약 범위 수정 후 신규 판정 반영', group:'📁 프로젝트', pri:'P1' },
-  { id:'AC-B-07', name:'프로젝트 없을 때 빈 상태 UI', group:'📁 프로젝트', pri:'P1' },
-  // Judge
-  { id:'AC-C-01', name:'입력 2000자 초과 경고', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-02', name:'프로젝트 미선택 판정 차단', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-03', name:'IN SCOPE 판정 정상', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-04', name:'OUT OF SCOPE 판정 정상', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-05', name:'AMBIGUOUS 판정 정상', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-06', name:'판정 타임아웃(15초) 처리', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-07', name:'API 오류 시 사용자 친화 메시지', group:'⚡ AI 판정', pri:'P0' },
-  { id:'AC-C-08', name:'판정 수동 수정', group:'⚡ AI 판정', pri:'P1' },
-  { id:'AC-C-09', name:'판정 히스토리 목록 및 필터', group:'⚡ AI 판정', pri:'P1' },
-  { id:'AC-C-10', name:'판정 50건 이상 페이지네이션', group:'⚡ AI 판정', pri:'P1' },
-  // Document
-  { id:'AC-D-01', name:'문서 자동 생성 정상', group:'📄 문서', pri:'P0' },
-  { id:'AC-D-02', name:'문서 내 마크다운 기호 없음', group:'📄 문서', pri:'P0' },
-  { id:'AC-D-03', name:'문서 내 공란([]) 없음', group:'📄 문서', pri:'P0' },
-  { id:'AC-D-04', name:'문서 편집 자동 저장', group:'📄 문서', pri:'P0' },
-  { id:'AC-D-05', name:'클립보드 복사 토스트 표시', group:'📄 문서', pri:'P0' },
-  { id:'AC-D-06', name:'카카오톡 붙여넣기 줄바꿈 정상', group:'📄 문서', pri:'P0' },
-  { id:'AC-D-07', name:'청구 상태 변경 및 반영', group:'📄 문서', pri:'P1' },
-  { id:'AC-D-08', name:'문서 생성 실패 시 재시도', group:'📄 문서', pri:'P1' },
-  // Dashboard
-  { id:'AC-E-01', name:'홈 대시보드 집계 정확성', group:'📊 대시보드', pri:'P0' },
-  { id:'AC-E-02', name:'데이터 없을 때 빈 상태 UI', group:'📊 대시보드', pri:'P0' },
-  { id:'AC-E-03', name:'프로젝트 수익률 계산', group:'📊 대시보드', pri:'P1' },
-  { id:'AC-E-04', name:'미청구 경고 배너', group:'📊 대시보드', pri:'P2' },
-  { id:'AC-E-05', name:'대시보드 데이터 실시간 반영', group:'📊 대시보드', pri:'P1' },
-  // Scenarios
-  { id:'QA-S-01', name:'Aha Moment 달성 엔드투엔드', group:'🧪 시나리오', pri:'P0' },
-  { id:'QA-S-02', name:'데이터 격리 보안 검증', group:'🧪 시나리오', pri:'P0' },
-  { id:'QA-S-03', name:'오류 상황 복구 검증', group:'🧪 시나리오', pri:'P0' },
-  { id:'QA-S-04', name:'모바일 반응형 검증 (375px)', group:'🧪 시나리오', pri:'P1' },
-  { id:'QA-S-05', name:'회귀 스모크 테스트', group:'🧪 시나리오', pri:'P0' },
-];
-
-const states = ['todo','pass','fail','block'];
-const stateLabels = {
-  todo: '<span class="status s-todo">⬜ TODO</span>',
-  pass: '<span class="status s-pass">✅ PASS</span>',
-  fail: '<span class="status s-fail">❌ FAIL</span>',
-  block: '<span class="status s-block">🟣 BLOCK</span>',
-};
-const itemStates = {};
-trackerItems.forEach(it => itemStates[it.id] = 'todo');
-
-function renderTracker() {
-  const list = document.getElementById('tracker-list');
-  let html = '';
-  let currentGroup = '';
-  trackerItems.forEach(item => {
-    if (item.group !== currentGroup) {
-      currentGroup = item.group;
-      html += `<div style="background:var(--s2);padding:8px 12px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);">${currentGroup}</div>`;
+    // ACCORDION
+    function toggleAC(head) {
+      const body = head.nextElementSibling;
+      const arrow = head.querySelector('.ac-toggle');
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
     }
-    const st = itemStates[item.id];
-    const priColor = item.pri === 'P0' ? 'var(--red)' : item.pri === 'P1' ? 'var(--yellow)' : 'var(--blue)';
-    html += `<div class="tracker-row" id="row-${item.id}">
+
+    // TRACKER DATA
+    const trackerItems = [
+      // Auth
+      { id: 'AC-A-01', name: '이메일 회원가입 정상 케이스', group: '🔐 인증', pri: 'P0' },
+      { id: 'AC-A-02', name: '이메일 인증 재발송 및 만료', group: '🔐 인증', pri: 'P0' },
+      { id: 'AC-A-03', name: '로그인 세션 유지', group: '🔐 인증', pri: 'P0' },
+      { id: 'AC-A-04', name: '비인증 사용자 접근 차단', group: '🔐 인증', pri: 'P0' },
+      { id: 'AC-A-05', name: '온보딩 단계 진행 및 건너뛰기', group: '🔐 인증', pri: 'P0' },
+      { id: 'AC-A-06', name: '비밀번호 재설정 플로우', group: '🔐 인증', pri: 'P1' },
+      { id: 'AC-A-07', name: '로그아웃 후 세션 삭제', group: '🔐 인증', pri: 'P0' },
+      { id: 'AC-A-08', name: '미인증 상태 기능 비활성화', group: '🔐 인증', pri: 'P1' },
+      // Project
+      { id: 'AC-B-01', name: '프로젝트 생성 정상', group: '📁 프로젝트', pri: 'P0' },
+      { id: 'AC-B-02', name: '계약서 텍스트 파싱', group: '📁 프로젝트', pri: 'P0' },
+      { id: 'AC-B-03', name: '계약서 파싱 실패 fallback', group: '📁 프로젝트', pri: 'P0' },
+      { id: 'AC-B-04', name: '프로젝트 목록 표시', group: '📁 프로젝트', pri: 'P1' },
+      { id: 'AC-B-05', name: '샘플 프로젝트 생성', group: '📁 프로젝트', pri: 'P1' },
+      { id: 'AC-B-06', name: '계약 범위 수정 후 신규 판정 반영', group: '📁 프로젝트', pri: 'P1' },
+      { id: 'AC-B-07', name: '프로젝트 없을 때 빈 상태 UI', group: '📁 프로젝트', pri: 'P1' },
+      // Judge
+      { id: 'AC-C-01', name: '입력 2000자 초과 경고', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-02', name: '프로젝트 미선택 판정 차단', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-03', name: 'IN SCOPE 판정 정상', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-04', name: 'OUT OF SCOPE 판정 정상', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-05', name: 'AMBIGUOUS 판정 정상', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-06', name: '판정 타임아웃(15초) 처리', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-07', name: 'API 오류 시 사용자 친화 메시지', group: '⚡ AI 판정', pri: 'P0' },
+      { id: 'AC-C-08', name: '판정 수동 수정', group: '⚡ AI 판정', pri: 'P1' },
+      { id: 'AC-C-09', name: '판정 히스토리 목록 및 필터', group: '⚡ AI 판정', pri: 'P1' },
+      { id: 'AC-C-10', name: '판정 50건 이상 페이지네이션', group: '⚡ AI 판정', pri: 'P1' },
+      // Document
+      { id: 'AC-D-01', name: '문서 자동 생성 정상', group: '📄 문서', pri: 'P0' },
+      { id: 'AC-D-02', name: '문서 내 마크다운 기호 없음', group: '📄 문서', pri: 'P0' },
+      { id: 'AC-D-03', name: '문서 내 공란([]) 없음', group: '📄 문서', pri: 'P0' },
+      { id: 'AC-D-04', name: '문서 편집 자동 저장', group: '📄 문서', pri: 'P0' },
+      { id: 'AC-D-05', name: '클립보드 복사 토스트 표시', group: '📄 문서', pri: 'P0' },
+      { id: 'AC-D-06', name: '카카오톡 붙여넣기 줄바꿈 정상', group: '📄 문서', pri: 'P0' },
+      { id: 'AC-D-07', name: '청구 상태 변경 및 반영', group: '📄 문서', pri: 'P1' },
+      { id: 'AC-D-08', name: '문서 생성 실패 시 재시도', group: '📄 문서', pri: 'P1' },
+      // Dashboard
+      { id: 'AC-E-01', name: '홈 대시보드 집계 정확성', group: '📊 대시보드', pri: 'P0' },
+      { id: 'AC-E-02', name: '데이터 없을 때 빈 상태 UI', group: '📊 대시보드', pri: 'P0' },
+      { id: 'AC-E-03', name: '프로젝트 수익률 계산', group: '📊 대시보드', pri: 'P1' },
+      { id: 'AC-E-04', name: '미청구 경고 배너', group: '📊 대시보드', pri: 'P2' },
+      { id: 'AC-E-05', name: '대시보드 데이터 실시간 반영', group: '📊 대시보드', pri: 'P1' },
+      // Scenarios
+      { id: 'QA-S-01', name: 'Aha Moment 달성 엔드투엔드', group: '🧪 시나리오', pri: 'P0' },
+      { id: 'QA-S-02', name: '데이터 격리 보안 검증', group: '🧪 시나리오', pri: 'P0' },
+      { id: 'QA-S-03', name: '오류 상황 복구 검증', group: '🧪 시나리오', pri: 'P0' },
+      { id: 'QA-S-04', name: '모바일 반응형 검증 (375px)', group: '🧪 시나리오', pri: 'P1' },
+      { id: 'QA-S-05', name: '회귀 스모크 테스트', group: '🧪 시나리오', pri: 'P0' },
+    ];
+
+    const states = ['todo', 'pass', 'fail', 'block'];
+    const stateLabels = {
+      todo: '<span class="status s-todo">⬜ TODO</span>',
+      pass: '<span class="status s-pass">✅ PASS</span>',
+      fail: '<span class="status s-fail">❌ FAIL</span>',
+      block: '<span class="status s-block">🟣 BLOCK</span>',
+    };
+    const itemStates = {};
+    trackerItems.forEach(it => itemStates[it.id] = 'todo');
+
+    function renderTracker() {
+      const list = document.getElementById('tracker-list');
+      let html = '';
+      let currentGroup = '';
+      trackerItems.forEach(item => {
+        if (item.group !== currentGroup) {
+          currentGroup = item.group;
+          html += `<div style="background:var(--s2);padding:8px 12px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);">${currentGroup}</div>`;
+        }
+        const st = itemStates[item.id];
+        const priColor = item.pri === 'P0' ? 'var(--red)' : item.pri === 'P1' ? 'var(--yellow)' : 'var(--blue)';
+        html += `<div class="tracker-row" id="row-${item.id}">
       <div class="tracker-id">${item.id}</div>
       <div class="tracker-name">${item.name}</div>
       <div style="font-size:11px;font-weight:700;color:${priColor};min-width:28px;">${item.pri}</div>
       <div class="tracker-status" onclick="cycleState('${item.id}')">${stateLabels[st]}</div>
     </div>`;
-  });
-  list.innerHTML = html;
-  updateSummary();
-}
+      });
+      list.innerHTML = html;
+      updateSummary();
+    }
 
-function cycleState(id) {
-  const cur = itemStates[id];
-  const idx = states.indexOf(cur);
-  itemStates[id] = states[(idx + 1) % states.length];
-  const row = document.getElementById('row-' + id);
-  row.querySelector('.tracker-status').innerHTML = stateLabels[itemStates[id]];
-  updateSummary();
-}
+    function cycleState(id) {
+      const cur = itemStates[id];
+      const idx = states.indexOf(cur);
+      itemStates[id] = states[(idx + 1) % states.length];
+      const row = document.getElementById('row-' + id);
+      row.querySelector('.tracker-status').innerHTML = stateLabels[itemStates[id]];
+      updateSummary();
+    }
 
-function updateSummary() {
-  const vals = Object.values(itemStates);
-  const total = vals.length;
-  const pass = vals.filter(v => v === 'pass').length;
-  const fail = vals.filter(v => v === 'fail' || v === 'block').length;
-  const done = vals.filter(v => v !== 'todo').length;
-  document.getElementById('cnt-total').textContent = total;
-  document.getElementById('cnt-pass').textContent = pass;
-  document.getElementById('cnt-fail').textContent = fail;
-  const pct = Math.round(done / total * 100);
-  document.getElementById('progress-pct').textContent = pct + '%';
-  document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('progress-bar').style.background = fail > 0 ? 'var(--red)' : pass === total ? 'var(--green)' : 'var(--blue)';
-}
+    function updateSummary() {
+      const vals = Object.values(itemStates);
+      const total = vals.length;
+      const pass = vals.filter(v => v === 'pass').length;
+      const fail = vals.filter(v => v === 'fail' || v === 'block').length;
+      const done = vals.filter(v => v !== 'todo').length;
+      document.getElementById('cnt-total').textContent = total;
+      document.getElementById('cnt-pass').textContent = pass;
+      document.getElementById('cnt-fail').textContent = fail;
+      const pct = Math.round(done / total * 100);
+      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-bar').style.background = fail > 0 ? 'var(--red)' : pass === total ? 'var(--green)' : 'var(--blue)';
+    }
 
-renderTracker();
-</script>
+    renderTracker();
+  </script>
 </body>
+
 </html>

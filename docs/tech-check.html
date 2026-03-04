@@ -1,1024 +1,2037 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — 기술 타당성 & 아키텍처</title>
-<style>
-:root{
-  --bg:#0f1117;--s1:#1a1f2e;--s2:#1e2538;
-  --t1:#e8eaf0;--t3:#8c95aa;--bd:#232b3e;
-  --blue:#4f80ff;--green:#10b981;
-  --red:#f87171;--yellow:#fbbf24;
-  --purple:#a78bfa;--orange:#fb923c;
-  --cyan:#22d3ee;
-}
-body.light{
-  --bg:#f5f7fa;--s1:#ffffff;--s2:#eef1f7;
-  --t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--t1);font-family:'Segoe UI','Apple SD Gothic Neo',Consolas,sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — 기술 타당성 & 아키텍처</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --s2: #1e2538;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+      --cyan: #22d3ee;
+    }
 
-/* [신규] 공통으로 사용할 중앙 정렬 박스 */
-.inner-wrap {
-  max-width: 1080px;     /* main과 동일한 너비 제한 */
-  margin: 0 auto;        /* 중앙 정렬 */
-  padding: 0 20px;       /* main의 좌우 패딩(20px)과 동일하게 맞춤 */
-  width: 100%;
-  height: 100%;
-}
-  
-/* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
-header {
-  background: var(--s1);
-  border-bottom: 1px solid var(--bd);
-  padding: 13px 0;       /* 좌우 패딩 제거 (inner-wrap이 담당) */
-  /* display: flex;      <-- 삭제 (block 요소로 변경) */
-  /* align-items...      <-- 삭제 */
-  /* justify-content...  <-- 삭제 */
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  transition: background 0.2s;
-}
-  /* [신규] Header 내부 정렬용 */
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.hl{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.logo{font-size:17px;font-weight:700;color:var(--blue);letter-spacing:-.3px;white-space:nowrap}
-.logo span{color:var(--t1)}
-.badges{display:flex;gap:6px;flex-wrap:wrap}
-.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);white-space:nowrap}
-.bdg.b{border-color:var(--blue);color:var(--blue);background:transparent}
-.bdg.g{border-color:var(--green);color:var(--green);background:transparent}
-.bdg.y{border-color:var(--yellow);color:var(--yellow);background:transparent}
-.bdg.c{border-color:var(--cyan);color:var(--cyan);background:transparent}
-.tog{background:var(--s2);border:1px solid var(--bd);color:var(--t1);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;white-space:nowrap;transition:background .15s;flex-shrink:0}
-.tog:hover{background:var(--bd)}
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --s2: #eef1f7;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+    }
 
-/* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
-nav {
-  background: var(--s1);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 */
-  /* overflow-x...       <-- 삭제 */
-  transition: background 0.2s;
-}
-nav::-webkit-scrollbar{display:none}
-  /* [신규] Nav 내부 정렬 및 스크롤용 */
-.nav-content {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  height: 100%;
-}
-.nav-content::-webkit-scrollbar { display: none; }
-.tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--t3);cursor:pointer;font-size:13px;font-weight:500;padding:12px 16px;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0}
-.tb:hover{color:var(--t1)}
-.tb.active{border-bottom:2px solid var(--blue);color:var(--blue);font-weight:600}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* ── MAIN ── */
-main{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
-.page{display:none}.page.active{display:block}
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background .2s, color .2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
 
-/* ── TYPOGRAPHY ── */
-.ptitle{font-size:20px;font-weight:700;margin-bottom:6px}
-.pdesc{color:var(--t3);font-size:13px;margin-bottom:22px;line-height:1.75}
-.pdesc strong{color:var(--t1)}
-.slabel{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+    /* [신규] 공통으로 사용할 중앙 정렬 박스 */
+    .inner-wrap {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 100%;
+    }
 
-/* ── CARD ── */
-.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;transition:background .2s}
+    /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      /* 좌우 패딩 제거 (inner-wrap이 담당) */
+      /* display: flex;      <-- 삭제 (block 요소로 변경) */
+      /* align-items...      <-- 삭제 */
+      /* justify-content...  <-- 삭제 */
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: background 0.2s;
+    }
 
-/* ── GRID ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mt14{margin-top:14px}.mt18{margin-top:18px}
-.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}.mb18{margin-bottom:18px}
+    /* [신규] Header 내부 정렬용 */
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-/* ── ACCENT TOP ── */
-.ac{position:relative;overflow:hidden}
-.ac::before{content:'';display:block;height:3px;position:absolute;top:-1px;left:-1px;right:-1px;border-radius:12px 12px 0 0}
-.ab::before{background:var(--blue)}.ag::before{background:var(--green)}
-.ar::before{background:var(--red)}.ay::before{background:var(--yellow)}
-.ap::before{background:var(--purple)}.ao::before{background:var(--orange)}
-.ac2::before{background:var(--cyan)}
+    .hl {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
 
-/* ── TAGS ── */
-.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--s2);color:var(--t3);border:1px solid var(--bd);margin:2px 3px 2px 0}
-.tag.b{background:rgba(79,128,255,.12);color:var(--blue);border-color:rgba(79,128,255,.25)}
-.tag.g{background:rgba(16,185,129,.12);color:var(--green);border-color:rgba(16,185,129,.25)}
-.tag.r{background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.25)}
-.tag.y{background:rgba(251,191,36,.12);color:var(--yellow);border-color:rgba(251,191,36,.25)}
-.tag.p{background:rgba(167,139,250,.12);color:var(--purple);border-color:rgba(167,139,250,.25)}
-.tag.c{background:rgba(34,211,238,.12);color:var(--cyan);border-color:rgba(34,211,238,.25)}
-.tag.o{background:rgba(251,146,60,.12);color:var(--orange);border-color:rgba(251,146,60,.25)}
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
 
-/* ── BULLET LIST ── */
-.bl{list-style:none;padding:0}
-.bl li{font-size:13px;color:var(--t3);padding:6px 0;border-bottom:1px solid var(--bd);line-height:1.65;display:flex;gap:8px;align-items:flex-start}
-.bl li:last-child{border-bottom:none}
-.bl li::before{content:'›';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:1px}
-.bl li strong{color:var(--t1)}
+    .logo span {
+      color: var(--t1);
+    }
 
-/* ── STAT ── */
-.sc{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
-.sn{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
-.sn.b{color:var(--blue)}.sn.g{color:var(--green)}.sn.y{color:var(--yellow)}.sn.r{color:var(--red)}.sn.c{color:var(--cyan)}
-.sl2{font-size:12px;color:var(--t3);font-weight:500}.ss2{font-size:11px;color:var(--t3);margin-top:4px}
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
 
-/* ── CALLOUT ── */
-.callout{border-radius:12px;padding:16px 20px;margin-bottom:18px;border:1px solid}
-.callout.b{background:rgba(79,128,255,.07);border-color:rgba(79,128,255,.3)}
-.callout.g{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.3)}
-.callout.y{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.3)}
-.callout.r{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.3)}
-.cot{font-size:13px;font-weight:700;margin-bottom:7px}
-.callout.b .cot{color:var(--blue)}.callout.g .cot{color:var(--green)}
-.callout.y .cot{color:var(--yellow)}.callout.r .cot{color:var(--red)}
-.callout p{font-size:13px;color:var(--t3);line-height:1.75}
-.callout p strong{color:var(--t1)}
+    .bdg {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
 
-/* ── TABLE ── */
-.tbl{width:100%;border-collapse:collapse}
-.tbl th{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
-.tbl td{font-size:12px;color:var(--t3);padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6}
-.tbl tr:last-child td{border-bottom:none}
-.tbl td.t1{color:var(--t1);font-weight:600}
-.tbl td.bl2{color:var(--blue)}
+    .bdg.b {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
 
-/* ── PILL ── */
-.pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
-.pill.low{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.pill.mid{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3)}
-.pill.high{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
-.pill.done{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.pill.pending{background:var(--s2);color:var(--t3);border:1px solid var(--bd)}
+    .bdg.g {
+      border-color: var(--green);
+      color: var(--green);
+    }
 
-/* ── PROGRESS ── */
-.prog-row{margin-bottom:11px}
-.prog-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
-.prog-lbl span:first-child{color:var(--t1)}.prog-lbl span:last-child{color:var(--t3)}
-.prog-bar{background:var(--bd);border-radius:4px;height:7px;overflow:hidden}
-.prog-fill{height:100%;border-radius:4px}
-.fb{background:var(--blue)}.fg{background:var(--green)}.fy{background:var(--yellow)}.fr{background:var(--red)}.fc2{background:var(--cyan)}.fp{background:var(--purple)}
+    .bdg.y {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
 
-/* ── CODE BLOCK ── */
-.code-block{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;font-family:Consolas,'Courier New',monospace;font-size:12px;color:var(--t3);line-height:1.8;overflow-x:auto;white-space:pre}
-.code-block .kw{color:var(--blue)}
-.code-block .str{color:var(--green)}
-.code-block .cm{color:var(--t3);font-style:italic}
-.code-block .fn{color:var(--yellow)}
-.code-block .num{color:var(--orange)}
+    .bdg.c {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
 
-/* ── STACK LAYER ── */
-.stack-layer{border-radius:10px;border:1px solid var(--bd);overflow:hidden;margin-bottom:8px}
-.sl-head{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.sl-title{font-size:13px;font-weight:700;color:var(--t1)}
-.sl-body{padding:12px 16px;border-top:1px solid var(--bd);display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
-.sl-item{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px}
-.sl-item-name{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:2px}
-.sl-item-desc{font-size:11px;color:var(--t3);line-height:1.5}
+    .tog {
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
+    }
 
-/* ── RISK CARD ── */
-.risk-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:16px 20px;margin-bottom:12px;transition:background .2s}
-.risk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
-.risk-title{font-size:14px;font-weight:700;color:var(--t1)}
-.risk-body{font-size:13px;color:var(--t3);line-height:1.75;margin-bottom:10px}
-.risk-body strong{color:var(--t1)}
-.risk-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.rm{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px}
-.rm-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:3px}
-.rm-val{font-size:12px;color:var(--t1);font-weight:600}
+    .tog:hover {
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
 
-/* ── ARCH DIAGRAM ── */
-.arch-wrap{border:1px solid var(--bd);border-radius:12px;padding:20px;background:var(--s1)}
-.arch-row{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
-.arch-box{border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;text-align:center;border:1px solid;min-width:110px;flex-shrink:0}
-.arch-box.user{background:rgba(79,128,255,.12);border-color:rgba(79,128,255,.35);color:var(--blue)}
-.arch-box.fe{background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.3);color:var(--cyan)}
-.arch-box.be{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green)}
-.arch-box.ai{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:var(--purple)}
-.arch-box.ext{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--yellow)}
-.arch-box.db{background:rgba(251,146,60,.1);border-color:rgba(251,146,60,.3);color:var(--orange)}
-.arch-arrow{color:var(--t3);font-size:16px;flex-shrink:0}
-.arch-divider{width:100%;border:none;border-top:1px dashed var(--bd);margin:10px 0}
-.arch-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);width:100%;text-align:center;margin-bottom:6px}
+    .tog:active {
+      transform: translateY(0);
+    }
 
-/* ── COST TABLE ── */
-.cost-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd);gap:10px}
-.cost-row:last-child{border-bottom:none}
-.cost-name{font-size:13px;color:var(--t1);font-weight:500}
-.cost-detail{font-size:11px;color:var(--t3);margin-top:2px}
-.cost-price{font-size:13px;font-weight:700;white-space:nowrap}
+    /* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      display: block;
+      transition: background 0.2s;
+    }
 
-/* ── RESPONSIVE ── */
-@media(max-width:720px){.g3,.g4{grid-template-columns:1fr 1fr}.risk-meta{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){
-  header{padding:11px 14px}main{padding:16px 12px 60px}nav{padding:0 12px}
-  .tb{padding:11px 10px;font-size:12px}
-  .g2,.g3,.g4{grid-template-columns:1fr}
-  .risk-meta{grid-template-columns:1fr}
-  .arch-row{flex-direction:column}
-  .arch-arrow{transform:rotate(90deg)}
-}
-</style>
+    /* [신규] Nav 내부 정렬 및 스크롤용 */
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-content .tb:first-child {
+      padding-left: 0;
+    }
+
+    .tb {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tb:hover {
+      color: var(--t1);
+    }
+
+    .tb.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    /* ── MAIN ── */
+    main {
+      width: 100%;
+    }
+
+    .page {
+      display: none;
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .ptitle {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px
+    }
+
+    .pdesc {
+      color: var(--t3);
+      font-size: 13px;
+      margin-bottom: 28px;
+      line-height: 1.75
+    }
+
+    .pdesc strong {
+      color: var(--t1)
+    }
+
+    .slabel {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 12px
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: background .2s
+    }
+
+    /* ── GRID ── */
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .g3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px
+    }
+
+    .g4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px
+    }
+
+    .mt8 {
+      margin-top: 8px
+    }
+
+    .mt10 {
+      margin-top: 10px
+    }
+
+    .mt12 {
+      margin-top: 12px
+    }
+
+    .mt14 {
+      margin-top: 14px
+    }
+
+    .mt18 {
+      margin-top: 18px
+    }
+
+    .mb8 {
+      margin-bottom: 8px
+    }
+
+    .mb12 {
+      margin-bottom: 12px
+    }
+
+    .mb14 {
+      margin-bottom: 14px
+    }
+
+    .mb18 {
+      margin-bottom: 18px
+    }
+
+    /* ── ACCENT TOP ── */
+    .ac {
+      position: relative;
+      overflow: hidden
+    }
+
+    .ac::before {
+      content: '';
+      display: block;
+      height: 3px;
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      border-radius: 12px 12px 0 0
+    }
+
+    .ab::before {
+      background: var(--blue)
+    }
+
+    .ag::before {
+      background: var(--green)
+    }
+
+    .ar::before {
+      background: var(--red)
+    }
+
+    .ay::before {
+      background: var(--yellow)
+    }
+
+    .ap::before {
+      background: var(--purple)
+    }
+
+    .ao::before {
+      background: var(--orange)
+    }
+
+    .ac2::before {
+      background: var(--cyan)
+    }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--s2);
+      color: var(--t3);
+      border: 1px solid var(--bd);
+      margin: 2px 3px 2px 0
+    }
+
+    .tag.b {
+      background: rgba(79, 128, 255, .12);
+      color: var(--blue);
+      border-color: rgba(79, 128, 255, .25)
+    }
+
+    .tag.g {
+      background: rgba(16, 185, 129, .12);
+      color: var(--green);
+      border-color: rgba(16, 185, 129, .25)
+    }
+
+    .tag.r {
+      background: rgba(248, 113, 113, .12);
+      color: var(--red);
+      border-color: rgba(248, 113, 113, .25)
+    }
+
+    .tag.y {
+      background: rgba(251, 191, 36, .12);
+      color: var(--yellow);
+      border-color: rgba(251, 191, 36, .25)
+    }
+
+    .tag.p {
+      background: rgba(167, 139, 250, .12);
+      color: var(--purple);
+      border-color: rgba(167, 139, 250, .25)
+    }
+
+    .tag.c {
+      background: rgba(34, 211, 238, .12);
+      color: var(--cyan);
+      border-color: rgba(34, 211, 238, .25)
+    }
+
+    .tag.o {
+      background: rgba(251, 146, 60, .12);
+      color: var(--orange);
+      border-color: rgba(251, 146, 60, .25)
+    }
+
+    /* ── BULLET LIST ── */
+    .bl {
+      list-style: none;
+      padding: 0
+    }
+
+    .bl li {
+      font-size: 13px;
+      color: var(--t3);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--bd);
+      line-height: 1.65;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start
+    }
+
+    .bl li:last-child {
+      border-bottom: none
+    }
+
+    .bl li::before {
+      content: '›';
+      color: var(--blue);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px
+    }
+
+    .bl li strong {
+      color: var(--t1)
+    }
+
+    /* ── STAT ── */
+    .sc {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 16px 18px
+    }
+
+    .sn {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px
+    }
+
+    .sn.b {
+      color: var(--blue)
+    }
+
+    .sn.g {
+      color: var(--green)
+    }
+
+    .sn.y {
+      color: var(--yellow)
+    }
+
+    .sn.r {
+      color: var(--red)
+    }
+
+    .sn.c {
+      color: var(--cyan)
+    }
+
+    .sl2 {
+      font-size: 12px;
+      color: var(--t3);
+      font-weight: 500
+    }
+
+    .ss2 {
+      font-size: 11px;
+      color: var(--t3);
+      margin-top: 4px
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      border: 1px solid
+    }
+
+    .callout.b {
+      background: rgba(79, 128, 255, .07);
+      border-color: rgba(79, 128, 255, .3)
+    }
+
+    .callout.g {
+      background: rgba(16, 185, 129, .07);
+      border-color: rgba(16, 185, 129, .3)
+    }
+
+    .callout.y {
+      background: rgba(251, 191, 36, .07);
+      border-color: rgba(251, 191, 36, .3)
+    }
+
+    .callout.r {
+      background: rgba(248, 113, 113, .07);
+      border-color: rgba(248, 113, 113, .3)
+    }
+
+    .cot {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px
+    }
+
+    .callout.b .cot {
+      color: var(--blue)
+    }
+
+    .callout.g .cot {
+      color: var(--green)
+    }
+
+    .callout.y .cot {
+      color: var(--yellow)
+    }
+
+    .callout.r .cot {
+      color: var(--red)
+    }
+
+    .callout p {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.75
+    }
+
+    .callout p strong {
+      color: var(--t1)
+    }
+
+    /* ── TABLE ── */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .tbl th {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--bd);
+      text-align: left;
+      white-space: nowrap
+    }
+
+    .tbl td {
+      font-size: 12px;
+      color: var(--t3);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--bd);
+      vertical-align: top;
+      line-height: 1.6
+    }
+
+    .tbl tr:last-child td {
+      border-bottom: none
+    }
+
+    .tbl td.t1 {
+      color: var(--t1);
+      font-weight: 600
+    }
+
+    .tbl td.bl2 {
+      color: var(--blue)
+    }
+
+    /* ── PILL ── */
+    .pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+      display: inline-block
+    }
+
+    .pill.low {
+      background: rgba(16, 185, 129, .12);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, .3)
+    }
+
+    .pill.mid {
+      background: rgba(251, 191, 36, .12);
+      color: var(--yellow);
+      border: 1px solid rgba(251, 191, 36, .3)
+    }
+
+    .pill.high {
+      background: rgba(248, 113, 113, .12);
+      color: var(--red);
+      border: 1px solid rgba(248, 113, 113, .3)
+    }
+
+    .pill.done {
+      background: rgba(16, 185, 129, .12);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, .3)
+    }
+
+    .pill.pending {
+      background: var(--s2);
+      color: var(--t3);
+      border: 1px solid var(--bd)
+    }
+
+    /* ── PROGRESS ── */
+    .prog-row {
+      margin-bottom: 11px
+    }
+
+    .prog-lbl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px
+    }
+
+    .prog-lbl span:first-child {
+      color: var(--t1)
+    }
+
+    .prog-lbl span:last-child {
+      color: var(--t3)
+    }
+
+    .prog-bar {
+      background: var(--bd);
+      border-radius: 4px;
+      height: 7px;
+      overflow: hidden
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 4px
+    }
+
+    .fb {
+      background: var(--blue)
+    }
+
+    .fg {
+      background: var(--green)
+    }
+
+    .fy {
+      background: var(--yellow)
+    }
+
+    .fr {
+      background: var(--red)
+    }
+
+    .fc2 {
+      background: var(--cyan)
+    }
+
+    .fp {
+      background: var(--purple)
+    }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--t3);
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre
+    }
+
+    .code-block .kw {
+      color: var(--blue)
+    }
+
+    .code-block .str {
+      color: var(--green)
+    }
+
+    .code-block .cm {
+      color: var(--t3);
+      font-style: italic
+    }
+
+    .code-block .fn {
+      color: var(--yellow)
+    }
+
+    .code-block .num {
+      color: var(--orange)
+    }
+
+    /* ── STACK LAYER ── */
+    .stack-layer {
+      border-radius: 10px;
+      border: 1px solid var(--bd);
+      overflow: hidden;
+      margin-bottom: 8px
+    }
+
+    .sl-head {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .sl-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .sl-body {
+      padding: 12px 16px;
+      border-top: 1px solid var(--bd);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px
+    }
+
+    .sl-item {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 9px 12px
+    }
+
+    .sl-item-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 2px
+    }
+
+    .sl-item-desc {
+      font-size: 11px;
+      color: var(--t3);
+      line-height: 1.5
+    }
+
+    /* ── RISK CARD ── */
+    .risk-card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      transition: background .2s
+    }
+
+    .risk-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px
+    }
+
+    .risk-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .risk-body {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.75;
+      margin-bottom: 10px
+    }
+
+    .risk-body strong {
+      color: var(--t1)
+    }
+
+    .risk-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px
+    }
+
+    .rm {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 8px 12px
+    }
+
+    .rm-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--t3);
+      margin-bottom: 3px
+    }
+
+    .rm-val {
+      font-size: 12px;
+      color: var(--t1);
+      font-weight: 600
+    }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch-wrap {
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 20px;
+      background: var(--s1)
+    }
+
+    .arch-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap
+    }
+
+    .arch-box {
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid;
+      min-width: 110px;
+      flex-shrink: 0
+    }
+
+    .arch-box.user {
+      background: rgba(79, 128, 255, .12);
+      border-color: rgba(79, 128, 255, .35);
+      color: var(--blue)
+    }
+
+    .arch-box.fe {
+      background: rgba(34, 211, 238, .1);
+      border-color: rgba(34, 211, 238, .3);
+      color: var(--cyan)
+    }
+
+    .arch-box.be {
+      background: rgba(16, 185, 129, .1);
+      border-color: rgba(16, 185, 129, .3);
+      color: var(--green)
+    }
+
+    .arch-box.ai {
+      background: rgba(167, 139, 250, .1);
+      border-color: rgba(167, 139, 250, .3);
+      color: var(--purple)
+    }
+
+    .arch-box.ext {
+      background: rgba(251, 191, 36, .1);
+      border-color: rgba(251, 191, 36, .3);
+      color: var(--yellow)
+    }
+
+    .arch-box.db {
+      background: rgba(251, 146, 60, .1);
+      border-color: rgba(251, 146, 60, .3);
+      color: var(--orange)
+    }
+
+    .arch-arrow {
+      color: var(--t3);
+      font-size: 16px;
+      flex-shrink: 0
+    }
+
+    .arch-divider {
+      width: 100%;
+      border: none;
+      border-top: 1px dashed var(--bd);
+      margin: 10px 0
+    }
+
+    .arch-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--t3);
+      width: 100%;
+      text-align: center;
+      margin-bottom: 6px
+    }
+
+    /* ── COST TABLE ── */
+    .cost-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--bd);
+      gap: 10px
+    }
+
+    .cost-row:last-child {
+      border-bottom: none
+    }
+
+    .cost-name {
+      font-size: 13px;
+      color: var(--t1);
+      font-weight: 500
+    }
+
+    .cost-detail {
+      font-size: 11px;
+      color: var(--t3);
+      margin-top: 2px
+    }
+
+    .cost-price {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:720px) {
+
+      .g3,
+      .g4 {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .risk-meta {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:560px) {
+      .inner-wrap {
+        padding: 0 20px;
+      }
+
+      header {
+        padding: 11px 14px
+      }
+
+      .page {
+        padding: 36px 20px
+      }
+
+      .tb {
+        padding: 11px 11px;
+        font-size: 12px
+      }
+
+      .g2,
+      .g3,
+      .g4 {
+        grid-template-columns: 1fr
+      }
+
+      .risk-meta {
+        grid-template-columns: 1fr
+      }
+
+      .arch-row {
+        flex-direction: column
+      }
+
+      .arch-arrow {
+        transform: rotate(90deg)
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="inner-wrap header-content">
-    <div class="hl">
-      <div class="logo">Scope<span>Manager</span></div>
-      <div class="badges">
-        <span class="bdg b">B2B SaaS</span>
-        <span class="bdg g">MVP 단계</span>
-        <span class="bdg y">기술 타당성 v1.0</span>
-        <span class="bdg c">AI-First 아키텍처</span>
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="hl">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="bdg b">B2B SaaS</span>
+          <span class="bdg g">MVP 단계</span>
+          <span class="bdg y">기술 타당성 v1.0</span>
+          <span class="bdg c">AI-First 아키텍처</span>
+        </div>
       </div>
+      <button class="tog" id="togBtn" onclick="toggleMode()">☀️ 라이트</button>
     </div>
-    <button class="tog" id="togBtn" onclick="toggleMode()">☀️ 라이트</button>
-  </div>
-</header>
+  </header>
 
-<nav>
-  <div class="inner-wrap nav-content">
-    <button class="tb active" onclick="showTab('overview',this)">📋 개요</button>
-    <button class="tb" onclick="showTab('stack',this)">🧱 기술 스택</button>
-    <button class="tb" onclick="showTab('arch',this)">🏗 아키텍처</button>
-    <button class="tb" onclick="showTab('ai',this)">🤖 AI 판정 엔진</button>
-    <button class="tb" onclick="showTab('risk',this)">⚠️ 기술 리스크</button>
-    <button class="tb" onclick="showTab('cost',this)">💰 인프라 비용</button>
-  </div>
-</nav>
+  <nav>
+    <div class="inner-wrap nav-content">
+      <button class="tb active" onclick="showTab('overview',this)">📋 개요</button>
+      <button class="tb" onclick="showTab('stack',this)">🧱 기술 스택</button>
+      <button class="tb" onclick="showTab('arch',this)">🏗 아키텍처</button>
+      <button class="tb" onclick="showTab('ai',this)">🤖 AI 판정 엔진</button>
+      <button class="tb" onclick="showTab('risk',this)">⚠️ 기술 리스크</button>
+      <button class="tb" onclick="showTab('cost',this)">💰 인프라 비용</button>
+    </div>
+  </nav>
 
-<main>
+  <main>
 
-<!-- ══════════════════════
+    <!-- ══════════════════════
   TAB 1: 개요
 ══════════════════════ -->
-<div id="page-overview" class="page active">
-  <div class="ptitle">기술 타당성 & 아키텍처 검토</div>
-  <div class="pdesc">Scope Manager MVP를 <strong>1인 개발자가 AI 도구를 활용해 3주 내 배포</strong>할 수 있는지 기술적으로 검토합니다.<br>핵심 질문: 범위 초과 자동 판정 엔진을 실제로 구현할 수 있는가?</div>
+    <div id="page-overview" class="page active">
+      <div class="ptitle">기술 타당성 & 아키텍처 검토</div>
+      <div class="pdesc">Scope Manager MVP를 <strong>1인 개발자가 AI 도구를 활용해 3주 내 배포</strong>할 수 있는지 기술적으로 검토합니다.<br>핵심 질문: 범위
+        초과 자동 판정 엔진을 실제로 구현할 수 있는가?</div>
 
-  <div class="callout b mb18">
-    <div class="cot">⚡ 기술 선택의 핵심 원칙 — 검증 속도 최우선</div>
-    <p>MVP 목적은 <strong>가설 검증</strong>이다. 완벽한 기술 스택보다 <strong>3주 내 배포 가능한 스택</strong>을 선택한다. Supabase·Vercel·Claude API 조합은 백엔드 구축 시간을 80% 단축하며, AI 코딩 도구(Cursor)로 프론트엔드 개발 속도를 3~5배 높인다.</p>
-  </div>
+      <div class="callout b mb18">
+        <div class="cot">⚡ 기술 선택의 핵심 원칙 — 검증 속도 최우선</div>
+        <p>MVP 목적은 <strong>가설 검증</strong>이다. 완벽한 기술 스택보다 <strong>3주 내 배포 가능한 스택</strong>을 선택한다. Supabase·Vercel·Claude
+          API 조합은 백엔드 구축 시간을 80% 단축하며, AI 코딩 도구(Cursor)로 프론트엔드 개발 속도를 3~5배 높인다.</p>
+      </div>
 
-  <div class="g4 mb18">
-    <div class="sc ac ag">
-      <div class="sn g">3주</div>
-      <div class="sl2">MVP 배포 목표 기간</div>
-      <div class="ss2">AI 도구 활용 기준</div>
-    </div>
-    <div class="sc ac ab">
-      <div class="sn b">22일</div>
-      <div class="sl2">총 개발 공수</div>
-      <div class="ss2">1인 개발 기준</div>
-    </div>
-    <div class="sc ac ay">
-      <div class="sn y">~5만원</div>
-      <div class="sl2">월 인프라 비용 (초기)</div>
-      <div class="ss2">Supabase Free + Vercel Free</div>
-    </div>
-    <div class="sc ac ac2">
-      <div class="sn c">낮음</div>
-      <div class="sl2">전체 기술 리스크</div>
-      <div class="ss2">검증된 SaaS 스택 조합</div>
-    </div>
-  </div>
-
-  <div class="g2 mb14">
-    <div class="card">
-      <div class="slabel">타당성 평가 요약</div>
-      <div class="mt10">
-        <div class="prog-row">
-          <div class="prog-lbl"><span>프론트엔드 구현 가능성</span><span>매우 높음</span></div>
-          <div class="prog-bar"><div class="prog-fill fg" style="width:95%"></div></div>
+      <div class="g4 mb18">
+        <div class="sc ac ag">
+          <div class="sn g">3주</div>
+          <div class="sl2">MVP 배포 목표 기간</div>
+          <div class="ss2">AI 도구 활용 기준</div>
         </div>
-        <div class="prog-row">
-          <div class="prog-lbl"><span>백엔드 구현 가능성</span><span>높음</span></div>
-          <div class="prog-bar"><div class="prog-fill fg" style="width:88%"></div></div>
+        <div class="sc ac ab">
+          <div class="sn b">22일</div>
+          <div class="sl2">총 개발 공수</div>
+          <div class="ss2">1인 개발 기준</div>
         </div>
-        <div class="prog-row">
-          <div class="prog-lbl"><span>AI 판정 엔진 정확도</span><span>중간~높음 (검증 필요)</span></div>
-          <div class="prog-bar"><div class="prog-fill fy" style="width:65%"></div></div>
+        <div class="sc ac ay">
+          <div class="sn y">~5만원</div>
+          <div class="sl2">월 인프라 비용 (초기)</div>
+          <div class="ss2">Supabase Free + Vercel Free</div>
         </div>
-        <div class="prog-row">
-          <div class="prog-lbl"><span>3주 배포 달성 가능성</span><span>높음</span></div>
-          <div class="prog-bar"><div class="prog-fill fg" style="width:80%"></div></div>
-        </div>
-        <div class="prog-row">
-          <div class="prog-lbl"><span>초기 비용 통제</span><span>매우 높음</span></div>
-          <div class="prog-bar"><div class="prog-fill fg" style="width:92%"></div></div>
+        <div class="sc ac ac2">
+          <div class="sn c">낮음</div>
+          <div class="sl2">전체 기술 리스크</div>
+          <div class="ss2">검증된 SaaS 스택 조합</div>
         </div>
       </div>
+
+      <div class="g2 mb14">
+        <div class="card">
+          <div class="slabel">타당성 평가 요약</div>
+          <div class="mt10">
+            <div class="prog-row">
+              <div class="prog-lbl"><span>프론트엔드 구현 가능성</span><span>매우 높음</span></div>
+              <div class="prog-bar">
+                <div class="prog-fill fg" style="width:95%"></div>
+              </div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-lbl"><span>백엔드 구현 가능성</span><span>높음</span></div>
+              <div class="prog-bar">
+                <div class="prog-fill fg" style="width:88%"></div>
+              </div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-lbl"><span>AI 판정 엔진 정확도</span><span>중간~높음 (검증 필요)</span></div>
+              <div class="prog-bar">
+                <div class="prog-fill fy" style="width:65%"></div>
+              </div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-lbl"><span>3주 배포 달성 가능성</span><span>높음</span></div>
+              <div class="prog-bar">
+                <div class="prog-fill fg" style="width:80%"></div>
+              </div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-lbl"><span>초기 비용 통제</span><span>매우 높음</span></div>
+              <div class="prog-bar">
+                <div class="prog-fill fg" style="width:92%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="slabel">핵심 기술 검토 결론</div>
+          <ul class="bl mt10">
+            <li><span class="pill done">✓ 가능</span> <strong>범위 초과 판정</strong> — Claude API 텍스트 분류로 MVP 수준 구현 가능</li>
+            <li><span class="pill done">✓ 가능</span> <strong>리포트 자동 생성</strong> — HTML→PDF 변환 라이브러리로 간단 구현</li>
+            <li><span class="pill done">✓ 가능</span> <strong>실시간 데이터 동기화</strong> — Supabase Realtime으로 별도 WebSocket 불필요
+            </li>
+            <li><span class="pill mid">△ 주의</span> <strong>AI 판정 정확도</strong> — 초기 70~80% 예상, 피드백 루프로 개선</li>
+            <li><span class="pill mid">△ 주의</span> <strong>PDF 파싱 (Phase 2)</strong> — MVP에서는 제외, 수동 입력으로 대체</li>
+            <li><span class="pill high">⚠ 위험</span> <strong>Claude API 비용</strong> — 사용량 급증 시 비용 통제 필요</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="slabel">기술 선택 기준 매트릭스</div>
+        <table class="tbl mt10">
+          <thead>
+            <tr>
+              <th>기준</th>
+              <th>가중치</th>
+              <th>React+Supabase</th>
+              <th>Next.js+PlanetScale</th>
+              <th>Vue+Firebase</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t1">개발 속도 (MVP 3주)</td>
+              <td>40%</td>
+              <td class="bl2">⭐⭐⭐⭐⭐ 5</td>
+              <td>⭐⭐⭐⭐ 4</td>
+              <td>⭐⭐⭐⭐ 4</td>
+            </tr>
+            <tr>
+              <td class="t1">1인 운영 편의성</td>
+              <td>25%</td>
+              <td class="bl2">⭐⭐⭐⭐⭐ 5</td>
+              <td>⭐⭐⭐ 3</td>
+              <td>⭐⭐⭐⭐ 4</td>
+            </tr>
+            <tr>
+              <td class="t1">초기 인프라 비용</td>
+              <td>20%</td>
+              <td class="bl2">⭐⭐⭐⭐⭐ 5</td>
+              <td>⭐⭐⭐ 3</td>
+              <td>⭐⭐⭐⭐ 4</td>
+            </tr>
+            <tr>
+              <td class="t1">확장성 (Phase 2+)</td>
+              <td>15%</td>
+              <td class="bl2">⭐⭐⭐⭐ 4</td>
+              <td>⭐⭐⭐⭐⭐ 5</td>
+              <td>⭐⭐⭐ 3</td>
+            </tr>
+            <tr>
+              <td class="t1" style="color:var(--blue)">가중 합산</td>
+              <td>100%</td>
+              <td class="bl2" style="font-size:13px;font-weight:800">4.85 ✓ 채택</td>
+              <td>3.85</td>
+              <td>3.75</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="card">
-      <div class="slabel">핵심 기술 검토 결론</div>
-      <ul class="bl mt10">
-        <li><span class="pill done">✓ 가능</span> <strong>범위 초과 판정</strong> — Claude API 텍스트 분류로 MVP 수준 구현 가능</li>
-        <li><span class="pill done">✓ 가능</span> <strong>리포트 자동 생성</strong> — HTML→PDF 변환 라이브러리로 간단 구현</li>
-        <li><span class="pill done">✓ 가능</span> <strong>실시간 데이터 동기화</strong> — Supabase Realtime으로 별도 WebSocket 불필요</li>
-        <li><span class="pill mid">△ 주의</span> <strong>AI 판정 정확도</strong> — 초기 70~80% 예상, 피드백 루프로 개선</li>
-        <li><span class="pill mid">△ 주의</span> <strong>PDF 파싱 (Phase 2)</strong> — MVP에서는 제외, 수동 입력으로 대체</li>
-        <li><span class="pill high">⚠ 위험</span> <strong>Claude API 비용</strong> — 사용량 급증 시 비용 통제 필요</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="slabel">기술 선택 기준 매트릭스</div>
-    <table class="tbl mt10">
-      <thead><tr><th>기준</th><th>가중치</th><th>React+Supabase</th><th>Next.js+PlanetScale</th><th>Vue+Firebase</th></tr></thead>
-      <tbody>
-        <tr><td class="t1">개발 속도 (MVP 3주)</td><td>40%</td><td class="bl2">⭐⭐⭐⭐⭐ 5</td><td>⭐⭐⭐⭐ 4</td><td>⭐⭐⭐⭐ 4</td></tr>
-        <tr><td class="t1">1인 운영 편의성</td><td>25%</td><td class="bl2">⭐⭐⭐⭐⭐ 5</td><td>⭐⭐⭐ 3</td><td>⭐⭐⭐⭐ 4</td></tr>
-        <tr><td class="t1">초기 인프라 비용</td><td>20%</td><td class="bl2">⭐⭐⭐⭐⭐ 5</td><td>⭐⭐⭐ 3</td><td>⭐⭐⭐⭐ 4</td></tr>
-        <tr><td class="t1">확장성 (Phase 2+)</td><td>15%</td><td class="bl2">⭐⭐⭐⭐ 4</td><td>⭐⭐⭐⭐⭐ 5</td><td>⭐⭐⭐ 3</td></tr>
-        <tr><td class="t1" style="color:var(--blue)">가중 합산</td><td>100%</td><td class="bl2" style="font-size:13px;font-weight:800">4.85 ✓ 채택</td><td>3.85</td><td>3.75</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
 
-<!-- ══════════════════════
+    <!-- ══════════════════════
   TAB 2: 기술 스택
 ══════════════════════ -->
-<div id="page-stack" class="page">
-  <div class="ptitle">기술 스택 상세</div>
-  <div class="pdesc">MVP 개발에 사용할 기술 스택을 레이어별로 정의합니다.<br>모든 선택의 기준은 <strong>3주 내 1인 배포 가능성</strong>과 <strong>초기 비용 최소화</strong>입니다.</div>
+    <div id="page-stack" class="page">
+      <div class="ptitle">기술 스택 상세</div>
+      <div class="pdesc">MVP 개발에 사용할 기술 스택을 레이어별로 정의합니다.<br>모든 선택의 기준은 <strong>3주 내 1인 배포 가능성</strong>과 <strong>초기 비용
+          최소화</strong>입니다.</div>
 
-  <!-- 프론트엔드 -->
-  <div class="stack-layer ac ab mb8">
-    <div class="sl-head" style="background:rgba(79,128,255,.07)">
-      <div>
-        <div class="slabel" style="color:var(--blue);margin-bottom:3px">Layer 1 — Frontend</div>
-        <div class="sl-title">사용자 인터페이스 & 클라이언트</div>
+      <!-- 프론트엔드 -->
+      <div class="stack-layer ac ab mb8">
+        <div class="sl-head" style="background:rgba(79,128,255,.07)">
+          <div>
+            <div class="slabel" style="color:var(--blue);margin-bottom:3px">Layer 1 — Frontend</div>
+            <div class="sl-title">사용자 인터페이스 & 클라이언트</div>
+          </div>
+          <span class="tag b">Vercel 배포</span>
+        </div>
+        <div class="sl-body">
+          <div class="sl-item">
+            <div class="sl-item-name">React 18</div>
+            <div class="sl-item-desc">컴포넌트 기반 UI. Cursor AI와 궁합 최적</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Tailwind CSS</div>
+            <div class="sl-item-desc">유틸리티 퍼스트. 빠른 UI 프로토타이핑</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">React Query</div>
+            <div class="sl-item-desc">서버 상태 관리. 캐싱·동기화 자동화</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Zustand</div>
+            <div class="sl-item-desc">경량 클라이언트 상태 관리</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">React Hook Form</div>
+            <div class="sl-item-desc">범위 등록·요구 기록 폼 처리</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">html2pdf.js</div>
+            <div class="sl-item-desc">리포트 PDF 생성 (브라우저 측)</div>
+          </div>
+        </div>
       </div>
-      <span class="tag b">Vercel 배포</span>
-    </div>
-    <div class="sl-body">
-      <div class="sl-item">
-        <div class="sl-item-name">React 18</div>
-        <div class="sl-item-desc">컴포넌트 기반 UI. Cursor AI와 궁합 최적</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Tailwind CSS</div>
-        <div class="sl-item-desc">유틸리티 퍼스트. 빠른 UI 프로토타이핑</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">React Query</div>
-        <div class="sl-item-desc">서버 상태 관리. 캐싱·동기화 자동화</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Zustand</div>
-        <div class="sl-item-desc">경량 클라이언트 상태 관리</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">React Hook Form</div>
-        <div class="sl-item-desc">범위 등록·요구 기록 폼 처리</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">html2pdf.js</div>
-        <div class="sl-item-desc">리포트 PDF 생성 (브라우저 측)</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- BaaS -->
-  <div class="stack-layer ag mb8">
-    <div class="sl-head" style="background:rgba(16,185,129,.07)">
-      <div>
-        <div class="slabel" style="color:var(--green);margin-bottom:3px">Layer 2 — BaaS (Backend-as-a-Service)</div>
-        <div class="sl-title">데이터베이스 · 인증 · 스토리지 · 실시간</div>
+      <!-- BaaS -->
+      <div class="stack-layer ag mb8">
+        <div class="sl-head" style="background:rgba(16,185,129,.07)">
+          <div>
+            <div class="slabel" style="color:var(--green);margin-bottom:3px">Layer 2 — BaaS (Backend-as-a-Service)</div>
+            <div class="sl-title">데이터베이스 · 인증 · 스토리지 · 실시간</div>
+          </div>
+          <span class="tag g">별도 서버 불필요</span>
+        </div>
+        <div class="sl-body">
+          <div class="sl-item">
+            <div class="sl-item-name">Supabase DB</div>
+            <div class="sl-item-desc">PostgreSQL 기반. Row Level Security</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Supabase Auth</div>
+            <div class="sl-item-desc">이메일·소셜 로그인. JWT 관리</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Supabase Realtime</div>
+            <div class="sl-item-desc">프로젝트 알림·실시간 업데이트</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Supabase Storage</div>
+            <div class="sl-item-desc">스크린샷·첨부파일 저장</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Supabase Edge Functions</div>
+            <div class="sl-item-desc">AI API 호출·Webhook 처리 서버리스</div>
+          </div>
+        </div>
       </div>
-      <span class="tag g">별도 서버 불필요</span>
-    </div>
-    <div class="sl-body">
-      <div class="sl-item">
-        <div class="sl-item-name">Supabase DB</div>
-        <div class="sl-item-desc">PostgreSQL 기반. Row Level Security</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Supabase Auth</div>
-        <div class="sl-item-desc">이메일·소셜 로그인. JWT 관리</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Supabase Realtime</div>
-        <div class="sl-item-desc">프로젝트 알림·실시간 업데이트</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Supabase Storage</div>
-        <div class="sl-item-desc">스크린샷·첨부파일 저장</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Supabase Edge Functions</div>
-        <div class="sl-item-desc">AI API 호출·Webhook 처리 서버리스</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- AI -->
-  <div class="stack-layer ap mb8">
-    <div class="sl-head" style="background:rgba(167,139,250,.07)">
-      <div>
-        <div class="slabel" style="color:var(--purple);margin-bottom:3px">Layer 3 — AI Engine</div>
-        <div class="sl-title">범위 초과 판정 · 리포트 텍스트 생성</div>
+      <!-- AI -->
+      <div class="stack-layer ap mb8">
+        <div class="sl-head" style="background:rgba(167,139,250,.07)">
+          <div>
+            <div class="slabel" style="color:var(--purple);margin-bottom:3px">Layer 3 — AI Engine</div>
+            <div class="sl-title">범위 초과 판정 · 리포트 텍스트 생성</div>
+          </div>
+          <span class="tag p">핵심 차별 기술</span>
+        </div>
+        <div class="sl-body">
+          <div class="sl-item">
+            <div class="sl-item-name">Claude API (Haiku)</div>
+            <div class="sl-item-desc">범위 판정 분류. 비용 효율 최고 (Haiku)</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Claude API (Sonnet)</div>
+            <div class="sl-item-desc">리포트 문장 생성. 품질 우선 시 사용</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Structured Output</div>
+            <div class="sl-item-desc">JSON 형식 판정 결과 반환</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Prompt 버전 관리</div>
+            <div class="sl-item-desc">판정 정확도 A/B 테스트 지원</div>
+          </div>
+        </div>
       </div>
-      <span class="tag p">핵심 차별 기술</span>
-    </div>
-    <div class="sl-body">
-      <div class="sl-item">
-        <div class="sl-item-name">Claude API (Haiku)</div>
-        <div class="sl-item-desc">범위 판정 분류. 비용 효율 최고 (Haiku)</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Claude API (Sonnet)</div>
-        <div class="sl-item-desc">리포트 문장 생성. 품질 우선 시 사용</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Structured Output</div>
-        <div class="sl-item-desc">JSON 형식 판정 결과 반환</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Prompt 버전 관리</div>
-        <div class="sl-item-desc">판정 정확도 A/B 테스트 지원</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 외부 서비스 -->
-  <div class="stack-layer ay mb8">
-    <div class="sl-head" style="background:rgba(251,191,36,.06)">
-      <div>
-        <div class="slabel" style="color:var(--yellow);margin-bottom:3px">Layer 4 — External Services</div>
-        <div class="sl-title">결제 · 이메일 · 분석 · 모니터링</div>
+      <!-- 외부 서비스 -->
+      <div class="stack-layer ay mb8">
+        <div class="sl-head" style="background:rgba(251,191,36,.06)">
+          <div>
+            <div class="slabel" style="color:var(--yellow);margin-bottom:3px">Layer 4 — External Services</div>
+            <div class="sl-title">결제 · 이메일 · 분석 · 모니터링</div>
+          </div>
+        </div>
+        <div class="sl-body">
+          <div class="sl-item">
+            <div class="sl-item-name">Toss Payments</div>
+            <div class="sl-item-desc">국내 카드결제·구독 관리</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Resend</div>
+            <div class="sl-item-desc">트랜잭션 이메일. React Email 템플릿</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">PostHog</div>
+            <div class="sl-item-desc">행동 분석·코호트·퍼널 추적</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Hotjar</div>
+            <div class="sl-item-desc">히트맵·세션 녹화 (이탈 분석)</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Sentry</div>
+            <div class="sl-item-desc">에러 모니터링·알림</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Vercel Analytics</div>
+            <div class="sl-item-desc">Core Web Vitals·성능 모니터링</div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="sl-body">
-      <div class="sl-item">
-        <div class="sl-item-name">Toss Payments</div>
-        <div class="sl-item-desc">국내 카드결제·구독 관리</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Resend</div>
-        <div class="sl-item-desc">트랜잭션 이메일. React Email 템플릿</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">PostHog</div>
-        <div class="sl-item-desc">행동 분석·코호트·퍼널 추적</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Hotjar</div>
-        <div class="sl-item-desc">히트맵·세션 녹화 (이탈 분석)</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Sentry</div>
-        <div class="sl-item-desc">에러 모니터링·알림</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Vercel Analytics</div>
-        <div class="sl-item-desc">Core Web Vitals·성능 모니터링</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 개발 도구 -->
-  <div class="stack-layer ac2">
-    <div class="sl-head" style="background:rgba(34,211,238,.06)">
-      <div>
-        <div class="slabel" style="color:var(--cyan);margin-bottom:3px">Layer 5 — Dev Tools (AI-Assisted)</div>
-        <div class="sl-title">개발 속도 3~5배 향상을 위한 AI 도구</div>
+      <!-- 개발 도구 -->
+      <div class="stack-layer ac2">
+        <div class="sl-head" style="background:rgba(34,211,238,.06)">
+          <div>
+            <div class="slabel" style="color:var(--cyan);margin-bottom:3px">Layer 5 — Dev Tools (AI-Assisted)</div>
+            <div class="sl-title">개발 속도 3~5배 향상을 위한 AI 도구</div>
+          </div>
+          <span class="tag c">속도 핵심</span>
+        </div>
+        <div class="sl-body">
+          <div class="sl-item">
+            <div class="sl-item-name">Cursor IDE</div>
+            <div class="sl-item-desc">AI 페어 프로그래밍. 컴포넌트 자동 생성</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">Claude (Coding)</div>
+            <div class="sl-item-desc">복잡 로직·엣지케이스 처리</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">v0.dev</div>
+            <div class="sl-item-desc">UI 컴포넌트 초안 생성</div>
+          </div>
+          <div class="sl-item">
+            <div class="sl-item-name">GitHub Copilot</div>
+            <div class="sl-item-desc">코드 자동완성·테스트 생성</div>
+          </div>
+        </div>
       </div>
-      <span class="tag c">속도 핵심</span>
     </div>
-    <div class="sl-body">
-      <div class="sl-item">
-        <div class="sl-item-name">Cursor IDE</div>
-        <div class="sl-item-desc">AI 페어 프로그래밍. 컴포넌트 자동 생성</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">Claude (Coding)</div>
-        <div class="sl-item-desc">복잡 로직·엣지케이스 처리</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">v0.dev</div>
-        <div class="sl-item-desc">UI 컴포넌트 초안 생성</div>
-      </div>
-      <div class="sl-item">
-        <div class="sl-item-name">GitHub Copilot</div>
-        <div class="sl-item-desc">코드 자동완성·테스트 생성</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 
-<!-- ══════════════════════
+    <!-- ══════════════════════
   TAB 3: 아키텍처
 ══════════════════════ -->
-<div id="page-arch" class="page">
-  <div class="ptitle">시스템 아키텍처</div>
-  <div class="pdesc">MVP의 데이터 흐름과 컴포넌트 구조를 시각화합니다.<br>서버리스 + BaaS 조합으로 <strong>별도 백엔드 서버 없이</strong> 운영합니다.</div>
+    <div id="page-arch" class="page">
+      <div class="ptitle">시스템 아키텍처</div>
+      <div class="pdesc">MVP의 데이터 흐름과 컴포넌트 구조를 시각화합니다.<br>서버리스 + BaaS 조합으로 <strong>별도 백엔드 서버 없이</strong> 운영합니다.</div>
 
-  <div class="arch-wrap mb18">
-    <div class="arch-label">시스템 아키텍처 다이어그램</div>
+      <div class="arch-wrap mb18">
+        <div class="arch-label">시스템 아키텍처 다이어그램</div>
 
-    <!-- Client Layer -->
-    <div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">① Client Layer</div>
-    <div class="arch-row">
-      <div class="arch-box user">👤 PM 사용자<br><span style="font-size:10px">브라우저 / 모바일</span></div>
-      <div class="arch-arrow">→</div>
-      <div class="arch-box fe">⚛ React 앱<br><span style="font-size:10px">Vercel CDN</span></div>
-    </div>
-
-    <div class="arch-divider"></div>
-
-    <!-- BaaS Layer -->
-    <div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">② BaaS Layer (Supabase)</div>
-    <div class="arch-row">
-      <div class="arch-box be">🔐 Auth<br><span style="font-size:10px">JWT 인증</span></div>
-      <div class="arch-arrow">←→</div>
-      <div class="arch-box db">🗄 PostgreSQL<br><span style="font-size:10px">RLS 보안</span></div>
-      <div class="arch-arrow">←→</div>
-      <div class="arch-box be">⚡ Realtime<br><span style="font-size:10px">WebSocket</span></div>
-      <div class="arch-arrow">←→</div>
-      <div class="arch-box be">📦 Storage<br><span style="font-size:10px">파일·첨부</span></div>
-    </div>
-    <div class="arch-row" style="margin-top:8px">
-      <div class="arch-box be" style="min-width:200px">🔧 Edge Functions (Serverless)<br><span style="font-size:10px">AI 호출 · Webhook · 이메일 발송</span></div>
-    </div>
-
-    <div class="arch-divider"></div>
-
-    <!-- External Layer -->
-    <div style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">③ External Services Layer</div>
-    <div class="arch-row">
-      <div class="arch-box ai">🤖 Claude API<br><span style="font-size:10px">범위 판정 · 리포트</span></div>
-      <div class="arch-arrow">|</div>
-      <div class="arch-box ext">💳 Toss Pay<br><span style="font-size:10px">결제·구독</span></div>
-      <div class="arch-arrow">|</div>
-      <div class="arch-box ext">📧 Resend<br><span style="font-size:10px">이메일 발송</span></div>
-      <div class="arch-arrow">|</div>
-      <div class="arch-box ext">📊 PostHog<br><span style="font-size:10px">행동 분석</span></div>
-    </div>
-  </div>
-
-  <!-- DB 스키마 -->
-  <div class="g2 mb14">
-    <div class="card">
-      <div class="slabel">핵심 DB 스키마 (PostgreSQL)</div>
-      <div class="code-block mt10"><span class="cm">-- 프로젝트 테이블</span>
-<span class="kw">CREATE TABLE</span> projects (
-  id        uuid <span class="kw">PRIMARY KEY</span>,
-  user_id   uuid <span class="kw">REFERENCES</span> auth.users,
-  name      text <span class="kw">NOT NULL</span>,
-  client    text,
-  contract_amount numeric,
-  status    text <span class="kw">DEFAULT</span> <span class="str">'active'</span>,
-  created_at timestamptz
-);
-
-<span class="cm">-- 계약 범위 항목</span>
-<span class="kw">CREATE TABLE</span> scope_items (
-  id         uuid <span class="kw">PRIMARY KEY</span>,
-  project_id uuid <span class="kw">REFERENCES</span> projects,
-  title      text,
-  hours      numeric,
-  is_active  boolean <span class="kw">DEFAULT</span> <span class="kw">true</span>
-);
-
-<span class="cm">-- 추가 요구 기록</span>
-<span class="kw">CREATE TABLE</span> change_requests (
-  id          uuid <span class="kw">PRIMARY KEY</span>,
-  project_id  uuid <span class="kw">REFERENCES</span> projects,
-  description text,
-  channel     text, <span class="cm">-- kakao/email/call</span>
-  verdict     text, <span class="cm">-- in_scope/out/unclear</span>
-  ai_reason   text,
-  created_at  timestamptz
-);</div>
-    </div>
-    <div class="card">
-      <div class="slabel">데이터 흐름 — 범위 판정 시퀀스</div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden">
-        <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
-          <div style="font-size:12px;color:var(--t3)">PM이 추가 요구 텍스트 입력 → <strong style="color:var(--t1)">React 클라이언트</strong></div>
+        <!-- Client Layer -->
+        <div
+          style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">
+          ① Client Layer</div>
+        <div class="arch-row">
+          <div class="arch-box user">👤 PM 사용자<br><span style="font-size:10px">브라우저 / 모바일</span></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-box fe">⚛ React 앱<br><span style="font-size:10px">Vercel CDN</span></div>
         </div>
-        <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
-          <div style="font-size:12px;color:var(--t3)">Supabase Edge Function 호출 → <strong style="color:var(--t1)">서버리스 함수</strong></div>
+
+        <div class="arch-divider"></div>
+
+        <!-- BaaS Layer -->
+        <div
+          style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">
+          ② BaaS Layer (Supabase)</div>
+        <div class="arch-row">
+          <div class="arch-box be">🔐 Auth<br><span style="font-size:10px">JWT 인증</span></div>
+          <div class="arch-arrow">←→</div>
+          <div class="arch-box db">🗄 PostgreSQL<br><span style="font-size:10px">RLS 보안</span></div>
+          <div class="arch-arrow">←→</div>
+          <div class="arch-box be">⚡ Realtime<br><span style="font-size:10px">WebSocket</span></div>
+          <div class="arch-arrow">←→</div>
+          <div class="arch-box be">📦 Storage<br><span style="font-size:10px">파일·첨부</span></div>
         </div>
-        <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
-          <div style="font-size:12px;color:var(--t3)">계약 범위 + 추가 요구 → <strong style="color:var(--t1)">Claude API</strong> 판정 요청</div>
+        <div class="arch-row" style="margin-top:8px">
+          <div class="arch-box be" style="min-width:200px">🔧 Edge Functions (Serverless)<br><span
+              style="font-size:10px">AI 호출 · Webhook · 이메일 발송</span></div>
         </div>
-        <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--yellow);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
-          <div style="font-size:12px;color:var(--t3)">JSON 형태 판정 결과 반환 → <strong style="color:var(--t1)">Supabase DB 저장</strong></div>
+
+        <div class="arch-divider"></div>
+
+        <!-- External Layer -->
+        <div
+          style="font-size:10px;color:var(--t3);text-align:center;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">
+          ③ External Services Layer</div>
+        <div class="arch-row">
+          <div class="arch-box ai">🤖 Claude API<br><span style="font-size:10px">범위 판정 · 리포트</span></div>
+          <div class="arch-arrow">|</div>
+          <div class="arch-box ext">💳 Toss Pay<br><span style="font-size:10px">결제·구독</span></div>
+          <div class="arch-arrow">|</div>
+          <div class="arch-box ext">📧 Resend<br><span style="font-size:10px">이메일 발송</span></div>
+          <div class="arch-arrow">|</div>
+          <div class="arch-box ext">📊 PostHog<br><span style="font-size:10px">행동 분석</span></div>
         </div>
-        <div style="padding:10px 16px;display:flex;gap:10px;align-items:center">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
-          <div style="font-size:12px;color:var(--t3)">Realtime 구독으로 클라이언트 즉시 업데이트 → <strong style="color:var(--t1)">UI 표시 (3초 내)</strong></div>
+      </div>
+
+      <!-- DB 스키마 -->
+      <div class="g2 mb14">
+        <div class="card">
+          <div class="slabel">핵심 DB 스키마 (PostgreSQL)</div>
+          <div class="code-block mt10"><span class="cm">-- 프로젝트 테이블</span>
+            <span class="kw">CREATE TABLE</span> projects (
+            id uuid <span class="kw">PRIMARY KEY</span>,
+            user_id uuid <span class="kw">REFERENCES</span> auth.users,
+            name text <span class="kw">NOT NULL</span>,
+            client text,
+            contract_amount numeric,
+            status text <span class="kw">DEFAULT</span> <span class="str">'active'</span>,
+            created_at timestamptz
+            );
+
+            <span class="cm">-- 계약 범위 항목</span>
+            <span class="kw">CREATE TABLE</span> scope_items (
+            id uuid <span class="kw">PRIMARY KEY</span>,
+            project_id uuid <span class="kw">REFERENCES</span> projects,
+            title text,
+            hours numeric,
+            is_active boolean <span class="kw">DEFAULT</span> <span class="kw">true</span>
+            );
+
+            <span class="cm">-- 추가 요구 기록</span>
+            <span class="kw">CREATE TABLE</span> change_requests (
+            id uuid <span class="kw">PRIMARY KEY</span>,
+            project_id uuid <span class="kw">REFERENCES</span> projects,
+            description text,
+            channel text, <span class="cm">-- kakao/email/call</span>
+            verdict text, <span class="cm">-- in_scope/out/unclear</span>
+            ai_reason text,
+            created_at timestamptz
+            );
+          </div>
+        </div>
+        <div class="card">
+          <div class="slabel">데이터 흐름 — 범위 판정 시퀀스</div>
+          <div
+            style="margin-top:12px;display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+            <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
+              <div
+                style="width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                1</div>
+              <div style="font-size:12px;color:var(--t3)">PM이 추가 요구 텍스트 입력 → <strong style="color:var(--t1)">React
+                  클라이언트</strong></div>
+            </div>
+            <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
+              <div
+                style="width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                2</div>
+              <div style="font-size:12px;color:var(--t3)">Supabase Edge Function 호출 → <strong
+                  style="color:var(--t1)">서버리스 함수</strong></div>
+            </div>
+            <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
+              <div
+                style="width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                3</div>
+              <div style="font-size:12px;color:var(--t3)">계약 범위 + 추가 요구 → <strong style="color:var(--t1)">Claude
+                  API</strong> 판정 요청</div>
+            </div>
+            <div style="padding:10px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--bd)">
+              <div
+                style="width:22px;height:22px;border-radius:50%;background:var(--yellow);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                4</div>
+              <div style="font-size:12px;color:var(--t3)">JSON 형태 판정 결과 반환 → <strong style="color:var(--t1)">Supabase DB
+                  저장</strong></div>
+            </div>
+            <div style="padding:10px 16px;display:flex;gap:10px;align-items:center">
+              <div
+                style="width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                5</div>
+              <div style="font-size:12px;color:var(--t3)">Realtime 구독으로 클라이언트 즉시 업데이트 → <strong
+                  style="color:var(--t1)">UI 표시 (3초 내)</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="slabel">보안 아키텍처 — Row Level Security (RLS)</div>
+        <div class="code-block mt10"><span class="cm">-- 사용자는 자신의 프로젝트만 조회 가능</span>
+          <span class="kw">ALTER TABLE</span> projects <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+
+          <span class="kw">CREATE POLICY</span> <span class="str">"own_projects_only"</span>
+          <span class="kw">ON</span> projects <span class="kw">FOR ALL</span>
+          <span class="kw">USING</span> (auth.uid() = user_id);
+
+          <span class="cm">-- 플랜별 프로젝트 수 제한 (Free: 1개)</span>
+          <span class="kw">CREATE POLICY</span> <span class="str">"free_plan_limit"</span>
+          <span class="kw">ON</span> projects <span class="kw">FOR INSERT</span>
+          <span class="kw">WITH CHECK</span> (
+          get_user_plan(auth.uid()) != <span class="str">'free'</span>
+          <span class="kw">OR</span> (
+          <span class="kw">SELECT COUNT</span>(*) <span class="kw">FROM</span> projects
+          <span class="kw">WHERE</span> user_id = auth.uid()
+          ) < <span class="num">1</span>
+            );
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="slabel">보안 아키텍처 — Row Level Security (RLS)</div>
-    <div class="code-block mt10"><span class="cm">-- 사용자는 자신의 프로젝트만 조회 가능</span>
-<span class="kw">ALTER TABLE</span> projects <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
-
-<span class="kw">CREATE POLICY</span> <span class="str">"own_projects_only"</span>
-  <span class="kw">ON</span> projects <span class="kw">FOR ALL</span>
-  <span class="kw">USING</span> (auth.uid() = user_id);
-
-<span class="cm">-- 플랜별 프로젝트 수 제한 (Free: 1개)</span>
-<span class="kw">CREATE POLICY</span> <span class="str">"free_plan_limit"</span>
-  <span class="kw">ON</span> projects <span class="kw">FOR INSERT</span>
-  <span class="kw">WITH CHECK</span> (
-    get_user_plan(auth.uid()) != <span class="str">'free'</span>
-    <span class="kw">OR</span> (
-      <span class="kw">SELECT COUNT</span>(*) <span class="kw">FROM</span> projects
-      <span class="kw">WHERE</span> user_id = auth.uid()
-    ) < <span class="num">1</span>
-  );</div>
-  </div>
-</div>
 
 
-<!-- ══════════════════════
+    <!-- ══════════════════════
   TAB 4: AI 판정 엔진
 ══════════════════════ -->
-<div id="page-ai" class="page">
-  <div class="ptitle">AI 범위 판정 엔진 설계</div>
-  <div class="pdesc">Scope Manager의 핵심 차별 기술 — <strong>Claude API를 활용한 텍스트 기반 범위 초과 자동 판정</strong>.<br>프롬프트 설계, 응답 구조, 정확도 개선 루프를 정의합니다.</div>
+    <div id="page-ai" class="page">
+      <div class="ptitle">AI 범위 판정 엔진 설계</div>
+      <div class="pdesc">Scope Manager의 핵심 차별 기술 — <strong>Claude API를 활용한 텍스트 기반 범위 초과 자동 판정</strong>.<br>프롬프트 설계, 응답
+        구조, 정확도 개선 루프를 정의합니다.</div>
 
-  <div class="callout b mb18">
-    <div class="cot">🤖 왜 Claude API인가?</div>
-    <p>범위 초과 판정은 <strong>의미적 유사도</strong>를 기반으로 한다. "로그인 기능 추가"가 계약서의 "회원가입 모듈"에 포함되는지 판단하려면 단순 키워드 매칭이 아닌 <strong>자연어 이해</strong>가 필요하다. Claude API는 한국어 성능이 우수하고 Structured Output을 지원하며, Haiku 모델로 비용을 낮출 수 있다.</p>
-  </div>
+      <div class="callout b mb18">
+        <div class="cot">🤖 왜 Claude API인가?</div>
+        <p>범위 초과 판정은 <strong>의미적 유사도</strong>를 기반으로 한다. "로그인 기능 추가"가 계약서의 "회원가입 모듈"에 포함되는지 판단하려면 단순 키워드 매칭이 아닌
+          <strong>자연어 이해</strong>가 필요하다. Claude API는 한국어 성능이 우수하고 Structured Output을 지원하며, Haiku 모델로 비용을 낮출 수 있다.</p>
+      </div>
 
-  <div class="g2 mb14">
-    <div class="card">
-      <div class="slabel">판정 프롬프트 구조</div>
-      <div class="code-block mt10"><span class="cm">// System Prompt (고정)</span>
-<span class="str">당신은 웹 에이전시 PM의 프로젝트 범위
-관리를 돕는 전문가입니다.
-계약 범위와 추가 요구를 비교하여
-정확히 3가지 중 하나로 판정하세요:
-- in_scope: 계약 범위 내
-- out_of_scope: 범위 초과
-- unclear: 판단 어려움</span>
+      <div class="g2 mb14">
+        <div class="card">
+          <div class="slabel">판정 프롬프트 구조</div>
+          <div class="code-block mt10"><span class="cm">// System Prompt (고정)</span>
+            <span class="str">당신은 웹 에이전시 PM의 프로젝트 범위
+              관리를 돕는 전문가입니다.
+              계약 범위와 추가 요구를 비교하여
+              정확히 3가지 중 하나로 판정하세요:
+              - in_scope: 계약 범위 내
+              - out_of_scope: 범위 초과
+              - unclear: 판단 어려움</span>
 
-<span class="cm">// User Prompt (동적 생성)</span>
-<span class="str">### 계약 범위
-{scope_items.map(i => `- ${i.title}`)}
+            <span class="cm">// User Prompt (동적 생성)</span>
+            <span class="str">### 계약 범위
+              {scope_items.map(i => `- ${i.title}`)}
 
-### 클라이언트 추가 요구
-{change_request.description}
+              ### 클라이언트 추가 요구
+              {change_request.description}
 
-### 응답 형식 (JSON only)
-{
-  "verdict": "out_of_scope",
-  "confidence": 0.92,
-  "reason": "판정 근거 한 문장",
-  "related_scope": "관련 계약 항목명"
-}</span></div>
-    </div>
-    <div class="card">
-      <div class="slabel">예상 판정 시나리오 & 정확도</div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
-        <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:10px 14px">
-          <div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:4px">✓ 명확한 범위 초과 (정확도 ~90%)</div>
-          <div style="font-size:12px;color:var(--t3)">계약: "회원가입 페이지" → 요구: "SNS 소셜 로그인 5종 추가"<br><strong style="color:var(--t1)">→ out_of_scope (confidence: 0.95)</strong></div>
+              ### 응답 형식 (JSON only)
+              {
+              "verdict": "out_of_scope",
+              "confidence": 0.92,
+              "reason": "판정 근거 한 문장",
+              "related_scope": "관련 계약 항목명"
+              }</span>
+          </div>
         </div>
-        <div style="background:rgba(79,128,255,.07);border:1px solid rgba(79,128,255,.25);border-radius:8px;padding:10px 14px">
-          <div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:4px">↔ 범위 내 포함 가능 (정확도 ~80%)</div>
-          <div style="font-size:12px;color:var(--t3)">계약: "상품 상세 페이지" → 요구: "상품 이미지 확대 기능"<br><strong style="color:var(--t1)">→ in_scope (confidence: 0.78)</strong></div>
-        </div>
-        <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:10px 14px">
-          <div style="font-size:11px;color:var(--yellow);font-weight:700;margin-bottom:4px">△ 판단 불명확 (PM 확인 필요)</div>
-          <div style="font-size:12px;color:var(--t3)">계약: "관리자 페이지" → 요구: "엑셀 다운로드 기능"<br><strong style="color:var(--t1)">→ unclear → PM 수동 판정 안내</strong></div>
+        <div class="card">
+          <div class="slabel">예상 판정 시나리오 & 정확도</div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+            <div
+              style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:10px 14px">
+              <div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:4px">✓ 명확한 범위 초과 (정확도 ~90%)
+              </div>
+              <div style="font-size:12px;color:var(--t3)">계약: "회원가입 페이지" → 요구: "SNS 소셜 로그인 5종 추가"<br><strong
+                  style="color:var(--t1)">→ out_of_scope (confidence: 0.95)</strong></div>
+            </div>
+            <div
+              style="background:rgba(79,128,255,.07);border:1px solid rgba(79,128,255,.25);border-radius:8px;padding:10px 14px">
+              <div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:4px">↔ 범위 내 포함 가능 (정확도 ~80%)
+              </div>
+              <div style="font-size:12px;color:var(--t3)">계약: "상품 상세 페이지" → 요구: "상품 이미지 확대 기능"<br><strong
+                  style="color:var(--t1)">→ in_scope (confidence: 0.78)</strong></div>
+            </div>
+            <div
+              style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:10px 14px">
+              <div style="font-size:11px;color:var(--yellow);font-weight:700;margin-bottom:4px">△ 판단 불명확 (PM 확인 필요)
+              </div>
+              <div style="font-size:12px;color:var(--t3)">계약: "관리자 페이지" → 요구: "엑셀 다운로드 기능"<br><strong
+                  style="color:var(--t1)">→ unclear → PM 수동 판정 안내</strong></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="g2 mb14">
-    <div class="card ac ap">
-      <div class="slabel" style="color:var(--purple)">정확도 개선 피드백 루프</div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:8px;overflow:hidden">
-        <div style="padding:9px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bd);font-size:12px">
-          <div style="color:var(--purple);font-weight:700;flex-shrink:0">1단계</div>
-          <div style="color:var(--t3)">AI 자동 판정 → PM에게 결과 표시</div>
+      <div class="g2 mb14">
+        <div class="card ac ap">
+          <div class="slabel" style="color:var(--purple)">정확도 개선 피드백 루프</div>
+          <div
+            style="margin-top:10px;display:flex;flex-direction:column;gap:0;border:1px solid var(--bd);border-radius:8px;overflow:hidden">
+            <div
+              style="padding:9px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bd);font-size:12px">
+              <div style="color:var(--purple);font-weight:700;flex-shrink:0">1단계</div>
+              <div style="color:var(--t3)">AI 자동 판정 → PM에게 결과 표시</div>
+            </div>
+            <div
+              style="padding:9px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bd);font-size:12px">
+              <div style="color:var(--purple);font-weight:700;flex-shrink:0">2단계</div>
+              <div style="color:var(--t3)">PM이 판정 결과 확인/수정 (오버라이드)</div>
+            </div>
+            <div
+              style="padding:9px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bd);font-size:12px">
+              <div style="color:var(--purple);font-weight:700;flex-shrink:0">3단계</div>
+              <div style="color:var(--t3)">수정 데이터 DB 저장 → 오류 패턴 분석</div>
+            </div>
+            <div style="padding:9px 14px;display:flex;gap:8px;align-items:center;font-size:12px">
+              <div style="color:var(--purple);font-weight:700;flex-shrink:0">4단계</div>
+              <div style="color:var(--t3)">오류율 높은 케이스 → 프롬프트 개선</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--t3)">목표: <strong style="color:var(--t1)">6주 후 판정 정확도
+              85% 이상</strong></div>
         </div>
-        <div style="padding:9px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bd);font-size:12px">
-          <div style="color:var(--purple);font-weight:700;flex-shrink:0">2단계</div>
-          <div style="color:var(--t3)">PM이 판정 결과 확인/수정 (오버라이드)</div>
-        </div>
-        <div style="padding:9px 14px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bd);font-size:12px">
-          <div style="color:var(--purple);font-weight:700;flex-shrink:0">3단계</div>
-          <div style="color:var(--t3)">수정 데이터 DB 저장 → 오류 패턴 분석</div>
-        </div>
-        <div style="padding:9px 14px;display:flex;gap:8px;align-items:center;font-size:12px">
-          <div style="color:var(--purple);font-weight:700;flex-shrink:0">4단계</div>
-          <div style="color:var(--t3)">오류율 높은 케이스 → 프롬프트 개선</div>
+        <div class="card ac ay">
+          <div class="slabel" style="color:var(--yellow)">API 비용 최적화 전략</div>
+          <ul class="bl mt10">
+            <li><strong>Haiku 기본 사용</strong> — 판정 분류는 Haiku ($0.25/1M tokens), 리포트 생성만 Sonnet</li>
+            <li><strong>입력 토큰 압축</strong> — 계약 범위를 bullet 형식으로 최소화 (평균 ~300 tokens/판정)</li>
+            <li><strong>캐싱 활용</strong> — 동일 프로젝트의 시스템 프롬프트 Prompt Caching 적용</li>
+            <li><strong>배치 처리</strong> — 여러 요구 동시 입력 시 단일 API 호출로 처리</li>
+            <li><strong>비용 상한선</strong> — 월 API 비용 $50 초과 시 알림 + 자동 제한</li>
+          </ul>
+          <div
+            style="margin-top:12px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3)">
+            예상 API 비용: 사용자 100명 × 월 20회 판정 = 2,000회<br>
+            2,000 × 300 tokens × $0.00025/1K = <strong style="color:var(--yellow)">월 약 $0.15 (≈ 200원)</strong>
+          </div>
         </div>
       </div>
-      <div style="margin-top:10px;font-size:12px;color:var(--t3)">목표: <strong style="color:var(--t1)">6주 후 판정 정확도 85% 이상</strong></div>
-    </div>
-    <div class="card ac ay">
-      <div class="slabel" style="color:var(--yellow)">API 비용 최적화 전략</div>
-      <ul class="bl mt10">
-        <li><strong>Haiku 기본 사용</strong> — 판정 분류는 Haiku ($0.25/1M tokens), 리포트 생성만 Sonnet</li>
-        <li><strong>입력 토큰 압축</strong> — 계약 범위를 bullet 형식으로 최소화 (평균 ~300 tokens/판정)</li>
-        <li><strong>캐싱 활용</strong> — 동일 프로젝트의 시스템 프롬프트 Prompt Caching 적용</li>
-        <li><strong>배치 처리</strong> — 여러 요구 동시 입력 시 단일 API 호출로 처리</li>
-        <li><strong>비용 상한선</strong> — 월 API 비용 $50 초과 시 알림 + 자동 제한</li>
-      </ul>
-      <div style="margin-top:12px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3)">
-        예상 API 비용: 사용자 100명 × 월 20회 판정 = 2,000회<br>
-        2,000 × 300 tokens × $0.00025/1K = <strong style="color:var(--yellow)">월 약 $0.15 (≈ 200원)</strong>
+
+      <div class="card">
+        <div class="slabel">AI 판정 엔진 — 엣지 케이스 처리 정책</div>
+        <table class="tbl mt10">
+          <thead>
+            <tr>
+              <th>케이스</th>
+              <th>발생 조건</th>
+              <th>처리 방식</th>
+              <th>PM 액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t1">Confidence 낮음</td>
+              <td>&lt; 0.6</td>
+              <td>unclear 자동 분류</td>
+              <td>수동 판정 요청</td>
+            </tr>
+            <tr>
+              <td class="t1">API 타임아웃</td>
+              <td>&gt; 5초</td>
+              <td>재시도 2회 후 실패</td>
+              <td>나중에 재판정 안내</td>
+            </tr>
+            <tr>
+              <td class="t1">계약 범위 공란</td>
+              <td>scope_items 없음</td>
+              <td>판정 불가 안내</td>
+              <td>범위 등록 유도</td>
+            </tr>
+            <tr>
+              <td class="t1">비한국어 입력</td>
+              <td>영문·혼용</td>
+              <td>Claude 다국어 처리</td>
+              <td>별도 처리 없음</td>
+            </tr>
+            <tr>
+              <td class="t1">API 오류 (5xx)</td>
+              <td>Claude 서버 오류</td>
+              <td>Fallback: pending 저장</td>
+              <td>이메일 알림 발송</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="slabel">AI 판정 엔진 — 엣지 케이스 처리 정책</div>
-    <table class="tbl mt10">
-      <thead><tr><th>케이스</th><th>발생 조건</th><th>처리 방식</th><th>PM 액션</th></tr></thead>
-      <tbody>
-        <tr><td class="t1">Confidence 낮음</td><td>&lt; 0.6</td><td>unclear 자동 분류</td><td>수동 판정 요청</td></tr>
-        <tr><td class="t1">API 타임아웃</td><td>&gt; 5초</td><td>재시도 2회 후 실패</td><td>나중에 재판정 안내</td></tr>
-        <tr><td class="t1">계약 범위 공란</td><td>scope_items 없음</td><td>판정 불가 안내</td><td>범위 등록 유도</td></tr>
-        <tr><td class="t1">비한국어 입력</td><td>영문·혼용</td><td>Claude 다국어 처리</td><td>별도 처리 없음</td></tr>
-        <tr><td class="t1">API 오류 (5xx)</td><td>Claude 서버 오류</td><td>Fallback: pending 저장</td><td>이메일 알림 발송</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
 
-<!-- ══════════════════════
+    <!-- ══════════════════════
   TAB 5: 기술 리스크
 ══════════════════════ -->
-<div id="page-risk" class="page">
-  <div class="ptitle">기술 리스크 분석</div>
-  <div class="pdesc">MVP 개발 및 운영에서 발생할 수 있는 기술 리스크를 사전에 식별하고 대응 전략을 수립합니다.</div>
+    <div id="page-risk" class="page">
+      <div class="ptitle">기술 리스크 분석</div>
+      <div class="pdesc">MVP 개발 및 운영에서 발생할 수 있는 기술 리스크를 사전에 식별하고 대응 전략을 수립합니다.</div>
 
-  <div class="slabel mb12">🔴 고위험 리스크</div>
+      <div class="slabel mb12">🔴 고위험 리스크</div>
 
-  <div class="risk-card ac ar">
-    <div class="risk-head">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">RISK-01 · 고위험</div>
-        <div class="risk-title">AI 판정 정확도 부족으로 사용자 신뢰 손상</div>
-      </div>
-      <span class="pill high">확률: 중간</span>
-    </div>
-    <div class="risk-body">
-      범위 판정이 <strong>명백히 잘못된 결과</strong>를 반환할 경우, PM이 클라이언트에게 잘못된 리포트를 전달할 수 있다. 초기 정확도가 70% 미만이면 오히려 PM의 신뢰를 깎는다.
-    </div>
-    <div class="risk-meta">
-      <div class="rm"><div class="rm-lbl">영향도</div><div class="rm-val" style="color:var(--red)">매우 높음</div></div>
-      <div class="rm"><div class="rm-lbl">발생 확률</div><div class="rm-val" style="color:var(--yellow)">중간 (30%)</div></div>
-      <div class="rm"><div class="rm-lbl">대응 전략</div><div class="rm-val">PM 수동 오버라이드 필수 제공</div></div>
-    </div>
-    <div style="margin-top:10px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3);line-height:1.7">
-      <strong style="color:var(--t1)">대응 계획:</strong> ① 판정 결과에 항상 confidence 점수 표시 ② &lt;0.7이면 "AI 판정 불확실 — PM 검토 권장" 경고 ③ 모든 판정은 PM이 최종 확인 후 리포트 생성되는 UX 설계 ④ 오버라이드 데이터 수집 → 프롬프트 개선 루프 운영
-    </div>
-  </div>
-
-  <div class="risk-card ac ar">
-    <div class="risk-head">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">RISK-02 · 고위험</div>
-        <div class="risk-title">Claude API 비용 급증 — 예상 외 사용량 증가</div>
-      </div>
-      <span class="pill high">확률: 낮음</span>
-    </div>
-    <div class="risk-body">
-      사용자가 급증하거나 비효율적인 API 호출 패턴이 발생할 경우, <strong>월 API 비용이 구독 수익을 초과</strong>하는 역전 현상이 발생할 수 있다.
-    </div>
-    <div class="risk-meta">
-      <div class="rm"><div class="rm-lbl">영향도</div><div class="rm-val" style="color:var(--red)">매우 높음</div></div>
-      <div class="rm"><div class="rm-lbl">발생 확률</div><div class="rm-val" style="color:var(--green)">낮음 (15%)</div></div>
-      <div class="rm"><div class="rm-lbl">대응 전략</div><div class="rm-val">플랜별 월 판정 횟수 상한</div></div>
-    </div>
-    <div style="margin-top:10px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3);line-height:1.7">
-      <strong style="color:var(--t1)">대응 계획:</strong> ① Free 플랜 월 판정 50회 제한 ② Starter 월 200회 ③ Pro 무제한 ④ Prompt Caching으로 반복 비용 90% 절감 ⑤ 월 $50 초과 시 Slack 알림 자동 발송
-    </div>
-  </div>
-
-  <div class="slabel mb12 mt18">🟡 중위험 리스크</div>
-
-  <div class="risk-card ac ay">
-    <div class="risk-head">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">RISK-03 · 중위험</div>
-        <div class="risk-title">Supabase 서비스 장애 — 단일 장애점</div>
-      </div>
-      <span class="pill mid">확률: 낮음</span>
-    </div>
-    <div class="risk-body">
-      DB·Auth·Realtime을 Supabase에 의존하는 구조상, <strong>Supabase 장애 시 전체 서비스 중단</strong>된다. 스타트업 초기에는 수용 가능한 트레이드오프지만 인지가 필요하다.
-    </div>
-    <div class="risk-meta">
-      <div class="rm"><div class="rm-lbl">영향도</div><div class="rm-val" style="color:var(--yellow)">높음</div></div>
-      <div class="rm"><div class="rm-lbl">발생 확률</div><div class="rm-val" style="color:var(--green)">낮음 (99.9% SLA)</div></div>
-      <div class="rm"><div class="rm-lbl">대응 전략</div><div class="rm-val">자동 DB 백업 · 상태 페이지 모니터링</div></div>
-    </div>
-  </div>
-
-  <div class="risk-card ac ay">
-    <div class="risk-head">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">RISK-04 · 중위험</div>
-        <div class="risk-title">3주 배포 일정 지연</div>
-      </div>
-      <span class="pill mid">확률: 중간</span>
-    </div>
-    <div class="risk-body">
-      1인 개발 구조에서 <strong>기술적 블로커</strong>(결제 연동 복잡성, AI 프롬프트 튜닝, 예상치 못한 버그)가 발생할 경우 3주 목표를 초과할 수 있다.
-    </div>
-    <div class="risk-meta">
-      <div class="rm"><div class="rm-lbl">영향도</div><div class="rm-val" style="color:var(--yellow)">중간</div></div>
-      <div class="rm"><div class="rm-lbl">발생 확률</div><div class="rm-val" style="color:var(--yellow)">중간 (35%)</div></div>
-      <div class="rm"><div class="rm-lbl">대응 전략</div><div class="rm-val">결제 연동 W3로 후순위 배치</div></div>
-    </div>
-    <div style="margin-top:10px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3);line-height:1.7">
-      <strong style="color:var(--t1)">대응 계획:</strong> W1~W2는 핵심 판정 기능에만 집중, 결제·이메일은 W3 후반으로 배치. 3.5주까지 허용 버퍼 설정.
-    </div>
-  </div>
-
-  <div class="slabel mb12 mt18">🟢 저위험 리스크</div>
-  <div class="g2">
-    <div class="risk-card ac ag" style="margin-bottom:0">
-      <div class="risk-head">
-        <div>
-          <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">RISK-05 · 저위험</div>
-          <div class="risk-title">Toss Payments 심사 지연</div>
+      <div class="risk-card ac ar">
+        <div class="risk-head">
+          <div>
+            <div
+              style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">
+              RISK-01 · 고위험</div>
+            <div class="risk-title">AI 판정 정확도 부족으로 사용자 신뢰 손상</div>
+          </div>
+          <span class="pill high">확률: 중간</span>
         </div>
-        <span class="pill low">확률: 낮음</span>
-      </div>
-      <div class="risk-body">결제 연동 심사가 지연될 경우 Paid 전환 테스트 불가. <strong>대응:</strong> 심사 기간(1~3일) 감안하여 W2에 미리 신청.</div>
-    </div>
-    <div class="risk-card ac ag" style="margin-bottom:0">
-      <div class="risk-head">
-        <div>
-          <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">RISK-06 · 저위험</div>
-          <div class="risk-title">모바일 UX 최적화 부족</div>
+        <div class="risk-body">
+          범위 판정이 <strong>명백히 잘못된 결과</strong>를 반환할 경우, PM이 클라이언트에게 잘못된 리포트를 전달할 수 있다. 초기 정확도가 70% 미만이면 오히려 PM의 신뢰를 깎는다.
         </div>
-        <span class="pill low">확률: 낮음</span>
+        <div class="risk-meta">
+          <div class="rm">
+            <div class="rm-lbl">영향도</div>
+            <div class="rm-val" style="color:var(--red)">매우 높음</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">발생 확률</div>
+            <div class="rm-val" style="color:var(--yellow)">중간 (30%)</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">대응 전략</div>
+            <div class="rm-val">PM 수동 오버라이드 필수 제공</div>
+          </div>
+        </div>
+        <div
+          style="margin-top:10px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3);line-height:1.7">
+          <strong style="color:var(--t1)">대응 계획:</strong> ① 판정 결과에 항상 confidence 점수 표시 ② &lt;0.7이면 "AI 판정 불확실 — PM 검토
+          권장" 경고 ③ 모든 판정은 PM이 최종 확인 후 리포트 생성되는 UX 설계 ④ 오버라이드 데이터 수집 → 프롬프트 개선 루프 운영
+        </div>
       </div>
-      <div class="risk-body">PM이 현장에서 모바일로 기록하는 시나리오에서 UX가 나쁠 경우 활성화율 저하. <strong>대응:</strong> 추가 요구 기록 화면은 모바일 우선 설계.</div>
+
+      <div class="risk-card ac ar">
+        <div class="risk-head">
+          <div>
+            <div
+              style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">
+              RISK-02 · 고위험</div>
+            <div class="risk-title">Claude API 비용 급증 — 예상 외 사용량 증가</div>
+          </div>
+          <span class="pill high">확률: 낮음</span>
+        </div>
+        <div class="risk-body">
+          사용자가 급증하거나 비효율적인 API 호출 패턴이 발생할 경우, <strong>월 API 비용이 구독 수익을 초과</strong>하는 역전 현상이 발생할 수 있다.
+        </div>
+        <div class="risk-meta">
+          <div class="rm">
+            <div class="rm-lbl">영향도</div>
+            <div class="rm-val" style="color:var(--red)">매우 높음</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">발생 확률</div>
+            <div class="rm-val" style="color:var(--green)">낮음 (15%)</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">대응 전략</div>
+            <div class="rm-val">플랜별 월 판정 횟수 상한</div>
+          </div>
+        </div>
+        <div
+          style="margin-top:10px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3);line-height:1.7">
+          <strong style="color:var(--t1)">대응 계획:</strong> ① Free 플랜 월 판정 50회 제한 ② Starter 월 200회 ③ Pro 무제한 ④ Prompt
+          Caching으로 반복 비용 90% 절감 ⑤ 월 $50 초과 시 Slack 알림 자동 발송
+        </div>
+      </div>
+
+      <div class="slabel mb12 mt18">🟡 중위험 리스크</div>
+
+      <div class="risk-card ac ay">
+        <div class="risk-head">
+          <div>
+            <div
+              style="font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">
+              RISK-03 · 중위험</div>
+            <div class="risk-title">Supabase 서비스 장애 — 단일 장애점</div>
+          </div>
+          <span class="pill mid">확률: 낮음</span>
+        </div>
+        <div class="risk-body">
+          DB·Auth·Realtime을 Supabase에 의존하는 구조상, <strong>Supabase 장애 시 전체 서비스 중단</strong>된다. 스타트업 초기에는 수용 가능한 트레이드오프지만
+          인지가 필요하다.
+        </div>
+        <div class="risk-meta">
+          <div class="rm">
+            <div class="rm-lbl">영향도</div>
+            <div class="rm-val" style="color:var(--yellow)">높음</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">발생 확률</div>
+            <div class="rm-val" style="color:var(--green)">낮음 (99.9% SLA)</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">대응 전략</div>
+            <div class="rm-val">자동 DB 백업 · 상태 페이지 모니터링</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="risk-card ac ay">
+        <div class="risk-head">
+          <div>
+            <div
+              style="font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">
+              RISK-04 · 중위험</div>
+            <div class="risk-title">3주 배포 일정 지연</div>
+          </div>
+          <span class="pill mid">확률: 중간</span>
+        </div>
+        <div class="risk-body">
+          1인 개발 구조에서 <strong>기술적 블로커</strong>(결제 연동 복잡성, AI 프롬프트 튜닝, 예상치 못한 버그)가 발생할 경우 3주 목표를 초과할 수 있다.
+        </div>
+        <div class="risk-meta">
+          <div class="rm">
+            <div class="rm-lbl">영향도</div>
+            <div class="rm-val" style="color:var(--yellow)">중간</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">발생 확률</div>
+            <div class="rm-val" style="color:var(--yellow)">중간 (35%)</div>
+          </div>
+          <div class="rm">
+            <div class="rm-lbl">대응 전략</div>
+            <div class="rm-val">결제 연동 W3로 후순위 배치</div>
+          </div>
+        </div>
+        <div
+          style="margin-top:10px;background:var(--s2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t3);line-height:1.7">
+          <strong style="color:var(--t1)">대응 계획:</strong> W1~W2는 핵심 판정 기능에만 집중, 결제·이메일은 W3 후반으로 배치. 3.5주까지 허용 버퍼 설정.
+        </div>
+      </div>
+
+      <div class="slabel mb12 mt18">🟢 저위험 리스크</div>
+      <div class="g2">
+        <div class="risk-card ac ag" style="margin-bottom:0">
+          <div class="risk-head">
+            <div>
+              <div
+                style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">
+                RISK-05 · 저위험</div>
+              <div class="risk-title">Toss Payments 심사 지연</div>
+            </div>
+            <span class="pill low">확률: 낮음</span>
+          </div>
+          <div class="risk-body">결제 연동 심사가 지연될 경우 Paid 전환 테스트 불가. <strong>대응:</strong> 심사 기간(1~3일) 감안하여 W2에 미리 신청.</div>
+        </div>
+        <div class="risk-card ac ag" style="margin-bottom:0">
+          <div class="risk-head">
+            <div>
+              <div
+                style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">
+                RISK-06 · 저위험</div>
+              <div class="risk-title">모바일 UX 최적화 부족</div>
+            </div>
+            <span class="pill low">확률: 낮음</span>
+          </div>
+          <div class="risk-body">PM이 현장에서 모바일로 기록하는 시나리오에서 UX가 나쁠 경우 활성화율 저하. <strong>대응:</strong> 추가 요구 기록 화면은 모바일 우선
+            설계.</div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
 
-<!-- ══════════════════════
+    <!-- ══════════════════════
   TAB 6: 인프라 비용
 ══════════════════════ -->
-<div id="page-cost" class="page">
-  <div class="ptitle">인프라 비용 분석</div>
-  <div class="pdesc">MVP 단계부터 성장 단계까지의 인프라 비용을 단계별로 추정합니다.<br>초기 비용을 최소화하고 수익 발생 이후 단계적으로 업그레이드합니다.</div>
+    <div id="page-cost" class="page">
+      <div class="ptitle">인프라 비용 분석</div>
+      <div class="pdesc">MVP 단계부터 성장 단계까지의 인프라 비용을 단계별로 추정합니다.<br>초기 비용을 최소화하고 수익 발생 이후 단계적으로 업그레이드합니다.</div>
 
-  <div class="g3 mb18">
-    <div class="sc ac ag">
-      <div class="sn g">~0원</div>
-      <div class="sl2">MVP 월 고정 인프라비</div>
-      <div class="ss2">무료 티어 내 운영 가능</div>
-    </div>
-    <div class="sc ac ay">
-      <div class="sn y">~5만원</div>
-      <div class="sl2">사용자 100명 시 월 비용</div>
-      <div class="ss2">Supabase Pro + API 비용</div>
-    </div>
-    <div class="sc ac ab">
-      <div class="sn b">~30만원</div>
-      <div class="sl2">사용자 1,000명 시 월 비용</div>
-      <div class="ss2">MRR 대비 10% 이하 목표</div>
-    </div>
-  </div>
+      <div class="g3 mb18">
+        <div class="sc ac ag">
+          <div class="sn g">~0원</div>
+          <div class="sl2">MVP 월 고정 인프라비</div>
+          <div class="ss2">무료 티어 내 운영 가능</div>
+        </div>
+        <div class="sc ac ay">
+          <div class="sn y">~5만원</div>
+          <div class="sl2">사용자 100명 시 월 비용</div>
+          <div class="ss2">Supabase Pro + API 비용</div>
+        </div>
+        <div class="sc ac ab">
+          <div class="sn b">~30만원</div>
+          <div class="sl2">사용자 1,000명 시 월 비용</div>
+          <div class="ss2">MRR 대비 10% 이하 목표</div>
+        </div>
+      </div>
 
-  <!-- MVP 비용 -->
-  <div class="card mb14 ac ag">
-    <div class="slabel" style="color:var(--green)">Phase 0 — MVP 단계 (0~100 사용자) · 월 예상 비용: 0~5만원</div>
-    <div class="mt12">
-      <div class="cost-row">
-        <div><div class="cost-name">Supabase Free</div><div class="cost-detail">DB 500MB · Auth 50K MAU · Storage 1GB</div></div>
-        <div class="cost-price" style="color:var(--green)">무료</div>
+      <!-- MVP 비용 -->
+      <div class="card mb14 ac ag">
+        <div class="slabel" style="color:var(--green)">Phase 0 — MVP 단계 (0~100 사용자) · 월 예상 비용: 0~5만원</div>
+        <div class="mt12">
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Supabase Free</div>
+              <div class="cost-detail">DB 500MB · Auth 50K MAU · Storage 1GB</div>
+            </div>
+            <div class="cost-price" style="color:var(--green)">무료</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Vercel Free (Hobby)</div>
+              <div class="cost-detail">배포 · CDN · Edge Functions 100GB</div>
+            </div>
+            <div class="cost-price" style="color:var(--green)">무료</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Claude API (Haiku)</div>
+              <div class="cost-detail">100명 × 20판정 × 300 tokens = 600K tokens</div>
+            </div>
+            <div class="cost-price" style="color:var(--green)">~$0.15 (200원)</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Resend Free</div>
+              <div class="cost-detail">이메일 3,000건/월</div>
+            </div>
+            <div class="cost-price" style="color:var(--green)">무료</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">PostHog Free</div>
+              <div class="cost-detail">이벤트 100만건/월</div>
+            </div>
+            <div class="cost-price" style="color:var(--green)">무료</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Hotjar Free</div>
+              <div class="cost-detail">세션 35건/일 · 히트맵</div>
+            </div>
+            <div class="cost-price" style="color:var(--green)">무료</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">도메인 (연)</div>
+              <div class="cost-detail">scopemanager.co.kr 또는 .io</div>
+            </div>
+            <div class="cost-price" style="color:var(--yellow)">~2만원/년</div>
+          </div>
+          <div
+            style="padding:12px 0;display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--bd);margin-top:4px">
+            <div style="font-size:13px;font-weight:700;color:var(--t1)">MVP 월 총 비용 (인프라)</div>
+            <div style="font-size:16px;font-weight:800;color:var(--green)">≈ 0~2,000원</div>
+          </div>
+        </div>
       </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Vercel Free (Hobby)</div><div class="cost-detail">배포 · CDN · Edge Functions 100GB</div></div>
-        <div class="cost-price" style="color:var(--green)">무료</div>
+
+      <!-- Growth 비용 -->
+      <div class="card mb14 ac ay">
+        <div class="slabel" style="color:var(--yellow)">Phase 1 — 성장 단계 (100~500 사용자) · 월 예상 비용: 5~15만원</div>
+        <div class="mt12">
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Supabase Pro</div>
+              <div class="cost-detail">DB 8GB · 백업 자동화 · 더 많은 연결 수</div>
+            </div>
+            <div class="cost-price" style="color:var(--yellow)">$25/월 (3.5만원)</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Vercel Pro</div>
+              <div class="cost-detail">팀 협업 · 고급 분석 · 무제한 배포</div>
+            </div>
+            <div class="cost-price" style="color:var(--yellow)">$20/월 (2.8만원)</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Claude API 증가</div>
+              <div class="cost-detail">500명 × 20판정 = 3M tokens (Haiku)</div>
+            </div>
+            <div class="cost-price" style="color:var(--yellow)">~$0.75 (1,000원)</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="cost-name">Resend Pro</div>
+              <div class="cost-detail">이메일 50,000건/월</div>
+            </div>
+            <div class="cost-price" style="color:var(--yellow)">$20/월 (2.8만원)</div>
+          </div>
+          <div
+            style="padding:12px 0;display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--bd);margin-top:4px">
+            <div style="font-size:13px;font-weight:700;color:var(--t1)">성장 단계 월 총 비용</div>
+            <div style="font-size:16px;font-weight:800;color:var(--yellow)">≈ 9~12만원</div>
+          </div>
+        </div>
       </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Claude API (Haiku)</div><div class="cost-detail">100명 × 20판정 × 300 tokens = 600K tokens</div></div>
-        <div class="cost-price" style="color:var(--green)">~$0.15 (200원)</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Resend Free</div><div class="cost-detail">이메일 3,000건/월</div></div>
-        <div class="cost-price" style="color:var(--green)">무료</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">PostHog Free</div><div class="cost-detail">이벤트 100만건/월</div></div>
-        <div class="cost-price" style="color:var(--green)">무료</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Hotjar Free</div><div class="cost-detail">세션 35건/일 · 히트맵</div></div>
-        <div class="cost-price" style="color:var(--green)">무료</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">도메인 (연)</div><div class="cost-detail">scopemanager.co.kr 또는 .io</div></div>
-        <div class="cost-price" style="color:var(--yellow)">~2만원/년</div>
-      </div>
-      <div style="padding:12px 0;display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--bd);margin-top:4px">
-        <div style="font-size:13px;font-weight:700;color:var(--t1)">MVP 월 총 비용 (인프라)</div>
-        <div style="font-size:16px;font-weight:800;color:var(--green)">≈ 0~2,000원</div>
+
+      <!-- 손익 분기 분석 -->
+      <div class="card ac ab">
+        <div class="slabel" style="color:var(--blue)">비용 vs 수익 — 손익분기점 분석</div>
+        <div class="mt12">
+          <div class="prog-row">
+            <div class="prog-lbl"><span>Starter 5개 (1개월 목표)</span><span>MRR 145,000원 vs 비용 ~2,000원</span></div>
+            <div class="prog-bar">
+              <div class="prog-fill fg" style="width:98%"></div>
+            </div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-lbl"><span>Starter 30개 (6개월 목표)</span><span>MRR 870,000원 vs 비용 ~50,000원</span></div>
+            <div class="prog-bar">
+              <div class="prog-fill fg" style="width:94%"></div>
+            </div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-lbl"><span>Starter 100개 + Pro 20개 (12개월)</span><span>MRR 3.28M원 vs 비용 ~150,000원</span>
+            </div>
+            <div class="prog-bar">
+              <div class="prog-fill fb" style="width:95%"></div>
+            </div>
+          </div>
+        </div>
+        <div
+          style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:12px 16px;margin-top:12px">
+          <div style="font-size:12px;color:var(--t3);line-height:1.8">
+            <strong style="color:var(--green)">결론:</strong> SaaS 마진율이 초기부터 <strong style="color:var(--green)">95%
+              이상</strong> 유지 가능. 인프라 비용 구조상 수익이 발생하는 즉시 흑자 전환. 1인 운영 인건비 제외 시, 구독자 <strong
+              style="color:var(--green)">5명부터 현금 흑자</strong>.
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Growth 비용 -->
-  <div class="card mb14 ac ay">
-    <div class="slabel" style="color:var(--yellow)">Phase 1 — 성장 단계 (100~500 사용자) · 월 예상 비용: 5~15만원</div>
-    <div class="mt12">
-      <div class="cost-row">
-        <div><div class="cost-name">Supabase Pro</div><div class="cost-detail">DB 8GB · 백업 자동화 · 더 많은 연결 수</div></div>
-        <div class="cost-price" style="color:var(--yellow)">$25/월 (3.5만원)</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Vercel Pro</div><div class="cost-detail">팀 협업 · 고급 분석 · 무제한 배포</div></div>
-        <div class="cost-price" style="color:var(--yellow)">$20/월 (2.8만원)</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Claude API 증가</div><div class="cost-detail">500명 × 20판정 = 3M tokens (Haiku)</div></div>
-        <div class="cost-price" style="color:var(--yellow)">~$0.75 (1,000원)</div>
-      </div>
-      <div class="cost-row">
-        <div><div class="cost-name">Resend Pro</div><div class="cost-detail">이메일 50,000건/월</div></div>
-        <div class="cost-price" style="color:var(--yellow)">$20/월 (2.8만원)</div>
-      </div>
-      <div style="padding:12px 0;display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--bd);margin-top:4px">
-        <div style="font-size:13px;font-weight:700;color:var(--t1)">성장 단계 월 총 비용</div>
-        <div style="font-size:16px;font-weight:800;color:var(--yellow)">≈ 9~12만원</div>
-      </div>
-    </div>
-  </div>
+  </main>
 
-  <!-- 손익 분기 분석 -->
-  <div class="card ac ab">
-    <div class="slabel" style="color:var(--blue)">비용 vs 수익 — 손익분기점 분석</div>
-    <div class="mt12">
-      <div class="prog-row">
-        <div class="prog-lbl"><span>Starter 5개 (1개월 목표)</span><span>MRR 145,000원 vs 비용 ~2,000원</span></div>
-        <div class="prog-bar"><div class="prog-fill fg" style="width:98%"></div></div>
-      </div>
-      <div class="prog-row">
-        <div class="prog-lbl"><span>Starter 30개 (6개월 목표)</span><span>MRR 870,000원 vs 비용 ~50,000원</span></div>
-        <div class="prog-bar"><div class="prog-fill fg" style="width:94%"></div></div>
-      </div>
-      <div class="prog-row">
-        <div class="prog-lbl"><span>Starter 100개 + Pro 20개 (12개월)</span><span>MRR 3.28M원 vs 비용 ~150,000원</span></div>
-        <div class="prog-bar"><div class="prog-fill fb" style="width:95%"></div></div>
-      </div>
-    </div>
-    <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:12px 16px;margin-top:12px">
-      <div style="font-size:12px;color:var(--t3);line-height:1.8">
-        <strong style="color:var(--green)">결론:</strong> SaaS 마진율이 초기부터 <strong style="color:var(--green)">95% 이상</strong> 유지 가능. 인프라 비용 구조상 수익이 발생하는 즉시 흑자 전환. 1인 운영 인건비 제외 시, 구독자 <strong style="color:var(--green)">5명부터 현금 흑자</strong>.
-      </div>
-    </div>
-  </div>
-</div>
-
-</main>
-
-<script>
-function showTab(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-}
-function toggleMode() {
-  const isLight = document.body.classList.toggle('light');
-  document.getElementById('togBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
-}
-</script>
+  <script>
+    function showTab(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+    function toggleMode() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('togBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+    }
+  </script>
 </body>
+
 </html>

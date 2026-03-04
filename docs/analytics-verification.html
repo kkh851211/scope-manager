@@ -1,1222 +1,2006 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — Analytics Verification</title>
-<style>
-:root{--bg:#0f1117;--s1:#1a1f2e;--t1:#e8eaf0;--t3:#8c95aa;--bd:#232b3e;--blue:#4f80ff;--green:#10b981;--red:#f87171;--yellow:#fbbf24;--purple:#a78bfa;--s2:#1e2536;}
-body.light{--bg:#f5f7fa;--s1:#ffffff;--t1:#1a1f2e;--t3:#5a6478;--bd:#d1d9e6;--s2:#eef1f7;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--t1);font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — Analytics Verification</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --s2: #1e2536;
+    }
 
-  /* [신규] 공통으로 사용할 중앙 정렬 박스 */
-.inner-wrap {
-  max-width: 1120px;     /* main과 동일한 너비 제한 */
-  margin: 0 auto;        /* 중앙 정렬 */
-  padding: 0 24px;       /* main의 좌우 패딩과 동일하게 맞춤 */
-  width: 100%;
-  height: 100%;
-}
-  
-/* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
-header {
-  position: sticky; 
-  top: 0; 
-  z-index: 100;
-  background: var(--bg);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 (block 요소로 변경) */
-  /* align-items...      <-- 삭제 */
-  /* justify-content...  <-- 삭제 */
-  height: 56px;
-  transition: background 0.2s;
-}
-  /* [신규] Header 내부 정렬용 */
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.logo{font-weight:700;font-size:16px;color:var(--t1);letter-spacing:-.3px;}.logo span{color:var(--blue);}
-.badges{display:flex;gap:6px;margin-left:12px;}
-.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--t3);}
-.badge.blue{border-color:var(--blue);color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,transparent);}
-.badge.green{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 10%,transparent);}
-.toggle-btn{background:var(--s1);border:1px solid var(--bd);border-radius:8px;color:var(--t1);cursor:pointer;padding:6px 12px;font-size:13px;transition:background .2s;}
-.toggle-btn:hover{border-color:var(--blue);}
-/* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
-nav {
-  background: var(--bg);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 */
-  /* overflow-x...       <-- 삭제 */
-  transition: background 0.2s;
-}
-nav::-webkit-scrollbar{display:none;}
-  /* [신규] Nav 내부 정렬 및 스크롤용 */
-.nav-content {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  height: 100%;
-}
-.nav-content::-webkit-scrollbar { display: none; }
-.tab-btn{background:none;border:none;color:var(--t3);padding:12px 16px;cursor:pointer;font-size:13px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;}
-.tab-btn:hover{color:var(--t1);}.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
-main{padding:28px 24px;max-width:1120px;margin:0 auto;}
-.page{display:none;}.page.active{display:block;}
-.card{border-radius:12px;padding:18px;border:1px solid var(--bd);background:var(--s1);transition:background .2s,border-color .2s;}
-h2{font-size:18px;font-weight:700;margin-bottom:4px;}
-h3{font-size:14px;font-weight:600;margin-bottom:5px;}
-h4{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
-p{color:var(--t3);font-size:13px;}
-.sec-hdr{margin-bottom:20px;}.sec-hdr p{margin-top:4px;}
-.sec-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:block;}
-hr{border:none;border-top:1px solid var(--bd);margin:16px 0;}
-.mb{margin-bottom:16px;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+      --s2: #eef1f7;
+    }
 
-/* TAGS */
-.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-right:3px;margin-bottom:2px;}
-.tb{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);}
-.tg{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
-.tr{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
-.ty{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
-.tp{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple);}
-.tgr{background:color-mix(in srgb,var(--t3) 15%,transparent);color:var(--t3);}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* STATUS PILL */
-.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
-.pill-pass{background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
-.pill-fail{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);}
-.pill-warn{background:color-mix(in srgb,var(--yellow) 12%,transparent);color:var(--yellow);border:1px solid color-mix(in srgb,var(--yellow) 30%,transparent);}
-.pill-todo{background:color-mix(in srgb,var(--t3) 12%,transparent);color:var(--t3);border:1px solid color-mix(in srgb,var(--t3) 30%,transparent);}
-.pill-live{background:color-mix(in srgb,var(--blue) 12%,transparent);color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);}
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background .2s, color .2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
 
-/* CODE */
-.code{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.8;overflow-x:auto;margin-bottom:0;}
-.code .k{color:var(--blue);}
-.code .s{color:var(--green);}
-.code .c{color:var(--t3);}
-.code .n{color:var(--yellow);}
-.code .v{color:var(--purple);}
-.code .f{color:var(--red);}
+    /* [신규] 공통으로 사용할 중앙 정렬 박스 */
+    .inner-wrap {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+      width: 100%;
+      height: 100%;
+    }
 
-/* ANN */
-.ann{border-radius:8px;padding:9px 12px;font-size:12px;color:var(--t1);margin-top:8px;}
-.ann.y{background:color-mix(in srgb,var(--yellow) 8%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);}
-.ann.g{background:color-mix(in srgb,var(--green) 8%,transparent);border:1px solid color-mix(in srgb,var(--green) 25%,transparent);}
-.ann.r{background:color-mix(in srgb,var(--red) 8%,transparent);border:1px solid color-mix(in srgb,var(--red) 25%,transparent);}
-.ann.b{background:color-mix(in srgb,var(--blue) 8%,transparent);border:1px solid color-mix(in srgb,var(--blue) 25%,transparent);}
+    /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: background 0.2s;
+    }
 
-/* HL */
-.hl{border-left:3px solid var(--blue);padding-left:14px;}
-.hl.g{border-left-color:var(--green);}
-.hl.r{border-left-color:var(--red);}
-.hl.y{border-left-color:var(--yellow);}
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-/* CHECKLIST */
-.cl{list-style:none;display:flex;flex-direction:column;gap:6px;}
-.cl li{display:flex;align-items:flex-start;gap:7px;color:var(--t3);font-size:13px;}
-.cl li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
-.cl li.w::before{content:'⚠';color:var(--yellow);}
-.cl li.n::before{content:'✕';color:var(--red);}
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
 
-/* KV */
-.kv{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;gap:8px;}
-.kv:last-child{margin-bottom:0;}
-.kk{color:var(--t3);font-size:13px;}
-.kv-v{font-weight:600;font-size:13px;color:var(--t1);text-align:right;}
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -.3px;
+      white-space: nowrap;
+    }
 
-/* STEP */
-.steps{counter-reset:stp;display:flex;flex-direction:column;gap:5px;}
-.step{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--t3);}
-.step::before{counter-increment:stp;content:counter(stp);min-width:19px;height:19px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+    .logo span {
+      color: var(--t1);
+    }
 
-/* EVENT ROW */
-.ev-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-bottom:1px solid var(--bd);transition:background .15s;cursor:pointer;}
-.ev-row:last-child{border-bottom:none;}
-.ev-row:hover{background:color-mix(in srgb,var(--blue) 4%,transparent);}
-.ev-name{font-family:'SF Mono','Fira Code',monospace;font-size:12px;color:var(--blue);min-width:200px;font-weight:600;}
-.ev-desc{flex:1;font-size:12px;color:var(--t3);}
-.ev-status{cursor:pointer;user-select:none;min-width:80px;text-align:right;}
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
 
-/* FLOW DIAGRAM */
-.fdiag{display:flex;align-items:center;gap:0;overflow-x:auto;padding:8px 0;}
-.fd-box{border:1px solid var(--bd);border-radius:8px;padding:7px 12px;background:var(--s1);font-size:12px;text-align:center;min-width:90px;flex-shrink:0;}
-.fd-box.act{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,transparent);color:var(--t1);}
-.fd-box.done{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,transparent);color:var(--t1);}
-.fd-arr{padding:0 6px;color:var(--t3);font-size:13px;flex-shrink:0;}
-.fd-box small{display:block;font-size:10px;color:var(--t3);margin-top:2px;}
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
 
-/* FUNNEL VIZ */
-.funnel-wrap{display:flex;flex-direction:column;gap:4px;}
-.funnel-bar-row{display:flex;align-items:center;gap:10px;}
-.funnel-label{font-size:12px;color:var(--t3);min-width:170px;text-align:right;}
-.funnel-bar-bg{flex:1;background:var(--s2);border-radius:4px;height:26px;overflow:hidden;position:relative;}
-.funnel-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;transition:width 1s ease;}
-.funnel-pct{font-size:12px;font-weight:700;min-width:38px;}
+    .badge.b {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
 
-/* MATRIX */
-.mtx{border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
-.mtx-head{display:grid;background:var(--s2);padding:8px 12px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--bd);}
-.mtx-row{display:grid;padding:9px 12px;border-bottom:1px solid var(--bd);align-items:start;}
-.mtx-row:last-child{border-bottom:none;}
-.mtx-row:hover{background:color-mix(in srgb,var(--blue) 3%,transparent);}
+    .badge.g {
+      border-color: var(--green);
+      color: var(--green);
+    }
 
-/* STAT */
-.stat-val{font-size:28px;font-weight:800;color:var(--t1);line-height:1.1;}
-.stat-lbl{font-size:12px;color:var(--t3);margin-top:2px;}
+    .toggle-btn {
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
+    }
 
-/* LIVE CONSOLE */
-.console{background:var(--s2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
-.console-bar{background:color-mix(in srgb,var(--t3) 15%,transparent);padding:7px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bd);}
-.c-dot{width:8px;height:8px;border-radius:50%;}
-.console-body{padding:12px 14px;font-family:'SF Mono','Fira Code',monospace;font-size:12px;line-height:1.9;max-height:300px;overflow-y:auto;}
-.c-ts{color:var(--t3);}
-.c-ev{color:var(--blue);}
-.c-ok{color:var(--green);}
-.c-err{color:var(--red);}
-.c-warn{color:var(--yellow);}
-.c-prop{color:var(--purple);}
-.c-blink{animation:blink 1s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+    .toggle-btn:hover {
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
 
-/* TRACKER */
-.tr-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--bd);transition:background .15s;}
-.tr-row:last-child{border-bottom:none;}
-.tr-row:hover{background:color-mix(in srgb,var(--blue) 3%,transparent);}
-.tr-id{font-size:11px;font-weight:700;color:var(--blue);min-width:100px;font-family:monospace;}
-.tr-name{flex:1;font-size:12px;color:var(--t1);}
-.tr-st{cursor:pointer;user-select:none;min-width:90px;text-align:right;}
+    .toggle-btn:active {
+      transform: translateY(0);
+    }
 
-/* POSTHOG PREVIEW */
-.ph-preview{background:var(--s2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
-.ph-topbar{background:color-mix(in srgb,var(--purple) 15%,transparent);padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bd);}
-.ph-body{padding:14px;}
-.ph-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px;}
-.ph-row:last-child{border-bottom:none;}
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      display: block;
+      transition: background 0.2s;
+    }
 
-@media(max-width:560px){
-  main{padding:16px 12px;}header{padding:0 12px;}nav{padding:0 12px;}
-  .g2,.g3{grid-template-columns:1fr;}.badges{display:none;}
-  .ev-name{min-width:140px;}.funnel-label{min-width:110px;}
-}
-</style>
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-content .tab-btn:first-child {
+      padding-left: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--t1);
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    main {
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .card {
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      transition: background .2s, border-color .2s;
+      margin-bottom: 0;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    h4 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .sec-hdr {
+      margin-bottom: 28px;
+    }
+
+    .sec-hdr p {
+      margin-top: 4px;
+    }
+
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--bd);
+      margin: 16px 0;
+    }
+
+    .mb {
+      margin-bottom: 16px;
+    }
+
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .g3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* TAGS */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 3px;
+      margin-bottom: 2px;
+    }
+
+    .tb {
+      background: color-mix(in srgb, var(--blue) 15%, transparent);
+      color: var(--blue);
+    }
+
+    .tg {
+      background: color-mix(in srgb, var(--green) 15%, transparent);
+      color: var(--green);
+    }
+
+    .tr {
+      background: color-mix(in srgb, var(--red) 15%, transparent);
+      color: var(--red);
+    }
+
+    .ty {
+      background: color-mix(in srgb, var(--yellow) 15%, transparent);
+      color: var(--yellow);
+    }
+
+    .tp {
+      background: color-mix(in srgb, var(--purple) 15%, transparent);
+      color: var(--purple);
+    }
+
+    .tgr {
+      background: color-mix(in srgb, var(--t3) 15%, transparent);
+      color: var(--t3);
+    }
+
+    /* STATUS PILL */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .pill-pass {
+      background: color-mix(in srgb, var(--green) 12%, transparent);
+      color: var(--green);
+      border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+    }
+
+    .pill-fail {
+      background: color-mix(in srgb, var(--red) 12%, transparent);
+      color: var(--red);
+      border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+    }
+
+    .pill-warn {
+      background: color-mix(in srgb, var(--yellow) 12%, transparent);
+      color: var(--yellow);
+      border: 1px solid color-mix(in srgb, var(--yellow) 30%, transparent);
+    }
+
+    .pill-todo {
+      background: color-mix(in srgb, var(--t3) 12%, transparent);
+      color: var(--t3);
+      border: 1px solid color-mix(in srgb, var(--t3) 30%, transparent);
+    }
+
+    .pill-live {
+      background: color-mix(in srgb, var(--blue) 12%, transparent);
+      color: var(--blue);
+      border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+    }
+
+    /* CODE */
+    .code {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin-bottom: 0;
+    }
+
+    .code .k {
+      color: var(--blue);
+    }
+
+    .code .s {
+      color: var(--green);
+    }
+
+    .code .c {
+      color: var(--t3);
+    }
+
+    .code .n {
+      color: var(--yellow);
+    }
+
+    .code .v {
+      color: var(--purple);
+    }
+
+    .code .f {
+      color: var(--red);
+    }
+
+    /* ANN */
+    .ann {
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12px;
+      color: var(--t1);
+      margin-top: 8px;
+    }
+
+    .ann.y {
+      background: color-mix(in srgb, var(--yellow) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent);
+    }
+
+    .ann.g {
+      background: color-mix(in srgb, var(--green) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
+    }
+
+    .ann.r {
+      background: color-mix(in srgb, var(--red) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+    }
+
+    .ann.b {
+      background: color-mix(in srgb, var(--blue) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--blue) 25%, transparent);
+    }
+
+    /* HL */
+    .hl {
+      border-left: 3px solid var(--blue);
+      padding-left: 14px;
+    }
+
+    .hl.g {
+      border-left-color: var(--green);
+    }
+
+    .hl.r {
+      border-left-color: var(--red);
+    }
+
+    .hl.y {
+      border-left-color: var(--yellow);
+    }
+
+    /* CHECKLIST */
+    .cl {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cl li {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .cl li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .cl li.w::before {
+      content: '⚠';
+      color: var(--yellow);
+    }
+
+    .cl li.n::before {
+      content: '✕';
+      color: var(--red);
+    }
+
+    /* KV */
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 7px;
+      gap: 8px;
+    }
+
+    .kv:last-child {
+      margin-bottom: 0;
+    }
+
+    .kk {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .kv-v {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--t1);
+      text-align: right;
+    }
+
+    /* STEP */
+    .steps {
+      counter-reset: stp;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .step {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 12px;
+      color: var(--t3);
+    }
+
+    .step::before {
+      counter-increment: stp;
+      content: counter(stp);
+      min-width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* EVENT ROW */
+    .ev-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--bd);
+      transition: background .15s;
+      cursor: pointer;
+    }
+
+    .ev-row:last-child {
+      border-bottom: none;
+    }
+
+    .ev-row:hover {
+      background: color-mix(in srgb, var(--blue) 4%, transparent);
+    }
+
+    .ev-name {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--blue);
+      min-width: 200px;
+      font-weight: 600;
+    }
+
+    .ev-desc {
+      flex: 1;
+      font-size: 12px;
+      color: var(--t3);
+    }
+
+    .ev-status {
+      cursor: pointer;
+      user-select: none;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    /* FLOW DIAGRAM */
+    .fdiag {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      padding: 8px 0;
+    }
+
+    .fd-box {
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 7px 12px;
+      background: var(--s1);
+      font-size: 12px;
+      text-align: center;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+
+    .fd-box.act {
+      border-color: var(--blue);
+      background: color-mix(in srgb, var(--blue) 8%, transparent);
+      color: var(--t1);
+    }
+
+    .fd-box.done {
+      border-color: var(--green);
+      background: color-mix(in srgb, var(--green) 8%, transparent);
+      color: var(--t1);
+    }
+
+    .fd-arr {
+      padding: 0 6px;
+      color: var(--t3);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .fd-box small {
+      display: block;
+      font-size: 10px;
+      color: var(--t3);
+      margin-top: 2px;
+    }
+
+    /* FUNNEL VIZ */
+    .funnel-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .funnel-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .funnel-label {
+      font-size: 12px;
+      color: var(--t3);
+      min-width: 170px;
+      text-align: right;
+    }
+
+    .funnel-bar-bg {
+      flex: 1;
+      background: var(--s2);
+      border-radius: 4px;
+      height: 26px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .funnel-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      transition: width 1s ease;
+    }
+
+    .funnel-pct {
+      font-size: 12px;
+      font-weight: 700;
+      min-width: 38px;
+    }
+
+    /* MATRIX */
+    .mtx {
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .mtx-head {
+      display: grid;
+      background: var(--s2);
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .mtx-row {
+      display: grid;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--bd);
+      align-items: start;
+    }
+
+    .mtx-row:last-child {
+      border-bottom: none;
+    }
+
+    .mtx-row:hover {
+      background: color-mix(in srgb, var(--blue) 3%, transparent);
+    }
+
+    /* STAT */
+    .stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--t1);
+      line-height: 1.1;
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--t3);
+      margin-top: 2px;
+    }
+
+    /* LIVE CONSOLE */
+    .console {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .console-bar {
+      background: color-mix(in srgb, var(--t3) 15%, transparent);
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .c-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .console-body {
+      padding: 12px 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.9;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .c-ts {
+      color: var(--t3);
+    }
+
+    .c-ev {
+      color: var(--blue);
+    }
+
+    .c-ok {
+      color: var(--green);
+    }
+
+    .c-err {
+      color: var(--red);
+    }
+
+    .c-warn {
+      color: var(--yellow);
+    }
+
+    .c-prop {
+      color: var(--purple);
+    }
+
+    .c-blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* TRACKER */
+    .tr-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--bd);
+      transition: background .15s;
+    }
+
+    .tr-row:last-child {
+      border-bottom: none;
+    }
+
+    .tr-row:hover {
+      background: color-mix(in srgb, var(--blue) 3%, transparent);
+    }
+
+    .tr-id {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      min-width: 100px;
+      font-family: monospace;
+    }
+
+    .tr-name {
+      flex: 1;
+      font-size: 12px;
+      color: var(--t1);
+    }
+
+    .tr-st {
+      cursor: pointer;
+      user-select: none;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    /* POSTHOG PREVIEW */
+    .ph-preview {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .ph-topbar {
+      background: color-mix(in srgb, var(--purple) 15%, transparent);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .ph-body {
+      padding: 14px;
+    }
+
+    .ph-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--bd);
+      font-size: 12px;
+    }
+
+    .ph-row:last-child {
+      border-bottom: none;
+    }
+
+    @media(max-width:560px) {
+      .inner-wrap {
+        padding: 0 16px;
+      }
+
+      main {
+        padding: 24px 16px;
+      }
+
+      .g2,
+      .g3 {
+        grid-template-columns: 1fr;
+      }
+
+      .badges {
+        display: none;
+      }
+
+      .ev-name {
+        min-width: 140px;
+      }
+
+      .funnel-label {
+        min-width: 110px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="inner-wrap header-content">
-    <div style="display:flex;align-items:center;">
-      <div class="logo">Scope<span>Manager</span></div>
-      <div class="badges">
-        <span class="badge blue">Analytics Verification</span>
-        <span class="badge green">PostHog · Supabase</span>
-        <span class="badge">MVP v1.0</span>
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="header-left">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="badge b">Analytics Verification</span>
+          <span class="badge g">PostHog · Supabase</span>
+          <span class="badge">MVP v1.0</span>
+        </div>
       </div>
+      <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
     </div>
-    <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
-  </div>
-</header>
+  </header>
 
-<nav>
-  <div class="inner-wrap nav-content">
-    <button class="tab-btn active" data-tab="overview">📡 검증 전략</button>
-    <button class="tab-btn" data-tab="install">⚙️ 설치 & 초기화</button>
-    <button class="tab-btn" data-tab="events">🔬 이벤트 검증</button>
-    <button class="tab-btn" data-tab="funnel">🔽 퍼널 검증</button>
-    <button class="tab-btn" data-tab="console">🖥️ 라이브 콘솔</button>
-    <button class="tab-btn" data-tab="tracker">✅ 검증 트래커</button>
-  </div>
-</nav>
-
-<main>
-
-<!-- ===== TAB 1: 검증 전략 ===== -->
-<div class="page active" id="page-overview">
-  <div class="sec-hdr">
-    <h2>Analytics Verification — 검증 전략</h2>
-    <p>MVP 행동 데이터가 가설 검증의 유일한 신호. 트래킹이 틀리면 판단도 틀린다.</p>
-  </div>
-
-  <div class="g3 mb">
-    <div class="card hl">
-      <h4>왜 Analytics Verification인가</h4>
-      <p style="margin-bottom:10px;">고객 인터뷰 대신 행동 데이터로 가설을 검증하는 전략을 선택했기 때문에, 트래킹 데이터의 정확성이 곧 의사결정의 정확성이다.</p>
-      <ul class="cl">
-        <li>잘못된 이벤트 = 잘못된 피벗 결정</li>
-        <li>누락 이벤트 = 보이지 않는 이탈 구간</li>
-        <li>중복 이벤트 = 과장된 지표, 잘못된 CVR</li>
-        <li>PII 포함 이벤트 = 개인정보보호법 위반</li>
-      </ul>
-      <div class="ann b" style="margin-top:10px;">트래킹 검증은 기능 QA와 동등한 우선순위</div>
+  <nav>
+    <div class="inner-wrap nav-content">
+      <button class="tab-btn active" data-tab="overview">📡 검증 전략</button>
+      <button class="tab-btn" data-tab="install">⚙️ 설치 & 초기화</button>
+      <button class="tab-btn" data-tab="events">🔬 이벤트 검증</button>
+      <button class="tab-btn" data-tab="funnel">🔽 퍼널 검증</button>
+      <button class="tab-btn" data-tab="console">🖥️ 라이브 콘솔</button>
+      <button class="tab-btn" data-tab="tracker">✅ 검증 트래커</button>
     </div>
-    <div class="card hl g">
-      <h4>검증 3계층</h4>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
-        <div style="padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--blue) 6%,transparent);border:1px solid color-mix(in srgb,var(--blue) 20%,transparent);">
-          <div style="font-weight:700;color:var(--blue);font-size:12px;margin-bottom:3px;">Layer 1 · 설치 검증</div>
-          <p>PostHog SDK 초기화 확인, identify() 호출, 공통 속성 주입</p>
-        </div>
-        <div style="padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--green) 6%,transparent);border:1px solid color-mix(in srgb,var(--green) 20%,transparent);">
-          <div style="font-weight:700;color:var(--green);font-size:12px;margin-bottom:3px;">Layer 2 · 이벤트 검증</div>
-          <p>각 이벤트 발화 여부, 속성 정확성, 중복/누락 없음</p>
-        </div>
-        <div style="padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--purple) 6%,transparent);border:1px solid color-mix(in srgb,var(--purple) 20%,transparent);">
-          <div style="font-weight:700;color:var(--purple);font-size:12px;margin-bottom:3px;">Layer 3 · 퍼널 검증</div>
-          <p>가설별 퍼널 데이터 흐름, Drop-off 구간 식별</p>
-        </div>
-      </div>
-    </div>
-    <div class="card hl y">
-      <h4>검증 도구 스택</h4>
-      <div class="kv"><span class="kk">이벤트 수집</span><span class="kv-v">PostHog Cloud</span></div>
-      <div class="kv"><span class="kk">실시간 디버그</span><span class="kv-v">PostHog Toolbar</span></div>
-      <div class="kv"><span class="kk">브라우저 검증</span><span class="kv-v">Chrome DevTools Network</span></div>
-      <div class="kv"><span class="kk">DB 이벤트</span><span class="kv-v">Supabase Dashboard Log</span></div>
-      <div class="kv"><span class="kk">PII 스캔</span><span class="kv-v">수동 속성 검토</span></div>
-      <div class="kv"><span class="kk">퍼널 시각화</span><span class="kv-v">PostHog Funnels</span></div>
-      <hr>
-      <div class="kv"><span class="kk">검증 환경</span><span class="kv-v" style="color:var(--yellow);">Staging (프로덕션 X)</span></div>
-    </div>
-  </div>
+  </nav>
 
-  <div class="card mb">
-    <h4>가설 → 이벤트 → 판단 기준 매핑</h4>
-    <div class="mtx">
-      <div class="mtx-head" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
-        <span>가설</span><span>핵심 이벤트</span><span>판단 지표</span><span>임계값</span>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
-        <div><span class="tag tb">H1</span><p style="font-size:12px;">문제 가설</p></div>
-        <div style="font-family:monospace;font-size:11px;color:var(--blue);">landing_page_viewed<br>signup_completed</div>
-        <div><p style="font-size:12px;">랜딩 → 가입 CVR</p></div>
-        <div><span style="color:var(--green);font-weight:700;">≥ 3%</span></div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
-        <div><span class="tag tg">H2</span><p style="font-size:12px;">솔루션 가설</p></div>
-        <div style="font-family:monospace;font-size:11px;color:var(--blue);">aha_moment_reached<br>document_copied</div>
-        <div><p style="font-size:12px;">가입 → Aha CVR<br>문서 복사율</p></div>
-        <div><span style="color:var(--green);font-weight:700;">≥ 60%<br>≥ 40%</span></div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
-        <div><span class="tag ty">H3</span><p style="font-size:12px;">수익 가설</p></div>
-        <div style="font-family:monospace;font-size:11px;color:var(--blue);">pricing_page_viewed<br>subscription_started</div>
-        <div><p style="font-size:12px;">유료 전환 건수</p></div>
-        <div><span style="color:var(--green);font-weight:700;">5건 / 4주</span></div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
-        <div><span class="tag tp">리텐션</span><p style="font-size:12px;">재방문</p></div>
-        <div style="font-family:monospace;font-size:11px;color:var(--blue);">session_started<br>(D7 기준)</div>
-        <div><p style="font-size:12px;">D7 리텐션율</p></div>
-        <div><span style="color:var(--green);font-weight:700;">≥ 40%</span></div>
-      </div>
-    </div>
-  </div>
+  <main>
 
-  <div class="g2">
-    <div class="card">
-      <h4>검증 실행 순서</h4>
-      <div class="steps">
-        <div class="step">PostHog 프로젝트 생성 + API 키 환경변수 설정 (.env.local)</div>
-        <div class="step">SDK 초기화 코드 삽입 (_app.tsx 또는 layout.tsx)</div>
-        <div class="step">공통 속성 (user_id, plan, agency_size) identify() 등록</div>
-        <div class="step">P0 이벤트 27개 코드 삽입 → Staging 배포</div>
-        <div class="step">PostHog Toolbar 활성화 → 각 이벤트 수동 발화 확인</div>
-        <div class="step">DevTools Network 탭에서 /capture 요청 payload 검토</div>
-        <div class="step">PII 포함 여부 전체 속성 수동 스캔</div>
-        <div class="step">퍼널 5개 PostHog에 등록 → 테스트 데이터로 흐름 확인</div>
-        <div class="step">중복 이벤트 발화 없음 확인 (더블 클릭, 리렌더링 테스트)</div>
-        <div class="step">프로덕션 배포 후 24시간 데이터 수집 → 기대값 일치 확인</div>
+    <!-- ===== TAB 1: 검증 전략 ===== -->
+    <div class="page active" id="page-overview">
+      <div class="sec-hdr">
+        <h2>Analytics Verification — 검증 전략</h2>
+        <p>MVP 행동 데이터가 가설 검증의 유일한 신호. 트래킹이 틀리면 판단도 틀린다.</p>
       </div>
-    </div>
-    <div class="card">
-      <h4>검증 실패 기준 & 대응</h4>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border:1px solid color-mix(in srgb,var(--red) 20%,transparent);">
-          <span style="font-size:15px;flex-shrink:0;">🛑</span>
-          <div><div style="font-weight:700;color:var(--red);font-size:12px;">BLOCKER — 즉시 수정 후 재배포</div><p>P0 이벤트 미발화 / PII 포함 / 중복 발화 / 퍼널 단절</p></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:color-mix(in srgb,var(--yellow) 6%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 20%,transparent);">
-          <span style="font-size:15px;flex-shrink:0;">⚠️</span>
-          <div><div style="font-weight:700;color:var(--yellow);font-size:12px;">WARNING — Known Issue 등록 후 조건부 배포</div><p>P1 이벤트 누락 / 속성 일부 미전달 / 타임스탬프 오차</p></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:color-mix(in srgb,var(--blue) 6%,transparent);border:1px solid color-mix(in srgb,var(--blue) 20%,transparent);">
-          <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
-          <div><div style="font-weight:700;color:var(--blue);font-size:12px;">INFO — 다음 릴리즈에 반영</div><p>P2 이벤트 누락 / 선택 속성 미전달</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- ===== TAB 2: 설치 & 초기화 ===== -->
-<div class="page" id="page-install">
-  <div class="sec-hdr">
-    <h2>PostHog 설치 & 초기화 검증</h2>
-    <p>SDK 설치부터 사용자 식별(identify)까지 단계별 구현 코드 및 검증 방법</p>
-  </div>
+      <div class="g3 mb">
+        <div class="card hl">
+          <h4>왜 Analytics Verification인가</h4>
+          <p style="margin-bottom:10px;">고객 인터뷰 대신 행동 데이터로 가설을 검증하는 전략을 선택했기 때문에, 트래킹 데이터의 정확성이 곧 의사결정의 정확성이다.</p>
+          <ul class="cl">
+            <li>잘못된 이벤트 = 잘못된 피벗 결정</li>
+            <li>누락 이벤트 = 보이지 않는 이탈 구간</li>
+            <li>중복 이벤트 = 과장된 지표, 잘못된 CVR</li>
+            <li>PII 포함 이벤트 = 개인정보보호법 위반</li>
+          </ul>
+          <div class="ann b" style="margin-top:10px;">트래킹 검증은 기능 QA와 동등한 우선순위</div>
+        </div>
+        <div class="card hl g">
+          <h4>검증 3계층</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <div
+              style="padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--blue) 6%,transparent);border:1px solid color-mix(in srgb,var(--blue) 20%,transparent);">
+              <div style="font-weight:700;color:var(--blue);font-size:12px;margin-bottom:3px;">Layer 1 · 설치 검증</div>
+              <p>PostHog SDK 초기화 확인, identify() 호출, 공통 속성 주입</p>
+            </div>
+            <div
+              style="padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--green) 6%,transparent);border:1px solid color-mix(in srgb,var(--green) 20%,transparent);">
+              <div style="font-weight:700;color:var(--green);font-size:12px;margin-bottom:3px;">Layer 2 · 이벤트 검증</div>
+              <p>각 이벤트 발화 여부, 속성 정확성, 중복/누락 없음</p>
+            </div>
+            <div
+              style="padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--purple) 6%,transparent);border:1px solid color-mix(in srgb,var(--purple) 20%,transparent);">
+              <div style="font-weight:700;color:var(--purple);font-size:12px;margin-bottom:3px;">Layer 3 · 퍼널 검증</div>
+              <p>가설별 퍼널 데이터 흐름, Drop-off 구간 식별</p>
+            </div>
+          </div>
+        </div>
+        <div class="card hl y">
+          <h4>검증 도구 스택</h4>
+          <div class="kv"><span class="kk">이벤트 수집</span><span class="kv-v">PostHog Cloud</span></div>
+          <div class="kv"><span class="kk">실시간 디버그</span><span class="kv-v">PostHog Toolbar</span></div>
+          <div class="kv"><span class="kk">브라우저 검증</span><span class="kv-v">Chrome DevTools Network</span></div>
+          <div class="kv"><span class="kk">DB 이벤트</span><span class="kv-v">Supabase Dashboard Log</span></div>
+          <div class="kv"><span class="kk">PII 스캔</span><span class="kv-v">수동 속성 검토</span></div>
+          <div class="kv"><span class="kk">퍼널 시각화</span><span class="kv-v">PostHog Funnels</span></div>
+          <hr>
+          <div class="kv"><span class="kk">검증 환경</span><span class="kv-v" style="color:var(--yellow);">Staging (프로덕션
+              X)</span></div>
+        </div>
+      </div>
 
-  <div class="g2 mb">
-    <div>
-      <span class="sec-label">Step 1 — 패키지 설치</span>
-      <div class="code mb">
-<span class="c"># Next.js 프로젝트에 PostHog 설치</span><br>
-npm install posthog-js<br><br>
-<span class="c"># 환경변수 설정 (.env.local)</span><br>
-<span class="n">NEXT_PUBLIC_POSTHOG_KEY</span>=phc_YOUR_PROJECT_KEY<br>
-<span class="n">NEXT_PUBLIC_POSTHOG_HOST</span>=https://app.posthog.com
+      <div class="card mb">
+        <h4>가설 → 이벤트 → 판단 기준 매핑</h4>
+        <div class="mtx">
+          <div class="mtx-head" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
+            <span>가설</span><span>핵심 이벤트</span><span>판단 지표</span><span>임계값</span>
+          </div>
+          <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
+            <div><span class="tag tb">H1</span>
+              <p style="font-size:12px;">문제 가설</p>
+            </div>
+            <div style="font-family:monospace;font-size:11px;color:var(--blue);">landing_page_viewed<br>signup_completed
+            </div>
+            <div>
+              <p style="font-size:12px;">랜딩 → 가입 CVR</p>
+            </div>
+            <div><span style="color:var(--green);font-weight:700;">≥ 3%</span></div>
+          </div>
+          <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
+            <div><span class="tag tg">H2</span>
+              <p style="font-size:12px;">솔루션 가설</p>
+            </div>
+            <div style="font-family:monospace;font-size:11px;color:var(--blue);">aha_moment_reached<br>document_copied
+            </div>
+            <div>
+              <p style="font-size:12px;">가입 → Aha CVR<br>문서 복사율</p>
+            </div>
+            <div><span style="color:var(--green);font-weight:700;">≥ 60%<br>≥ 40%</span></div>
+          </div>
+          <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
+            <div><span class="tag ty">H3</span>
+              <p style="font-size:12px;">수익 가설</p>
+            </div>
+            <div style="font-family:monospace;font-size:11px;color:var(--blue);">
+              pricing_page_viewed<br>subscription_started</div>
+            <div>
+              <p style="font-size:12px;">유료 전환 건수</p>
+            </div>
+            <div><span style="color:var(--green);font-weight:700;">5건 / 4주</span></div>
+          </div>
+          <div class="mtx-row" style="grid-template-columns:1fr 1.5fr 1.5fr 1fr;">
+            <div><span class="tag tp">리텐션</span>
+              <p style="font-size:12px;">재방문</p>
+            </div>
+            <div style="font-family:monospace;font-size:11px;color:var(--blue);">session_started<br>(D7 기준)</div>
+            <div>
+              <p style="font-size:12px;">D7 리텐션율</p>
+            </div>
+            <div><span style="color:var(--green);font-weight:700;">≥ 40%</span></div>
+          </div>
+        </div>
       </div>
-      <div class="ann y">⚠ API 키를 .env.local에만 보관. .env 파일은 git에 커밋하지 않는다. .gitignore에 .env.local 포함 확인</div>
-    </div>
-    <div>
-      <span class="sec-label">Step 2 — SDK 초기화 (Next.js App Router)</span>
-      <div class="code">
-<span class="c">// app/providers.tsx</span><br>
-<span class="k">'use client'</span><br>
-<span class="k">import</span> posthog <span class="k">from</span> <span class="s">'posthog-js'</span><br>
-<span class="k">import</span> { PostHogProvider } <span class="k">from</span> <span class="s">'posthog-js/react'</span><br>
-<span class="k">import</span> { useEffect } <span class="k">from</span> <span class="s">'react'</span><br><br>
-<span class="k">export function</span> <span class="f">PHProvider</span>({ children }) {<br>
-&nbsp;&nbsp;<span class="k">useEffect</span>(() => {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;posthog.<span class="f">init</span>(process.env.<span class="n">NEXT_PUBLIC_POSTHOG_KEY</span>, {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;api_host: process.env.<span class="n">NEXT_PUBLIC_POSTHOG_HOST</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;capture_pageview: <span class="n">false</span>, <span class="c">// 수동 제어</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;capture_pageleave: <span class="n">true</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;persistence: <span class="s">'localStorage'</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autocapture: <span class="n">false</span>, <span class="c">// 의도치 않은 수집 차단</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;})<br>
-&nbsp;&nbsp;}, [])<br>
-&nbsp;&nbsp;<span class="k">return</span> &lt;PostHogProvider client={posthog}&gt;{children}&lt;/PostHogProvider&gt;<br>
-}
-      </div>
-    </div>
-  </div>
 
-  <div class="g2 mb">
-    <div>
-      <span class="sec-label">Step 3 — 사용자 식별 (identify)</span>
-      <div class="code">
-<span class="c">// 로그인 완료 후 호출</span><br>
-<span class="k">import</span> { usePostHog } <span class="k">from</span> <span class="s">'posthog-js/react'</span><br><br>
-<span class="k">const</span> posthog = usePostHog()<br><br>
-<span class="c">// 로그인 성공 시</span><br>
-posthog.<span class="f">identify</span>(<br>
-&nbsp;&nbsp;hashedUserId, <span class="c">// UUID hash (이메일 원문 X)</span><br>
-&nbsp;&nbsp;{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;agency_size: profile.agency_size,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;plan: <span class="s">'beta_free'</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;created_at: profile.created_at,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;onboarded: profile.onboarded,<br>
-&nbsp;&nbsp;}<br>
-)<br><br>
-<span class="c">// 로그아웃 시 반드시 호출</span><br>
-posthog.<span class="f">reset</span>()
-      </div>
-    </div>
-    <div>
-      <span class="sec-label">Step 4 — 공통 속성 유틸리티</span>
-      <div class="code">
-<span class="c">// lib/analytics.ts</span><br>
-<span class="k">export const</span> <span class="f">commonProps</span> = () => ({<br>
-&nbsp;&nbsp;platform: <span class="s">'web'</span>,<br>
-&nbsp;&nbsp;app_version: process.env.<span class="n">NEXT_PUBLIC_APP_VERSION</span>,<br>
-&nbsp;&nbsp;timestamp: <span class="k">new</span> Date().<span class="f">toISOString</span>(),<br>
-})<br><br>
-<span class="c">// 사용 예시</span><br>
-<span class="k">export const</span> <span class="f">track</span> = (event, props = {}) => {<br>
-&nbsp;&nbsp;posthog.<span class="f">capture</span>(event, {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;...<span class="f">commonProps</span>(),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;...props,<br>
-&nbsp;&nbsp;})<br>
-}<br><br>
-<span class="c">// 실제 사용</span><br>
-<span class="f">track</span>(<span class="s">'judgment_completed'</span>, {<br>
-&nbsp;&nbsp;verdict: <span class="s">'OUT'</span>,<br>
-&nbsp;&nbsp;confidence: <span class="n">0.92</span>,<br>
-&nbsp;&nbsp;is_first_judgment: <span class="n">true</span>,<br>
-})
-      </div>
-    </div>
-  </div>
-
-  <div class="card mb">
-    <h4>설치 검증 체크리스트</h4>
-    <div class="g3">
-      <div>
-        <div style="font-weight:700;font-size:12px;color:var(--blue);margin-bottom:8px;">🔧 DevTools 검증</div>
-        <ul class="cl">
-          <li>Network 탭 → app.posthog.com/capture 요청 확인</li>
-          <li>요청 status 200 확인</li>
-          <li>payload에 distinct_id 포함 확인</li>
-          <li>payload에 이메일 원문 미포함 확인</li>
-          <li>Console 탭에 SDK 초기화 오류 없음</li>
-        </ul>
-      </div>
-      <div>
-        <div style="font-weight:700;font-size:12px;color:var(--green);margin-bottom:8px;">📊 PostHog 대시보드 검증</div>
-        <ul class="cl">
-          <li>People 탭에 테스트 유저 표시</li>
-          <li>Properties에 agency_size, plan 반영</li>
-          <li>Session Recordings 활성화 확인</li>
-          <li>Feature Flags 연결 테스트</li>
-        </ul>
-      </div>
-      <div>
-        <div style="font-weight:700;font-size:12px;color:var(--yellow);margin-bottom:8px;">🔒 보안 검증</div>
-        <ul class="cl">
-          <li class="n">이메일 원문이 이벤트 속성에 없음</li>
-          <li class="n">비밀번호가 어떤 이벤트에도 없음</li>
-          <li class="n">계약서 원문이 이벤트에 없음</li>
-          <li class="w">user_id는 UUID hash만 사용</li>
-          <li class="w">autocapture=false 유지</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="g2">
-    <div class="card">
-      <h4>PostHog Toolbar 활성화 방법</h4>
-      <div class="steps">
-        <div class="step">PostHog 대시보드 → Settings → Toolbar 메뉴</div>
-        <div class="step">사이트 URL 등록 (예: https://staging.scopemanager.io)</div>
-        <div class="step">Authorize Toolbar 클릭 → 스테이징 사이트 이동</div>
-        <div class="step">화면 하단 PostHog 아이콘 → Inspector 모드 활성화</div>
-        <div class="step">버튼 클릭 시 발화되는 이벤트 실시간 확인</div>
-      </div>
-      <div class="ann g" style="margin-top:10px;">✅ 코드 수정 없이 화면에서 직접 이벤트 발화를 시각적으로 확인 가능</div>
-    </div>
-    <div class="card">
-      <h4>페이지뷰 수동 제어 (Next.js Router)</h4>
-      <div class="code" style="font-size:11px;">
-<span class="c">// app/layout.tsx — 라우트 변경 감지</span><br>
-<span class="k">'use client'</span><br>
-<span class="k">import</span> { usePathname } <span class="k">from</span> <span class="s">'next/navigation'</span><br>
-<span class="k">import</span> { usePostHog } <span class="k">from</span> <span class="s">'posthog-js/react'</span><br>
-<span class="k">import</span> { useEffect } <span class="k">from</span> <span class="s">'react'</span><br><br>
-<span class="k">export function</span> <span class="f">PageViewTracker</span>() {<br>
-&nbsp;&nbsp;<span class="k">const</span> pathname = <span class="f">usePathname</span>()<br>
-&nbsp;&nbsp;<span class="k">const</span> posthog = <span class="f">usePostHog</span>()<br>
-&nbsp;&nbsp;<span class="k">useEffect</span>(() => {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;posthog.<span class="f">capture</span>(<span class="s">'$pageview'</span>, {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">$current_url</span>: window.location.href,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;})<br>
-&nbsp;&nbsp;}, [pathname])<br>
-&nbsp;&nbsp;<span class="k">return null</span><br>
-}
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 3: 이벤트 검증 ===== -->
-<div class="page" id="page-events">
-  <div class="sec-hdr">
-    <h2>이벤트별 연동 검증</h2>
-    <p>각 이벤트의 발화 조건, 기대 payload, 검증 방법. DevTools Network 탭 /capture 요청에서 확인</p>
-  </div>
-
-  <!-- ACQUIRE -->
-  <div class="mb">
-    <span class="sec-label">Group A — 획득 이벤트 (Acquisition)</span>
-    <div class="card">
-      <div class="mtx" style="margin-bottom:0;">
-        <div class="mtx-head" style="grid-template-columns:180px 1fr 180px 90px;">
-          <span>이벤트명</span><span>기대 Payload 속성</span><span>검증 방법</span><span>우선순위</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">landing_page_viewed</code>
-          <div style="font-size:12px;color:var(--t3);">referrer, utm_source, utm_medium, utm_campaign, <span style="color:var(--red);">이메일 X</span></div>
-          <div style="font-size:12px;color:var(--t3);">랜딩 진입 → Network /capture 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">landing_cta_clicked</code>
-          <div style="font-size:12px;color:var(--t3);">cta_location (hero/mid/footer), cta_text</div>
-          <div style="font-size:12px;color:var(--t3);">각 CTA 버튼 클릭 후 payload 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">signup_completed</code>
-          <div style="font-size:12px;color:var(--t3);">signup_method="email", time_to_complete_sec, <span style="color:var(--red);">이메일 원문 X</span></div>
-          <div style="font-size:12px;color:var(--t3);">인증 링크 클릭 후 발화 1회 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">signup_abandoned</code>
-          <div style="font-size:12px;color:var(--t3);">last_step, time_on_page_sec</div>
-          <div style="font-size:12px;color:var(--t3);">폼 진입 후 5분 비활동 → 이벤트 확인</div>
-          <span class="tag ty">P1</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ONBOARDING -->
-  <div class="mb">
-    <span class="sec-label">Group B — 온보딩 이벤트</span>
-    <div class="card">
-      <div class="mtx" style="margin-bottom:0;">
-        <div class="mtx-head" style="grid-template-columns:200px 1fr 180px 90px;">
-          <span>이벤트명</span><span>기대 Payload / 주의사항</span><span>검증 방법</span><span>우선순위</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">onboarding_step_viewed</code>
-          <div style="font-size:12px;color:var(--t3);">step_number(1~5), step_name — <span style="color:var(--red);">중복 발화 없음 확인</span></div>
-          <div style="font-size:12px;color:var(--t3);">각 단계 진입마다 1회씩만 발화 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">contract_scope_saved</code>
-          <div style="font-size:12px;color:var(--t3);">input_method, char_count, scope_item_count — <span style="color:var(--red);">계약서 원문 절대 포함 X</span></div>
-          <div style="font-size:12px;color:var(--t3);">저장 후 payload에 계약 내용 없음 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">onboarding_completed</code>
-          <div style="font-size:12px;color:var(--t3);">total_time_sec, steps_skipped_count — 5단계 완료 시 1회만 발화</div>
-          <div style="font-size:12px;color:var(--t3);">완료 후 재진입해도 중복 발화 없음 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- JUDGMENT -->
-  <div class="mb">
-    <span class="sec-label">Group C — 핵심: 판정 & Aha Moment 이벤트</span>
-    <div class="card">
-      <div class="mtx" style="margin-bottom:12px;">
-        <div class="mtx-head" style="grid-template-columns:200px 1fr 180px 90px;">
-          <span>이벤트명</span><span>기대 Payload / 주의사항</span><span>검증 방법</span><span>우선순위</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">judgment_started</code>
-          <div style="font-size:12px;color:var(--t3);">project_id(hashed), char_count — <span style="color:var(--red);">요청 텍스트 원문 X</span></div>
-          <div style="font-size:12px;color:var(--t3);">판정 버튼 클릭 즉시 발화</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">judgment_completed</code>
-          <div style="font-size:12px;color:var(--t3);">verdict(IN/OUT/AMBIGUOUS), confidence, response_time_ms, is_first_judgment</div>
-          <div style="font-size:12px;color:var(--t3);">IN/OUT/AMBIGUOUS 각각 1회씩 테스트</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">aha_moment_reached</code>
-          <div style="font-size:12px;color:var(--t3);">time_from_signup_min, is_first_judgment=true — <span style="color:var(--red);">최초 OUT 판정에만 발화</span></div>
-          <div style="font-size:12px;color:var(--t3);">2번째 OUT 판정 시 미발화 확인 필수</div>
-          <span class="tag tr">P0 최핵심</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">judgment_failed</code>
-          <div style="font-size:12px;color:var(--t3);">error_type, retry_count — API 타임아웃/오류 시만 발화</div>
-          <div style="font-size:12px;color:var(--t3);">DevTools에서 API 차단 후 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-      </div>
-      <div class="ann r">🔴 <strong>aha_moment_reached</strong> 중복 발화는 퍼널 CVR을 100% 이상으로 만드는 치명적 오류. 반드시 is_first_judgment 플래그로 조건 처리</div>
-    </div>
-  </div>
-
-  <!-- DOCUMENT -->
-  <div class="mb">
-    <span class="sec-label">Group D — 문서 이벤트 (최종 가치 완료)</span>
-    <div class="card">
-      <div class="mtx" style="margin-bottom:0;">
-        <div class="mtx-head" style="grid-template-columns:200px 1fr 180px 90px;">
-          <span>이벤트명</span><span>기대 Payload / 주의사항</span><span>검증 방법</span><span>우선순위</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">document_generated</code>
-          <div style="font-size:12px;color:var(--t3);">response_time_ms, char_count — <span style="color:var(--red);">문서 내용 원문 X</span></div>
-          <div style="font-size:12px;color:var(--t3);">생성 완료 후 payload 확인</div>
-          <span class="tag tr">P0</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">document_copied</code>
-          <div style="font-size:12px;color:var(--t3);">has_amount(bool), has_hours(bool), copy_count_total — <span style="color:var(--green);">H2 완료 신호</span></div>
-          <div style="font-size:12px;color:var(--t3);">복사 버튼 클릭 → 1회 발화 확인</div>
-          <span class="tag tr">P0 최핵심</span>
-        </div>
-        <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
-          <code style="font-size:11px;color:var(--blue);">document_edited</code>
-          <div style="font-size:12px;color:var(--t3);">edit_type — debounce 처리로 1초 이상 입력 멈춤 시만 발화 (타이핑마다 X)</div>
-          <div style="font-size:12px;color:var(--t3);">빠르게 타이핑해도 이벤트 폭증 없음 확인</div>
-          <span class="tag ty">P1</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h4>Payload 검증 코드 — DevTools Console에서 실행</h4>
-    <div class="code">
-<span class="c">// Chrome DevTools Console에 붙여넣기 → 모든 PostHog 요청 모니터링</span><br>
-<span class="k">const</span> origFetch = window.fetch<br>
-window.fetch = <span class="k">async function</span>(...args) {<br>
-&nbsp;&nbsp;<span class="k">const</span> url = args[0]<br>
-&nbsp;&nbsp;<span class="k">if</span> (typeof url === <span class="s">'string'</span> && url.<span class="f">includes</span>(<span class="s">'posthog'</span>)) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> body = args[1]?.body<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> (body) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">try</span> {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> parsed = JSON.<span class="f">parse</span>(decodeURIComponent(body).<span class="f">replace</span>(<span class="s">'data='</span>, <span class="s">''</span>))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="f">group</span>(<span class="s">`📊 PostHog: ${parsed.batch?.[0]?.event}`</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="f">log</span>(<span class="s">'Properties:'</span>, parsed.batch?.[0]?.properties)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="f">groupEnd</span>()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <span class="k">catch</span>(e) {}<br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;<span class="k">return</span> <span class="f">origFetch</span>(...args)<br>
-}
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 4: 퍼널 검증 ===== -->
-<div class="page" id="page-funnel">
-  <div class="sec-hdr">
-    <h2>퍼널 검증 & 기대 데이터</h2>
-    <p>5개 핵심 퍼널의 PostHog 설정 방법과 각 단계별 기대 전환율</p>
-  </div>
-
-  <!-- FUNNEL 1 -->
-  <div class="mb">
-    <span class="sec-label">Funnel F1 — 획득 퍼널 (H1 가설 검증)</span>
-    <div class="card mb">
-      <div class="fdiag mb">
-        <div class="fd-box act">landing_page_viewed<small>100%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box act">landing_cta_clicked<small>기대: ~15%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box act">signup_started<small>기대: ~8%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box done">signup_completed<small>목표: ≥ 3%</small></div>
-      </div>
-      <div class="funnel-wrap">
-        <div class="funnel-bar-row">
-          <span class="funnel-label" style="font-size:11px;">landing_page_viewed</span>
-          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:var(--blue);">100%</div></div>
-          <span class="funnel-pct" style="color:var(--blue);">100%</span>
-        </div>
-        <div class="funnel-bar-row">
-          <span class="funnel-label" style="font-size:11px;">landing_cta_clicked</span>
-          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:15%;background:var(--blue);"></div></div>
-          <span class="funnel-pct" style="color:var(--blue);">~15%</span>
-        </div>
-        <div class="funnel-bar-row">
-          <span class="funnel-label" style="font-size:11px;">signup_started</span>
-          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:8%;background:var(--yellow);"></div></div>
-          <span class="funnel-pct" style="color:var(--yellow);">~8%</span>
-        </div>
-        <div class="funnel-bar-row">
-          <span class="funnel-label" style="font-size:11px;">signup_completed</span>
-          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:3%;background:var(--green);">≥ 3%</div></div>
-          <span class="funnel-pct" style="color:var(--green);">목표 3%</span>
-        </div>
-      </div>
-      <div class="ann y" style="margin-top:10px;">⚠ CTA 클릭 → 가입 사이 이탈이 5% 미만이면 가입 폼 마찰 문제. CTA 클릭 대비 가입 완료가 15% 미만이면 인증 메일 UX 개선 필요</div>
-    </div>
-  </div>
-
-  <!-- FUNNEL 2 -->
-  <div class="mb">
-    <span class="sec-label">Funnel F2 — Aha Moment 퍼널 (H2 가설 핵심)</span>
-    <div class="card mb">
-      <div class="fdiag mb">
-        <div class="fd-box done">signup_completed<small>100%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box act">project_created<small>기대: ~85%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box act">contract_scope_saved<small>기대: ~70%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box act">judgment_completed<small>기대: ~65%</small></div>
-        <div class="fd-arr">→</div>
-        <div class="fd-box done">aha_moment_reached<small>목표: ≥ 60%</small></div>
-      </div>
       <div class="g2">
-        <div>
-          <h4>Drop-off 예상 구간 및 원인</h4>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <div style="padding:8px 10px;border-radius:6px;background:color-mix(in srgb,var(--red) 6%,transparent);border:1px solid color-mix(in srgb,var(--red) 20%,transparent);font-size:12px;">
-              <div style="font-weight:700;color:var(--red);">계약서 입력 단계 (최대 이탈 예상)</div>
-              <p>계약서 없는 PM, 귀찮음, 어떻게 입력해야 하는지 모름 → 샘플 제공으로 완화</p>
-            </div>
-            <div style="padding:8px 10px;border-radius:6px;background:color-mix(in srgb,var(--yellow) 6%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 20%,transparent);font-size:12px;">
-              <div style="font-weight:700;color:var(--yellow);">첫 판정 실행 전 이탈</div>
-              <p>어떤 텍스트를 입력해야 하는지 모름 → 입력 힌트 텍스트 개선</p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h4>PostHog Funnel 설정 방법</h4>
+        <div class="card">
+          <h4>검증 실행 순서</h4>
           <div class="steps">
-            <div class="step">PostHog → Insights → New Insight → Funnel</div>
-            <div class="step">Step 1: signup_completed 추가</div>
-            <div class="step">Step 2~5: 위 이벤트 순서대로 추가</div>
-            <div class="step">Conversion window: 7 days 설정</div>
-            <div class="step">Breakdown: agency_size로 세분화</div>
-            <div class="step">Save → "F2 Aha Moment Funnel"로 저장</div>
+            <div class="step">PostHog 프로젝트 생성 + API 키 환경변수 설정 (.env.local)</div>
+            <div class="step">SDK 초기화 코드 삽입 (_app.tsx 또는 layout.tsx)</div>
+            <div class="step">공통 속성 (user_id, plan, agency_size) identify() 등록</div>
+            <div class="step">P0 이벤트 27개 코드 삽입 → Staging 배포</div>
+            <div class="step">PostHog Toolbar 활성화 → 각 이벤트 수동 발화 확인</div>
+            <div class="step">DevTools Network 탭에서 /capture 요청 payload 검토</div>
+            <div class="step">PII 포함 여부 전체 속성 수동 스캔</div>
+            <div class="step">퍼널 5개 PostHog에 등록 → 테스트 데이터로 흐름 확인</div>
+            <div class="step">중복 이벤트 발화 없음 확인 (더블 클릭, 리렌더링 테스트)</div>
+            <div class="step">프로덕션 배포 후 24시간 데이터 수집 → 기대값 일치 확인</div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>검증 실패 기준 & 대응</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <div
+              style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:color-mix(in srgb,var(--red) 6%,transparent);border:1px solid color-mix(in srgb,var(--red) 20%,transparent);">
+              <span style="font-size:15px;flex-shrink:0;">🛑</span>
+              <div>
+                <div style="font-weight:700;color:var(--red);font-size:12px;">BLOCKER — 즉시 수정 후 재배포</div>
+                <p>P0 이벤트 미발화 / PII 포함 / 중복 발화 / 퍼널 단절</p>
+              </div>
+            </div>
+            <div
+              style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:color-mix(in srgb,var(--yellow) 6%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 20%,transparent);">
+              <span style="font-size:15px;flex-shrink:0;">⚠️</span>
+              <div>
+                <div style="font-weight:700;color:var(--yellow);font-size:12px;">WARNING — Known Issue 등록 후 조건부 배포</div>
+                <p>P1 이벤트 누락 / 속성 일부 미전달 / 타임스탬프 오차</p>
+              </div>
+            </div>
+            <div
+              style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:8px;background:color-mix(in srgb,var(--blue) 6%,transparent);border:1px solid color-mix(in srgb,var(--blue) 20%,transparent);">
+              <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
+              <div>
+                <div style="font-weight:700;color:var(--blue);font-size:12px;">INFO — 다음 릴리즈에 반영</div>
+                <p>P2 이벤트 누락 / 선택 속성 미전달</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- FUNNEL 3 -->
-  <div class="mb">
-    <span class="sec-label">Funnel F3 — 가치 완료 퍼널 + F4 수익 퍼널</span>
-    <div class="g2">
+    <!-- ===== TAB 2: 설치 & 초기화 ===== -->
+    <div class="page" id="page-install">
+      <div class="sec-hdr">
+        <h2>PostHog 설치 & 초기화 검증</h2>
+        <p>SDK 설치부터 사용자 식별(identify)까지 단계별 구현 코드 및 검증 방법</p>
+      </div>
+
+      <div class="g2 mb">
+        <div>
+          <span class="sec-label">Step 1 — 패키지 설치</span>
+          <div class="code mb">
+            <span class="c"># Next.js 프로젝트에 PostHog 설치</span><br>
+            npm install posthog-js<br><br>
+            <span class="c"># 환경변수 설정 (.env.local)</span><br>
+            <span class="n">NEXT_PUBLIC_POSTHOG_KEY</span>=phc_YOUR_PROJECT_KEY<br>
+            <span class="n">NEXT_PUBLIC_POSTHOG_HOST</span>=https://app.posthog.com
+          </div>
+          <div class="ann y">⚠ API 키를 .env.local에만 보관. .env 파일은 git에 커밋하지 않는다. .gitignore에 .env.local 포함 확인</div>
+        </div>
+        <div>
+          <span class="sec-label">Step 2 — SDK 초기화 (Next.js App Router)</span>
+          <div class="code">
+            <span class="c">// app/providers.tsx</span><br>
+            <span class="k">'use client'</span><br>
+            <span class="k">import</span> posthog <span class="k">from</span> <span class="s">'posthog-js'</span><br>
+            <span class="k">import</span> { PostHogProvider } <span class="k">from</span> <span
+              class="s">'posthog-js/react'</span><br>
+            <span class="k">import</span> { useEffect } <span class="k">from</span> <span
+              class="s">'react'</span><br><br>
+            <span class="k">export function</span> <span class="f">PHProvider</span>({ children }) {<br>
+            &nbsp;&nbsp;<span class="k">useEffect</span>(() => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;posthog.<span class="f">init</span>(process.env.<span
+              class="n">NEXT_PUBLIC_POSTHOG_KEY</span>, {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;api_host: process.env.<span
+              class="n">NEXT_PUBLIC_POSTHOG_HOST</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;capture_pageview: <span class="n">false</span>, <span class="c">// 수동
+              제어</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;capture_pageleave: <span class="n">true</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;persistence: <span class="s">'localStorage'</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autocapture: <span class="n">false</span>, <span class="c">// 의도치 않은 수집
+              차단</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;})<br>
+            &nbsp;&nbsp;}, [])<br>
+            &nbsp;&nbsp;<span class="k">return</span> &lt;PostHogProvider
+            client={posthog}&gt;{children}&lt;/PostHogProvider&gt;<br>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="g2 mb">
+        <div>
+          <span class="sec-label">Step 3 — 사용자 식별 (identify)</span>
+          <div class="code">
+            <span class="c">// 로그인 완료 후 호출</span><br>
+            <span class="k">import</span> { usePostHog } <span class="k">from</span> <span
+              class="s">'posthog-js/react'</span><br><br>
+            <span class="k">const</span> posthog = usePostHog()<br><br>
+            <span class="c">// 로그인 성공 시</span><br>
+            posthog.<span class="f">identify</span>(<br>
+            &nbsp;&nbsp;hashedUserId, <span class="c">// UUID hash (이메일 원문 X)</span><br>
+            &nbsp;&nbsp;{<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;agency_size: profile.agency_size,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;plan: <span class="s">'beta_free'</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;created_at: profile.created_at,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;onboarded: profile.onboarded,<br>
+            &nbsp;&nbsp;}<br>
+            )<br><br>
+            <span class="c">// 로그아웃 시 반드시 호출</span><br>
+            posthog.<span class="f">reset</span>()
+          </div>
+        </div>
+        <div>
+          <span class="sec-label">Step 4 — 공통 속성 유틸리티</span>
+          <div class="code">
+            <span class="c">// lib/analytics.ts</span><br>
+            <span class="k">export const</span> <span class="f">commonProps</span> = () => ({<br>
+            &nbsp;&nbsp;platform: <span class="s">'web'</span>,<br>
+            &nbsp;&nbsp;app_version: process.env.<span class="n">NEXT_PUBLIC_APP_VERSION</span>,<br>
+            &nbsp;&nbsp;timestamp: <span class="k">new</span> Date().<span class="f">toISOString</span>(),<br>
+            })<br><br>
+            <span class="c">// 사용 예시</span><br>
+            <span class="k">export const</span> <span class="f">track</span> = (event, props = {}) => {<br>
+            &nbsp;&nbsp;posthog.<span class="f">capture</span>(event, {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...<span class="f">commonProps</span>(),<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;...props,<br>
+            &nbsp;&nbsp;})<br>
+            }<br><br>
+            <span class="c">// 실제 사용</span><br>
+            <span class="f">track</span>(<span class="s">'judgment_completed'</span>, {<br>
+            &nbsp;&nbsp;verdict: <span class="s">'OUT'</span>,<br>
+            &nbsp;&nbsp;confidence: <span class="n">0.92</span>,<br>
+            &nbsp;&nbsp;is_first_judgment: <span class="n">true</span>,<br>
+            })
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb">
+        <h4>설치 검증 체크리스트</h4>
+        <div class="g3">
+          <div>
+            <div style="font-weight:700;font-size:12px;color:var(--blue);margin-bottom:8px;">🔧 DevTools 검증</div>
+            <ul class="cl">
+              <li>Network 탭 → app.posthog.com/capture 요청 확인</li>
+              <li>요청 status 200 확인</li>
+              <li>payload에 distinct_id 포함 확인</li>
+              <li>payload에 이메일 원문 미포함 확인</li>
+              <li>Console 탭에 SDK 초기화 오류 없음</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:12px;color:var(--green);margin-bottom:8px;">📊 PostHog 대시보드 검증</div>
+            <ul class="cl">
+              <li>People 탭에 테스트 유저 표시</li>
+              <li>Properties에 agency_size, plan 반영</li>
+              <li>Session Recordings 활성화 확인</li>
+              <li>Feature Flags 연결 테스트</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:12px;color:var(--yellow);margin-bottom:8px;">🔒 보안 검증</div>
+            <ul class="cl">
+              <li class="n">이메일 원문이 이벤트 속성에 없음</li>
+              <li class="n">비밀번호가 어떤 이벤트에도 없음</li>
+              <li class="n">계약서 원문이 이벤트에 없음</li>
+              <li class="w">user_id는 UUID hash만 사용</li>
+              <li class="w">autocapture=false 유지</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <h4>PostHog Toolbar 활성화 방법</h4>
+          <div class="steps">
+            <div class="step">PostHog 대시보드 → Settings → Toolbar 메뉴</div>
+            <div class="step">사이트 URL 등록 (예: https://staging.scopemanager.io)</div>
+            <div class="step">Authorize Toolbar 클릭 → 스테이징 사이트 이동</div>
+            <div class="step">화면 하단 PostHog 아이콘 → Inspector 모드 활성화</div>
+            <div class="step">버튼 클릭 시 발화되는 이벤트 실시간 확인</div>
+          </div>
+          <div class="ann g" style="margin-top:10px;">✅ 코드 수정 없이 화면에서 직접 이벤트 발화를 시각적으로 확인 가능</div>
+        </div>
+        <div class="card">
+          <h4>페이지뷰 수동 제어 (Next.js Router)</h4>
+          <div class="code" style="font-size:11px;">
+            <span class="c">// app/layout.tsx — 라우트 변경 감지</span><br>
+            <span class="k">'use client'</span><br>
+            <span class="k">import</span> { usePathname } <span class="k">from</span> <span
+              class="s">'next/navigation'</span><br>
+            <span class="k">import</span> { usePostHog } <span class="k">from</span> <span
+              class="s">'posthog-js/react'</span><br>
+            <span class="k">import</span> { useEffect } <span class="k">from</span> <span
+              class="s">'react'</span><br><br>
+            <span class="k">export function</span> <span class="f">PageViewTracker</span>() {<br>
+            &nbsp;&nbsp;<span class="k">const</span> pathname = <span class="f">usePathname</span>()<br>
+            &nbsp;&nbsp;<span class="k">const</span> posthog = <span class="f">usePostHog</span>()<br>
+            &nbsp;&nbsp;<span class="k">useEffect</span>(() => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;posthog.<span class="f">capture</span>(<span class="s">'$pageview'</span>, {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">$current_url</span>: window.location.href,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;})<br>
+            &nbsp;&nbsp;}, [pathname])<br>
+            &nbsp;&nbsp;<span class="k">return null</span><br>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: 이벤트 검증 ===== -->
+    <div class="page" id="page-events">
+      <div class="sec-hdr">
+        <h2>이벤트별 연동 검증</h2>
+        <p>각 이벤트의 발화 조건, 기대 payload, 검증 방법. DevTools Network 탭 /capture 요청에서 확인</p>
+      </div>
+
+      <!-- ACQUIRE -->
+      <div class="mb">
+        <span class="sec-label">Group A — 획득 이벤트 (Acquisition)</span>
+        <div class="card">
+          <div class="mtx" style="margin-bottom:0;">
+            <div class="mtx-head" style="grid-template-columns:180px 1fr 180px 90px;">
+              <span>이벤트명</span><span>기대 Payload 속성</span><span>검증 방법</span><span>우선순위</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">landing_page_viewed</code>
+              <div style="font-size:12px;color:var(--t3);">referrer, utm_source, utm_medium, utm_campaign, <span
+                  style="color:var(--red);">이메일 X</span></div>
+              <div style="font-size:12px;color:var(--t3);">랜딩 진입 → Network /capture 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">landing_cta_clicked</code>
+              <div style="font-size:12px;color:var(--t3);">cta_location (hero/mid/footer), cta_text</div>
+              <div style="font-size:12px;color:var(--t3);">각 CTA 버튼 클릭 후 payload 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">signup_completed</code>
+              <div style="font-size:12px;color:var(--t3);">signup_method="email", time_to_complete_sec, <span
+                  style="color:var(--red);">이메일 원문 X</span></div>
+              <div style="font-size:12px;color:var(--t3);">인증 링크 클릭 후 발화 1회 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:180px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">signup_abandoned</code>
+              <div style="font-size:12px;color:var(--t3);">last_step, time_on_page_sec</div>
+              <div style="font-size:12px;color:var(--t3);">폼 진입 후 5분 비활동 → 이벤트 확인</div>
+              <span class="tag ty">P1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONBOARDING -->
+      <div class="mb">
+        <span class="sec-label">Group B — 온보딩 이벤트</span>
+        <div class="card">
+          <div class="mtx" style="margin-bottom:0;">
+            <div class="mtx-head" style="grid-template-columns:200px 1fr 180px 90px;">
+              <span>이벤트명</span><span>기대 Payload / 주의사항</span><span>검증 방법</span><span>우선순위</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">onboarding_step_viewed</code>
+              <div style="font-size:12px;color:var(--t3);">step_number(1~5), step_name — <span
+                  style="color:var(--red);">중복 발화 없음 확인</span></div>
+              <div style="font-size:12px;color:var(--t3);">각 단계 진입마다 1회씩만 발화 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">contract_scope_saved</code>
+              <div style="font-size:12px;color:var(--t3);">input_method, char_count, scope_item_count — <span
+                  style="color:var(--red);">계약서 원문 절대 포함 X</span></div>
+              <div style="font-size:12px;color:var(--t3);">저장 후 payload에 계약 내용 없음 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">onboarding_completed</code>
+              <div style="font-size:12px;color:var(--t3);">total_time_sec, steps_skipped_count — 5단계 완료 시 1회만 발화</div>
+              <div style="font-size:12px;color:var(--t3);">완료 후 재진입해도 중복 발화 없음 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JUDGMENT -->
+      <div class="mb">
+        <span class="sec-label">Group C — 핵심: 판정 & Aha Moment 이벤트</span>
+        <div class="card">
+          <div class="mtx" style="margin-bottom:12px;">
+            <div class="mtx-head" style="grid-template-columns:200px 1fr 180px 90px;">
+              <span>이벤트명</span><span>기대 Payload / 주의사항</span><span>검증 방법</span><span>우선순위</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">judgment_started</code>
+              <div style="font-size:12px;color:var(--t3);">project_id(hashed), char_count — <span
+                  style="color:var(--red);">요청 텍스트 원문 X</span></div>
+              <div style="font-size:12px;color:var(--t3);">판정 버튼 클릭 즉시 발화</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">judgment_completed</code>
+              <div style="font-size:12px;color:var(--t3);">verdict(IN/OUT/AMBIGUOUS), confidence, response_time_ms,
+                is_first_judgment</div>
+              <div style="font-size:12px;color:var(--t3);">IN/OUT/AMBIGUOUS 각각 1회씩 테스트</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">aha_moment_reached</code>
+              <div style="font-size:12px;color:var(--t3);">time_from_signup_min, is_first_judgment=true — <span
+                  style="color:var(--red);">최초 OUT 판정에만 발화</span></div>
+              <div style="font-size:12px;color:var(--t3);">2번째 OUT 판정 시 미발화 확인 필수</div>
+              <span class="tag tr">P0 최핵심</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">judgment_failed</code>
+              <div style="font-size:12px;color:var(--t3);">error_type, retry_count — API 타임아웃/오류 시만 발화</div>
+              <div style="font-size:12px;color:var(--t3);">DevTools에서 API 차단 후 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+          </div>
+          <div class="ann r">🔴 <strong>aha_moment_reached</strong> 중복 발화는 퍼널 CVR을 100% 이상으로 만드는 치명적 오류. 반드시
+            is_first_judgment 플래그로 조건 처리</div>
+        </div>
+      </div>
+
+      <!-- DOCUMENT -->
+      <div class="mb">
+        <span class="sec-label">Group D — 문서 이벤트 (최종 가치 완료)</span>
+        <div class="card">
+          <div class="mtx" style="margin-bottom:0;">
+            <div class="mtx-head" style="grid-template-columns:200px 1fr 180px 90px;">
+              <span>이벤트명</span><span>기대 Payload / 주의사항</span><span>검증 방법</span><span>우선순위</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">document_generated</code>
+              <div style="font-size:12px;color:var(--t3);">response_time_ms, char_count — <span
+                  style="color:var(--red);">문서 내용 원문 X</span></div>
+              <div style="font-size:12px;color:var(--t3);">생성 완료 후 payload 확인</div>
+              <span class="tag tr">P0</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">document_copied</code>
+              <div style="font-size:12px;color:var(--t3);">has_amount(bool), has_hours(bool), copy_count_total — <span
+                  style="color:var(--green);">H2 완료 신호</span></div>
+              <div style="font-size:12px;color:var(--t3);">복사 버튼 클릭 → 1회 발화 확인</div>
+              <span class="tag tr">P0 최핵심</span>
+            </div>
+            <div class="mtx-row" style="grid-template-columns:200px 1fr 180px 90px;">
+              <code style="font-size:11px;color:var(--blue);">document_edited</code>
+              <div style="font-size:12px;color:var(--t3);">edit_type — debounce 처리로 1초 이상 입력 멈춤 시만 발화 (타이핑마다 X)</div>
+              <div style="font-size:12px;color:var(--t3);">빠르게 타이핑해도 이벤트 폭증 없음 확인</div>
+              <span class="tag ty">P1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
-        <h4>F3 — 가치 완료 퍼널</h4>
-        <div class="funnel-wrap mb">
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">aha_moment_reached</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:var(--green);">100%</div></div>
-            <span class="funnel-pct" style="color:var(--green);">100%</span>
+        <h4>Payload 검증 코드 — DevTools Console에서 실행</h4>
+        <div class="code">
+          <span class="c">// Chrome DevTools Console에 붙여넣기 → 모든 PostHog 요청 모니터링</span><br>
+          <span class="k">const</span> origFetch = window.fetch<br>
+          window.fetch = <span class="k">async function</span>(...args) {<br>
+          &nbsp;&nbsp;<span class="k">const</span> url = args[0]<br>
+          &nbsp;&nbsp;<span class="k">if</span> (typeof url === <span class="s">'string'</span> && url.<span
+            class="f">includes</span>(<span class="s">'posthog'</span>)) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> body = args[1]?.body<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> (body) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">try</span> {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">const</span> parsed = JSON.<span
+            class="f">parse</span>(decodeURIComponent(body).<span class="f">replace</span>(<span
+            class="s">'data='</span>, <span class="s">''</span>))<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="f">group</span>(<span class="s">`📊
+            PostHog: ${parsed.batch?.[0]?.event}`</span>)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="f">log</span>(<span
+            class="s">'Properties:'</span>, parsed.batch?.[0]?.properties)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="f">groupEnd</span>()<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <span class="k">catch</span>(e) {}<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+          &nbsp;&nbsp;}<br>
+          &nbsp;&nbsp;<span class="k">return</span> <span class="f">origFetch</span>(...args)<br>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: 퍼널 검증 ===== -->
+    <div class="page" id="page-funnel">
+      <div class="sec-hdr">
+        <h2>퍼널 검증 & 기대 데이터</h2>
+        <p>5개 핵심 퍼널의 PostHog 설정 방법과 각 단계별 기대 전환율</p>
+      </div>
+
+      <!-- FUNNEL 1 -->
+      <div class="mb">
+        <span class="sec-label">Funnel F1 — 획득 퍼널 (H1 가설 검증)</span>
+        <div class="card mb">
+          <div class="fdiag mb">
+            <div class="fd-box act">landing_page_viewed<small>100%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box act">landing_cta_clicked<small>기대: ~15%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box act">signup_started<small>기대: ~8%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box done">signup_completed<small>목표: ≥ 3%</small></div>
           </div>
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">document_generated</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:70%;background:var(--blue);"></div></div>
-            <span class="funnel-pct" style="color:var(--blue);">~70%</span>
+          <div class="funnel-wrap">
+            <div class="funnel-bar-row">
+              <span class="funnel-label" style="font-size:11px;">landing_page_viewed</span>
+              <div class="funnel-bar-bg">
+                <div class="funnel-bar-fill" style="width:100%;background:var(--blue);">100%</div>
+              </div>
+              <span class="funnel-pct" style="color:var(--blue);">100%</span>
+            </div>
+            <div class="funnel-bar-row">
+              <span class="funnel-label" style="font-size:11px;">landing_cta_clicked</span>
+              <div class="funnel-bar-bg">
+                <div class="funnel-bar-fill" style="width:15%;background:var(--blue);"></div>
+              </div>
+              <span class="funnel-pct" style="color:var(--blue);">~15%</span>
+            </div>
+            <div class="funnel-bar-row">
+              <span class="funnel-label" style="font-size:11px;">signup_started</span>
+              <div class="funnel-bar-bg">
+                <div class="funnel-bar-fill" style="width:8%;background:var(--yellow);"></div>
+              </div>
+              <span class="funnel-pct" style="color:var(--yellow);">~8%</span>
+            </div>
+            <div class="funnel-bar-row">
+              <span class="funnel-label" style="font-size:11px;">signup_completed</span>
+              <div class="funnel-bar-bg">
+                <div class="funnel-bar-fill" style="width:3%;background:var(--green);">≥ 3%</div>
+              </div>
+              <span class="funnel-pct" style="color:var(--green);">목표 3%</span>
+            </div>
           </div>
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">document_copied</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:40%;background:var(--yellow);">목표 40%</div></div>
-            <span class="funnel-pct" style="color:var(--yellow);">목표 40%</span>
+          <div class="ann y" style="margin-top:10px;">⚠ CTA 클릭 → 가입 사이 이탈이 5% 미만이면 가입 폼 마찰 문제. CTA 클릭 대비 가입 완료가 15% 미만이면
+            인증 메일 UX 개선 필요</div>
+        </div>
+      </div>
+
+      <!-- FUNNEL 2 -->
+      <div class="mb">
+        <span class="sec-label">Funnel F2 — Aha Moment 퍼널 (H2 가설 핵심)</span>
+        <div class="card mb">
+          <div class="fdiag mb">
+            <div class="fd-box done">signup_completed<small>100%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box act">project_created<small>기대: ~85%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box act">contract_scope_saved<small>기대: ~70%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box act">judgment_completed<small>기대: ~65%</small></div>
+            <div class="fd-arr">→</div>
+            <div class="fd-box done">aha_moment_reached<small>목표: ≥ 60%</small></div>
+          </div>
+          <div class="g2">
+            <div>
+              <h4>Drop-off 예상 구간 및 원인</h4>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div
+                  style="padding:8px 10px;border-radius:6px;background:color-mix(in srgb,var(--red) 6%,transparent);border:1px solid color-mix(in srgb,var(--red) 20%,transparent);font-size:12px;">
+                  <div style="font-weight:700;color:var(--red);">계약서 입력 단계 (최대 이탈 예상)</div>
+                  <p>계약서 없는 PM, 귀찮음, 어떻게 입력해야 하는지 모름 → 샘플 제공으로 완화</p>
+                </div>
+                <div
+                  style="padding:8px 10px;border-radius:6px;background:color-mix(in srgb,var(--yellow) 6%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 20%,transparent);font-size:12px;">
+                  <div style="font-weight:700;color:var(--yellow);">첫 판정 실행 전 이탈</div>
+                  <p>어떤 텍스트를 입력해야 하는지 모름 → 입력 힌트 텍스트 개선</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4>PostHog Funnel 설정 방법</h4>
+              <div class="steps">
+                <div class="step">PostHog → Insights → New Insight → Funnel</div>
+                <div class="step">Step 1: signup_completed 추가</div>
+                <div class="step">Step 2~5: 위 이벤트 순서대로 추가</div>
+                <div class="step">Conversion window: 7 days 설정</div>
+                <div class="step">Breakdown: agency_size로 세분화</div>
+                <div class="step">Save → "F2 Aha Moment Funnel"로 저장</div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="ann b">document_copied가 40% 미만이면 → 문서 품질 또는 복사 버튼 UX 문제</div>
       </div>
+
+      <!-- FUNNEL 3 -->
+      <div class="mb">
+        <span class="sec-label">Funnel F3 — 가치 완료 퍼널 + F4 수익 퍼널</span>
+        <div class="g2">
+          <div class="card">
+            <h4>F3 — 가치 완료 퍼널</h4>
+            <div class="funnel-wrap mb">
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">aha_moment_reached</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:100%;background:var(--green);">100%</div>
+                </div>
+                <span class="funnel-pct" style="color:var(--green);">100%</span>
+              </div>
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">document_generated</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:70%;background:var(--blue);"></div>
+                </div>
+                <span class="funnel-pct" style="color:var(--blue);">~70%</span>
+              </div>
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">document_copied</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:40%;background:var(--yellow);">목표 40%</div>
+                </div>
+                <span class="funnel-pct" style="color:var(--yellow);">목표 40%</span>
+              </div>
+            </div>
+            <div class="ann b">document_copied가 40% 미만이면 → 문서 품질 또는 복사 버튼 UX 문제</div>
+          </div>
+          <div class="card">
+            <h4>F4 — 수익 전환 퍼널 (H3)</h4>
+            <div class="funnel-wrap mb">
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">document_copied (3회+)</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:100%;background:var(--blue);">100%</div>
+                </div>
+                <span class="funnel-pct" style="color:var(--blue);">100%</span>
+              </div>
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">pricing_page_viewed</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:30%;background:var(--yellow);"></div>
+                </div>
+                <span class="funnel-pct" style="color:var(--yellow);">~30%</span>
+              </div>
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">upgrade_cta_clicked</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:15%;background:var(--purple);"></div>
+                </div>
+                <span class="funnel-pct" style="color:var(--purple);">~15%</span>
+              </div>
+              <div class="funnel-bar-row">
+                <span class="funnel-label" style="font-size:11px;">subscription_started</span>
+                <div class="funnel-bar-bg">
+                  <div class="funnel-bar-fill" style="width:5%;background:var(--green);">≥ 5건</div>
+                </div>
+                <span class="funnel-pct" style="color:var(--green);">목표 5건</span>
+              </div>
+            </div>
+            <div class="ann y">pricing_page 방문율이 낮으면 → 가격 페이지 진입 경로 노출 부족</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
-        <h4>F4 — 수익 전환 퍼널 (H3)</h4>
-        <div class="funnel-wrap mb">
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">document_copied (3회+)</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%;background:var(--blue);">100%</div></div>
-            <span class="funnel-pct" style="color:var(--blue);">100%</span>
+        <h4>퍼널 이상 신호 감지 기준</h4>
+        <div class="mtx">
+          <div class="mtx-head" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+            <span>퍼널 구간</span><span>정상 범위</span><span>경고 신호</span><span>대응 액션</span>
           </div>
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">pricing_page_viewed</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:30%;background:var(--yellow);"></div></div>
-            <span class="funnel-pct" style="color:var(--yellow);">~30%</span>
+          <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+            <div style="font-size:12px;color:var(--t1);">Landing → CTA 클릭</div>
+            <div style="font-size:12px;color:var(--green);">10~20%</div>
+            <div style="font-size:12px;color:var(--red);">&lt; 5%</div>
+            <div style="font-size:12px;color:var(--t3);">Hero 카피 A/B 테스트</div>
           </div>
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">upgrade_cta_clicked</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:15%;background:var(--purple);"></div></div>
-            <span class="funnel-pct" style="color:var(--purple);">~15%</span>
+          <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+            <div style="font-size:12px;color:var(--t1);">가입 → 온보딩 완료</div>
+            <div style="font-size:12px;color:var(--green);">&gt; 70%</div>
+            <div style="font-size:12px;color:var(--red);">&lt; 50%</div>
+            <div style="font-size:12px;color:var(--t3);">이탈 단계 UX 개선</div>
           </div>
-          <div class="funnel-bar-row">
-            <span class="funnel-label" style="font-size:11px;">subscription_started</span>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:5%;background:var(--green);">≥ 5건</div></div>
-            <span class="funnel-pct" style="color:var(--green);">목표 5건</span>
+          <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+            <div style="font-size:12px;color:var(--t1);">온보딩 → Aha Moment</div>
+            <div style="font-size:12px;color:var(--green);">&gt; 60%</div>
+            <div style="font-size:12px;color:var(--red);">&lt; 40%</div>
+            <div style="font-size:12px;color:var(--t3);">계약서 입력 마찰 제거</div>
           </div>
-        </div>
-        <div class="ann y">pricing_page 방문율이 낮으면 → 가격 페이지 진입 경로 노출 부족</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h4>퍼널 이상 신호 감지 기준</h4>
-    <div class="mtx">
-      <div class="mtx-head" style="grid-template-columns:1fr 1fr 1fr 1fr;">
-        <span>퍼널 구간</span><span>정상 범위</span><span>경고 신호</span><span>대응 액션</span>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
-        <div style="font-size:12px;color:var(--t1);">Landing → CTA 클릭</div>
-        <div style="font-size:12px;color:var(--green);">10~20%</div>
-        <div style="font-size:12px;color:var(--red);">&lt; 5%</div>
-        <div style="font-size:12px;color:var(--t3);">Hero 카피 A/B 테스트</div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
-        <div style="font-size:12px;color:var(--t1);">가입 → 온보딩 완료</div>
-        <div style="font-size:12px;color:var(--green);">&gt; 70%</div>
-        <div style="font-size:12px;color:var(--red);">&lt; 50%</div>
-        <div style="font-size:12px;color:var(--t3);">이탈 단계 UX 개선</div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
-        <div style="font-size:12px;color:var(--t1);">온보딩 → Aha Moment</div>
-        <div style="font-size:12px;color:var(--green);">&gt; 60%</div>
-        <div style="font-size:12px;color:var(--red);">&lt; 40%</div>
-        <div style="font-size:12px;color:var(--t3);">계약서 입력 마찰 제거</div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
-        <div style="font-size:12px;color:var(--t1);">Aha → 문서 복사</div>
-        <div style="font-size:12px;color:var(--green);">&gt; 40%</div>
-        <div style="font-size:12px;color:var(--red);">&lt; 25%</div>
-        <div style="font-size:12px;color:var(--t3);">문서 품질 or 복사 UX</div>
-      </div>
-      <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
-        <div style="font-size:12px;color:var(--t1);">가입 후 D7 재방문</div>
-        <div style="font-size:12px;color:var(--green);">&gt; 40%</div>
-        <div style="font-size:12px;color:var(--red);">&lt; 20%</div>
-        <div style="font-size:12px;color:var(--t3);">리텐션 루프 설계 점검</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 5: 라이브 콘솔 ===== -->
-<div class="page" id="page-console">
-  <div class="sec-hdr">
-    <h2>라이브 이벤트 콘솔 시뮬레이터</h2>
-    <p>실제 사용자 플로우를 시뮬레이션하며 이벤트 발화 순서와 payload를 검증한다</p>
-  </div>
-
-  <div class="g2 mb">
-    <div class="card">
-      <h4>시나리오 선택 & 실행</h4>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-        <button onclick="runScenario('aha')" style="background:var(--blue);border:none;color:#fff;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;">🎯 Aha Moment 전체 플로우 시뮬레이션</button>
-        <button onclick="runScenario('error')" style="background:var(--s2);border:1px solid var(--bd);color:var(--t1);padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;text-align:left;">💥 API 오류 & 타임아웃 시뮬레이션</button>
-        <button onclick="runScenario('pii')" style="background:var(--s2);border:1px solid var(--bd);color:var(--t1);padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;text-align:left;">🔒 PII 유출 감지 테스트</button>
-        <button onclick="runScenario('duplicate')" style="background:var(--s2);border:1px solid var(--bd);color:var(--t1);padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;text-align:left;">🔄 중복 이벤트 발화 감지 테스트</button>
-        <button onclick="clearConsole()" style="background:transparent;border:1px solid var(--bd);color:var(--t3);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;">🗑 콘솔 초기화</button>
-      </div>
-      <div id="scenario-desc" class="ann b" style="font-size:12px;">위 버튼을 클릭하면 이벤트 발화 시뮬레이션이 시작됩니다</div>
-    </div>
-
-    <div>
-      <div class="console">
-        <div class="console-bar">
-          <div class="c-dot" style="background:var(--red);"></div>
-          <div class="c-dot" style="background:var(--yellow);"></div>
-          <div class="c-dot" style="background:var(--green);"></div>
-          <span style="font-size:11px;color:var(--t3);margin-left:6px;">PostHog Event Console</span>
-          <span id="console-status" style="margin-left:auto;font-size:11px;" class="c-ok">● READY</span>
-        </div>
-        <div class="console-body" id="console-body">
-          <span class="c-ts">[00:00:00]</span> <span class="c-ok">PostHog SDK initialized</span><br>
-          <span class="c-ts">[00:00:00]</span> <span class="c-warn">Waiting for events...</span> <span class="c-blink">▌</span>
+          <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+            <div style="font-size:12px;color:var(--t1);">Aha → 문서 복사</div>
+            <div style="font-size:12px;color:var(--green);">&gt; 40%</div>
+            <div style="font-size:12px;color:var(--red);">&lt; 25%</div>
+            <div style="font-size:12px;color:var(--t3);">문서 품질 or 복사 UX</div>
+          </div>
+          <div class="mtx-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+            <div style="font-size:12px;color:var(--t1);">가입 후 D7 재방문</div>
+            <div style="font-size:12px;color:var(--green);">&gt; 40%</div>
+            <div style="font-size:12px;color:var(--red);">&lt; 20%</div>
+            <div style="font-size:12px;color:var(--t3);">리텐션 루프 설계 점검</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <h4>이벤트 검증 규칙 — 콘솔에서 자동 감지</h4>
-    <div class="g3">
-      <div>
-        <div style="color:var(--red);font-weight:700;font-size:12px;margin-bottom:6px;">🔴 FAIL 자동 감지</div>
-        <ul class="cl">
-          <li class="n">PII 키 포함 (email, name, phone)</li>
-          <li class="n">계약서 원문 1000자+ 포함</li>
-          <li class="n">동일 이벤트 2초 내 중복 발화</li>
-          <li class="n">aha_moment_reached 2회 이상</li>
-          <li class="n">이벤트명에 대문자 포함</li>
-        </ul>
+    <!-- ===== TAB 5: 라이브 콘솔 ===== -->
+    <div class="page" id="page-console">
+      <div class="sec-hdr">
+        <h2>라이브 이벤트 콘솔 시뮬레이터</h2>
+        <p>실제 사용자 플로우를 시뮬레이션하며 이벤트 발화 순서와 payload를 검증한다</p>
       </div>
-      <div>
-        <div style="color:var(--yellow);font-weight:700;font-size:12px;margin-bottom:6px;">⚠️ WARNING 자동 감지</div>
-        <ul class="cl">
-          <li class="w">timestamp 속성 누락</li>
-          <li class="w">user_id 속성 누락</li>
-          <li class="w">응답 시간 5000ms 초과</li>
-          <li class="w">confidence 값이 0~1 범위 외</li>
-          <li class="w">verdict가 IN/OUT/AMBIGUOUS 외 값</li>
-        </ul>
+
+      <div class="g2 mb">
+        <div class="card">
+          <h4>시나리오 선택 & 실행</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+            <button onclick="runScenario('aha')"
+              style="background:var(--blue);border:none;color:#fff;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;">🎯
+              Aha Moment 전체 플로우 시뮬레이션</button>
+            <button onclick="runScenario('error')"
+              style="background:var(--s2);border:1px solid var(--bd);color:var(--t1);padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;text-align:left;">💥
+              API 오류 & 타임아웃 시뮬레이션</button>
+            <button onclick="runScenario('pii')"
+              style="background:var(--s2);border:1px solid var(--bd);color:var(--t1);padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;text-align:left;">🔒
+              PII 유출 감지 테스트</button>
+            <button onclick="runScenario('duplicate')"
+              style="background:var(--s2);border:1px solid var(--bd);color:var(--t1);padding:10px 14px;border-radius:8px;cursor:pointer;font-size:13px;text-align:left;">🔄
+              중복 이벤트 발화 감지 테스트</button>
+            <button onclick="clearConsole()"
+              style="background:transparent;border:1px solid var(--bd);color:var(--t3);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;">🗑
+              콘솔 초기화</button>
+          </div>
+          <div id="scenario-desc" class="ann b" style="font-size:12px;">위 버튼을 클릭하면 이벤트 발화 시뮬레이션이 시작됩니다</div>
+        </div>
+
+        <div>
+          <div class="console">
+            <div class="console-bar">
+              <div class="c-dot" style="background:var(--red);"></div>
+              <div class="c-dot" style="background:var(--yellow);"></div>
+              <div class="c-dot" style="background:var(--green);"></div>
+              <span style="font-size:11px;color:var(--t3);margin-left:6px;">PostHog Event Console</span>
+              <span id="console-status" style="margin-left:auto;font-size:11px;" class="c-ok">● READY</span>
+            </div>
+            <div class="console-body" id="console-body">
+              <span class="c-ts">[00:00:00]</span> <span class="c-ok">PostHog SDK initialized</span><br>
+              <span class="c-ts">[00:00:00]</span> <span class="c-warn">Waiting for events...</span> <span
+                class="c-blink">▌</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <div style="color:var(--green);font-weight:700;font-size:12px;margin-bottom:6px;">✅ PASS 기준</div>
-        <ul class="cl">
-          <li>이벤트명 snake_case 준수</li>
-          <li>공통 속성 전체 포함</li>
-          <li>PII 키 없음</li>
-          <li>중복 발화 없음</li>
-          <li>PostHog /capture 200 응답</li>
-        </ul>
+
+      <div class="card">
+        <h4>이벤트 검증 규칙 — 콘솔에서 자동 감지</h4>
+        <div class="g3">
+          <div>
+            <div style="color:var(--red);font-weight:700;font-size:12px;margin-bottom:6px;">🔴 FAIL 자동 감지</div>
+            <ul class="cl">
+              <li class="n">PII 키 포함 (email, name, phone)</li>
+              <li class="n">계약서 원문 1000자+ 포함</li>
+              <li class="n">동일 이벤트 2초 내 중복 발화</li>
+              <li class="n">aha_moment_reached 2회 이상</li>
+              <li class="n">이벤트명에 대문자 포함</li>
+            </ul>
+          </div>
+          <div>
+            <div style="color:var(--yellow);font-weight:700;font-size:12px;margin-bottom:6px;">⚠️ WARNING 자동 감지</div>
+            <ul class="cl">
+              <li class="w">timestamp 속성 누락</li>
+              <li class="w">user_id 속성 누락</li>
+              <li class="w">응답 시간 5000ms 초과</li>
+              <li class="w">confidence 값이 0~1 범위 외</li>
+              <li class="w">verdict가 IN/OUT/AMBIGUOUS 외 값</li>
+            </ul>
+          </div>
+          <div>
+            <div style="color:var(--green);font-weight:700;font-size:12px;margin-bottom:6px;">✅ PASS 기준</div>
+            <ul class="cl">
+              <li>이벤트명 snake_case 준수</li>
+              <li>공통 속성 전체 포함</li>
+              <li>PII 키 없음</li>
+              <li>중복 발화 없음</li>
+              <li>PostHog /capture 200 응답</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ===== TAB 6: 검증 트래커 ===== -->
-<div class="page" id="page-tracker">
-  <div class="sec-hdr">
-    <h2>Analytics 검증 트래커</h2>
-    <p>클릭으로 상태 변경. Layer 1(설치) → Layer 2(이벤트) → Layer 3(퍼널) 순서로 검증</p>
-  </div>
+    <!-- ===== TAB 6: 검증 트래커 ===== -->
+    <div class="page" id="page-tracker">
+      <div class="sec-hdr">
+        <h2>Analytics 검증 트래커</h2>
+        <p>클릭으로 상태 변경. Layer 1(설치) → Layer 2(이벤트) → Layer 3(퍼널) 순서로 검증</p>
+      </div>
 
-  <div class="g3 mb">
-    <div class="card" style="text-align:center;">
-      <div class="stat-val" id="tr-total">0</div>
-      <div class="stat-lbl">전체 항목</div>
+      <div class="g3 mb">
+        <div class="card" style="text-align:center;">
+          <div class="stat-val" id="tr-total">0</div>
+          <div class="stat-lbl">전체 항목</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="stat-val" style="color:var(--green);" id="tr-pass">0</div>
+          <div class="stat-lbl">✅ PASS</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="stat-val" style="color:var(--red);" id="tr-fail">0</div>
+          <div class="stat-lbl">❌ FAIL</div>
+        </div>
+      </div>
+
+      <div class="card mb" style="padding:14px 18px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;font-weight:600;color:var(--t3);">Analytics 검증 진행률</span>
+          <span style="font-size:12px;font-weight:700;color:var(--t1);" id="tr-pct">0%</span>
+        </div>
+        <div style="background:var(--bd);height:8px;border-radius:4px;overflow:hidden;">
+          <div id="tr-bar" style="background:var(--green);height:8px;width:0%;border-radius:4px;transition:width .3s;">
+          </div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <span class="pill pill-todo">⬜ TODO</span>
+          <span class="pill pill-pass">✅ PASS</span>
+          <span class="pill pill-fail">❌ FAIL</span>
+          <span class="pill pill-warn">⚠️ WARN</span>
+          <span style="font-size:12px;color:var(--t3);margin-left:auto;">클릭으로 상태 순환</span>
+        </div>
+      </div>
+
+      <div class="card" id="tr-list"></div>
     </div>
-    <div class="card" style="text-align:center;">
-      <div class="stat-val" style="color:var(--green);" id="tr-pass">0</div>
-      <div class="stat-lbl">✅ PASS</div>
-    </div>
-    <div class="card" style="text-align:center;">
-      <div class="stat-val" style="color:var(--red);" id="tr-fail">0</div>
-      <div class="stat-lbl">❌ FAIL</div>
-    </div>
-  </div>
 
-  <div class="card mb" style="padding:14px 18px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-      <span style="font-size:12px;font-weight:600;color:var(--t3);">Analytics 검증 진행률</span>
-      <span style="font-size:12px;font-weight:700;color:var(--t1);" id="tr-pct">0%</span>
-    </div>
-    <div style="background:var(--bd);height:8px;border-radius:4px;overflow:hidden;">
-      <div id="tr-bar" style="background:var(--green);height:8px;width:0%;border-radius:4px;transition:width .3s;"></div>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <span class="pill pill-todo">⬜ TODO</span>
-      <span class="pill pill-pass">✅ PASS</span>
-      <span class="pill pill-fail">❌ FAIL</span>
-      <span class="pill pill-warn">⚠️ WARN</span>
-      <span style="font-size:12px;color:var(--t3);margin-left:auto;">클릭으로 상태 순환</span>
-    </div>
-  </div>
+  </main>
 
-  <div class="card" id="tr-list"></div>
-</div>
+  <script>
+    // THEME
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
+    });
 
-</main>
+    // TABS
+    document.querySelectorAll('.tab-btn').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById('page-' + t.dataset.tab).classList.add('active');
+      });
+    });
 
-<script>
-// THEME
-document.getElementById('themeToggle').addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
-});
+    // ===== CONSOLE SIMULATOR =====
+    let consoleQueue = [];
+    let running = false;
 
-// TABS
-document.querySelectorAll('.tab-btn').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('page-' + t.dataset.tab).classList.add('active');
-  });
-});
-
-// ===== CONSOLE SIMULATOR =====
-let consoleQueue = [];
-let running = false;
-
-const scenarios = {
-  aha: {
-    desc: '🎯 Aha Moment 전체 플로우: 랜딩 → 가입 → 온보딩 → 첫 OUT 판정 → 문서 복사',
-    events: [
-      { delay:300, ok:true, name:'landing_page_viewed', props:{referrer:'linkedin.com', utm_source:'linkedin', platform:'web'} },
-      { delay:800, ok:true, name:'landing_cta_clicked', props:{cta_location:'hero', cta_text:'얼리 액세스 신청하기'} },
-      { delay:600, ok:true, name:'signup_started', props:{entry_point:'landing'} },
-      { delay:1200, ok:true, name:'signup_completed', props:{signup_method:'email', time_to_complete_sec:42} },
-      { delay:500, ok:true, name:'onboarding_step_viewed', props:{step_number:1, step_name:'workspace_setup'} },
-      { delay:900, ok:true, name:'onboarding_step_viewed', props:{step_number:2, step_name:'project_create'} },
-      { delay:700, ok:true, name:'project_created', props:{is_first_project:true, is_sample:false} },
-      { delay:800, ok:true, name:'onboarding_step_viewed', props:{step_number:3, step_name:'contract_input'} },
-      { delay:1500, ok:true, name:'contract_scope_saved', props:{input_method:'paste', char_count:342, scope_item_count:7} },
-      { delay:600, ok:true, name:'onboarding_completed', props:{total_time_sec:187, steps_skipped_count:0} },
-      { delay:400, ok:true, name:'judgment_started', props:{project_id:'proj_a1b2c3', char_count:65} },
-      { delay:2800, ok:true, name:'judgment_completed', props:{verdict:'OUT', confidence:0.94, response_time_ms:2741, is_first_judgment:true} },
-      { delay:200, ok:true, name:'aha_moment_reached', props:{time_from_signup_min:8.3, steps_taken:4, is_first_judgment:true} },
-      { delay:500, ok:true, name:'document_generation_started', props:{verdict:'OUT', has_amount:false} },
-      { delay:2200, ok:true, name:'document_generated', props:{response_time_ms:2198, char_count:412} },
-      { delay:800, ok:true, name:'document_copied', props:{has_amount:false, has_hours:false, copy_count_total:1} },
-    ]
-  },
-  error: {
-    desc: '💥 API 오류 시나리오: 타임아웃 → 재시도 → 성공',
-    events: [
-      { delay:300, ok:true, name:'judgment_started', props:{project_id:'proj_a1b2c3', char_count:88} },
-      { delay:1500, ok:false, name:'judgment_failed', props:{error_type:'timeout', retry_count:0}, msg:'⏱ API 응답 없음 (15초 경과)' },
-      { delay:800, warn:true, name:'SYSTEM', props:{}, msg:'⚠ 자동 재시도 1회 실행 중...' },
-      { delay:1200, ok:true, name:'judgment_started', props:{project_id:'proj_a1b2c3', char_count:88, is_retry:true} },
-      { delay:2100, ok:true, name:'judgment_completed', props:{verdict:'IN', confidence:0.88, response_time_ms:2089, is_first_judgment:false} },
-    ]
-  },
-  pii: {
-    desc: '🔒 PII 유출 감지 테스트: 잘못된 이벤트 → FAIL 감지',
-    events: [
-      { delay:300, ok:true, name:'signup_completed', props:{signup_method:'email', time_to_complete_sec:35} },
-      { delay:500, ok:false, name:'⛔ PII_DETECTED', props:{email:'user@test.com', name:'김지은'}, msg:'❌ FAIL: 이메일 원문(email 키)이 이벤트에 포함됨. 즉시 수정 필요' },
-      { delay:400, warn:true, name:'SYSTEM', props:{}, msg:'⚠ 수정: email 속성 제거, user_id(hashed)만 사용' },
-      { delay:600, ok:true, name:'signup_completed', props:{signup_method:'email', time_to_complete_sec:35, user_id:'usr_9f2a7c'}, msg:'✅ 수정 후 이벤트: PII 없음' },
-      { delay:300, ok:true, name:'contract_scope_saved', props:{input_method:'paste', char_count:287, scope_item_count:5}, msg:'✅ 계약서 원문 미포함 확인' },
-    ]
-  },
-  duplicate: {
-    desc: '🔄 중복 이벤트 감지: aha_moment_reached 2회 발화 → FAIL 감지',
-    events: [
-      { delay:300, ok:true, name:'judgment_completed', props:{verdict:'OUT', is_first_judgment:true} },
-      { delay:400, ok:true, name:'aha_moment_reached', props:{time_from_signup_min:9.1, is_first_judgment:true} },
-      { delay:200, ok:true, name:'judgment_completed', props:{verdict:'OUT', is_first_judgment:false} },
-      { delay:200, ok:false, name:'⛔ DUPLICATE_DETECTED', props:{event:'aha_moment_reached', count:2}, msg:'❌ FAIL: aha_moment_reached 2회 발화 감지. is_first_judgment 조건 누락' },
-      { delay:400, warn:true, name:'SYSTEM', props:{}, msg:'⚠ 수정: if (is_first_judgment) posthog.capture("aha_moment_reached") 조건 추가 필요' },
-      { delay:600, ok:true, name:'SYSTEM', props:{}, msg:'✅ 수정 후: 두 번째 OUT 판정에서 aha_moment_reached 미발화 확인' },
-    ]
-  }
-};
-
-function ts() {
-  const d = new Date();
-  return `[${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}]`;
-}
-
-function appendLog(html) {
-  const body = document.getElementById('console-body');
-  body.innerHTML += html + '<br>';
-  body.scrollTop = body.scrollHeight;
-}
-
-function clearConsole() {
-  document.getElementById('console-body').innerHTML =
-    `<span class="c-ts">[00:00:00]</span> <span class="c-ok">Console cleared. Ready.</span><br>`;
-  document.getElementById('scenario-desc').textContent = '위 버튼을 클릭하면 이벤트 발화 시뮬레이션이 시작됩니다';
-  document.getElementById('console-status').innerHTML = '<span class="c-ok">● READY</span>';
-}
-
-function runScenario(key) {
-  if (running) return;
-  running = true;
-  const sc = scenarios[key];
-  document.getElementById('scenario-desc').textContent = sc.desc;
-  document.getElementById('console-status').innerHTML = '<span class="c-warn c-blink">● RUNNING</span>';
-  appendLog(`<br><span class="c-ts">${ts()}</span> <span class="c-prop">━━ ${sc.desc} ━━</span>`);
-
-  let cumDelay = 200;
-  sc.events.forEach((ev, i) => {
-    cumDelay += ev.delay;
-    setTimeout(() => {
-      const propsStr = Object.keys(ev.props).length
-        ? ' <span class="c-prop">' + Object.entries(ev.props).map(([k,v]) => `${k}=${JSON.stringify(v)}`).join(' ') + '</span>'
-        : '';
-      if (ev.ok && !ev.warn) {
-        const msg = ev.msg || '→ /capture 200 OK';
-        appendLog(`<span class="c-ts">${ts()}</span> <span class="c-ok">✅</span> <span class="c-ev">${ev.name}</span>${propsStr} <span class="c-ok">${msg}</span>`);
-      } else if (ev.warn) {
-        const msg = ev.msg || '';
-        appendLog(`<span class="c-ts">${ts()}</span> <span class="c-warn">⚠</span> <span class="c-warn">${ev.name}</span>${propsStr} <span class="c-warn">${msg}</span>`);
-      } else {
-        const msg = ev.msg || '→ FAILED';
-        appendLog(`<span class="c-ts">${ts()}</span> <span class="c-err">❌</span> <span class="c-err">${ev.name}</span>${propsStr} <span class="c-err">${msg}</span>`);
+    const scenarios = {
+      aha: {
+        desc: '🎯 Aha Moment 전체 플로우: 랜딩 → 가입 → 온보딩 → 첫 OUT 판정 → 문서 복사',
+        events: [
+          { delay: 300, ok: true, name: 'landing_page_viewed', props: { referrer: 'linkedin.com', utm_source: 'linkedin', platform: 'web' } },
+          { delay: 800, ok: true, name: 'landing_cta_clicked', props: { cta_location: 'hero', cta_text: '얼리 액세스 신청하기' } },
+          { delay: 600, ok: true, name: 'signup_started', props: { entry_point: 'landing' } },
+          { delay: 1200, ok: true, name: 'signup_completed', props: { signup_method: 'email', time_to_complete_sec: 42 } },
+          { delay: 500, ok: true, name: 'onboarding_step_viewed', props: { step_number: 1, step_name: 'workspace_setup' } },
+          { delay: 900, ok: true, name: 'onboarding_step_viewed', props: { step_number: 2, step_name: 'project_create' } },
+          { delay: 700, ok: true, name: 'project_created', props: { is_first_project: true, is_sample: false } },
+          { delay: 800, ok: true, name: 'onboarding_step_viewed', props: { step_number: 3, step_name: 'contract_input' } },
+          { delay: 1500, ok: true, name: 'contract_scope_saved', props: { input_method: 'paste', char_count: 342, scope_item_count: 7 } },
+          { delay: 600, ok: true, name: 'onboarding_completed', props: { total_time_sec: 187, steps_skipped_count: 0 } },
+          { delay: 400, ok: true, name: 'judgment_started', props: { project_id: 'proj_a1b2c3', char_count: 65 } },
+          { delay: 2800, ok: true, name: 'judgment_completed', props: { verdict: 'OUT', confidence: 0.94, response_time_ms: 2741, is_first_judgment: true } },
+          { delay: 200, ok: true, name: 'aha_moment_reached', props: { time_from_signup_min: 8.3, steps_taken: 4, is_first_judgment: true } },
+          { delay: 500, ok: true, name: 'document_generation_started', props: { verdict: 'OUT', has_amount: false } },
+          { delay: 2200, ok: true, name: 'document_generated', props: { response_time_ms: 2198, char_count: 412 } },
+          { delay: 800, ok: true, name: 'document_copied', props: { has_amount: false, has_hours: false, copy_count_total: 1 } },
+        ]
+      },
+      error: {
+        desc: '💥 API 오류 시나리오: 타임아웃 → 재시도 → 성공',
+        events: [
+          { delay: 300, ok: true, name: 'judgment_started', props: { project_id: 'proj_a1b2c3', char_count: 88 } },
+          { delay: 1500, ok: false, name: 'judgment_failed', props: { error_type: 'timeout', retry_count: 0 }, msg: '⏱ API 응답 없음 (15초 경과)' },
+          { delay: 800, warn: true, name: 'SYSTEM', props: {}, msg: '⚠ 자동 재시도 1회 실행 중...' },
+          { delay: 1200, ok: true, name: 'judgment_started', props: { project_id: 'proj_a1b2c3', char_count: 88, is_retry: true } },
+          { delay: 2100, ok: true, name: 'judgment_completed', props: { verdict: 'IN', confidence: 0.88, response_time_ms: 2089, is_first_judgment: false } },
+        ]
+      },
+      pii: {
+        desc: '🔒 PII 유출 감지 테스트: 잘못된 이벤트 → FAIL 감지',
+        events: [
+          { delay: 300, ok: true, name: 'signup_completed', props: { signup_method: 'email', time_to_complete_sec: 35 } },
+          { delay: 500, ok: false, name: '⛔ PII_DETECTED', props: { email: 'user@test.com', name: '김지은' }, msg: '❌ FAIL: 이메일 원문(email 키)이 이벤트에 포함됨. 즉시 수정 필요' },
+          { delay: 400, warn: true, name: 'SYSTEM', props: {}, msg: '⚠ 수정: email 속성 제거, user_id(hashed)만 사용' },
+          { delay: 600, ok: true, name: 'signup_completed', props: { signup_method: 'email', time_to_complete_sec: 35, user_id: 'usr_9f2a7c' }, msg: '✅ 수정 후 이벤트: PII 없음' },
+          { delay: 300, ok: true, name: 'contract_scope_saved', props: { input_method: 'paste', char_count: 287, scope_item_count: 5 }, msg: '✅ 계약서 원문 미포함 확인' },
+        ]
+      },
+      duplicate: {
+        desc: '🔄 중복 이벤트 감지: aha_moment_reached 2회 발화 → FAIL 감지',
+        events: [
+          { delay: 300, ok: true, name: 'judgment_completed', props: { verdict: 'OUT', is_first_judgment: true } },
+          { delay: 400, ok: true, name: 'aha_moment_reached', props: { time_from_signup_min: 9.1, is_first_judgment: true } },
+          { delay: 200, ok: true, name: 'judgment_completed', props: { verdict: 'OUT', is_first_judgment: false } },
+          { delay: 200, ok: false, name: '⛔ DUPLICATE_DETECTED', props: { event: 'aha_moment_reached', count: 2 }, msg: '❌ FAIL: aha_moment_reached 2회 발화 감지. is_first_judgment 조건 누락' },
+          { delay: 400, warn: true, name: 'SYSTEM', props: {}, msg: '⚠ 수정: if (is_first_judgment) posthog.capture("aha_moment_reached") 조건 추가 필요' },
+          { delay: 600, ok: true, name: 'SYSTEM', props: {}, msg: '✅ 수정 후: 두 번째 OUT 판정에서 aha_moment_reached 미발화 확인' },
+        ]
       }
-      if (i === sc.events.length - 1) {
-        setTimeout(() => {
-          appendLog(`<span class="c-ts">${ts()}</span> <span class="c-prop">━━ 시뮬레이션 완료 ━━</span><br>`);
-          document.getElementById('console-status').innerHTML = '<span class="c-ok">● DONE</span>';
-          running = false;
-        }, 500);
-      }
-    }, cumDelay);
-  });
-}
+    };
 
-// ===== TRACKER =====
-const trackerData = [
-  // Layer 1
-  { id:'L1-01', name:'PostHog SDK 초기화 확인 (console 오류 없음)', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-02', name:'환경변수 .env.local에 API 키 저장 (.gitignore 포함)', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-03', name:'autocapture=false 설정 확인', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-04', name:'capture_pageview=false 설정 (수동 제어)', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-05', name:'로그인 후 identify() 호출 확인', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-06', name:'로그아웃 후 posthog.reset() 호출 확인', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-07', name:'PostHog People 탭에 테스트 유저 표시', layer:'⚙️ Layer 1 — 설치 검증' },
-  { id:'L1-08', name:'공통 속성(platform, app_version) 전체 이벤트 포함', layer:'⚙️ Layer 1 — 설치 검증' },
-  // Layer 2
-  { id:'L2-01', name:'landing_page_viewed — utm 속성 포함 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-02', name:'signup_completed — 이메일 원문 미포함 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-03', name:'onboarding_step_viewed — 각 단계 1회만 발화', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-04', name:'contract_scope_saved — 계약서 원문 미포함 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-05', name:'judgment_started — 요청 텍스트 원문 미포함', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-06', name:'judgment_completed — IN/OUT/AMBIGUOUS 3가지 테스트', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-07', name:'aha_moment_reached — 최초 OUT 판정 시만 발화 (중복 X)', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-08', name:'judgment_failed — API 타임아웃 시 발화 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-09', name:'document_generated — 문서 내용 원문 미포함 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-10', name:'document_copied — 복사 버튼 클릭 시 1회만 발화', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-11', name:'document_edited — debounce 적용으로 폭증 없음', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-12', name:'session_started — 재로그인 시 발화 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-13', name:'subscription_started — 결제 완료 후 1회 발화', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-14', name:'전체 이벤트 이름 snake_case 준수 확인', layer:'🔬 Layer 2 — 이벤트 검증' },
-  { id:'L2-15', name:'PII(이메일/이름/전화) 전체 이벤트 스캔', layer:'🔬 Layer 2 — 이벤트 검증' },
-  // Layer 3
-  { id:'L3-01', name:'PostHog Funnel F1(획득) 등록 및 데이터 흐름 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-02', name:'PostHog Funnel F2(Aha Moment) 등록 및 흐름 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-03', name:'PostHog Funnel F3(가치 완료) 등록 및 흐름 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-04', name:'PostHog Funnel F4(수익 전환) 등록 및 흐름 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-05', name:'퍼널 Conversion Window 7days 설정 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-06', name:'퍼널 Breakdown agency_size 세분화 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-07', name:'D7 리텐션 코호트 분석 설정 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-  { id:'L3-08', name:'Session Recording 핵심 페이지 활성화 확인', layer:'🔽 Layer 3 — 퍼널 검증' },
-];
-
-const stMap = {};
-trackerData.forEach(d => stMap[d.id] = 'todo');
-const stCycle = ['todo','pass','fail','warn'];
-const stLabel = {
-  todo: '<span class="pill pill-todo">⬜ TODO</span>',
-  pass: '<span class="pill pill-pass">✅ PASS</span>',
-  fail: '<span class="pill pill-fail">❌ FAIL</span>',
-  warn: '<span class="pill pill-warn">⚠️ WARN</span>',
-};
-
-function renderTracker() {
-  const list = document.getElementById('tr-list');
-  let html = '', curLayer = '';
-  trackerData.forEach(item => {
-    if (item.layer !== curLayer) {
-      curLayer = item.layer;
-      html += `<div style="background:var(--s2);padding:8px 12px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);">${curLayer}</div>`;
+    function ts() {
+      const d = new Date();
+      return `[${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}]`;
     }
-    html += `<div class="tr-row" id="trow-${item.id}">
+
+    function appendLog(html) {
+      const body = document.getElementById('console-body');
+      body.innerHTML += html + '<br>';
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('console-body').innerHTML =
+        `<span class="c-ts">[00:00:00]</span> <span class="c-ok">Console cleared. Ready.</span><br>`;
+      document.getElementById('scenario-desc').textContent = '위 버튼을 클릭하면 이벤트 발화 시뮬레이션이 시작됩니다';
+      document.getElementById('console-status').innerHTML = '<span class="c-ok">● READY</span>';
+    }
+
+    function runScenario(key) {
+      if (running) return;
+      running = true;
+      const sc = scenarios[key];
+      document.getElementById('scenario-desc').textContent = sc.desc;
+      document.getElementById('console-status').innerHTML = '<span class="c-warn c-blink">● RUNNING</span>';
+      appendLog(`<br><span class="c-ts">${ts()}</span> <span class="c-prop">━━ ${sc.desc} ━━</span>`);
+
+      let cumDelay = 200;
+      sc.events.forEach((ev, i) => {
+        cumDelay += ev.delay;
+        setTimeout(() => {
+          const propsStr = Object.keys(ev.props).length
+            ? ' <span class="c-prop">' + Object.entries(ev.props).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(' ') + '</span>'
+            : '';
+          if (ev.ok && !ev.warn) {
+            const msg = ev.msg || '→ /capture 200 OK';
+            appendLog(`<span class="c-ts">${ts()}</span> <span class="c-ok">✅</span> <span class="c-ev">${ev.name}</span>${propsStr} <span class="c-ok">${msg}</span>`);
+          } else if (ev.warn) {
+            const msg = ev.msg || '';
+            appendLog(`<span class="c-ts">${ts()}</span> <span class="c-warn">⚠</span> <span class="c-warn">${ev.name}</span>${propsStr} <span class="c-warn">${msg}</span>`);
+          } else {
+            const msg = ev.msg || '→ FAILED';
+            appendLog(`<span class="c-ts">${ts()}</span> <span class="c-err">❌</span> <span class="c-err">${ev.name}</span>${propsStr} <span class="c-err">${msg}</span>`);
+          }
+          if (i === sc.events.length - 1) {
+            setTimeout(() => {
+              appendLog(`<span class="c-ts">${ts()}</span> <span class="c-prop">━━ 시뮬레이션 완료 ━━</span><br>`);
+              document.getElementById('console-status').innerHTML = '<span class="c-ok">● DONE</span>';
+              running = false;
+            }, 500);
+          }
+        }, cumDelay);
+      });
+    }
+
+    // ===== TRACKER =====
+    const trackerData = [
+      // Layer 1
+      { id: 'L1-01', name: 'PostHog SDK 초기화 확인 (console 오류 없음)', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-02', name: '환경변수 .env.local에 API 키 저장 (.gitignore 포함)', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-03', name: 'autocapture=false 설정 확인', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-04', name: 'capture_pageview=false 설정 (수동 제어)', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-05', name: '로그인 후 identify() 호출 확인', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-06', name: '로그아웃 후 posthog.reset() 호출 확인', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-07', name: 'PostHog People 탭에 테스트 유저 표시', layer: '⚙️ Layer 1 — 설치 검증' },
+      { id: 'L1-08', name: '공통 속성(platform, app_version) 전체 이벤트 포함', layer: '⚙️ Layer 1 — 설치 검증' },
+      // Layer 2
+      { id: 'L2-01', name: 'landing_page_viewed — utm 속성 포함 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-02', name: 'signup_completed — 이메일 원문 미포함 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-03', name: 'onboarding_step_viewed — 각 단계 1회만 발화', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-04', name: 'contract_scope_saved — 계약서 원문 미포함 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-05', name: 'judgment_started — 요청 텍스트 원문 미포함', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-06', name: 'judgment_completed — IN/OUT/AMBIGUOUS 3가지 테스트', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-07', name: 'aha_moment_reached — 최초 OUT 판정 시만 발화 (중복 X)', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-08', name: 'judgment_failed — API 타임아웃 시 발화 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-09', name: 'document_generated — 문서 내용 원문 미포함 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-10', name: 'document_copied — 복사 버튼 클릭 시 1회만 발화', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-11', name: 'document_edited — debounce 적용으로 폭증 없음', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-12', name: 'session_started — 재로그인 시 발화 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-13', name: 'subscription_started — 결제 완료 후 1회 발화', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-14', name: '전체 이벤트 이름 snake_case 준수 확인', layer: '🔬 Layer 2 — 이벤트 검증' },
+      { id: 'L2-15', name: 'PII(이메일/이름/전화) 전체 이벤트 스캔', layer: '🔬 Layer 2 — 이벤트 검증' },
+      // Layer 3
+      { id: 'L3-01', name: 'PostHog Funnel F1(획득) 등록 및 데이터 흐름 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-02', name: 'PostHog Funnel F2(Aha Moment) 등록 및 흐름 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-03', name: 'PostHog Funnel F3(가치 완료) 등록 및 흐름 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-04', name: 'PostHog Funnel F4(수익 전환) 등록 및 흐름 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-05', name: '퍼널 Conversion Window 7days 설정 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-06', name: '퍼널 Breakdown agency_size 세분화 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-07', name: 'D7 리텐션 코호트 분석 설정 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+      { id: 'L3-08', name: 'Session Recording 핵심 페이지 활성화 확인', layer: '🔽 Layer 3 — 퍼널 검증' },
+    ];
+
+    const stMap = {};
+    trackerData.forEach(d => stMap[d.id] = 'todo');
+    const stCycle = ['todo', 'pass', 'fail', 'warn'];
+    const stLabel = {
+      todo: '<span class="pill pill-todo">⬜ TODO</span>',
+      pass: '<span class="pill pill-pass">✅ PASS</span>',
+      fail: '<span class="pill pill-fail">❌ FAIL</span>',
+      warn: '<span class="pill pill-warn">⚠️ WARN</span>',
+    };
+
+    function renderTracker() {
+      const list = document.getElementById('tr-list');
+      let html = '', curLayer = '';
+      trackerData.forEach(item => {
+        if (item.layer !== curLayer) {
+          curLayer = item.layer;
+          html += `<div style="background:var(--s2);padding:8px 12px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);">${curLayer}</div>`;
+        }
+        html += `<div class="tr-row" id="trow-${item.id}">
       <div class="tr-id">${item.id}</div>
       <div class="tr-name">${item.name}</div>
       <div class="tr-st" onclick="cycleTracker('${item.id}')">${stLabel[stMap[item.id]]}</div>
     </div>`;
-  });
-  list.innerHTML = html;
-  updateTrackerSummary();
-}
-
-function cycleTracker(id) {
-  const cur = stMap[id];
-  stMap[id] = stCycle[(stCycle.indexOf(cur) + 1) % stCycle.length];
-  document.querySelector(`#trow-${id} .tr-st`).innerHTML = stLabel[stMap[id]];
-  updateTrackerSummary();
-}
-
-function updateTrackerSummary() {
-  const vals = Object.values(stMap);
-  const total = vals.length;
-  const pass = vals.filter(v => v === 'pass').length;
-  const fail = vals.filter(v => v === 'fail').length;
-  const done = vals.filter(v => v !== 'todo').length;
-  document.getElementById('tr-total').textContent = total;
-  document.getElementById('tr-pass').textContent = pass;
-  document.getElementById('tr-fail').textContent = fail;
-  const pct = Math.round(done / total * 100);
-  document.getElementById('tr-pct').textContent = pct + '%';
-  const bar = document.getElementById('tr-bar');
-  bar.style.width = pct + '%';
-  bar.style.background = fail > 0 ? 'var(--red)' : pass === total ? 'var(--green)' : 'var(--blue)';
-}
-
-renderTracker();
-
-// Animate funnel bars on tab click
-document.querySelectorAll('.tab-btn').forEach(t => {
-  t.addEventListener('click', () => {
-    if (t.dataset.tab === 'funnel') {
-      setTimeout(() => {
-        document.querySelectorAll('.funnel-bar-fill').forEach(bar => {
-          const w = bar.style.width;
-          bar.style.width = '0%';
-          setTimeout(() => { bar.style.width = w; }, 50);
-        });
-      }, 100);
+      });
+      list.innerHTML = html;
+      updateTrackerSummary();
     }
-  });
-});
-</script>
+
+    function cycleTracker(id) {
+      const cur = stMap[id];
+      stMap[id] = stCycle[(stCycle.indexOf(cur) + 1) % stCycle.length];
+      document.querySelector(`#trow-${id} .tr-st`).innerHTML = stLabel[stMap[id]];
+      updateTrackerSummary();
+    }
+
+    function updateTrackerSummary() {
+      const vals = Object.values(stMap);
+      const total = vals.length;
+      const pass = vals.filter(v => v === 'pass').length;
+      const fail = vals.filter(v => v === 'fail').length;
+      const done = vals.filter(v => v !== 'todo').length;
+      document.getElementById('tr-total').textContent = total;
+      document.getElementById('tr-pass').textContent = pass;
+      document.getElementById('tr-fail').textContent = fail;
+      const pct = Math.round(done / total * 100);
+      document.getElementById('tr-pct').textContent = pct + '%';
+      const bar = document.getElementById('tr-bar');
+      bar.style.width = pct + '%';
+      bar.style.background = fail > 0 ? 'var(--red)' : pass === total ? 'var(--green)' : 'var(--blue)';
+    }
+
+    renderTracker();
+
+    // Animate funnel bars on tab click
+    document.querySelectorAll('.tab-btn').forEach(t => {
+      t.addEventListener('click', () => {
+        if (t.dataset.tab === 'funnel') {
+          setTimeout(() => {
+            document.querySelectorAll('.funnel-bar-fill').forEach(bar => {
+              const w = bar.style.width;
+              bar.style.width = '0%';
+              setTimeout(() => { bar.style.width = w; }, 50);
+            });
+          }, 100);
+        }
+      });
+    });
+  </script>
 </body>
+
 </html>

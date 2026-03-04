@@ -1,1065 +1,2077 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scope Manager — User Flow & Wireframe</title>
-<style>
-:root {
-  --bg:#0f1117; --s1:#1a1f2e; --t1:#e8eaf0; --t3:#8c95aa;
-  --bd:#232b3e; --blue:#4f80ff; --green:#10b981;
-  --red:#f87171; --yellow:#fbbf24; --purple:#a78bfa;
-  --s2:#1e2536;
-}
-body.light { --bg:#f5f7fa; --s1:#ffffff; --t1:#1a1f2e; --t3:#5a6478; --bd:#d1d9e6; --s2:#eef1f7; }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--t1);font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;transition:background .2s,color .2s;min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — User Flow & Wireframe</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --s2: #1e2536;
+    }
 
-/* [신규] 공통으로 사용할 중앙 정렬 박스 */
-.inner-wrap {
-  max-width: 1120px;     /* main과 동일한 너비 제한 */
-  margin: 0 auto;        /* 중앙 정렬 */
-  padding: 0 24px;       /* main의 좌우 패딩과 동일하게 맞춤 */
-  width: 100%;
-  height: 100%;
-}
-  
-/* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
-header {
-  position: sticky; 
-  top: 0; 
-  z-index: 100;
-  background: var(--bg);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 (block 요소로 변경) */
-  /* align-items...      <-- 삭제 */
-  /* justify-content...  <-- 삭제 */
-  height: 56px;
-  transition: background 0.2s;
-}
-  /* [신규] Header 내부 정렬용 */
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.logo{font-weight:700;font-size:16px;color:var(--t1);letter-spacing:-.3px;}
-.logo span{color:var(--blue);}
-.badges{display:flex;gap:6px;flex-wrap:wrap;margin-left:12px;}
-.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--t3);}
-.badge.blue{border-color:var(--blue);color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,transparent);}
-.badge.green{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 10%,transparent);}
-.toggle-btn{background:var(--s1);border:1px solid var(--bd);border-radius:8px;color:var(--t1);cursor:pointer;padding:6px 12px;font-size:13px;transition:background .2s,color .2s;}
-.toggle-btn:hover{border-color:var(--blue);}
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+      --s2: #eef1f7;
+    }
 
-/* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
-nav {
-  background: var(--bg);
-  border-bottom: 1px solid var(--bd);
-  padding: 0;            /* 패딩 제거 */
-  /* display: flex;      <-- 삭제 */
-  /* overflow-x...       <-- 삭제 */
-  transition: background 0.2s;
-}
-nav::-webkit-scrollbar{display:none;}
-  /* [신규] Nav 내부 정렬 및 스크롤용 */
-.nav-content {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  height: 100%;
-}
-.nav-content::-webkit-scrollbar { display: none; }
-.tab-btn{background:none;border:none;color:var(--t3);padding:12px 16px;cursor:pointer;font-size:13px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;}
-.tab-btn:hover{color:var(--t1);}
-.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* MAIN */
-main{padding:28px 24px;max-width:1120px;margin:0 auto;}
-.page{display:none;}
-.page.active{display:block;}
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background 0.2s, color 0.2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
 
-/* CARD */
-.card{border-radius:12px;padding:18px;border:1px solid var(--bd);background:var(--s1);transition:background .2s,border-color .2s;}
+    /* [신규] 공통으로 사용할 중앙 정렬 박스 */
+    .inner-wrap {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 100%;
+    }
 
-/* TYPOGRAPHY */
-h2{font-size:18px;font-weight:700;margin-bottom:4px;}
-h3{font-size:14px;font-weight:600;margin-bottom:6px;}
-h4{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
-p{color:var(--t3);font-size:13px;}
-.section-header{margin-bottom:20px;}
-.section-header p{margin-top:4px;}
-.section-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-hr{border:none;border-top:1px solid var(--bd);margin:18px 0;}
+    /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      display: block;
+      transition: background 0.2s;
+    }
 
-/* GRID */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+    /* [신규] Header 내부 정렬용 */
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-/* TAG */
-.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-right:3px;margin-bottom:3px;}
-.tb{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);}
-.tg{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
-.tr{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);}
-.ty{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
-.tp{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple);}
-.tgr{background:color-mix(in srgb,var(--t3) 15%,transparent);color:var(--t3);}
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
 
-/* CHECKLIST */
-.cl{list-style:none;display:flex;flex-direction:column;gap:7px;}
-.cl li{display:flex;align-items:flex-start;gap:7px;color:var(--t3);font-size:13px;}
-.cl li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
-.cl li.w::before{content:'⚠';color:var(--yellow);}
-.cl li.n::before{content:'✕';color:var(--red);}
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
 
-/* FLOW ITEM */
-.fi{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--bd);}
-.fi:last-child{border-bottom:none;}
-.fn{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:var(--blue);color:#fff;}
-.fn.g{background:var(--green);}
-.fn.y{background:var(--yellow);color:#1a1f2e;}
-.fn.r{background:var(--red);}
-.fn.p{background:var(--purple);}
-.fn.gr{background:var(--t3);}
+    .logo span {
+      color: var(--t1);
+    }
 
-/* KV */
-.kv{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
-.kv:last-child{margin-bottom:0;}
-.kk{color:var(--t3);font-size:13px;}
-.kv-val{font-weight:600;font-size:13px;color:var(--t1);}
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
 
-/* TABLE */
-table{width:100%;border-collapse:collapse;margin-top:8px;}
-th{text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:7px 10px;border-bottom:1px solid var(--bd);}
-td{padding:9px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--t3);}
-td:first-child{color:var(--t1);font-weight:500;}
-tr:last-child td{border-bottom:none;}
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
 
-/* ===== WIREFRAME STYLES ===== */
-.wf-wrap{background:var(--s2);border-radius:14px;padding:16px;border:1px solid var(--bd);}
-.wf-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:8px;text-align:center;}
+    .badge.blue {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: transparent;
+    }
 
-/* Screen frame */
-.screen{background:var(--bg);border:1px solid var(--bd);border-radius:10px;overflow:hidden;font-size:11px;}
-.screen-bar{background:var(--s1);padding:6px 10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px;}
-.screen-dot{width:7px;height:7px;border-radius:50%;}
-.screen-url{flex:1;background:var(--bg);border-radius:4px;padding:2px 6px;color:var(--t3);font-size:10px;margin:0 8px;}
-.screen-body{padding:10px;}
+    .badge.green {
+      border-color: var(--green);
+      color: var(--green);
+      background: transparent;
+    }
 
-/* WF element primitives */
-.wf-block{background:var(--s1);border-radius:6px;border:1px solid var(--bd);padding:8px 10px;margin-bottom:6px;font-size:11px;color:var(--t3);}
-.wf-block.highlight{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 6%,transparent);color:var(--t1);}
-.wf-block.green{border-color:var(--green);background:color-mix(in srgb,var(--green) 6%,transparent);color:var(--t1);}
-.wf-block.red{border-color:var(--red);background:color-mix(in srgb,var(--red) 6%,transparent);}
-.wf-block.yellow{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 6%,transparent);}
-.wf-block.nav-bar{display:flex;gap:6px;padding:6px 8px;background:var(--s2);border-color:var(--bd);}
-.wf-nav-item{flex:1;text-align:center;padding:3px 0;border-radius:4px;font-size:10px;color:var(--t3);}
-.wf-nav-item.act{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);font-weight:700;}
-.wf-input{border:1px solid var(--bd);border-radius:5px;padding:5px 8px;color:var(--t3);font-size:10px;background:var(--bg);margin-bottom:5px;width:100%;}
-.wf-btn{border-radius:6px;padding:6px 10px;font-size:10px;font-weight:700;text-align:center;cursor:default;}
-.wf-btn.primary{background:var(--blue);color:#fff;}
-.wf-btn.secondary{background:transparent;border:1px solid var(--bd);color:var(--t3);}
-.wf-btn.success{background:var(--green);color:#fff;}
-.wf-section-title{font-size:10px;font-weight:700;color:var(--blue);margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase;}
-.wf-pill{display:inline-block;border-radius:12px;padding:2px 7px;font-size:9px;font-weight:700;margin-right:3px;}
-.wf-pill.blue{background:color-mix(in srgb,var(--blue) 20%,transparent);color:var(--blue);}
-.wf-pill.green{background:color-mix(in srgb,var(--green) 20%,transparent);color:var(--green);}
-.wf-pill.red{background:color-mix(in srgb,var(--red) 20%,transparent);color:var(--red);}
-.wf-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;}
-.wf-card{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:6px 8px;}
-.wf-card-title{font-size:9px;font-weight:700;color:var(--t3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
-.wf-card-val{font-size:14px;font-weight:800;color:var(--t1);}
-.wf-divider{border:none;border-top:1px dashed var(--bd);margin:7px 0;}
-.wf-avatar{width:22px;height:22px;border-radius:50%;background:var(--blue);display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;margin-right:5px;}
-.wf-row{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
-.wf-tag-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
-.wf-table{width:100%;border-collapse:collapse;margin-bottom:6px;}
-.wf-table th{font-size:9px;color:var(--t3);text-align:left;padding:4px 5px;border-bottom:1px solid var(--bd);font-weight:700;text-transform:uppercase;}
-.wf-table td{font-size:10px;color:var(--t3);padding:5px 5px;border-bottom:1px solid var(--bd);}
-.wf-table td:first-child{color:var(--t1);}
-.wf-table tr:last-child td{border-bottom:none;}
-.wf-textarea{border:1px solid var(--bd);border-radius:5px;padding:5px 8px;color:var(--t3);font-size:10px;background:var(--bg);width:100%;min-height:40px;margin-bottom:5px;}
+    .toggle-btn {
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
+    }
 
-/* FLOW DIAGRAM */
-.flow-diagram{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:8px;}
-.fd-step{display:flex;align-items:center;flex-shrink:0;}
-.fd-box{border:1px solid var(--bd);border-radius:8px;padding:8px 12px;background:var(--s1);font-size:12px;text-align:center;min-width:90px;}
-.fd-box.active{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,transparent);color:var(--t1);}
-.fd-box.decision{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 8%,transparent);color:var(--t1);border-radius:50%/50%;padding:10px 14px;}
-.fd-box.end{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,transparent);color:var(--t1);}
-.fd-box.error{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,transparent);color:var(--t1);}
-.fd-arrow{padding:0 6px;color:var(--t3);font-size:14px;flex-shrink:0;}
-.fd-box small{display:block;font-size:10px;color:var(--t3);margin-top:2px;}
+    .toggle-btn:hover {
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
 
-/* VERTICAL FLOW */
-.vflow{display:flex;flex-direction:column;gap:0;}
-.vf-item{display:flex;align-items:flex-start;gap:12px;position:relative;padding-bottom:16px;}
-.vf-item:not(:last-child)::before{content:'';position:absolute;left:12px;top:26px;width:1px;height:calc(100% - 10px);background:var(--bd);}
-.vf-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;z-index:1;background:var(--s1);border:2px solid var(--blue);color:var(--blue);}
-.vf-dot.g{border-color:var(--green);color:var(--green);}
-.vf-dot.y{border-color:var(--yellow);color:var(--yellow);}
-.vf-dot.r{border-color:var(--red);color:var(--red);}
-.vf-dot.p{border-color:var(--purple);color:var(--purple);}
-.vf-body{flex:1;padding-top:4px;}
-.vf-body h3{margin-bottom:3px;}
+    .toggle-btn:active {
+      transform: translateY(0);
+    }
 
-/* HIGHLIGHT */
-.hl{border-left:3px solid var(--blue);padding-left:14px;}
-.hl.g{border-left-color:var(--green);}
-.hl.y{border-left-color:var(--yellow);}
-.hl.r{border-left-color:var(--red);}
+    /* [수정] NAV: 패딩과 스크롤 속성을 내부로 이동 */
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      display: block;
+      transition: background 0.2s;
+    }
 
-/* ANNOTATION */
-.ann{background:color-mix(in srgb,var(--yellow) 8%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 25%,transparent);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--t1);margin-top:6px;}
+    /* [신규] Nav 내부 정렬 및 스크롤용 */
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
 
-@media(max-width:560px){
-  main{padding:16px 12px;}
-  header{padding:0 12px;}
-  nav{padding:0 12px;}
-  .g2,.g3,.g4{grid-template-columns:1fr;}
-  .badges{display:none;}
-  .flow-diagram{flex-direction:column;}
-  .fd-arrow{transform:rotate(90deg);}
-}
-</style>
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-content .tab-btn:first-child {
+      padding-left: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--t1);
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    /* MAIN */
+    main {
+      width: 100%;
+    }
+
+    .page {
+      display: none;
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* CARD */
+    .card {
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      transition: background .2s, border-color .2s;
+    }
+
+    /* TYPOGRAPHY */
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--t1);
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--t1);
+    }
+
+    h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .section-header p {
+      color: var(--t3);
+      font-size: 13px;
+      margin-bottom: 28px;
+      line-height: 1.75;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 12px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--bd);
+      margin: 18px 0;
+    }
+
+    /* GRID */
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .g3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .g4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    /* TAG */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 3px;
+      margin-bottom: 3px;
+    }
+
+    .tb {
+      background: color-mix(in srgb, var(--blue) 15%, transparent);
+      color: var(--blue);
+    }
+
+    .tg {
+      background: color-mix(in srgb, var(--green) 15%, transparent);
+      color: var(--green);
+    }
+
+    .tr {
+      background: color-mix(in srgb, var(--red) 15%, transparent);
+      color: var(--red);
+    }
+
+    .ty {
+      background: color-mix(in srgb, var(--yellow) 15%, transparent);
+      color: var(--yellow);
+    }
+
+    .tp {
+      background: color-mix(in srgb, var(--purple) 15%, transparent);
+      color: var(--purple);
+    }
+
+    .tgr {
+      background: color-mix(in srgb, var(--t3) 15%, transparent);
+      color: var(--t3);
+    }
+
+    /* CHECKLIST */
+    .cl {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .cl li {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .cl li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .cl li.w::before {
+      content: '⚠';
+      color: var(--yellow);
+    }
+
+    .cl li.n::before {
+      content: '✕';
+      color: var(--red);
+    }
+
+    /* FLOW ITEM */
+    .fi {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .fi:last-child {
+      border-bottom: none;
+    }
+
+    .fn {
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .fn.g {
+      background: var(--green);
+    }
+
+    .fn.y {
+      background: var(--yellow);
+      color: #1a1f2e;
+    }
+
+    .fn.r {
+      background: var(--red);
+    }
+
+    .fn.p {
+      background: var(--purple);
+    }
+
+    .fn.gr {
+      background: var(--t3);
+    }
+
+    /* KV */
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+
+    .kv:last-child {
+      margin-bottom: 0;
+    }
+
+    .kk {
+      color: var(--t3);
+      font-size: 13px;
+    }
+
+    .kv-val {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--t1);
+    }
+
+    /* TABLE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--bd);
+      font-size: 13px;
+      color: var(--t3);
+    }
+
+    td:first-child {
+      color: var(--t1);
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ===== WIREFRAME STYLES ===== */
+    .wf-wrap {
+      background: var(--s2);
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+    }
+
+    .wf-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    /* Screen frame */
+    .screen {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 11px;
+    }
+
+    .screen-bar {
+      background: var(--s1);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--bd);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .screen-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .screen-url {
+      flex: 1;
+      background: var(--bg);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--t3);
+      font-size: 10px;
+      margin: 0 8px;
+    }
+
+    .screen-body {
+      padding: 10px;
+    }
+
+    /* WF element primitives */
+    .wf-block {
+      background: var(--s1);
+      border-radius: 6px;
+      border: 1px solid var(--bd);
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--t3);
+    }
+
+    .wf-block.highlight {
+      border-color: var(--blue);
+      background: color-mix(in srgb, var(--blue) 6%, transparent);
+      color: var(--t1);
+    }
+
+    .wf-block.green {
+      border-color: var(--green);
+      background: color-mix(in srgb, var(--green) 6%, transparent);
+      color: var(--t1);
+    }
+
+    .wf-block.red {
+      border-color: var(--red);
+      background: color-mix(in srgb, var(--red) 6%, transparent);
+    }
+
+    .wf-block.yellow {
+      border-color: var(--yellow);
+      background: color-mix(in srgb, var(--yellow) 6%, transparent);
+    }
+
+    .wf-block.nav-bar {
+      display: flex;
+      gap: 6px;
+      padding: 6px 8px;
+      background: var(--s2);
+      border-color: var(--bd);
+    }
+
+    .wf-nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 3px 0;
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--t3);
+    }
+
+    .wf-nav-item.act {
+      background: color-mix(in srgb, var(--blue) 15%, transparent);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .wf-input {
+      border: 1px solid var(--bd);
+      border-radius: 5px;
+      padding: 5px 8px;
+      color: var(--t3);
+      font-size: 10px;
+      background: var(--bg);
+      margin-bottom: 5px;
+      width: 100%;
+    }
+
+    .wf-btn {
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      cursor: default;
+    }
+
+    .wf-btn.primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .wf-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+    }
+
+    .wf-btn.success {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .wf-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 4px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .wf-pill {
+      display: inline-block;
+      border-radius: 12px;
+      padding: 2px 7px;
+      font-size: 9px;
+      font-weight: 700;
+      margin-right: 3px;
+    }
+
+    .wf-pill.blue {
+      background: color-mix(in srgb, var(--blue) 20%, transparent);
+      color: var(--blue);
+    }
+
+    .wf-pill.green {
+      background: color-mix(in srgb, var(--green) 20%, transparent);
+      color: var(--green);
+    }
+
+    .wf-pill.red {
+      background: color-mix(in srgb, var(--red) 20%, transparent);
+      color: var(--red);
+    }
+
+    .wf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .wf-card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 5px;
+      padding: 6px 8px;
+    }
+
+    .wf-card-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--t3);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .wf-card-val {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--t1);
+    }
+
+    .wf-divider {
+      border: none;
+      border-top: 1px dashed var(--bd);
+      margin: 7px 0;
+    }
+
+    .wf-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: #fff;
+      font-weight: 700;
+      margin-right: 5px;
+    }
+
+    .wf-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .wf-tag-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .wf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 6px;
+    }
+
+    .wf-table th {
+      font-size: 9px;
+      color: var(--t3);
+      text-align: left;
+      padding: 4px 5px;
+      border-bottom: 1px solid var(--bd);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .wf-table td {
+      font-size: 10px;
+      color: var(--t3);
+      padding: 5px 5px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .wf-table td:first-child {
+      color: var(--t1);
+    }
+
+    .wf-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .wf-textarea {
+      border: 1px solid var(--bd);
+      border-radius: 5px;
+      padding: 5px 8px;
+      color: var(--t3);
+      font-size: 10px;
+      background: var(--bg);
+      width: 100%;
+      min-height: 40px;
+      margin-bottom: 5px;
+    }
+
+    /* FLOW DIAGRAM */
+    .flow-diagram {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .fd-step {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .fd-box {
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: var(--s1);
+      font-size: 12px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .fd-box.active {
+      border-color: var(--blue);
+      background: color-mix(in srgb, var(--blue) 8%, transparent);
+      color: var(--t1);
+    }
+
+    .fd-box.decision {
+      border-color: var(--yellow);
+      background: color-mix(in srgb, var(--yellow) 8%, transparent);
+      color: var(--t1);
+      border-radius: 50%/50%;
+      padding: 10px 14px;
+    }
+
+    .fd-box.end {
+      border-color: var(--green);
+      background: color-mix(in srgb, var(--green) 8%, transparent);
+      color: var(--t1);
+    }
+
+    .fd-box.error {
+      border-color: var(--red);
+      background: color-mix(in srgb, var(--red) 8%, transparent);
+      color: var(--t1);
+    }
+
+    .fd-arrow {
+      padding: 0 6px;
+      color: var(--t3);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .fd-box small {
+      display: block;
+      font-size: 10px;
+      color: var(--t3);
+      margin-top: 2px;
+    }
+
+    /* VERTICAL FLOW */
+    .vflow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .vf-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+
+    .vf-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: 26px;
+      width: 1px;
+      height: calc(100% - 10px);
+      background: var(--bd);
+    }
+
+    .vf-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      z-index: 1;
+      background: var(--s1);
+      border: 2px solid var(--blue);
+      color: var(--blue);
+    }
+
+    .vf-dot.g {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .vf-dot.y {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .vf-dot.r {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .vf-dot.p {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .vf-body {
+      flex: 1;
+      padding-top: 4px;
+    }
+
+    .vf-body h3 {
+      margin-bottom: 3px;
+    }
+
+    /* HIGHLIGHT */
+    .hl {
+      border-left: 3px solid var(--blue);
+      padding-left: 14px;
+    }
+
+    .hl.g {
+      border-left-color: var(--green);
+    }
+
+    .hl.y {
+      border-left-color: var(--yellow);
+    }
+
+    .hl.r {
+      border-left-color: var(--red);
+    }
+
+    /* ANNOTATION */
+    .ann {
+      background: color-mix(in srgb, var(--yellow) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 11px;
+      color: var(--t1);
+      margin-top: 6px;
+    }
+
+    @media(max-width:560px) {
+      .inner-wrap {
+        padding: 0 20px;
+      }
+
+      header {
+        padding: 11px 14px;
+      }
+
+      .page {
+        padding: 36px 20px;
+      }
+
+      .tab-btn {
+        padding: 11px 11px;
+        font-size: 12px;
+      }
+
+      .g2,
+      .g3,
+      .g4 {
+        grid-template-columns: 1fr;
+      }
+
+      .badges {
+        display: none;
+      }
+
+      .flow-diagram {
+        flex-direction: column;
+      }
+
+      .fd-arrow {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="inner-wrap header-content">
-    <div class="header-left">
-      <div class="logo">Scope<span>Manager</span></div>
-      <div class="badges">
-        <span class="badge blue">User Flow</span>
-        <span class="badge green">Wireframe</span>
-        <span class="badge">v1.0</span>
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="header-left">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="badge blue">User Flow</span>
+          <span class="badge green">Wireframe</span>
+          <span class="badge">v1.0</span>
+        </div>
       </div>
+      <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
     </div>
-    <button class="toggle-btn" id="themeToggle">☀️ 라이트</button>
-  </div>
-</header>
+  </header>
 
-<nav id="tabNav">
-  <div class="inner-wrap nav-content">
-    <button class="tab-btn active" data-tab="overview">🗺 전체 구조</button>
-    <button class="tab-btn" data-tab="onboard">🚀 온보딩</button>
-    <button class="tab-btn" data-tab="core">⚡ 핵심 기능</button>
-    <button class="tab-btn" data-tab="screens">🖥 화면 와이어프레임</button>
-    <button class="tab-btn" data-tab="states">🔀 상태 & 엣지케이스</button>
-  </div>
-</nav>
-
-<main>
-
-<!-- ===== TAB 1: 전체 유저 플로우 ===== -->
-<div class="page active" id="page-overview">
-  <div class="section-header">
-    <h2>전체 유저 플로우 다이어그램</h2>
-    <p>방문자가 랜딩 페이지 진입부터 핵심 가치를 경험하기까지의 전체 여정</p>
-  </div>
-
-  <!-- STAGE 1 -->
-  <div style="margin-bottom:24px;">
-    <div class="section-label">Stage 1 · 획득 (Acquisition)</div>
-    <div class="card" style="margin-bottom:8px;">
-      <div class="flow-diagram">
-        <div class="fd-step"><div class="fd-box active">채널 유입<small>LinkedIn/Brunch<br>카카오오픈채팅</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">랜딩 페이지<small>Hero 섹션</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box decision">스크롤?<small>관심도 판단</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step" style="flex-direction:column;gap:6px;">
-          <div class="fd-box active">Pain 인식<small>문제 공감</small></div>
-          <div class="fd-box error" style="font-size:10px;min-width:80px;">이탈<small>관심 없음</small></div>
-        </div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">Solution<small>구조 이해</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box end">CTA 클릭<small>얼리액세스</small></div></div>
-      </div>
+  <nav id="tabNav">
+    <div class="inner-wrap nav-content">
+      <button class="tab-btn active" data-tab="overview">🗺 전체 구조</button>
+      <button class="tab-btn" data-tab="onboard">🚀 온보딩</button>
+      <button class="tab-btn" data-tab="core">⚡ 핵심 기능</button>
+      <button class="tab-btn" data-tab="screens">🖥 화면 와이어프레임</button>
+      <button class="tab-btn" data-tab="states">🔀 상태 & 엣지케이스</button>
     </div>
-  </div>
+  </nav>
 
-  <!-- STAGE 2 -->
-  <div style="margin-bottom:24px;">
-    <div class="section-label">Stage 2 · 활성화 (Activation)</div>
-    <div class="card" style="margin-bottom:8px;">
-      <div class="flow-diagram">
-        <div class="fd-step"><div class="fd-box active">이메일 등록<small>얼리액세스 폼</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">이메일 인증<small>링크 클릭</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">워크스페이스<small>생성 (온보딩)</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">계약서 업로드<small>또는 수동 입력</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">첫 요청 입력<small>클라이언트 메시지</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box end">🎯 Aha Moment<small>판정 결과 확인</small></div></div>
-      </div>
-    </div>
-  </div>
+  <main>
 
-  <!-- STAGE 3 -->
-  <div style="margin-bottom:24px;">
-    <div class="section-label">Stage 3 · 유지 (Retention)</div>
-    <div class="card" style="margin-bottom:8px;">
-      <div class="flow-diagram">
-        <div class="fd-step"><div class="fd-box active">추가 요청<small>일상 업무 중</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">범위 판정<small>In / Out</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">청구 근거<small>문서 생성</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">누적 기록<small>손익 데이터</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">대시보드<small>수익성 확인</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box end">팀 공유<small>바이럴 루프</small></div></div>
+    <!-- ===== TAB 1: 전체 유저 플로우 ===== -->
+    <div class="page active" id="page-overview">
+      <div class="section-header">
+        <h2>전체 유저 플로우 다이어그램</h2>
+        <p>방문자가 랜딩 페이지 진입부터 핵심 가치를 경험하기까지의 전체 여정</p>
       </div>
-    </div>
-  </div>
 
-  <hr>
-
-  <div class="g3">
-    <div class="card hl">
-      <h4>핵심 전환 포인트</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot">1</div>
-          <div class="vf-body"><h3>랜딩 → 이메일 등록</h3><p>Pain 공감이 충분해야 통과. Hero CTA 클릭률 ≥ 5% 목표</p></div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot g">2</div>
-          <div class="vf-body"><h3>등록 → 첫 판정 경험</h3><p>Aha Moment. 여기서 유지/이탈 결정. 10분 이내 경험 목표</p></div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot y">3</div>
-          <div class="vf-body"><h3>사용 → 팀 공유</h3><p>바이럴 루프 진입. "청구 근거 공유" 기능이 트리거</p></div>
-        </div>
-      </div>
-    </div>
-    <div class="card hl g">
-      <h4>Aha Moment 설계</h4>
-      <p style="margin-bottom:10px;">사용자가 처음으로 "이 도구가 왜 필요한지" 체감하는 순간</p>
-      <div class="ann">
-        💡 클라이언트 메시지를 입력하고 3초 내에 <strong style="color:var(--t1);">"계약 범위 초과로 판정되었습니다"</strong> 결과와 청구 근거 문장이 자동 생성되는 순간
-      </div>
-      <div style="margin-top:10px;">
-        <div class="kv"><span class="kk">목표 시간</span><span class="kv-val" style="color:var(--green)">첫 방문 후 10분</span></div>
-        <div class="kv"><span class="kk">필요 단계</span><span class="kv-val">최대 3단계</span></div>
-        <div class="kv"><span class="kk">핵심 트리거</span><span class="kv-val">판정 결과 텍스트</span></div>
-      </div>
-    </div>
-    <div class="card hl y">
-      <h4>이탈 위험 구간</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot r">!</div>
-          <div class="vf-body"><h3>계약서 업로드</h3><p>마찰 최대 구간. 간소화 또는 샘플 계약서 제공 필요</p></div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot r">!</div>
-          <div class="vf-body"><h3>이메일 인증 대기</h3><p>인증 메일 미착신 시 이탈. 즉시 재발송 버튼 노출</p></div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot y">△</div>
-          <div class="vf-body"><h3>첫 결과 불만족</h3><p>AI 오판 시 피드백 루프 제공. "결과 수정" 기능 필요</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 2: 온보딩 ===== -->
-<div class="page" id="page-onboard">
-  <div class="section-header">
-    <h2>온보딩 플로우 상세</h2>
-    <p>신규 사용자가 첫 가치 경험까지 도달하는 최소 단계 설계</p>
-  </div>
-
-  <div class="g2" style="margin-bottom:16px;">
-    <div class="card">
-      <h4>온보딩 단계 플로우</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot">1</div>
-          <div class="vf-body">
-            <h3>이메일 입력 & 계정 생성</h3>
-            <p>이메일 + 비밀번호만으로 가입. 소셜 로그인(Google) 옵션 제공</p>
-            <div style="margin-top:5px;"><span class="tag tb">30초 내</span><span class="tag tg">카드 불필요</span></div>
-          </div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot">2</div>
-          <div class="vf-body">
-            <h3>이메일 인증</h3>
-            <p>인증 링크 클릭. 재발송 버튼 + "왜 필요한가요?" 설명 텍스트 노출</p>
-            <div style="margin-top:5px;"><span class="tag ty">이탈 위험</span><span class="tag tgr">재발송 기능</span></div>
-          </div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot g">3</div>
-          <div class="vf-body">
-            <h3>워크스페이스 & 프로필 설정</h3>
-            <p>에이전시명, 대표자명 (선택). 나중에 설정 건너뛰기 허용</p>
-            <div style="margin-top:5px;"><span class="tag tg">건너뛰기 허용</span></div>
-          </div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot g">4</div>
-          <div class="vf-body">
-            <h3>첫 프로젝트 생성</h3>
-            <p>프로젝트명 + 클라이언트명 입력. 샘플 데이터로 시작 옵션 제공</p>
-            <div style="margin-top:5px;"><span class="tag tg">샘플 데이터 체험</span></div>
-          </div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot y">5</div>
-          <div class="vf-body">
-            <h3>계약 범위 정의</h3>
-            <p>계약서 텍스트 붙여넣기 OR 핵심 기능 목록 직접 입력. AI가 범위 자동 파싱</p>
-            <div style="margin-top:5px;"><span class="tag ty">마찰 최대 구간</span><span class="tag tb">AI 파싱 도움</span></div>
-          </div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot p">🎯</div>
-          <div class="vf-body">
-            <h3>첫 요청 판정 → Aha Moment</h3>
-            <p>클라이언트 메시지 샘플 제공 → 판정 결과 확인. 실제 메시지 입력 유도</p>
-            <div style="margin-top:5px;"><span class="tag tp">Aha Moment</span><span class="tag tg">3초 내 결과</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <!-- 온보딩 화면 와이어프레임 -->
-      <div class="wf-wrap" style="margin-bottom:12px;">
-        <div class="wf-label">Step 3 — 워크스페이스 설정</div>
-        <div class="screen">
-          <div class="screen-bar">
-            <div class="screen-dot" style="background:var(--red);"></div>
-            <div class="screen-dot" style="background:var(--yellow);"></div>
-            <div class="screen-dot" style="background:var(--green);"></div>
-            <div class="screen-url">app.scopemanager.io/onboarding</div>
-          </div>
-          <div class="screen-body">
-            <div style="text-align:center;padding:6px 0 10px;">
-              <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">3 / 5 단계</div>
-              <div style="background:var(--bd);height:3px;border-radius:2px;margin-bottom:8px;">
-                <div style="background:var(--blue);height:3px;width:60%;border-radius:2px;"></div>
-              </div>
-              <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;">워크스페이스를 설정해요</div>
-              <div style="font-size:10px;color:var(--t3);">나중에 언제든 변경할 수 있어요</div>
+      <!-- STAGE 1 -->
+      <div style="margin-bottom:24px;">
+        <div class="section-label">Stage 1 · 획득 (Acquisition)</div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="flow-diagram">
+            <div class="fd-step">
+              <div class="fd-box active">채널 유입<small>LinkedIn/Brunch<br>카카오오픈채팅</small></div>
             </div>
-            <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">에이전시 이름</div>
-            <input class="wf-input" placeholder="예: 스튜디오 오렌지" readonly>
-            <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">담당자 이름</div>
-            <input class="wf-input" placeholder="예: 김지은 PM" readonly>
-            <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">에이전시 규모</div>
-            <div style="display:flex;gap:4px;margin-bottom:8px;">
-              <div class="wf-pill blue">5인 미만</div>
-              <div class="wf-pill blue" style="background:color-mix(in srgb,var(--blue) 40%,transparent);">5~10인</div>
-              <div class="wf-pill blue">11~20인</div>
-              <div class="wf-pill blue">20인+</div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">랜딩 페이지<small>Hero 섹션</small></div>
             </div>
-            <div class="wf-btn primary" style="margin-bottom:4px;">다음 단계로 →</div>
-            <div style="text-align:center;font-size:10px;color:var(--t3);cursor:pointer;">건너뛰기</div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box decision">스크롤?<small>관심도 판단</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step" style="flex-direction:column;gap:6px;">
+              <div class="fd-box active">Pain 인식<small>문제 공감</small></div>
+              <div class="fd-box error" style="font-size:10px;min-width:80px;">이탈<small>관심 없음</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">Solution<small>구조 이해</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box end">CTA 클릭<small>얼리액세스</small></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="wf-wrap">
-        <div class="wf-label">Step 5 — 계약 범위 정의</div>
-        <div class="screen">
-          <div class="screen-bar">
-            <div class="screen-dot" style="background:var(--red);"></div>
-            <div class="screen-dot" style="background:var(--yellow);"></div>
-            <div class="screen-dot" style="background:var(--green);"></div>
-            <div class="screen-url">app.scopemanager.io/onboarding/scope</div>
-          </div>
-          <div class="screen-body">
-            <div style="text-align:center;padding:4px 0 8px;">
-              <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">5 / 5 단계 (마지막!)</div>
-              <div style="background:var(--bd);height:3px;border-radius:2px;margin-bottom:8px;">
-                <div style="background:var(--blue);height:3px;width:100%;border-radius:2px;"></div>
-              </div>
-              <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;">계약 범위를 알려주세요</div>
+      <!-- STAGE 2 -->
+      <div style="margin-bottom:24px;">
+        <div class="section-label">Stage 2 · 활성화 (Activation)</div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="flow-diagram">
+            <div class="fd-step">
+              <div class="fd-box active">이메일 등록<small>얼리액세스 폼</small></div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:6px;">
-              <div class="wf-btn primary" style="flex:1;font-size:9px;">📋 계약서 텍스트 붙여넣기</div>
-              <div class="wf-btn secondary" style="flex:1;font-size:9px;">✏️ 직접 입력</div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">이메일 인증<small>링크 클릭</small></div>
             </div>
-            <textarea class="wf-textarea" placeholder="계약서 내용을 붙여넣으세요...&#10;AI가 범위를 자동으로 파악합니다" readonly></textarea>
-            <div class="ann" style="margin-bottom:6px;font-size:10px;">💡 계약서가 없으면 샘플 데이터로 먼저 체험해보세요</div>
-            <div class="wf-btn success">AI 범위 분석 시작 →</div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">워크스페이스<small>생성 (온보딩)</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">계약서 업로드<small>또는 수동 입력</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">첫 요청 입력<small>클라이언트 메시지</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box end">🎯 Aha Moment<small>판정 결과 확인</small></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <h4>온보딩 설계 원칙</h4>
-    <div class="g3">
-      <ul class="cl">
-        <li>전체 단계 진행률 항상 표시</li>
-        <li>매 단계 "건너뛰기" 옵션</li>
-        <li>단계당 입력 필드 ≤ 2개</li>
-        <li>마지막 단계에 Aha 배치</li>
-      </ul>
-      <ul class="cl">
-        <li>샘플 데이터로 체험 가능</li>
-        <li>계약서 없어도 시작 가능</li>
-        <li class="w">계약서 파싱 오류 fallback 필요</li>
-        <li class="w">모바일 입력 최적화 필요</li>
-      </ul>
-      <ul class="cl">
-        <li class="n">필수 정보 과도 요구 금지</li>
-        <li class="n">결제 정보 온보딩 중 요구 금지</li>
-        <li class="n">단계 건너뛰기 불가 금지</li>
-        <li class="n">긴 설명 텍스트 단계 금지</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 3: 핵심 기능 플로우 ===== -->
-<div class="page" id="page-core">
-  <div class="section-header">
-    <h2>핵심 기능 플로우</h2>
-    <p>범위 판정, 청구 근거 생성, 수익성 대시보드 3가지 핵심 기능의 상세 플로우</p>
-  </div>
-
-  <!-- 기능 1 -->
-  <div style="margin-bottom:20px;">
-    <div class="section-label" style="color:var(--red)">Feature 01 · 범위 판정 플로우</div>
-    <div class="card">
-      <div class="flow-diagram" style="margin-bottom:12px;">
-        <div class="fd-step"><div class="fd-box active">요청 입력<small>메시지 붙여넣기</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">프로젝트 선택<small>판정 기준</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">AI 분석<small>계약 비교</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box decision">판정</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step" style="flex-direction:column;gap:6px;">
-          <div class="fd-box end">범위 내<small>✓ In Scope</small></div>
-          <div class="fd-box error">범위 초과<small>✕ Out of Scope</small></div>
-          <div class="fd-box" style="border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 8%,transparent)">모호<small>△ 확인 필요</small></div>
+      <!-- STAGE 3 -->
+      <div style="margin-bottom:24px;">
+        <div class="section-label">Stage 3 · 유지 (Retention)</div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="flow-diagram">
+            <div class="fd-step">
+              <div class="fd-box active">추가 요청<small>일상 업무 중</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">범위 판정<small>In / Out</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">청구 근거<small>문서 생성</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">누적 기록<small>손익 데이터</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">대시보드<small>수익성 확인</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box end">팀 공유<small>바이럴 루프</small></div>
+            </div>
+          </div>
         </div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">기록 저장<small>히스토리</small></div></div>
       </div>
+
+      <hr>
+
       <div class="g3">
+        <div class="card hl">
+          <h4>핵심 전환 포인트</h4>
+          <div class="vflow">
+            <div class="vf-item">
+              <div class="vf-dot">1</div>
+              <div class="vf-body">
+                <h3>랜딩 → 이메일 등록</h3>
+                <p>Pain 공감이 충분해야 통과. Hero CTA 클릭률 ≥ 5% 목표</p>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot g">2</div>
+              <div class="vf-body">
+                <h3>등록 → 첫 판정 경험</h3>
+                <p>Aha Moment. 여기서 유지/이탈 결정. 10분 이내 경험 목표</p>
+              </div>
+            </div>
+            <div class="vf-item" style="padding-bottom:0;">
+              <div class="vf-dot y">3</div>
+              <div class="vf-body">
+                <h3>사용 → 팀 공유</h3>
+                <p>바이럴 루프 진입. "청구 근거 공유" 기능이 트리거</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card hl g">
+          <h4>Aha Moment 설계</h4>
+          <p style="margin-bottom:10px;">사용자가 처음으로 "이 도구가 왜 필요한지" 체감하는 순간</p>
+          <div class="ann">
+            💡 클라이언트 메시지를 입력하고 3초 내에 <strong style="color:var(--t1);">"계약 범위 초과로 판정되었습니다"</strong> 결과와 청구 근거 문장이 자동 생성되는
+            순간
+          </div>
+          <div style="margin-top:10px;">
+            <div class="kv"><span class="kk">목표 시간</span><span class="kv-val" style="color:var(--green)">첫 방문 후
+                10분</span></div>
+            <div class="kv"><span class="kk">필요 단계</span><span class="kv-val">최대 3단계</span></div>
+            <div class="kv"><span class="kk">핵심 트리거</span><span class="kv-val">판정 결과 텍스트</span></div>
+          </div>
+        </div>
+        <div class="card hl y">
+          <h4>이탈 위험 구간</h4>
+          <div class="vflow">
+            <div class="vf-item">
+              <div class="vf-dot r">!</div>
+              <div class="vf-body">
+                <h3>계약서 업로드</h3>
+                <p>마찰 최대 구간. 간소화 또는 샘플 계약서 제공 필요</p>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot r">!</div>
+              <div class="vf-body">
+                <h3>이메일 인증 대기</h3>
+                <p>인증 메일 미착신 시 이탈. 즉시 재발송 버튼 노출</p>
+              </div>
+            </div>
+            <div class="vf-item" style="padding-bottom:0;">
+              <div class="vf-dot y">△</div>
+              <div class="vf-body">
+                <h3>첫 결과 불만족</h3>
+                <p>AI 오판 시 피드백 루프 제공. "결과 수정" 기능 필요</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: 온보딩 ===== -->
+    <div class="page" id="page-onboard">
+      <div class="section-header">
+        <h2>온보딩 플로우 상세</h2>
+        <p>신규 사용자가 첫 가치 경험까지 도달하는 최소 단계 설계</p>
+      </div>
+
+      <div class="g2" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>온보딩 단계 플로우</h4>
+          <div class="vflow">
+            <div class="vf-item">
+              <div class="vf-dot">1</div>
+              <div class="vf-body">
+                <h3>이메일 입력 & 계정 생성</h3>
+                <p>이메일 + 비밀번호만으로 가입. 소셜 로그인(Google) 옵션 제공</p>
+                <div style="margin-top:5px;"><span class="tag tb">30초 내</span><span class="tag tg">카드 불필요</span></div>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot">2</div>
+              <div class="vf-body">
+                <h3>이메일 인증</h3>
+                <p>인증 링크 클릭. 재발송 버튼 + "왜 필요한가요?" 설명 텍스트 노출</p>
+                <div style="margin-top:5px;"><span class="tag ty">이탈 위험</span><span class="tag tgr">재발송 기능</span></div>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot g">3</div>
+              <div class="vf-body">
+                <h3>워크스페이스 & 프로필 설정</h3>
+                <p>에이전시명, 대표자명 (선택). 나중에 설정 건너뛰기 허용</p>
+                <div style="margin-top:5px;"><span class="tag tg">건너뛰기 허용</span></div>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot g">4</div>
+              <div class="vf-body">
+                <h3>첫 프로젝트 생성</h3>
+                <p>프로젝트명 + 클라이언트명 입력. 샘플 데이터로 시작 옵션 제공</p>
+                <div style="margin-top:5px;"><span class="tag tg">샘플 데이터 체험</span></div>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot y">5</div>
+              <div class="vf-body">
+                <h3>계약 범위 정의</h3>
+                <p>계약서 텍스트 붙여넣기 OR 핵심 기능 목록 직접 입력. AI가 범위 자동 파싱</p>
+                <div style="margin-top:5px;"><span class="tag ty">마찰 최대 구간</span><span class="tag tb">AI 파싱 도움</span>
+                </div>
+              </div>
+            </div>
+            <div class="vf-item" style="padding-bottom:0;">
+              <div class="vf-dot p">🎯</div>
+              <div class="vf-body">
+                <h3>첫 요청 판정 → Aha Moment</h3>
+                <p>클라이언트 메시지 샘플 제공 → 판정 결과 확인. 실제 메시지 입력 유도</p>
+                <div style="margin-top:5px;"><span class="tag tp">Aha Moment</span><span class="tag tg">3초 내 결과</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div>
-          <h4>입력 방식</h4>
+          <!-- 온보딩 화면 와이어프레임 -->
+          <div class="wf-wrap" style="margin-bottom:12px;">
+            <div class="wf-label">Step 3 — 워크스페이스 설정</div>
+            <div class="screen">
+              <div class="screen-bar">
+                <div class="screen-dot" style="background:var(--red);"></div>
+                <div class="screen-dot" style="background:var(--yellow);"></div>
+                <div class="screen-dot" style="background:var(--green);"></div>
+                <div class="screen-url">app.scopemanager.io/onboarding</div>
+              </div>
+              <div class="screen-body">
+                <div style="text-align:center;padding:6px 0 10px;">
+                  <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">3 / 5 단계</div>
+                  <div style="background:var(--bd);height:3px;border-radius:2px;margin-bottom:8px;">
+                    <div style="background:var(--blue);height:3px;width:60%;border-radius:2px;"></div>
+                  </div>
+                  <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;">워크스페이스를 설정해요</div>
+                  <div style="font-size:10px;color:var(--t3);">나중에 언제든 변경할 수 있어요</div>
+                </div>
+                <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">에이전시 이름
+                </div>
+                <input class="wf-input" placeholder="예: 스튜디오 오렌지" readonly>
+                <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">담당자 이름
+                </div>
+                <input class="wf-input" placeholder="예: 김지은 PM" readonly>
+                <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">에이전시 규모
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:8px;">
+                  <div class="wf-pill blue">5인 미만</div>
+                  <div class="wf-pill blue" style="background:color-mix(in srgb,var(--blue) 40%,transparent);">5~10인
+                  </div>
+                  <div class="wf-pill blue">11~20인</div>
+                  <div class="wf-pill blue">20인+</div>
+                </div>
+                <div class="wf-btn primary" style="margin-bottom:4px;">다음 단계로 →</div>
+                <div style="text-align:center;font-size:10px;color:var(--t3);cursor:pointer;">건너뛰기</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wf-wrap">
+            <div class="wf-label">Step 5 — 계약 범위 정의</div>
+            <div class="screen">
+              <div class="screen-bar">
+                <div class="screen-dot" style="background:var(--red);"></div>
+                <div class="screen-dot" style="background:var(--yellow);"></div>
+                <div class="screen-dot" style="background:var(--green);"></div>
+                <div class="screen-url">app.scopemanager.io/onboarding/scope</div>
+              </div>
+              <div class="screen-body">
+                <div style="text-align:center;padding:4px 0 8px;">
+                  <div style="font-size:10px;color:var(--t3);margin-bottom:4px;">5 / 5 단계 (마지막!)</div>
+                  <div style="background:var(--bd);height:3px;border-radius:2px;margin-bottom:8px;">
+                    <div style="background:var(--blue);height:3px;width:100%;border-radius:2px;"></div>
+                  </div>
+                  <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;">계약 범위를 알려주세요</div>
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:6px;">
+                  <div class="wf-btn primary" style="flex:1;font-size:9px;">📋 계약서 텍스트 붙여넣기</div>
+                  <div class="wf-btn secondary" style="flex:1;font-size:9px;">✏️ 직접 입력</div>
+                </div>
+                <textarea class="wf-textarea" placeholder="계약서 내용을 붙여넣으세요...&#10;AI가 범위를 자동으로 파악합니다"
+                  readonly></textarea>
+                <div class="ann" style="margin-bottom:6px;font-size:10px;">💡 계약서가 없으면 샘플 데이터로 먼저 체험해보세요</div>
+                <div class="wf-btn success">AI 범위 분석 시작 →</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>온보딩 설계 원칙</h4>
+        <div class="g3">
           <ul class="cl">
-            <li>카카오톡 메시지 붙여넣기</li>
-            <li>이메일 내용 직접 입력</li>
-            <li>회의록 요약 텍스트</li>
-            <li class="w">이미지 캡처는 v2에서</li>
+            <li>전체 단계 진행률 항상 표시</li>
+            <li>매 단계 "건너뛰기" 옵션</li>
+            <li>단계당 입력 필드 ≤ 2개</li>
+            <li>마지막 단계에 Aha 배치</li>
+          </ul>
+          <ul class="cl">
+            <li>샘플 데이터로 체험 가능</li>
+            <li>계약서 없어도 시작 가능</li>
+            <li class="w">계약서 파싱 오류 fallback 필요</li>
+            <li class="w">모바일 입력 최적화 필요</li>
+          </ul>
+          <ul class="cl">
+            <li class="n">필수 정보 과도 요구 금지</li>
+            <li class="n">결제 정보 온보딩 중 요구 금지</li>
+            <li class="n">단계 건너뛰기 불가 금지</li>
+            <li class="n">긴 설명 텍스트 단계 금지</li>
           </ul>
         </div>
-        <div>
-          <h4>판정 결과 3단계</h4>
-          <div class="fi">
-            <div class="fn g">✓</div>
-            <div><h3 style="color:var(--green)">범위 내 (In Scope)</h3><p>계약서에 명시된 기능 범위 내 요청</p></div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: 핵심 기능 플로우 ===== -->
+    <div class="page" id="page-core">
+      <div class="section-header">
+        <h2>핵심 기능 플로우</h2>
+        <p>범위 판정, 청구 근거 생성, 수익성 대시보드 3가지 핵심 기능의 상세 플로우</p>
+      </div>
+
+      <!-- 기능 1 -->
+      <div style="margin-bottom:20px;">
+        <div class="section-label" style="color:var(--red)">Feature 01 · 범위 판정 플로우</div>
+        <div class="card">
+          <div class="flow-diagram" style="margin-bottom:12px;">
+            <div class="fd-step">
+              <div class="fd-box active">요청 입력<small>메시지 붙여넣기</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">프로젝트 선택<small>판정 기준</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">AI 분석<small>계약 비교</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box decision">판정</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step" style="flex-direction:column;gap:6px;">
+              <div class="fd-box end">범위 내<small>✓ In Scope</small></div>
+              <div class="fd-box error">범위 초과<small>✕ Out of Scope</small></div>
+              <div class="fd-box"
+                style="border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 8%,transparent)">모호<small>△
+                  확인 필요</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">기록 저장<small>히스토리</small></div>
+            </div>
           </div>
-          <div class="fi">
-            <div class="fn r">✕</div>
-            <div><h3 style="color:var(--red)">범위 초과 (Out of Scope)</h3><p>명시적으로 계약 범위를 벗어난 요청</p></div>
-          </div>
-          <div class="fi">
-            <div class="fn y">△</div>
-            <div><h3 style="color:var(--yellow)">모호 (Ambiguous)</h3><p>PM의 확인·판단이 필요한 경계 케이스</p></div>
+          <div class="g3">
+            <div>
+              <h4>입력 방식</h4>
+              <ul class="cl">
+                <li>카카오톡 메시지 붙여넣기</li>
+                <li>이메일 내용 직접 입력</li>
+                <li>회의록 요약 텍스트</li>
+                <li class="w">이미지 캡처는 v2에서</li>
+              </ul>
+            </div>
+            <div>
+              <h4>판정 결과 3단계</h4>
+              <div class="fi">
+                <div class="fn g">✓</div>
+                <div>
+                  <h3 style="color:var(--green)">범위 내 (In Scope)</h3>
+                  <p>계약서에 명시된 기능 범위 내 요청</p>
+                </div>
+              </div>
+              <div class="fi">
+                <div class="fn r">✕</div>
+                <div>
+                  <h3 style="color:var(--red)">범위 초과 (Out of Scope)</h3>
+                  <p>명시적으로 계약 범위를 벗어난 요청</p>
+                </div>
+              </div>
+              <div class="fi">
+                <div class="fn y">△</div>
+                <div>
+                  <h3 style="color:var(--yellow)">모호 (Ambiguous)</h3>
+                  <p>PM의 확인·판단이 필요한 경계 케이스</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4>Out of Scope 시 자동 생성</h4>
+              <div class="ann">
+                "본 요청([요청 내용 요약])은 [계약 기준일] 체결된 계약서의 기능 범위를 초과합니다. 추가 진행을 위해서는 별도 견적이 필요합니다."
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-          <h4>Out of Scope 시 자동 생성</h4>
-          <div class="ann">
-            "본 요청([요청 내용 요약])은 [계약 기준일] 체결된 계약서의 기능 범위를 초과합니다. 추가 진행을 위해서는 별도 견적이 필요합니다."
+      </div>
+
+      <!-- 기능 2 -->
+      <div style="margin-bottom:20px;">
+        <div class="section-label" style="color:var(--blue)">Feature 02 · 청구 근거 생성 플로우</div>
+        <div class="card">
+          <div class="flow-diagram" style="margin-bottom:12px;">
+            <div class="fd-step">
+              <div class="fd-box active">Out of Scope 판정</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">근거 문서 자동 초안</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">PM 검토 & 수정</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">견적 금액 입력<small>(선택)</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">문서 내보내기<small>복사/PDF</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box end">클라이언트 공유</div>
+            </div>
+          </div>
+          <div class="g2">
+            <div>
+              <h4>생성 문서 포함 요소</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>요소</th>
+                    <th>내용</th>
+                    <th>자동화</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>요청 내용 요약</td>
+                    <td>클라이언트 메시지 원문 + 요약</td>
+                    <td><span class="tag tg">AI</span></td>
+                  </tr>
+                  <tr>
+                    <td>계약 기준 조항</td>
+                    <td>관련 계약서 조항 인용</td>
+                    <td><span class="tag tg">AI</span></td>
+                  </tr>
+                  <tr>
+                    <td>초과 판정 근거</td>
+                    <td>왜 범위 초과인지 설명</td>
+                    <td><span class="tag tg">AI</span></td>
+                  </tr>
+                  <tr>
+                    <td>예상 추가 공수</td>
+                    <td>시간 추정</td>
+                    <td><span class="tag ty">PM 입력</span></td>
+                  </tr>
+                  <tr>
+                    <td>추가 견적 금액</td>
+                    <td>금액 제안</td>
+                    <td><span class="tag ty">PM 입력</span></td>
+                  </tr>
+                  <tr>
+                    <td>날짜 & 서명란</td>
+                    <td>자동 삽입</td>
+                    <td><span class="tag tg">자동</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h4>내보내기 옵션</h4>
+              <div class="fi">
+                <div class="fn">📋</div>
+                <div>
+                  <h3>클립보드 복사</h3>
+                  <p>카카오톡/이메일에 바로 붙여넣기</p>
+                </div>
+              </div>
+              <div class="fi">
+                <div class="fn">📄</div>
+                <div>
+                  <h3>PDF 다운로드</h3>
+                  <p>공식 문서화. 서명란 포함</p>
+                </div>
+              </div>
+              <div class="fi">
+                <div class="fn g">🔗</div>
+                <div>
+                  <h3>공유 링크 (v2)</h3>
+                  <p>클라이언트 직접 링크 공유</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 기능 3 -->
+      <div>
+        <div class="section-label" style="color:var(--green)">Feature 03 · 수익성 대시보드 플로우</div>
+        <div class="card">
+          <div class="flow-diagram" style="margin-bottom:12px;">
+            <div class="fd-step">
+              <div class="fd-box active">판정 기록 누적</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">공수 입력<small>(실제 시간)</small></div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">계약 금액 비교</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box active">프로젝트 손익 계산</div>
+            </div>
+            <div class="fd-arrow">→</div>
+            <div class="fd-step">
+              <div class="fd-box end">경영 인사이트<small>다음 견적 기준</small></div>
+            </div>
+          </div>
+          <div class="g3">
+            <div>
+              <h4>대시보드 핵심 지표</h4>
+              <div class="kv"><span class="kk">프로젝트 수익률</span><span class="kv-val" style="color:var(--green)">%</span>
+              </div>
+              <div class="kv"><span class="kk">Out of Scope 발생 횟수</span><span class="kv-val">건</span></div>
+              <div class="kv"><span class="kk">추가 청구 성공률</span><span class="kv-val" style="color:var(--blue)">%</span>
+              </div>
+              <div class="kv"><span class="kk">실제 vs 견적 공수 차이</span><span class="kv-val"
+                  style="color:var(--red)">h</span></div>
+              <div class="kv"><span class="kk">클라이언트별 추가 요청 빈도</span><span class="kv-val">회</span></div>
+            </div>
+            <div>
+              <h4>수익성 경고 알림</h4>
+              <ul class="cl">
+                <li>수익률 0% 이하 프로젝트 경고</li>
+                <li>Out of Scope 3회 이상 미청구 알림</li>
+                <li>예산 소진율 80% 도달 알림</li>
+                <li class="w">알림 과다 시 피로 주의</li>
+              </ul>
+            </div>
+            <div>
+              <h4>데이터 활용 흐름</h4>
+              <div class="vflow">
+                <div class="vf-item">
+                  <div class="vf-dot g" style="font-size:9px;">분석</div>
+                  <div class="vf-body">
+                    <h3>손실 프로젝트 패턴</h3>
+                    <p>어떤 유형의 클라이언트에서 손실 발생?</p>
+                  </div>
+                </div>
+                <div class="vf-item" style="padding-bottom:0;">
+                  <div class="vf-dot g" style="font-size:9px;">개선</div>
+                  <div class="vf-body">
+                    <h3>다음 견적 보정</h3>
+                    <p>과소 견적 기능 파악 → 단가 조정</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 기능 2 -->
-  <div style="margin-bottom:20px;">
-    <div class="section-label" style="color:var(--blue)">Feature 02 · 청구 근거 생성 플로우</div>
-    <div class="card">
-      <div class="flow-diagram" style="margin-bottom:12px;">
-        <div class="fd-step"><div class="fd-box active">Out of Scope 판정</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">근거 문서 자동 초안</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">PM 검토 & 수정</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">견적 금액 입력<small>(선택)</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">문서 내보내기<small>복사/PDF</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box end">클라이언트 공유</div></div>
+    <!-- ===== TAB 4: 화면 와이어프레임 ===== -->
+    <div class="page" id="page-screens">
+      <div class="section-header">
+        <h2>주요 화면 와이어프레임</h2>
+        <p>5개 핵심 화면의 레이아웃 구조와 UI 요소 배치</p>
       </div>
-      <div class="g2">
+
+      <div class="g2" style="margin-bottom:16px;">
+        <!-- 대시보드 홈 -->
         <div>
-          <h4>생성 문서 포함 요소</h4>
+          <div class="wf-wrap">
+            <div class="wf-label">Screen 01 — 메인 대시보드</div>
+            <div class="screen">
+              <div class="screen-bar">
+                <div class="screen-dot" style="background:var(--red);"></div>
+                <div class="screen-dot" style="background:var(--yellow);"></div>
+                <div class="screen-dot" style="background:var(--green);"></div>
+                <div class="screen-url">app.scopemanager.io/dashboard</div>
+              </div>
+              <div class="screen-body">
+                <!-- Top nav -->
+                <div class="wf-block nav-bar" style="margin-bottom:8px;">
+                  <div class="wf-nav-item act">📊 대시보드</div>
+                  <div class="wf-nav-item">📁 프로젝트</div>
+                  <div class="wf-nav-item">⚡ 요청 판정</div>
+                  <div class="wf-nav-item">📄 문서</div>
+                </div>
+                <!-- Header row -->
+                <div class="wf-row" style="margin-bottom:8px;justify-content:space-between;">
+                  <div style="font-size:11px;font-weight:700;color:var(--t1);">안녕하세요, 김지은 PM 👋</div>
+                  <div class="wf-btn primary" style="padding:3px 8px;font-size:9px;">+ 요청 판정</div>
+                </div>
+                <!-- Stat cards -->
+                <div class="wf-grid" style="margin-bottom:6px;">
+                  <div class="wf-card">
+                    <div class="wf-card-title">이번 달 수익률</div>
+                    <div class="wf-card-val" style="color:var(--green);">+12%</div>
+                  </div>
+                  <div class="wf-card">
+                    <div class="wf-card-title">Out of Scope</div>
+                    <div class="wf-card-val" style="color:var(--red);">7건</div>
+                  </div>
+                </div>
+                <div class="wf-grid" style="margin-bottom:8px;">
+                  <div class="wf-card">
+                    <div class="wf-card-title">진행 프로젝트</div>
+                    <div class="wf-card-val">4개</div>
+                  </div>
+                  <div class="wf-card">
+                    <div class="wf-card-title">미청구 초과</div>
+                    <div class="wf-card-val" style="color:var(--yellow);">3건</div>
+                  </div>
+                </div>
+                <div class="wf-divider"></div>
+                <!-- Recent activity -->
+                <div class="wf-section-title">최근 판정 내역</div>
+                <div
+                  style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);">
+                  <div style="display:flex;align-items:center;gap:5px;">
+                    <div class="wf-pill red">초과</div><span style="font-size:10px;color:var(--t1);">랜딩 페이지 애니메이션
+                      수정</span>
+                  </div>
+                  <span style="font-size:9px;color:var(--t3);">오늘</span>
+                </div>
+                <div
+                  style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);">
+                  <div style="display:flex;align-items:center;gap:5px;">
+                    <div class="wf-pill green">정상</div><span style="font-size:10px;color:var(--t1);">버튼 색상 변경 요청</span>
+                  </div>
+                  <span style="font-size:9px;color:var(--t3);">어제</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;">
+                  <div style="display:flex;align-items:center;gap:5px;">
+                    <div class="wf-pill"
+                      style="background:color-mix(in srgb,var(--yellow) 20%,transparent);color:var(--yellow);">모호</div>
+                    <span style="font-size:10px;color:var(--t1);">회원가입 페이지 추가</span>
+                  </div>
+                  <span style="font-size:9px;color:var(--t3);">2일 전</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 요청 판정 화면 -->
+        <div>
+          <div class="wf-wrap">
+            <div class="wf-label">Screen 02 — 요청 판정</div>
+            <div class="screen">
+              <div class="screen-bar">
+                <div class="screen-dot" style="background:var(--red);"></div>
+                <div class="screen-dot" style="background:var(--yellow);"></div>
+                <div class="screen-dot" style="background:var(--green);"></div>
+                <div class="screen-url">app.scopemanager.io/judge</div>
+              </div>
+              <div class="screen-body">
+                <div class="wf-block nav-bar" style="margin-bottom:8px;">
+                  <div class="wf-nav-item">📊 대시보드</div>
+                  <div class="wf-nav-item">📁 프로젝트</div>
+                  <div class="wf-nav-item act">⚡ 요청 판정</div>
+                  <div class="wf-nav-item">📄 문서</div>
+                </div>
+                <div style="font-size:11px;font-weight:700;color:var(--t1);margin-bottom:8px;">새 요청 판정하기</div>
+                <!-- Project select -->
+                <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">프로젝트 선택
+                </div>
+                <div style="display:flex;gap:4px;margin-bottom:6px;">
+                  <div class="wf-pill blue" style="background:color-mix(in srgb,var(--blue) 40%,transparent);">ABC 쇼핑몰
+                  </div>
+                  <div class="wf-pill blue">XYZ 기업</div>
+                  <div class="wf-pill blue">+ 더보기</div>
+                </div>
+                <!-- Input -->
+                <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">클라이언트 요청
+                  내용</div>
+                <textarea class="wf-textarea" style="min-height:50px;"
+                  readonly>홈페이지 상단에 동영상 배너를 추가하고, 메인 색상도 빨간색으로 바꿔주세요. 그리고 채팅 기능도...</textarea>
+                <!-- Analyzing state -->
+                <div class="wf-block highlight" style="margin-bottom:6px;font-size:10px;">
+                  🤖 AI 분석 중... 계약서와 비교하고 있습니다
+                </div>
+                <div class="wf-btn primary">판정 요청 →</div>
+                <div class="wf-divider"></div>
+                <!-- Result preview -->
+                <div class="wf-section-title" style="color:var(--red);">판정 결과</div>
+                <div class="wf-block red" style="margin-bottom:5px;">
+                  <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">
+                    <span style="font-size:12px;">🔴</span>
+                    <span style="font-size:11px;font-weight:700;color:var(--red);">범위 초과 (Out of Scope)</span>
+                  </div>
+                  <div style="font-size:10px;color:var(--t3);">동영상 배너 추가, 채팅 기능은 계약 범위에 포함되지 않습니다.</div>
+                </div>
+                <div class="wf-btn success" style="font-size:10px;">📄 청구 근거 문서 생성 →</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <!-- 청구 근거 문서 -->
+        <div>
+          <div class="wf-wrap">
+            <div class="wf-label">Screen 03 — 청구 근거 문서</div>
+            <div class="screen">
+              <div class="screen-bar">
+                <div class="screen-dot" style="background:var(--red);"></div>
+                <div class="screen-dot" style="background:var(--yellow);"></div>
+                <div class="screen-dot" style="background:var(--green);"></div>
+                <div class="screen-url">app.scopemanager.io/docs/123</div>
+              </div>
+              <div class="screen-body">
+                <div class="wf-row" style="justify-content:space-between;margin-bottom:8px;">
+                  <div style="font-size:11px;font-weight:700;color:var(--t1);">청구 근거 문서</div>
+                  <div style="display:flex;gap:4px;">
+                    <div class="wf-btn secondary" style="padding:2px 7px;font-size:9px;">✏️ 수정</div>
+                    <div class="wf-btn primary" style="padding:2px 7px;font-size:9px;">📋 복사</div>
+                  </div>
+                </div>
+                <div
+                  style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:8px;margin-bottom:6px;font-size:10px;line-height:1.7;color:var(--t3);">
+                  <div style="font-weight:700;color:var(--t1);margin-bottom:4px;">추가 작업 안내</div>
+                  <div style="margin-bottom:4px;">안녕하세요. 프로젝트 진행 중 아래 요청 사항을 검토하였습니다.</div>
+                  <div
+                    style="background:color-mix(in srgb,var(--yellow) 8%,transparent);border-radius:4px;padding:5px;margin-bottom:4px;">
+                    <strong style="color:var(--t1);">[요청 내용]</strong><br>동영상 배너 추가, 메인 색상 변경, 채팅 기능 추가
+                  </div>
+                  <div style="margin-bottom:4px;">본 요청은 2024년 3월 체결된 계약서의 기능 범위를 초과합니다. 계약 기준 포함 항목: UI 퍼블리싱, 게시판, 로그인.
+                  </div>
+                  <div>추가 진행을 위해서는 별도 견적이 필요합니다.</div>
+                </div>
+                <div class="wf-grid" style="margin-bottom:6px;">
+                  <div>
+                    <div class="wf-block" style="padding:4px 6px;font-size:10px;color:var(--t3);margin-bottom:3px;">추가
+                      견적 금액 (선택)</div>
+                    <input class="wf-input" placeholder="예: 250,000원" readonly>
+                  </div>
+                  <div>
+                    <div class="wf-block" style="padding:4px 6px;font-size:10px;color:var(--t3);margin-bottom:3px;">예상
+                      공수</div>
+                    <input class="wf-input" placeholder="예: 4시간" readonly>
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px;">
+                  <div class="wf-btn primary" style="flex:1;font-size:9px;">📋 클립보드 복사</div>
+                  <div class="wf-btn secondary" style="flex:1;font-size:9px;">📄 PDF 내보내기</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 수익성 대시보드 -->
+        <div>
+          <div class="wf-wrap">
+            <div class="wf-label">Screen 04 — 수익성 대시보드</div>
+            <div class="screen">
+              <div class="screen-bar">
+                <div class="screen-dot" style="background:var(--red);"></div>
+                <div class="screen-dot" style="background:var(--yellow);"></div>
+                <div class="screen-dot" style="background:var(--green);"></div>
+                <div class="screen-url">app.scopemanager.io/analytics</div>
+              </div>
+              <div class="screen-body">
+                <div class="wf-block nav-bar" style="margin-bottom:8px;">
+                  <div class="wf-nav-item">📊 대시보드</div>
+                  <div class="wf-nav-item">📁 프로젝트</div>
+                  <div class="wf-nav-item">⚡ 요청 판정</div>
+                  <div class="wf-nav-item act">📈 분석</div>
+                </div>
+                <div class="wf-row" style="justify-content:space-between;margin-bottom:8px;">
+                  <div style="font-size:11px;font-weight:700;color:var(--t1);">수익성 분석</div>
+                  <div class="wf-pill blue">이번 달</div>
+                </div>
+                <!-- Chart placeholder -->
+                <div
+                  style="background:var(--s2);border-radius:6px;height:55px;display:flex;align-items:flex-end;padding:6px;gap:4px;margin-bottom:6px;">
+                  <div style="flex:1;background:var(--green);border-radius:2px 2px 0 0;height:80%;opacity:.7;"></div>
+                  <div style="flex:1;background:var(--green);border-radius:2px 2px 0 0;height:60%;opacity:.7;"></div>
+                  <div style="flex:1;background:var(--red);border-radius:2px 2px 0 0;height:40%;opacity:.7;"></div>
+                  <div style="flex:1;background:var(--green);border-radius:2px 2px 0 0;height:90%;opacity:.7;"></div>
+                  <div style="flex:1;background:var(--yellow);border-radius:2px 2px 0 0;height:55%;opacity:.7;"></div>
+                  <div style="flex:1;background:var(--blue);border-radius:2px 2px 0 0;height:70%;opacity:.7;"></div>
+                </div>
+                <div class="wf-section-title">프로젝트별 손익</div>
+                <table class="wf-table">
+                  <thead>
+                    <tr>
+                      <th>프로젝트</th>
+                      <th>수익률</th>
+                      <th>초과 건</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>ABC 쇼핑몰</td>
+                      <td style="color:var(--green);">+24%</td>
+                      <td>2건</td>
+                    </tr>
+                    <tr>
+                      <td>XYZ 기업 홈</td>
+                      <td style="color:var(--red);">-8%</td>
+                      <td>7건</td>
+                    </tr>
+                    <tr>
+                      <td>DEF 스타트업</td>
+                      <td style="color:var(--green);">+11%</td>
+                      <td>1건</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="wf-block yellow" style="font-size:10px;margin-top:5px;">
+                  ⚠ XYZ 기업 프로젝트: 미청구 초과 5건 감지. 청구 검토 필요
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 5: 상태 & 엣지케이스 ===== -->
+    <div class="page" id="page-states">
+      <div class="section-header">
+        <h2>UI 상태 & 엣지 케이스</h2>
+        <p>각 화면의 로딩/오류/빈 상태와 예외 케이스 처리 설계</p>
+      </div>
+
+      <div class="g3" style="margin-bottom:16px;">
+        <div class="card">
+          <h4>로딩 상태 (Loading States)</h4>
+          <div class="vflow">
+            <div class="vf-item">
+              <div class="vf-dot">AI</div>
+              <div class="vf-body">
+                <h3>AI 판정 중</h3>
+                <p>스피너 + "계약서와 비교 중입니다" 텍스트. 평균 2~5초 예상</p>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot">📄</div>
+              <div class="vf-body">
+                <h3>문서 생성 중</h3>
+                <p>프로그레스 바. 단계별 ("분석 완료 → 초안 생성 중") 표시</p>
+              </div>
+            </div>
+            <div class="vf-item" style="padding-bottom:0;">
+              <div class="vf-dot">📊</div>
+              <div class="vf-body">
+                <h3>대시보드 로딩</h3>
+                <p>스켈레톤 UI. 카드별 독립 로딩으로 부분 표시</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>빈 상태 (Empty States)</h4>
+          <div class="vflow">
+            <div class="vf-item">
+              <div class="vf-dot g">0</div>
+              <div class="vf-body">
+                <h3>프로젝트 없음</h3>
+                <p>"첫 프로젝트를 만들어보세요" + 샘플 데이터 체험 CTA</p>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot g">0</div>
+              <div class="vf-body">
+                <h3>판정 기록 없음</h3>
+                <p>"첫 요청을 판정해보세요" + 빠른 시작 가이드 링크</p>
+              </div>
+            </div>
+            <div class="vf-item" style="padding-bottom:0;">
+              <div class="vf-dot g">0</div>
+              <div class="vf-body">
+                <h3>계약서 미등록</h3>
+                <p>"계약서를 등록하면 더 정확한 판정이 가능합니다" + 등록 유도</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>오류 상태 (Error States)</h4>
+          <div class="vflow">
+            <div class="vf-item">
+              <div class="vf-dot r">!</div>
+              <div class="vf-body">
+                <h3>AI 판정 실패</h3>
+                <p>재시도 버튼 + "문제가 지속되면 고객지원" 링크. 자동 재시도 1회</p>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot r">!</div>
+              <div class="vf-body">
+                <h3>계약서 파싱 실패</h3>
+                <p>수동 입력 모드로 전환 유도. 파싱 불가 이유 간단 설명</p>
+              </div>
+            </div>
+            <div class="vf-item" style="padding-bottom:0;">
+              <div class="vf-dot r">!</div>
+              <div class="vf-body">
+                <h3>네트워크 오류</h3>
+                <p>오프라인 감지 배너. 재연결 시 자동 재시도</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g2" style="margin-bottom:16px;">
+        <div class="card hl y">
+          <h4>핵심 엣지 케이스</h4>
           <table>
-            <thead><tr><th>요소</th><th>내용</th><th>자동화</th></tr></thead>
+            <thead>
+              <tr>
+                <th>케이스</th>
+                <th>발생 조건</th>
+                <th>처리 방법</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>요청 내용 요약</td><td>클라이언트 메시지 원문 + 요약</td><td><span class="tag tg">AI</span></td></tr>
-              <tr><td>계약 기준 조항</td><td>관련 계약서 조항 인용</td><td><span class="tag tg">AI</span></td></tr>
-              <tr><td>초과 판정 근거</td><td>왜 범위 초과인지 설명</td><td><span class="tag tg">AI</span></td></tr>
-              <tr><td>예상 추가 공수</td><td>시간 추정</td><td><span class="tag ty">PM 입력</span></td></tr>
-              <tr><td>추가 견적 금액</td><td>금액 제안</td><td><span class="tag ty">PM 입력</span></td></tr>
-              <tr><td>날짜 & 서명란</td><td>자동 삽입</td><td><span class="tag tg">자동</span></td></tr>
+              <tr>
+                <td>AI 오판</td>
+                <td>실제 범위 내인데 초과 판정</td>
+                <td>PM이 결과 수동 수정 + 피드백 제출</td>
+              </tr>
+              <tr>
+                <td>모호한 계약서</td>
+                <td>범위 불명확하게 작성</td>
+                <td>"모호(△)" 판정 + PM 최종 결정 요청</td>
+              </tr>
+              <tr>
+                <td>복수 프로젝트 혼동</td>
+                <td>요청에 프로젝트명 미포함</td>
+                <td>프로젝트 선택 단계 강제화</td>
+              </tr>
+              <tr>
+                <td>계약 갱신</td>
+                <td>범위 변경 계약 체결</td>
+                <td>버전 관리. 이전/신규 범위 구분 표시</td>
+              </tr>
+              <tr>
+                <td>동일 요청 중복</td>
+                <td>같은 요청 재판정</td>
+                <td>중복 감지 알림 + 기존 판정 링크</td>
+              </tr>
+              <tr>
+                <td>이미지/파일 요청</td>
+                <td>텍스트 외 형식 입력</td>
+                <td>텍스트 변환 요청 안내 (v2에서 지원)</td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <div>
-          <h4>내보내기 옵션</h4>
-          <div class="fi"><div class="fn">📋</div><div><h3>클립보드 복사</h3><p>카카오톡/이메일에 바로 붙여넣기</p></div></div>
-          <div class="fi"><div class="fn">📄</div><div><h3>PDF 다운로드</h3><p>공식 문서화. 서명란 포함</p></div></div>
-          <div class="fi"><div class="fn g">🔗</div><div><h3>공유 링크 (v2)</h3><p>클라이언트 직접 링크 공유</p></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 기능 3 -->
-  <div>
-    <div class="section-label" style="color:var(--green)">Feature 03 · 수익성 대시보드 플로우</div>
-    <div class="card">
-      <div class="flow-diagram" style="margin-bottom:12px;">
-        <div class="fd-step"><div class="fd-box active">판정 기록 누적</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">공수 입력<small>(실제 시간)</small></div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">계약 금액 비교</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box active">프로젝트 손익 계산</div></div>
-        <div class="fd-arrow">→</div>
-        <div class="fd-step"><div class="fd-box end">경영 인사이트<small>다음 견적 기준</small></div></div>
-      </div>
-      <div class="g3">
-        <div>
-          <h4>대시보드 핵심 지표</h4>
-          <div class="kv"><span class="kk">프로젝트 수익률</span><span class="kv-val" style="color:var(--green)">%</span></div>
-          <div class="kv"><span class="kk">Out of Scope 발생 횟수</span><span class="kv-val">건</span></div>
-          <div class="kv"><span class="kk">추가 청구 성공률</span><span class="kv-val" style="color:var(--blue)">%</span></div>
-          <div class="kv"><span class="kk">실제 vs 견적 공수 차이</span><span class="kv-val" style="color:var(--red)">h</span></div>
-          <div class="kv"><span class="kk">클라이언트별 추가 요청 빈도</span><span class="kv-val">회</span></div>
-        </div>
-        <div>
-          <h4>수익성 경고 알림</h4>
-          <ul class="cl">
-            <li>수익률 0% 이하 프로젝트 경고</li>
-            <li>Out of Scope 3회 이상 미청구 알림</li>
-            <li>예산 소진율 80% 도달 알림</li>
-            <li class="w">알림 과다 시 피로 주의</li>
-          </ul>
-        </div>
-        <div>
-          <h4>데이터 활용 흐름</h4>
+        <div class="card">
+          <h4>권한 & 역할 플로우</h4>
           <div class="vflow">
             <div class="vf-item">
-              <div class="vf-dot g" style="font-size:9px;">분석</div>
-              <div class="vf-body"><h3>손실 프로젝트 패턴</h3><p>어떤 유형의 클라이언트에서 손실 발생?</p></div>
+              <div class="vf-dot">👤</div>
+              <div class="vf-body">
+                <h3>Owner (대표/PM)</h3>
+                <p>모든 기능 접근. 청구 근거 최종 승인. 팀원 초대</p>
+                <div style="margin-top:4px;"><span class="tag tg">전체 권한</span></div>
+              </div>
+            </div>
+            <div class="vf-item">
+              <div class="vf-dot g">👥</div>
+              <div class="vf-body">
+                <h3>Member (팀원)</h3>
+                <p>요청 판정 가능. 문서 열람. 청구 근거 생성 (승인 필요)</p>
+                <div style="margin-top:4px;"><span class="tag tb">판정 권한</span><span class="tag ty">승인 필요</span></div>
+              </div>
             </div>
             <div class="vf-item" style="padding-bottom:0;">
-              <div class="vf-dot g" style="font-size:9px;">개선</div>
-              <div class="vf-body"><h3>다음 견적 보정</h3><p>과소 견적 기능 파악 → 단가 조정</p></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TAB 4: 화면 와이어프레임 ===== -->
-<div class="page" id="page-screens">
-  <div class="section-header">
-    <h2>주요 화면 와이어프레임</h2>
-    <p>5개 핵심 화면의 레이아웃 구조와 UI 요소 배치</p>
-  </div>
-
-  <div class="g2" style="margin-bottom:16px;">
-    <!-- 대시보드 홈 -->
-    <div>
-      <div class="wf-wrap">
-        <div class="wf-label">Screen 01 — 메인 대시보드</div>
-        <div class="screen">
-          <div class="screen-bar">
-            <div class="screen-dot" style="background:var(--red);"></div>
-            <div class="screen-dot" style="background:var(--yellow);"></div>
-            <div class="screen-dot" style="background:var(--green);"></div>
-            <div class="screen-url">app.scopemanager.io/dashboard</div>
-          </div>
-          <div class="screen-body">
-            <!-- Top nav -->
-            <div class="wf-block nav-bar" style="margin-bottom:8px;">
-              <div class="wf-nav-item act">📊 대시보드</div>
-              <div class="wf-nav-item">📁 프로젝트</div>
-              <div class="wf-nav-item">⚡ 요청 판정</div>
-              <div class="wf-nav-item">📄 문서</div>
-            </div>
-            <!-- Header row -->
-            <div class="wf-row" style="margin-bottom:8px;justify-content:space-between;">
-              <div style="font-size:11px;font-weight:700;color:var(--t1);">안녕하세요, 김지은 PM 👋</div>
-              <div class="wf-btn primary" style="padding:3px 8px;font-size:9px;">+ 요청 판정</div>
-            </div>
-            <!-- Stat cards -->
-            <div class="wf-grid" style="margin-bottom:6px;">
-              <div class="wf-card"><div class="wf-card-title">이번 달 수익률</div><div class="wf-card-val" style="color:var(--green);">+12%</div></div>
-              <div class="wf-card"><div class="wf-card-title">Out of Scope</div><div class="wf-card-val" style="color:var(--red);">7건</div></div>
-            </div>
-            <div class="wf-grid" style="margin-bottom:8px;">
-              <div class="wf-card"><div class="wf-card-title">진행 프로젝트</div><div class="wf-card-val">4개</div></div>
-              <div class="wf-card"><div class="wf-card-title">미청구 초과</div><div class="wf-card-val" style="color:var(--yellow);">3건</div></div>
-            </div>
-            <div class="wf-divider"></div>
-            <!-- Recent activity -->
-            <div class="wf-section-title">최근 판정 내역</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);">
-              <div style="display:flex;align-items:center;gap:5px;"><div class="wf-pill red">초과</div><span style="font-size:10px;color:var(--t1);">랜딩 페이지 애니메이션 수정</span></div>
-              <span style="font-size:9px;color:var(--t3);">오늘</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);">
-              <div style="display:flex;align-items:center;gap:5px;"><div class="wf-pill green">정상</div><span style="font-size:10px;color:var(--t1);">버튼 색상 변경 요청</span></div>
-              <span style="font-size:9px;color:var(--t3);">어제</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;">
-              <div style="display:flex;align-items:center;gap:5px;"><div class="wf-pill" style="background:color-mix(in srgb,var(--yellow) 20%,transparent);color:var(--yellow);">모호</div><span style="font-size:10px;color:var(--t1);">회원가입 페이지 추가</span></div>
-              <span style="font-size:9px;color:var(--t3);">2일 전</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 요청 판정 화면 -->
-    <div>
-      <div class="wf-wrap">
-        <div class="wf-label">Screen 02 — 요청 판정</div>
-        <div class="screen">
-          <div class="screen-bar">
-            <div class="screen-dot" style="background:var(--red);"></div>
-            <div class="screen-dot" style="background:var(--yellow);"></div>
-            <div class="screen-dot" style="background:var(--green);"></div>
-            <div class="screen-url">app.scopemanager.io/judge</div>
-          </div>
-          <div class="screen-body">
-            <div class="wf-block nav-bar" style="margin-bottom:8px;">
-              <div class="wf-nav-item">📊 대시보드</div>
-              <div class="wf-nav-item">📁 프로젝트</div>
-              <div class="wf-nav-item act">⚡ 요청 판정</div>
-              <div class="wf-nav-item">📄 문서</div>
-            </div>
-            <div style="font-size:11px;font-weight:700;color:var(--t1);margin-bottom:8px;">새 요청 판정하기</div>
-            <!-- Project select -->
-            <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">프로젝트 선택</div>
-            <div style="display:flex;gap:4px;margin-bottom:6px;">
-              <div class="wf-pill blue" style="background:color-mix(in srgb,var(--blue) 40%,transparent);">ABC 쇼핑몰</div>
-              <div class="wf-pill blue">XYZ 기업</div>
-              <div class="wf-pill blue">+ 더보기</div>
-            </div>
-            <!-- Input -->
-            <div class="wf-block" style="padding:4px 6px;margin-bottom:3px;font-size:10px;color:var(--t3);">클라이언트 요청 내용</div>
-            <textarea class="wf-textarea" style="min-height:50px;" readonly>홈페이지 상단에 동영상 배너를 추가하고, 메인 색상도 빨간색으로 바꿔주세요. 그리고 채팅 기능도...</textarea>
-            <!-- Analyzing state -->
-            <div class="wf-block highlight" style="margin-bottom:6px;font-size:10px;">
-              🤖 AI 분석 중... 계약서와 비교하고 있습니다
-            </div>
-            <div class="wf-btn primary">판정 요청 →</div>
-            <div class="wf-divider"></div>
-            <!-- Result preview -->
-            <div class="wf-section-title" style="color:var(--red);">판정 결과</div>
-            <div class="wf-block red" style="margin-bottom:5px;">
-              <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">
-                <span style="font-size:12px;">🔴</span>
-                <span style="font-size:11px;font-weight:700;color:var(--red);">범위 초과 (Out of Scope)</span>
-              </div>
-              <div style="font-size:10px;color:var(--t3);">동영상 배너 추가, 채팅 기능은 계약 범위에 포함되지 않습니다.</div>
-            </div>
-            <div class="wf-btn success" style="font-size:10px;">📄 청구 근거 문서 생성 →</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="g2">
-    <!-- 청구 근거 문서 -->
-    <div>
-      <div class="wf-wrap">
-        <div class="wf-label">Screen 03 — 청구 근거 문서</div>
-        <div class="screen">
-          <div class="screen-bar">
-            <div class="screen-dot" style="background:var(--red);"></div>
-            <div class="screen-dot" style="background:var(--yellow);"></div>
-            <div class="screen-dot" style="background:var(--green);"></div>
-            <div class="screen-url">app.scopemanager.io/docs/123</div>
-          </div>
-          <div class="screen-body">
-            <div class="wf-row" style="justify-content:space-between;margin-bottom:8px;">
-              <div style="font-size:11px;font-weight:700;color:var(--t1);">청구 근거 문서</div>
-              <div style="display:flex;gap:4px;">
-                <div class="wf-btn secondary" style="padding:2px 7px;font-size:9px;">✏️ 수정</div>
-                <div class="wf-btn primary" style="padding:2px 7px;font-size:9px;">📋 복사</div>
+              <div class="vf-dot gr">👁</div>
+              <div class="vf-body">
+                <h3>Viewer (열람자)</h3>
+                <p>판정 결과 열람만 가능. 클라이언트 공유용 (v2)</p>
+                <div style="margin-top:4px;"><span class="tag tgr">열람 전용</span><span class="tag tp">v2 예정</span></div>
               </div>
             </div>
-            <div style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:8px;margin-bottom:6px;font-size:10px;line-height:1.7;color:var(--t3);">
-              <div style="font-weight:700;color:var(--t1);margin-bottom:4px;">추가 작업 안내</div>
-              <div style="margin-bottom:4px;">안녕하세요. 프로젝트 진행 중 아래 요청 사항을 검토하였습니다.</div>
-              <div style="background:color-mix(in srgb,var(--yellow) 8%,transparent);border-radius:4px;padding:5px;margin-bottom:4px;">
-                <strong style="color:var(--t1);">[요청 내용]</strong><br>동영상 배너 추가, 메인 색상 변경, 채팅 기능 추가
-              </div>
-              <div style="margin-bottom:4px;">본 요청은 2024년 3월 체결된 계약서의 기능 범위를 초과합니다. 계약 기준 포함 항목: UI 퍼블리싱, 게시판, 로그인.</div>
-              <div>추가 진행을 위해서는 별도 견적이 필요합니다.</div>
-            </div>
-            <div class="wf-grid" style="margin-bottom:6px;">
-              <div>
-                <div class="wf-block" style="padding:4px 6px;font-size:10px;color:var(--t3);margin-bottom:3px;">추가 견적 금액 (선택)</div>
-                <input class="wf-input" placeholder="예: 250,000원" readonly>
-              </div>
-              <div>
-                <div class="wf-block" style="padding:4px 6px;font-size:10px;color:var(--t3);margin-bottom:3px;">예상 공수</div>
-                <input class="wf-input" placeholder="예: 4시간" readonly>
-              </div>
-            </div>
-            <div style="display:flex;gap:4px;">
-              <div class="wf-btn primary" style="flex:1;font-size:9px;">📋 클립보드 복사</div>
-              <div class="wf-btn secondary" style="flex:1;font-size:9px;">📄 PDF 내보내기</div>
-            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>MVP 범위 vs 이후 버전 분류</h4>
+        <div class="g3">
+          <div>
+            <div style="color:var(--green);font-weight:700;font-size:12px;margin-bottom:8px;">✅ MVP 포함</div>
+            <ul class="cl">
+              <li>이메일 회원가입 & 로그인</li>
+              <li>프로젝트 생성 & 계약서 입력</li>
+              <li>텍스트 기반 요청 판정 (In/Out/모호)</li>
+              <li>청구 근거 문서 자동 생성</li>
+              <li>클립보드 복사 내보내기</li>
+              <li>기본 판정 히스토리 조회</li>
+              <li>프로젝트별 손익 기본 집계</li>
+            </ul>
+          </div>
+          <div>
+            <div style="color:var(--blue);font-weight:700;font-size:12px;margin-bottom:8px;">🔵 v1.5 (MVP+)</div>
+            <ul class="cl">
+              <li>PDF 내보내기</li>
+              <li>수익성 분석 대시보드</li>
+              <li>팀원 초대 & 권한 관리</li>
+              <li>알림 설정 (미청구 경고)</li>
+              <li>판정 결과 수동 수정 & 학습</li>
+              <li>계약서 버전 관리</li>
+            </ul>
+          </div>
+          <div>
+            <div style="color:var(--purple);font-weight:700;font-size:12px;margin-bottom:8px;">🟣 v2 (성장)</div>
+            <ul class="cl">
+              <li>이미지/파일 요청 판정</li>
+              <li>클라이언트 공유 링크</li>
+              <li>카카오톡 봇 연동</li>
+              <li>Slack 알림 연동</li>
+              <li>Viewer 역할 (클라이언트 포털)</li>
+              <li>AI 견적 추천 기능</li>
+            </ul>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 수익성 대시보드 -->
-    <div>
-      <div class="wf-wrap">
-        <div class="wf-label">Screen 04 — 수익성 대시보드</div>
-        <div class="screen">
-          <div class="screen-bar">
-            <div class="screen-dot" style="background:var(--red);"></div>
-            <div class="screen-dot" style="background:var(--yellow);"></div>
-            <div class="screen-dot" style="background:var(--green);"></div>
-            <div class="screen-url">app.scopemanager.io/analytics</div>
-          </div>
-          <div class="screen-body">
-            <div class="wf-block nav-bar" style="margin-bottom:8px;">
-              <div class="wf-nav-item">📊 대시보드</div>
-              <div class="wf-nav-item">📁 프로젝트</div>
-              <div class="wf-nav-item">⚡ 요청 판정</div>
-              <div class="wf-nav-item act">📈 분석</div>
-            </div>
-            <div class="wf-row" style="justify-content:space-between;margin-bottom:8px;">
-              <div style="font-size:11px;font-weight:700;color:var(--t1);">수익성 분석</div>
-              <div class="wf-pill blue">이번 달</div>
-            </div>
-            <!-- Chart placeholder -->
-            <div style="background:var(--s2);border-radius:6px;height:55px;display:flex;align-items:flex-end;padding:6px;gap:4px;margin-bottom:6px;">
-              <div style="flex:1;background:var(--green);border-radius:2px 2px 0 0;height:80%;opacity:.7;"></div>
-              <div style="flex:1;background:var(--green);border-radius:2px 2px 0 0;height:60%;opacity:.7;"></div>
-              <div style="flex:1;background:var(--red);border-radius:2px 2px 0 0;height:40%;opacity:.7;"></div>
-              <div style="flex:1;background:var(--green);border-radius:2px 2px 0 0;height:90%;opacity:.7;"></div>
-              <div style="flex:1;background:var(--yellow);border-radius:2px 2px 0 0;height:55%;opacity:.7;"></div>
-              <div style="flex:1;background:var(--blue);border-radius:2px 2px 0 0;height:70%;opacity:.7;"></div>
-            </div>
-            <div class="wf-section-title">프로젝트별 손익</div>
-            <table class="wf-table">
-              <thead><tr><th>프로젝트</th><th>수익률</th><th>초과 건</th></tr></thead>
-              <tbody>
-                <tr><td>ABC 쇼핑몰</td><td style="color:var(--green);">+24%</td><td>2건</td></tr>
-                <tr><td>XYZ 기업 홈</td><td style="color:var(--red);">-8%</td><td>7건</td></tr>
-                <tr><td>DEF 스타트업</td><td style="color:var(--green);">+11%</td><td>1건</td></tr>
-              </tbody>
-            </table>
-            <div class="wf-block yellow" style="font-size:10px;margin-top:5px;">
-              ⚠ XYZ 기업 프로젝트: 미청구 초과 5건 감지. 청구 검토 필요
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  </main>
 
-<!-- ===== TAB 5: 상태 & 엣지케이스 ===== -->
-<div class="page" id="page-states">
-  <div class="section-header">
-    <h2>UI 상태 & 엣지 케이스</h2>
-    <p>각 화면의 로딩/오류/빈 상태와 예외 케이스 처리 설계</p>
-  </div>
-
-  <div class="g3" style="margin-bottom:16px;">
-    <div class="card">
-      <h4>로딩 상태 (Loading States)</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot">AI</div>
-          <div class="vf-body"><h3>AI 판정 중</h3><p>스피너 + "계약서와 비교 중입니다" 텍스트. 평균 2~5초 예상</p></div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot">📄</div>
-          <div class="vf-body"><h3>문서 생성 중</h3><p>프로그레스 바. 단계별 ("분석 완료 → 초안 생성 중") 표시</p></div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot">📊</div>
-          <div class="vf-body"><h3>대시보드 로딩</h3><p>스켈레톤 UI. 카드별 독립 로딩으로 부분 표시</p></div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <h4>빈 상태 (Empty States)</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot g">0</div>
-          <div class="vf-body"><h3>프로젝트 없음</h3><p>"첫 프로젝트를 만들어보세요" + 샘플 데이터 체험 CTA</p></div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot g">0</div>
-          <div class="vf-body"><h3>판정 기록 없음</h3><p>"첫 요청을 판정해보세요" + 빠른 시작 가이드 링크</p></div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot g">0</div>
-          <div class="vf-body"><h3>계약서 미등록</h3><p>"계약서를 등록하면 더 정확한 판정이 가능합니다" + 등록 유도</p></div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <h4>오류 상태 (Error States)</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot r">!</div>
-          <div class="vf-body"><h3>AI 판정 실패</h3><p>재시도 버튼 + "문제가 지속되면 고객지원" 링크. 자동 재시도 1회</p></div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot r">!</div>
-          <div class="vf-body"><h3>계약서 파싱 실패</h3><p>수동 입력 모드로 전환 유도. 파싱 불가 이유 간단 설명</p></div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot r">!</div>
-          <div class="vf-body"><h3>네트워크 오류</h3><p>오프라인 감지 배너. 재연결 시 자동 재시도</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="g2" style="margin-bottom:16px;">
-    <div class="card hl y">
-      <h4>핵심 엣지 케이스</h4>
-      <table>
-        <thead><tr><th>케이스</th><th>발생 조건</th><th>처리 방법</th></tr></thead>
-        <tbody>
-          <tr><td>AI 오판</td><td>실제 범위 내인데 초과 판정</td><td>PM이 결과 수동 수정 + 피드백 제출</td></tr>
-          <tr><td>모호한 계약서</td><td>범위 불명확하게 작성</td><td>"모호(△)" 판정 + PM 최종 결정 요청</td></tr>
-          <tr><td>복수 프로젝트 혼동</td><td>요청에 프로젝트명 미포함</td><td>프로젝트 선택 단계 강제화</td></tr>
-          <tr><td>계약 갱신</td><td>범위 변경 계약 체결</td><td>버전 관리. 이전/신규 범위 구분 표시</td></tr>
-          <tr><td>동일 요청 중복</td><td>같은 요청 재판정</td><td>중복 감지 알림 + 기존 판정 링크</td></tr>
-          <tr><td>이미지/파일 요청</td><td>텍스트 외 형식 입력</td><td>텍스트 변환 요청 안내 (v2에서 지원)</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="card">
-      <h4>권한 & 역할 플로우</h4>
-      <div class="vflow">
-        <div class="vf-item">
-          <div class="vf-dot">👤</div>
-          <div class="vf-body">
-            <h3>Owner (대표/PM)</h3>
-            <p>모든 기능 접근. 청구 근거 최종 승인. 팀원 초대</p>
-            <div style="margin-top:4px;"><span class="tag tg">전체 권한</span></div>
-          </div>
-        </div>
-        <div class="vf-item">
-          <div class="vf-dot g">👥</div>
-          <div class="vf-body">
-            <h3>Member (팀원)</h3>
-            <p>요청 판정 가능. 문서 열람. 청구 근거 생성 (승인 필요)</p>
-            <div style="margin-top:4px;"><span class="tag tb">판정 권한</span><span class="tag ty">승인 필요</span></div>
-          </div>
-        </div>
-        <div class="vf-item" style="padding-bottom:0;">
-          <div class="vf-dot gr">👁</div>
-          <div class="vf-body">
-            <h3>Viewer (열람자)</h3>
-            <p>판정 결과 열람만 가능. 클라이언트 공유용 (v2)</p>
-            <div style="margin-top:4px;"><span class="tag tgr">열람 전용</span><span class="tag tp">v2 예정</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h4>MVP 범위 vs 이후 버전 분류</h4>
-    <div class="g3">
-      <div>
-        <div style="color:var(--green);font-weight:700;font-size:12px;margin-bottom:8px;">✅ MVP 포함</div>
-        <ul class="cl">
-          <li>이메일 회원가입 & 로그인</li>
-          <li>프로젝트 생성 & 계약서 입력</li>
-          <li>텍스트 기반 요청 판정 (In/Out/모호)</li>
-          <li>청구 근거 문서 자동 생성</li>
-          <li>클립보드 복사 내보내기</li>
-          <li>기본 판정 히스토리 조회</li>
-          <li>프로젝트별 손익 기본 집계</li>
-        </ul>
-      </div>
-      <div>
-        <div style="color:var(--blue);font-weight:700;font-size:12px;margin-bottom:8px;">🔵 v1.5 (MVP+)</div>
-        <ul class="cl">
-          <li>PDF 내보내기</li>
-          <li>수익성 분석 대시보드</li>
-          <li>팀원 초대 & 권한 관리</li>
-          <li>알림 설정 (미청구 경고)</li>
-          <li>판정 결과 수동 수정 & 학습</li>
-          <li>계약서 버전 관리</li>
-        </ul>
-      </div>
-      <div>
-        <div style="color:var(--purple);font-weight:700;font-size:12px;margin-bottom:8px;">🟣 v2 (성장)</div>
-        <ul class="cl">
-          <li>이미지/파일 요청 판정</li>
-          <li>클라이언트 공유 링크</li>
-          <li>카카오톡 봇 연동</li>
-          <li>Slack 알림 연동</li>
-          <li>Viewer 역할 (클라이언트 포털)</li>
-          <li>AI 견적 추천 기능</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-
-</main>
-
-<script>
-const btn = document.getElementById('themeToggle');
-btn.addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  btn.textContent = document.body.classList.contains('light') ? '🌙 다크' : '☀️ 라이트';
-});
-document.querySelectorAll('.tab-btn').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('page-' + tab.dataset.tab).classList.add('active');
-  });
-});
-</script>
+  <script>
+    function toggleMode() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+    }
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('page-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
 </body>
+
 </html>
