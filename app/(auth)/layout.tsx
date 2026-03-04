@@ -1,23 +1,17 @@
-import { ReactNode } from "react";
-import Link from "next/link";
+import React from 'react';
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4 md:p-8">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <Link 
-            href="/" 
-            className="text-2xl font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
-          >
-            스코프 매니저
-          </Link>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg border border-gray-100">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">스코프 매니저</h1>
         </div>
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-          <div className="p-6 sm:p-8">
-            {children}
-          </div>
-        </div>
+        {children}
       </div>
     </div>
   );
