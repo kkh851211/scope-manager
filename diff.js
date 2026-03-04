@@ -1,0 +1,1 @@
+const fs = require('fs'); const c1 = fs.readFileSync('docs/index.html', 'utf8').match(/<style>([\s\S]*?)<\/style>/)[1]; const c2 = fs.readFileSync('docs/qa-scenarios.html', 'utf8').match(/<style>([\s\S]*?)<\/style>/)[1]; fs.writeFileSync('c1.css', c1); fs.writeFileSync('c2.css', c2);

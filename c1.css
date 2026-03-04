@@ -1,0 +1,413 @@
+
+    /* ── CSS 변수 ── */
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+    }
+
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+    }
+
+    /* ── 리셋 & 베이스 ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background 0.2s, color 0.2s;
+      overflow-y: scroll;
+    }
+
+    /* [신규] 공통으로 사용할 중앙 정렬 박스 */
+    .inner-wrap {
+      max-width: 1060px;
+      /* main과 동일한 너비 제한 */
+      margin: 0 auto;
+      /* 중앙 정렬 */
+      padding: 0 28px;
+      /* 본문(.page)의 좌우 패딩(28px)과 동일하게 맞춤 */
+      width: 100%;
+      height: 100%;
+    }
+
+    /* [수정] HEADER: 패딩과 Flex 속성을 내부로 이동 */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      /* 좌우 패딩 제거 (inner-wrap이 담당) */
+      /* display: flex;      <-- 삭제 (block 요소로 변경) */
+      /* align-items...      <-- 삭제 */
+      /* justify-content...  <-- 삭제 */
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: background 0.2s;
+    }
+
+    /* [신규] Header 내부 정렬용 */
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap
+    }
+
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -.3px;
+      white-space: nowrap
+    }
+
+    .logo span {
+      color: var(--t1)
+    }
+
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
+
+    .badge.b {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .badge.g {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .mode-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      color: var(--t1);
+    }
+
+    .mode-btn:hover {
+      border-color: var(--blue);
+    }
+
+    .toggle-btn {
+      background: var(--blue);
+      border: none;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 128, 255, 0.3);
+    }
+
+    .toggle-btn:hover {
+      background: #3a6bdd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 128, 255, 0.4);
+    }
+
+    .toggle-btn:active {
+      transform: translateY(0);
+    }
+
+    /* [수정] NAV: 배경만 유지하고 레이아웃은 내부로 위임 */
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 0;
+      /* 기존 패딩(0 28px) 제거 */
+      display: block;
+      /* 기존 display: flex 제거 */
+      transition: background 0.2s;
+    }
+
+    /* [추가] 네비게이션 내부 스크롤 및 배치용 */
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 첫 번째 탭 버튼의 좌측 여백을 0으로 만들어 본문 텍스트와 시작점을 일치시킴 */
+    .nav-content .tab-btn:first-child {
+      padding-left: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--t1);
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    /* ── 페이지 ── */
+    .page {
+      display: none;
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ── 섹션 헤더 ── */
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .page-sub {
+      color: var(--t3);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    /* ── 카드 그리드 ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    /* ── 카드 ── */
+    .card {
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, background 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--blue);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--bg);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      border: 1px solid var(--bd);
+      transition: background 0.2s;
+    }
+
+    .card-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--t1);
+      line-height: 1.4;
+    }
+
+
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--t3);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card-arrow {
+      font-size: 12px;
+      color: var(--blue);
+      font-weight: 600;
+      align-self: flex-end;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .card:hover .card-arrow {
+      opacity: 1;
+    }
+
+    /* ── 문서 뷰어 탭 ── */
+    .viewer-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      height: calc(100vh - 170px);
+    }
+
+    .viewer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .viewer-list-item {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--bd);
+      background: var(--s1);
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--t3);
+      transition: border-color 0.15s, color 0.15s, background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .viewer-list-item:hover {
+      border-color: var(--blue);
+      color: var(--t1);
+    }
+
+    .viewer-list-item.selected {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(79, 128, 255, .08);
+      font-weight: 600;
+    }
+
+    .viewer-frame {
+      border-radius: 12px;
+      border: 1px solid var(--bd);
+      overflow: hidden;
+    }
+
+    .viewer-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+
+    /* ── 반응형 ── */
+    @media (max-width: 560px) {
+      /* 기존 header, nav 패딩 설정은 삭제합니다 */
+      /* header { padding: 0 16px; } <-- 삭제 */
+      /* nav    { padding: 0 16px; } <-- 삭제 */
+
+      .page {
+        padding: 24px 16px;
+      }
+
+      /* [추가] 모바일에서도 상단 영역의 좌우 여백을 본문(16px)과 일치시킴 */
+      .inner-wrap {
+        padding: 0 16px;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* ... 나머지 기존 코드 ... */
+    }
+
+    @media (min-width: 561px) and (max-width: 860px) {
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  
