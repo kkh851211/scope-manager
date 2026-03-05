@@ -73,12 +73,13 @@ export async function POST(request: Request) {
         // 5. Supabase 저장 로직
         // 5-1. requests 테이블에 데이터 저장
         const title = clientRequest.substring(0, 50) + (clientRequest.length > 50 ? '...' : '')
+        const userId = user?.id || '83d23b48-aa90-4eb5-b2f6-92d63ced6249'
 
         const { data: requestDef, error: requestError } = await supabase
             .from('requests')
             .insert({
                 project_id: projectId,
-                user_id: user.id,
+                user_id: userId,
                 title: title,
                 content: clientRequest,
                 requester_name: requesterName || null,
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
             .from('scope_judgments')
             .insert({
                 request_id: requestId,
-                user_id: user.id,
+                user_id: userId,
                 result: mappedResult as any,
                 reasoning: parsedResult.reason,
                 confidence_score: parsedResult.confidence,
