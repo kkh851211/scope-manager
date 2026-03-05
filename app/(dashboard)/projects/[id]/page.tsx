@@ -25,7 +25,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         .from('contracts')
         .select('*')
         .eq('project_id', id)
-        .order('version', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(1)
         .single();
 

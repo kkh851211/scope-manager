@@ -38,8 +38,8 @@ export default async function HistoryPage() {
         date: new Date(item.created_at).toISOString().split('T')[0],
         projectName: item.requests?.projects?.name || '알 수 없음',
         request: item.requests?.content || '',
-        judgment: item.result as Judgment,
-        confidence: item.confidence_score ? Math.round(item.confidence_score * 100) : 0,
+        judgment: (item.result || '').toUpperCase() as Judgment,
+        confidence: item.confidence_score || 0,
         reason: item.reasoning || '',
         suggestion: item.recommendation || '',
     }));
