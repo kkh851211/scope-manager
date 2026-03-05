@@ -13,7 +13,7 @@ import { useState } from "react";
 
 // Mock data
 const project = {
-    id: "1",
+    id: "ff5062fc-9a6d-415e-9696-23d4c12103a3",
     name: "알파 웹사이트 리뉴얼",
     client: "스타트업 A",
     status: "진행중",

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ScopeJudgeFormProps {
     projectId: string;
@@ -26,38 +27,39 @@ export function ScopeJudgeForm({ projectId, contractContent, onResult }: ScopeJu
 
         setIsAnalyzing(true);
 
-        // Mock 2초 지연 후 결과 반환
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            let mockResult;
-            if (requestContent.includes("결제") || requestContent.includes("거절")) {
-                mockResult = {
-                    result: "OUT_OF_SCOPE" as const,
-                    confidence: 95,
-                    reason: "명시적으로 제외된 결제 기능이 포함되어 있습니다. 이는 계약 범위를 벗어납니다.",
-                    suggestion: "클라이언트에게 해당 기능이 추가 과업임을 안내하고, 별도의 기능 추가 계약이나 별도 견적을 안내하세요."
-                };
-            } else if (requestContent.includes("애매") || requestContent.includes("추가")) {
-                mockResult = {
-                    result: "AMBIGUOUS" as const,
-                    confidence: 60,
-                    reason: "요청하신 내용이 서비스 소개 페이지에 포함될 수 있으나, 요구하는 애니메이션 수준이나 페이지 분량에 따라 범위 내가 아닐 수 있습니다.",
-                    suggestion: "클라이언트와 미팅을 통해 구체적인 페이지 분량과 애니메이션 요구사항을 파악한 후 범위를 다시 산정하세요."
-                };
-            } else {
-                mockResult = {
-                    result: "IN_SCOPE" as const,
-                    confidence: 92,
-                    reason: "해당 요청은 디자인 및 퍼블리싱 기본 계약 범위에 포함되는 일반적인 수정 혹은 구현 사항입니다.",
-                    suggestion: "디자인/개발팀에 전달하여 일정 내 작업을 진행할 수 있도록 일정을 조정하세요."
-                };
+        try {
+            const res = await fetch("/api/judge-scope", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    projectId,
+                    contractContent,
+                    clientRequest: requestContent,
+                    requesterName,
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error("API Error");
             }
 
-            onResult(mockResult);
-            // 폼 초기화는 지금은 선택사항
-            // setRequestContent("");
-            // setRequesterName("");
-        }, 2000);
+            const data = await res.json();
+            if (data.success && data.data) {
+                onResult({
+                    result: data.data.judgment,
+                    confidence: data.data.confidence,
+                    reason: data.data.reason,
+                    suggestion: data.data.suggestion,
+                });
+            } else {
+                throw new Error(data.error || "Unknown Error");
+            }
+        } catch (error) {
+            console.error("판단 실패:", error);
+            toast.error("판단 중 오류가 발생했어요. 다시 시도해주세요.");
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     return (
