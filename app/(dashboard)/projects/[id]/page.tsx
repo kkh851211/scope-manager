@@ -1,19 +1,23 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import ProjectDetailClient from "./ProjectDetailClient";
+import { redirect } from 'next/navigation';
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect('/login');
+    }
 
     // 1. 프로젝트 정보 조회
     const { data: projectData, error: projErr } = await supabase
         .from('projects')
         .select('*')
         .eq('id', id)
+        .eq('user_id', user.id)
         .single();
 
     if (projErr || !projectData) {

@@ -1,13 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import HistoryClient, { HistoryItem, Judgment } from "./HistoryClient";
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HistoryPage() {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect('/login');
+    }
 
     const { data: judgmentsData, error } = await supabase
         .from('scope_judgments')
@@ -18,15 +21,16 @@ export default async function HistoryPage() {
             reasoning,
             recommendation,
             created_at,
-            requests (
+            requests!inner (
                 id,
                 content,
-                projects (
+                projects!inner (
                     id,
                     name
                 )
             )
         `)
+        .eq('requests.projects.user_id', user.id)
         .order('created_at', { ascending: false });
 
     if (error) {

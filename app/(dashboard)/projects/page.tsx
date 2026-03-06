@@ -1,16 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import ProjectsClient from "./ProjectsClient";
 import { ProjectCardProps } from "@/components/projects/ProjectCard";
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProjectsPage() {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // Get all projects. In a real app we'd filter by user_id
+    if (!user) {
+        redirect('/login');
+    }
+
     const { data: projectsData, error } = await supabase
         .from('projects')
         .select(`
@@ -26,6 +28,7 @@ export default async function ProjectsPage() {
                 )
             )
         `)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
     if (error) {

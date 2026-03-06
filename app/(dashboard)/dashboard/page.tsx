@@ -1,19 +1,23 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 import DashboardClient from "./DashboardClient";
 import { StatusType } from "@/components/common/StatusBadge";
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect('/login');
+    }
 
     // 1. 전체 프로젝트 수 (projects 테이블 count)
     const { count: totalProjects } = await supabase
         .from('projects')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
 
     // 2. 이번 달 판단 수 (scope_judgments 테이블 이번 달 count)
     const now = new Date();
@@ -21,18 +25,21 @@ export default async function DashboardPage() {
 
     const { count: thisMonthJudgments } = await supabase
         .from('scope_judgments')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', firstDayOfMonth);
+        .select('*, requests!inner(projects!inner(user_id))', { count: 'exact', head: true })
+        .gte('created_at', firstDayOfMonth)
+        .eq('requests.projects.user_id', user.id);
 
     // 3. 범위 외 비율 (OUT_OF_SCOPE 비율 계산)
     const { count: totalJudgments } = await supabase
         .from('scope_judgments')
-        .select('*', { count: 'exact', head: true });
+        .select('*, requests!inner(projects!inner(user_id))', { count: 'exact', head: true })
+        .eq('requests.projects.user_id', user.id);
 
     const { count: outOfScopeJudgments } = await supabase
         .from('scope_judgments')
-        .select('*', { count: 'exact', head: true })
-        .eq('result', 'OUT_OF_SCOPE');
+        .select('*, requests!inner(projects!inner(user_id))', { count: 'exact', head: true })
+        .eq('result', 'OUT_OF_SCOPE')
+        .eq('requests.projects.user_id', user.id);
 
     const outOfScopeRate = totalJudgments && outOfScopeJudgments
         ? Math.round((outOfScopeJudgments / totalJudgments) * 100)
@@ -45,23 +52,22 @@ export default async function DashboardPage() {
     };
 
     // 4. 최근 판단 5개 (scope_judgments + requests join 조회)
-    // requests 테이블과 조인하여 프로젝트명과 요청 내용을 가져온다.
-    // projects 테이블도 조인해야 프로젝트 명을 알 수 있음.
     const { data: recentJudgmentsData, error } = await supabase
         .from('scope_judgments')
         .select(`
             id,
             result,
             created_at,
-            requests (
+            requests!inner (
                 id,
                 content,
-                projects (
+                projects!inner (
                     id,
                     name
                 )
             )
         `)
+        .eq('requests.projects.user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(5);
 
