@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
     try {
@@ -13,14 +13,19 @@ export async function POST(request: Request) {
             )
         }
 
-        const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-        )
+        const supabase = await createClient()
 
-        // Try to get authenticated user (or fallback for dev testing if permitted)
-        const { data: { user } } = await supabase.auth.getUser()
-        const userId = user?.id || '83d23b48-aa90-4eb5-b2f6-92d63ced6249' // test user from auth.users fallback
+        // 실제 로그인한 유저 세션에서 user_id 가져오기
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+        if (authError || !user) {
+            return NextResponse.json(
+                { error: '로그인이 필요합니다.' },
+                { status: 401 }
+            )
+        }
+
+        const userId = user.id
 
         // 1. projects 테이블에 프로젝트 저장
         const { data: projectData, error: projError } = await supabase
