@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,18 +11,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export default function SignupPage() {
   const supabase = createClient()
+  const router = useRouter()
 
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.')
+      return
+    }
+
     setLoading(true)
 
     const { error } = await supabase.auth.signUp({
@@ -47,41 +55,12 @@ export default function SignupPage() {
       return
     }
 
-    setDone(true)
-    setLoading(false)
-  }
+    // 이메일 인증이 꺼져있어 자동 로그인된 세션을 강제로 로그아웃 처리
+    await supabase.auth.signOut()
 
-  // 가입 성공 후 이메일 인증 안내
-  if (done) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">이메일을 확인해주세요</CardTitle>
-            <CardDescription>
-              인증 메일이 발송되었습니다
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">{email}</span>로 인증 링크를 보냈습니다.
-              <br />
-              메일함을 확인하고 링크를 클릭해 가입을 완료해주세요.
-            </p>
-            <p className="text-sm text-gray-400">
-              메일이 오지 않으면 스팸함을 확인해주세요.
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Link href="/login" className="w-full">
-              <Button variant="outline" className="w-full">
-                로그인 페이지로 이동
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-      </div>
-    )
+    alert('회원가입이 완료되었습니다. 로그인해주세요.')
+    router.push('/login')
+    router.refresh()
   }
 
   return (
@@ -154,6 +133,20 @@ export default function SignupPage() {
                 placeholder="최소 6자 이상"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* 비밀번호 확인 */}
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="비밀번호를 다시 입력해주세요"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={loading}
               />
