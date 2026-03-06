@@ -25,11 +25,15 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const [updatingPassword, setUpdatingPassword] = useState(false)
 
     const [email, setEmail] = useState('')
     const [fullName, setFullName] = useState('')
     const [companyName, setCompanyName] = useState('')
     const [userId, setUserId] = useState('')
+    const [currentPassword, setCurrentPassword] = useState('')
+    const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
 
     const router = useRouter()
     const supabase = createClient()
@@ -92,6 +96,68 @@ export default function SettingsPage() {
             toast.error('프로필 저장 중 오류가 발생했습니다.')
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleUpdatePassword = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!currentPassword) {
+            toast.error('현재 비밀번호를 입력해주세요.')
+            return
+        }
+
+        if (!newPassword || !confirmPassword) {
+            toast.error('새 비밀번호를 입력해주세요.')
+            return
+        }
+
+        if (newPassword !== confirmPassword) {
+            toast.error('비밀번호가 일치하지 않습니다.')
+            return
+        }
+
+        if (newPassword.length < 6) {
+            toast.error('비밀번호는 최소 6자 이상이어야 합니다.')
+            return
+        }
+
+        setUpdatingPassword(true)
+
+        try {
+            // 현재 비밀번호 확인을 위해 로그인 시도
+            // 주의: Supabase signInWithPassword가 실패하면 예외를 던질 수 있음
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password: currentPassword
+            })
+
+            if (signInError) {
+                toast.error('현재 비밀번호가 일치하지 않습니다.')
+                setUpdatingPassword(false)
+                return
+            }
+
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword
+            })
+
+            if (updateError) throw updateError
+
+            toast.success('비밀번호가 성공적으로 변경되었습니다.')
+            setCurrentPassword('')
+            setNewPassword('')
+            setConfirmPassword('')
+        } catch (error: any) {
+            // 로그인 시도 중 발생한 에러인지 체크
+            if (error?.name === 'AuthApiError' && error?.message?.includes('Invalid login credentials')) {
+                toast.error('현재 비밀번호가 일치하지 않습니다.')
+            } else {
+                console.error('Error updating password:', error)
+                toast.error('비밀번호 변경 중 오류가 발생했습니다.')
+            }
+        } finally {
+            setUpdatingPassword(false)
         }
     }
 
@@ -243,6 +309,54 @@ export default function SettingsPage() {
                             </AlertDialog>
                         </div>
                     </CardContent>
+                </Card>
+
+                <Card>
+                    <form onSubmit={handleUpdatePassword}>
+                        <CardHeader>
+                            <CardTitle>비밀번호 변경</CardTitle>
+                            <CardDescription>
+                                계정의 비밀번호를 안전한 새 비밀번호로 변경합니다.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="currentPassword">현재 비밀번호</Label>
+                                <Input
+                                    id="currentPassword"
+                                    type="password"
+                                    placeholder="현재 비밀번호"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="newPassword">새 비밀번호</Label>
+                                <Input
+                                    id="newPassword"
+                                    type="password"
+                                    placeholder="새 비밀번호 (6자 이상)"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="confirmPassword">새 비밀번호 확인</Label>
+                                <Input
+                                    id="confirmPassword"
+                                    type="password"
+                                    placeholder="새 비밀번호 다시 입력"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" disabled={updatingPassword}>
+                                {updatingPassword ? '변경 중...' : '비밀번호 변경'}
+                            </Button>
+                        </CardFooter>
+                    </form>
                 </Card>
             </div>
         </div>
