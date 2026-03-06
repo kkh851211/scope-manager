@@ -51,12 +51,12 @@ export function Hero() {
         </p>
 
         {/* Dashboard Mockup */}
-        <div className="mt-12 sm:mt-16 relative">
+        <div className="mt-16 sm:mt-24 relative px-2">
           <div className={`absolute inset-0 bg-gradient-to-t h-32 bottom-0 z-10 ${theme === 'dark' ? 'from-[#0F1117] via-transparent to-transparent' : 'from-white via-transparent to-transparent'
             }`}></div>
-          <div className={`relative rounded-xl sm:rounded-2xl border p-4 sm:p-6 md:p-8 shadow-2xl backdrop-blur-xl ${theme === 'dark'
-            ? 'bg-gradient-to-b from-[#1A1F2E]/40 to-[#0F1117]/40 border-[#232B3E]/50'
-            : 'bg-gradient-to-b from-gray-50/80 to-white/80 border-gray-200'
+          <div className={`relative rounded-xl sm:rounded-3xl border p-6 sm:p-10 md:p-12 shadow-2xl backdrop-blur-xl ${theme === 'dark'
+            ? 'bg-gradient-to-b from-[#1A1F2E]/60 to-[#0F1117]/60 border-[#232B3E]/50'
+            : 'bg-gradient-to-b from-gray-50/90 to-white/90 border-gray-200'
             }`}>
             {/* Browser Chrome */}
             <div className={`flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b ${theme === 'dark' ? 'border-[#232B3E]/50' : 'border-gray-200'
