@@ -72,7 +72,7 @@ export function Hero() {
             </div>
 
             {/* Dashboard Content */}
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-3">
                 <div>
