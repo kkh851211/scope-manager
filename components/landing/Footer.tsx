@@ -1,14 +1,14 @@
 'use client';
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function Footer() {
   const { theme } = useTheme();
 
   return (
     <footer className={`border-t py-10 sm:py-12 px-5 sm:px-7 ${theme === 'dark'
-        ? 'bg-[#1A1F2E] border-[#232B3E]'
-        : 'bg-gray-50 border-gray-200'
+      ? 'bg-[#1A1F2E] border-[#232B3E]'
+      : 'bg-gray-50 border-gray-200'
       }`}>
       <div className="max-w-[1060px] mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
@@ -21,14 +21,14 @@ export function Footer() {
           {/* Nav Links */}
           <nav className="flex items-center gap-4 sm:gap-6">
             <a href="#" className={`text-sm transition-colors ${theme === 'dark'
-                ? 'text-[#8C95AA] hover:text-white'
-                : 'text-gray-600 hover:text-gray-900'
+              ? 'text-[#8C95AA] hover:text-white'
+              : 'text-gray-600 hover:text-gray-900'
               }`}>
               이용약관
             </a>
             <a href="#" className={`text-sm transition-colors ${theme === 'dark'
-                ? 'text-[#8C95AA] hover:text-white'
-                : 'text-gray-600 hover:text-gray-900'
+              ? 'text-[#8C95AA] hover:text-white'
+              : 'text-gray-600 hover:text-gray-900'
               }`}>
               개인정보처리방침
             </a>

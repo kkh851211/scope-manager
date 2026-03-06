@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function Solution() {
   const { theme } = useTheme();
@@ -54,8 +54,8 @@ export function Solution() {
             <div
               key={index}
               className={`border ${feature.borderColor} border-l-4 rounded-xl p-5 sm:p-6 hover:border-opacity-100 transition-all ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E]'
-                  : 'bg-gray-50 border-gray-200 hover:shadow-lg'
+                ? 'bg-[#1A1F2E] border-[#232B3E]'
+                : 'bg-gray-50 border-gray-200 hover:shadow-lg'
                 }`}
             >
               <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{feature.emoji}</div>
@@ -70,15 +70,15 @@ export function Solution() {
               {/* Before/After */}
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className={`px-2 sm:px-3 py-1 rounded-full border ${theme === 'dark'
-                    ? 'bg-[#F87171]/15 text-[#F87171] border-[#F87171]/30'
-                    : 'bg-red-50 text-red-600 border-red-200'
+                  ? 'bg-[#F87171]/15 text-[#F87171] border-[#F87171]/30'
+                  : 'bg-red-50 text-red-600 border-red-200'
                   }`}>
                   Before: {feature.before}
                 </span>
                 <span className={theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-400'}>→</span>
                 <span className={`px-2 sm:px-3 py-1 rounded-full border ${theme === 'dark'
-                    ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
-                    : 'bg-green-50 text-green-600 border-green-200'
+                  ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
+                  : 'bg-green-50 text-green-600 border-green-200'
                   }`}>
                   After: {feature.after}
                 </span>

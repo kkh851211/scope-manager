@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function SocialProof() {
   const { theme } = useTheme();
@@ -27,8 +27,8 @@ export function SocialProof() {
             <div
               key={index}
               className={`border rounded-xl p-6 sm:p-8 text-center transition-all ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E] hover:border-[#4F80FF]/50'
-                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg'
+                ? 'bg-[#1A1F2E] border-[#232B3E] hover:border-[#4F80FF]/50'
+                : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg'
                 }`}
             >
               <div className={`text-4xl sm:text-5xl font-bold mb-2 sm:mb-3 ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'
@@ -45,8 +45,8 @@ export function SocialProof() {
 
         {/* Quote Block */}
         <div className={`border rounded-xl p-6 sm:p-8 md:p-10 ${theme === 'dark'
-            ? 'bg-[#1A1F2E] border-[#232B3E]'
-            : 'bg-white border-gray-200'
+          ? 'bg-[#1A1F2E] border-[#232B3E]'
+          : 'bg-white border-gray-200'
           }`}>
           <p className={`text-base sm:text-lg md:text-xl italic leading-relaxed mb-3 sm:mb-4 ${theme === 'dark' ? 'text-[#E8EAF0]' : 'text-gray-800'
             }`}>

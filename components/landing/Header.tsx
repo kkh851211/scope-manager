@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
 export function Header() {
@@ -15,8 +15,8 @@ export function Header() {
 
   return (
     <header className={`sticky top-0 z-50 border-b ${theme === 'dark'
-        ? 'bg-[#1A1F2E] border-[#232B3E]'
-        : 'bg-white border-gray-200 shadow-sm'
+      ? 'bg-[#1A1F2E] border-[#232B3E]'
+      : 'bg-white border-gray-200 shadow-sm'
       }`}>
       <div className="max-w-[1060px] mx-auto px-5 sm:px-7 py-4 flex items-center justify-between gap-2">
         {/* Logo */}
@@ -51,8 +51,8 @@ export function Header() {
           <button
             onClick={toggleTheme}
             className={`p-2 rounded-full transition-colors ${theme === 'dark'
-                ? 'bg-[#232B3E] hover:bg-[#2A3346] text-[#8C95AA]'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+              ? 'bg-[#232B3E] hover:bg-[#2A3346] text-[#8C95AA]'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
               }`}
             aria-label="테마 전환"
           >

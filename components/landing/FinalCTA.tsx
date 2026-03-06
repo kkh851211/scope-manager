@@ -1,15 +1,15 @@
 'use client';
 
 import { ArrowRight } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function FinalCTA() {
   const { theme } = useTheme();
 
   return (
     <section className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark'
-        ? 'bg-gradient-to-br from-[#4F80FF] to-[#2D5FDD]'
-        : 'bg-gradient-to-br from-blue-600 to-blue-700'
+      ? 'bg-gradient-to-br from-[#4F80FF] to-[#2D5FDD]'
+      : 'bg-gradient-to-br from-blue-600 to-blue-700'
       }`}>
       <div className="max-w-[1060px] mx-auto text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">

@@ -2,7 +2,7 @@
 
 import * as Accordion from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function FAQ() {
   const { theme } = useTheme();
@@ -37,14 +37,14 @@ export function FAQ() {
               key={index}
               value={`item-${index}`}
               className={`border rounded-xl overflow-hidden ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E]'
-                  : 'bg-gray-50 border-gray-200'
+                ? 'bg-[#1A1F2E] border-[#232B3E]'
+                : 'bg-gray-50 border-gray-200'
                 }`}
             >
               <Accordion.Header>
                 <Accordion.Trigger className={`w-full flex items-center justify-between p-4 sm:p-6 text-left transition-colors group ${theme === 'dark'
-                    ? 'hover:bg-[#232B3E]/30'
-                    : 'hover:bg-gray-100'
+                  ? 'hover:bg-[#232B3E]/30'
+                  : 'hover:bg-gray-100'
                   }`}>
                   <span className={`font-semibold text-base sm:text-lg pr-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
                     }`}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Edit3, Brain, FileText, ArrowRight } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function DemoPreview() {
   const { theme } = useTheme();
@@ -34,8 +34,8 @@ export function DemoPreview() {
             <div key={index} className="flex items-center gap-4">
               <div className="flex flex-col items-center">
                 <div className={`border rounded-xl p-3 sm:p-4 mb-2 sm:mb-3 ${theme === 'dark'
-                    ? 'bg-[#1A1F2E] border-[#232B3E]'
-                    : 'bg-gray-50 border-gray-200'
+                  ? 'bg-[#1A1F2E] border-[#232B3E]'
+                  : 'bg-gray-50 border-gray-200'
                   }`}>
                   <step.icon size={28} className={`sm:w-8 sm:h-8 ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'
                     }`} />
@@ -55,12 +55,12 @@ export function DemoPreview() {
 
         {/* Large Mockup */}
         <div className={`rounded-xl sm:rounded-2xl border p-5 sm:p-8 shadow-2xl mb-6 sm:mb-8 ${theme === 'dark'
-            ? 'bg-gradient-to-b from-[#1A1F2E] to-[#0F1117] border-[#232B3E]'
-            : 'bg-gradient-to-b from-gray-50 to-white border-gray-200'
+          ? 'bg-gradient-to-b from-[#1A1F2E] to-[#0F1117] border-[#232B3E]'
+          : 'bg-gradient-to-b from-gray-50 to-white border-gray-200'
           }`}>
           <div className={`rounded-lg sm:rounded-xl border p-4 sm:p-6 backdrop-blur-sm ${theme === 'dark'
-              ? 'bg-[#0F1117]/80 border-[#232B3E]'
-              : 'bg-white/80 border-gray-200'
+            ? 'bg-[#0F1117]/80 border-[#232B3E]'
+            : 'bg-white/80 border-gray-200'
             }`}>
             {/* UI Header */}
             <div className={`flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b flex-wrap gap-3 ${theme === 'dark' ? 'border-[#232B3E]' : 'border-gray-200'
@@ -68,8 +68,8 @@ export function DemoPreview() {
               <h3 className={`font-semibold text-sm sm:text-base ${theme === 'dark' ? 'text-white' : 'text-gray-900'
                 }`}>범위 초과 판정 결과</h3>
               <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${theme === 'dark'
-                  ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
-                  : 'bg-green-50 text-green-600 border-green-200'
+                ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
+                : 'bg-green-50 text-green-600 border-green-200'
                 }`}>
                 판정 완료
               </span>
@@ -77,8 +77,8 @@ export function DemoPreview() {
 
             {/* Result Card */}
             <div className={`border-2 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 ${theme === 'dark'
-                ? 'bg-[#4F80FF]/10 border-[#4F80FF]/40'
-                : 'bg-blue-50 border-blue-200'
+              ? 'bg-[#4F80FF]/10 border-[#4F80FF]/40'
+              : 'bg-blue-50 border-blue-200'
               }`}>
               <div className="flex items-start gap-3 sm:gap-4">
                 <div className="bg-[#4F80FF] rounded-full p-1.5 sm:p-2 mt-1 flex-shrink-0">
@@ -94,8 +94,8 @@ export function DemoPreview() {
                     요청하신 "로그인 페이지 디자인 수정 및 추가 페이지 3개 제작"은 기존 계약 범위를 초과합니다.
                   </p>
                   <div className={`rounded-lg p-3 sm:p-4 ${theme === 'dark'
-                      ? 'bg-[#0F1117]/50'
-                      : 'bg-white/60'
+                    ? 'bg-[#0F1117]/50'
+                    : 'bg-white/60'
                     }`}>
                     <p className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
                       }`}>자동 생성된 청구 근거:</p>
@@ -111,8 +111,8 @@ export function DemoPreview() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-2 sm:gap-4">
               <div className={`border rounded-lg p-3 sm:p-4 ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E]'
-                  : 'bg-gray-50 border-gray-200'
+                ? 'bg-[#1A1F2E] border-[#232B3E]'
+                : 'bg-gray-50 border-gray-200'
                 }`}>
                 <div className={`text-xl sm:text-2xl font-bold mb-0.5 sm:mb-1 ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'
                   }`}>+3</div>
@@ -120,8 +120,8 @@ export function DemoPreview() {
                   }`}>추가 페이지</div>
               </div>
               <div className={`border rounded-lg p-3 sm:p-4 ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E]'
-                  : 'bg-gray-50 border-gray-200'
+                ? 'bg-[#1A1F2E] border-[#232B3E]'
+                : 'bg-gray-50 border-gray-200'
                 }`}>
                 <div className={`text-xl sm:text-2xl font-bold mb-0.5 sm:mb-1 ${theme === 'dark' ? 'text-[#FBBF24]' : 'text-amber-500'
                   }`}>24h</div>
@@ -129,8 +129,8 @@ export function DemoPreview() {
                   }`}>예상 소요시간</div>
               </div>
               <div className={`border rounded-lg p-3 sm:p-4 ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E]'
-                  : 'bg-gray-50 border-gray-200'
+                ? 'bg-[#1A1F2E] border-[#232B3E]'
+                : 'bg-gray-50 border-gray-200'
                 }`}>
                 <div className={`text-xl sm:text-2xl font-bold mb-0.5 sm:mb-1 ${theme === 'dark' ? 'text-[#10B981]' : 'text-green-600'
                   }`}>+45%</div>
@@ -144,8 +144,8 @@ export function DemoPreview() {
         {/* CTA */}
         <div className="text-center">
           <button className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all flex items-center gap-2 font-semibold text-base sm:text-lg mx-auto ${theme === 'dark'
-              ? 'bg-[#10B981] hover:bg-[#0EA572] text-white'
-              : 'bg-green-600 hover:bg-green-700 text-white'
+            ? 'bg-[#10B981] hover:bg-[#0EA572] text-white'
+            : 'bg-green-600 hover:bg-green-700 text-white'
             }`}>
             직접 써보기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
           </button>

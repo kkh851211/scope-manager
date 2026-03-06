@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function Hero() {
   const { theme } = useTheme();
@@ -12,8 +12,8 @@ export function Hero() {
       <div className="max-w-[1060px] mx-auto text-center">
         {/* Badge */}
         <div className={`inline-flex items-center px-3 sm:px-4 py-2 rounded-full mb-4 sm:mb-6 ${theme === 'dark'
-            ? 'bg-[#4F80FF]/10 border border-[#4F80FF]/20'
-            : 'bg-blue-50 border border-blue-200'
+          ? 'bg-[#4F80FF]/10 border border-[#4F80FF]/20'
+          : 'bg-blue-50 border border-blue-200'
           }`}>
           <span className={`text-xs sm:text-sm font-semibold ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'
             }`}>5~20인 웹 에이전시 PM을 위한 도구</span>
@@ -37,8 +37,8 @@ export function Hero() {
             얼리 액세스 신청하기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
           </button>
           <button className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all font-semibold text-base sm:text-lg ${theme === 'dark'
-              ? 'border border-white/20 text-white hover:bg-white/5'
-              : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+            ? 'border border-white/20 text-white hover:bg-white/5'
+            : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}>
             데모 보기
           </button>
@@ -55,8 +55,8 @@ export function Hero() {
           <div className={`absolute inset-0 bg-gradient-to-t h-32 bottom-0 z-10 ${theme === 'dark' ? 'from-[#0F1117] via-transparent to-transparent' : 'from-white via-transparent to-transparent'
             }`}></div>
           <div className={`relative rounded-xl sm:rounded-2xl border p-4 sm:p-6 md:p-8 shadow-2xl backdrop-blur-xl ${theme === 'dark'
-              ? 'bg-gradient-to-b from-[#1A1F2E]/40 to-[#0F1117]/40 border-[#232B3E]/50'
-              : 'bg-gradient-to-b from-gray-50/80 to-white/80 border-gray-200'
+            ? 'bg-gradient-to-b from-[#1A1F2E]/40 to-[#0F1117]/40 border-[#232B3E]/50'
+            : 'bg-gradient-to-b from-gray-50/80 to-white/80 border-gray-200'
             }`}>
             {/* Browser Chrome */}
             <div className={`flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b ${theme === 'dark' ? 'border-[#232B3E]/50' : 'border-gray-200'
@@ -82,8 +82,8 @@ export function Hero() {
                     }`}>실시간 범위 관리 현황</p>
                 </div>
                 <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg backdrop-blur-md border ${theme === 'dark'
-                    ? 'bg-[#4F80FF]/20 border-[#4F80FF]/30'
-                    : 'bg-blue-50 border-blue-200'
+                  ? 'bg-[#4F80FF]/20 border-[#4F80FF]/30'
+                  : 'bg-blue-50 border-blue-200'
                   }`}>
                   <span className={`text-xs sm:text-sm font-semibold ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'
                     }`}>3건 검토 대기</span>
@@ -92,8 +92,8 @@ export function Hero() {
 
               {/* Main Result Card - Frosted Glass */}
               <div className={`border rounded-lg sm:rounded-xl p-4 sm:p-6 backdrop-blur-2xl shadow-lg ${theme === 'dark'
-                  ? 'bg-[#1A1F2E]/30 border-[#4F80FF]/40'
-                  : 'bg-white/50 border-blue-200'
+                ? 'bg-[#1A1F2E]/30 border-[#4F80FF]/40'
+                : 'bg-white/50 border-blue-200'
                 }`}>
                 <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                   <div className="bg-[#4F80FF]/80 rounded-full p-2 sm:p-2.5 backdrop-blur-sm flex-shrink-0">
@@ -106,8 +106,8 @@ export function Hero() {
                       <h4 className={`font-semibold text-sm sm:text-base ${theme === 'dark' ? 'text-white/95' : 'text-gray-900'
                         }`}>범위 초과 판정됨</h4>
                       <span className={`px-2 py-0.5 rounded text-[10px] sm:text-xs font-semibold border backdrop-blur-sm ${theme === 'dark'
-                          ? 'bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30'
-                          : 'bg-red-50 text-red-600 border-red-200'
+                        ? 'bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30'
+                        : 'bg-red-50 text-red-600 border-red-200'
                         }`}>
                         초과
                       </span>
@@ -117,8 +117,8 @@ export function Hero() {
                       "추가 페이지 3개 제작 요청" - 계약 범위 초과로 자동 판정되었습니다
                     </p>
                     <div className={`rounded-md sm:rounded-lg p-2 sm:p-3 backdrop-blur-sm border ${theme === 'dark'
-                        ? 'bg-[#0F1117]/50 border-[#232B3E]/50'
-                        : 'bg-gray-50/80 border-gray-200'
+                      ? 'bg-[#0F1117]/50 border-[#232B3E]/50'
+                      : 'bg-gray-50/80 border-gray-200'
                       }`}>
                       <p className={`text-[10px] sm:text-xs leading-relaxed ${theme === 'dark' ? 'text-[#E8EAF0]/90' : 'text-gray-700'
                         }`}>
@@ -132,8 +132,8 @@ export function Hero() {
               {/* Stats Grid - Frosted Glass */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
                 <div className={`border rounded-md sm:rounded-lg p-2 sm:p-3 md:p-4 backdrop-blur-xl ${theme === 'dark'
-                    ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
-                    : 'bg-white/40 border-gray-200'
+                  ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
+                  : 'bg-white/40 border-gray-200'
                   }`}>
                   <div className={`text-lg sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1 ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'
                     }`}>+3</div>
@@ -141,8 +141,8 @@ export function Hero() {
                     }`}>추가 페이지</div>
                 </div>
                 <div className={`border rounded-md sm:rounded-lg p-2 sm:p-3 md:p-4 backdrop-blur-xl ${theme === 'dark'
-                    ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
-                    : 'bg-white/40 border-gray-200'
+                  ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
+                  : 'bg-white/40 border-gray-200'
                   }`}>
                   <div className={`text-lg sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1 ${theme === 'dark' ? 'text-[#FBBF24]' : 'text-amber-500'
                     }`}>24h</div>
@@ -150,8 +150,8 @@ export function Hero() {
                     }`}>예상 시간</div>
                 </div>
                 <div className={`border rounded-md sm:rounded-lg p-2 sm:p-3 md:p-4 backdrop-blur-xl ${theme === 'dark'
-                    ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
-                    : 'bg-white/40 border-gray-200'
+                  ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
+                  : 'bg-white/40 border-gray-200'
                   }`}>
                   <div className={`text-lg sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1 ${theme === 'dark' ? 'text-[#10B981]' : 'text-green-600'
                     }`}>+45%</div>
@@ -162,8 +162,8 @@ export function Hero() {
 
               {/* Recent Activity */}
               <div className={`border rounded-md sm:rounded-lg p-3 sm:p-4 backdrop-blur-xl ${theme === 'dark'
-                  ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
-                  : 'bg-white/40 border-gray-200'
+                ? 'bg-[#1A1F2E]/20 border-[#232B3E]/50'
+                : 'bg-white/40 border-gray-200'
                 }`}>
                 <h5 className={`text-xs sm:text-sm font-semibold mb-2 sm:mb-3 ${theme === 'dark' ? 'text-white/90' : 'text-gray-900'
                   }`}>최근 판정 내역</h5>
@@ -171,8 +171,8 @@ export function Hero() {
                   {['디자인 수정 요청 - 범위 내', '로그인 기능 추가 - 범위 초과', '텍스트 수정 - 범위 내'].map((item, i) => (
                     <div key={i} className="flex items-center gap-2 text-[10px] sm:text-xs">
                       <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${i === 1
-                          ? theme === 'dark' ? 'bg-[#F87171]' : 'bg-red-500'
-                          : theme === 'dark' ? 'bg-[#10B981]' : 'bg-green-500'
+                        ? theme === 'dark' ? 'bg-[#F87171]' : 'bg-red-500'
+                        : theme === 'dark' ? 'bg-[#10B981]' : 'bg-green-500'
                         }`}></div>
                       <span className={theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-600'}>{item}</span>
                     </div>

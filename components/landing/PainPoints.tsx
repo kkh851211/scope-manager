@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function PainPoints() {
   const { theme } = useTheme();
@@ -57,8 +57,8 @@ export function PainPoints() {
             <div
               key={index}
               className={`border rounded-xl p-5 sm:p-6 transition-all group ${theme === 'dark'
-                  ? 'bg-[#1A1F2E] border-[#232B3E] hover:border-[#4F80FF]/50'
-                  : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg'
+                ? 'bg-[#1A1F2E] border-[#232B3E] hover:border-[#4F80FF]/50'
+                : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg'
                 }`}
             >
               <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">{pain.emoji}</div>
@@ -79,8 +79,8 @@ export function PainPoints() {
 
         {/* Stat Callout */}
         <div className={`border rounded-xl p-5 sm:p-6 text-center ${theme === 'dark'
-            ? 'bg-[#1A1F2E] border-[#232B3E]'
-            : 'bg-white border-gray-200'
+          ? 'bg-[#1A1F2E] border-[#232B3E]'
+          : 'bg-white border-gray-200'
           }`}>
           <p className={`text-sm ${theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-600'}`}>
             전 세계 프로젝트의 <span className={`font-bold ${theme === 'dark' ? 'text-[#4F80FF]' : 'text-blue-600'

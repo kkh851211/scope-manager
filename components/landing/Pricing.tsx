@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, ArrowRight } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export function Pricing() {
   const { theme } = useTheme();
@@ -33,13 +33,13 @@ export function Pricing() {
         {/* Pricing Card */}
         <div className="max-w-md mx-auto">
           <div className={`border-2 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-2xl ${theme === 'dark'
-              ? 'bg-gradient-to-b from-[#1A1F2E] to-[#0F1117] border-[#4F80FF]'
-              : 'bg-gradient-to-b from-white to-gray-50 border-blue-500'
+            ? 'bg-gradient-to-b from-[#1A1F2E] to-[#0F1117] border-[#4F80FF]'
+            : 'bg-gradient-to-b from-white to-gray-50 border-blue-500'
             }`}>
             {/* Badge */}
             <div className={`inline-block px-3 sm:px-4 py-1.5 rounded-full text-sm font-semibold border mb-4 sm:mb-6 ${theme === 'dark'
-                ? 'bg-[#4F80FF]/15 text-[#4F80FF] border-[#4F80FF]/30'
-                : 'bg-blue-50 text-blue-600 border-blue-200'
+              ? 'bg-[#4F80FF]/15 text-[#4F80FF] border-[#4F80FF]/30'
+              : 'bg-blue-50 text-blue-600 border-blue-200'
               }`}>
               얼리버드
             </div>
@@ -62,8 +62,8 @@ export function Pricing() {
               {features.map((feature, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <div className={`rounded-full p-1 mt-0.5 ${theme === 'dark'
-                      ? 'bg-[#10B981]/15'
-                      : 'bg-green-50'
+                    ? 'bg-[#10B981]/15'
+                    : 'bg-green-50'
                     }`}>
                     <Check size={16} className={theme === 'dark' ? 'text-[#10B981]' : 'text-green-600'} />
                   </div>
