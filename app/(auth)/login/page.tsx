@@ -134,56 +134,34 @@ export default function LoginPage() {
         }
       `}</style>
 
-      <div style={{
-        minHeight: '100vh',
-        background: '#111318',
-        fontFamily: "'Noto Sans KR', sans-serif",
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
+      <div className="min-h-screen bg-gray-50 dark:bg-[#111318] transition-colors duration-300 font-sans flex flex-col">
         {/* 헤더 */}
-        <div style={{ padding: '32px 40px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-            <span style={{ color: '#F9FAFB', fontWeight: 700, fontSize: '22px', letterSpacing: '-0.4px' }}>
+        <div className="pt-8 px-10">
+          <div className="flex items-center gap-3 mb-1.5">
+            <span className="text-gray-900 dark:text-white font-bold text-2xl tracking-tight">
               Scope Manager
             </span>
           </div>
-          <p style={{ color: '#6B7280', fontSize: '13px' }}>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             AI가 스코프를 판정합니다
           </p>
         </div>
 
         {/* 메인 */}
-        <div className="main-wrap" style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px',
-          gap: '80px',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          width: '100%',
-        }}>
+        <div className="main-wrap flex-1 flex items-center justify-center p-10 gap-20 max-w-[1200px] mx-auto w-full">
           {/* 좌측 피처 */}
-          <div className="brand-col" style={{ flex: '0 0 380px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          <div className="brand-col flex-[0_0_380px]">
+            <div className="flex flex-col gap-9">
               {features.map((f, i) => (
-                <div key={i} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                  <div style={{
-                    width: '44px', height: '44px', flexShrink: 0,
-                    background: 'rgba(99,102,241,0.12)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    borderRadius: '10px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
+                <div key={i} className="flex gap-5 items-start">
+                  <div className="w-11 h-11 flex-shrink-0 bg-indigo-50 dark:bg-[#4F52B8]/10 border border-indigo-100 dark:border-[#4F52B8]/20 rounded-xl flex items-center justify-center">
                     {f.icon}
                   </div>
                   <div>
-                    <p style={{ color: '#F9FAFB', fontWeight: 600, fontSize: '16px', marginBottom: '6px', lineHeight: 1.4 }}>
+                    <p className="text-gray-900 dark:text-white font-semibold text-base mb-1.5 leading-tight">
                       {f.title}
                     </p>
-                    <p style={{ color: '#6B7280', fontSize: '13px', lineHeight: 1.7, wordBreak: 'keep-all' }}>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed break-keep">
                       {f.desc}
                     </p>
                   </div>
@@ -193,47 +171,27 @@ export default function LoginPage() {
           </div>
 
           {/* 우측 로그인 카드 */}
-          <div className="login-card" style={{
-            flex: '0 0 520px',
-            background: '#1C1F2E',
-            border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: '16px',
-            padding: '44px 48px 40px',
-          }}>
-            <h1 style={{
-              color: '#F9FAFB', fontSize: '28px', fontWeight: 700,
-              letterSpacing: '-0.5px', marginBottom: '8px',
-            }}>
+          <div className="login-card flex-[0_0_520px] bg-white dark:bg-[#1C1F2E] border border-gray-200 dark:border-white/[0.07] rounded-2xl p-11 px-12 pb-10 shadow-xl">
+            <h1 className="text-gray-900 dark:text-white text-3xl font-bold tracking-tight mb-2">
               로그인
             </h1>
-            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '36px' }}>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-9">
               스코프매니저에 오신 것을 환영합니다
             </p>
 
             {/* ✅ 기존 onSubmit 연결 유지 */}
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <form onSubmit={handleLogin} className="flex flex-col gap-0">
 
               {/* ✅ 기존 에러 메시지 */}
               {error && (
-                <div style={{
-                  background: 'rgba(239,68,68,0.1)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  color: '#FCA5A5',
-                  fontSize: '13px',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
-                  marginBottom: '20px',
-                }}>
+                <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-lg p-3 px-4 mb-5">
                   {error}
                 </div>
               )}
 
               {/* 이메일 */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block', color: '#D1D5DB',
-                  fontSize: '14px', fontWeight: 500, marginBottom: '8px',
-                }}>
+              <div className="mb-5">
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">
                   이메일
                 </label>
                 {/* ✅ 기존 onChange, value, disabled 유지 */}
@@ -246,29 +204,21 @@ export default function LoginPage() {
                   onBlur={() => setFocused(null)}
                   required
                   disabled={loading}
-                  style={{
-                    width: '100%', padding: '13px 16px',
-                    background: inputBg('email'),
-                    border: inputBorder('email'),
-                    borderRadius: '8px',
-                    color: '#F9FAFB', fontSize: '14px',
-                    fontFamily: 'inherit', outline: 'none',
-                    transition: 'border-color 0.15s, background 0.15s',
-                    boxSizing: 'border-box',
-                    opacity: loading ? 0.6 : 1,
-                  }}
+                  className={`w-full px-4 py-3.5 rounded-lg text-sm transition-all outline-none box-border ${focused === 'email'
+                      ? 'bg-indigo-50/50 dark:bg-indigo-500/10 border border-indigo-500'
+                      : error
+                        ? 'bg-red-50 dark:bg-red-500/5 border border-red-500'
+                        : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                    } ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
                 />
               </div>
 
               {/* 비밀번호 */}
-              <div style={{ marginBottom: '28px' }}>
-                <label style={{
-                  display: 'block', color: '#D1D5DB',
-                  fontSize: '14px', fontWeight: 500, marginBottom: '8px',
-                }}>
+              <div className="mb-7">
+                <label className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">
                   비밀번호
                 </label>
-                <div style={{ position: 'relative' }}>
+                <div className="relative">
                   {/* ✅ 기존 onChange, value, disabled 유지 */}
                   <input
                     type={showPw ? 'text' : 'password'}
@@ -279,23 +229,17 @@ export default function LoginPage() {
                     onBlur={() => setFocused(null)}
                     required
                     disabled={loading}
-                    style={{
-                      width: '100%', padding: '13px 48px 13px 16px',
-                      background: inputBg('password'),
-                      border: inputBorder('password'),
-                      borderRadius: '8px',
-                      color: '#F9FAFB', fontSize: '14px',
-                      fontFamily: 'inherit', outline: 'none',
-                      transition: 'border-color 0.15s, background 0.15s',
-                      boxSizing: 'border-box',
-                      opacity: loading ? 0.6 : 1,
-                    }}
+                    className={`w-full pl-4 pr-12 py-3.5 rounded-lg text-sm transition-all outline-none box-border ${focused === 'password'
+                        ? 'bg-indigo-50/50 dark:bg-indigo-500/10 border border-indigo-500 text-gray-900 dark:text-white'
+                        : error
+                          ? 'bg-red-50 dark:bg-red-500/5 border border-red-500 text-gray-900 dark:text-white'
+                          : 'bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
+                      } ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                   <button
                     type="button"
-                    className="eye-btn"
+                    className="eye-btn absolute right-3.5 top-1/2 -translate-y-1/2"
                     onClick={() => setShowPw(!showPw)}
-                    style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)' }}
                   >
                     {showPw ? <EyeOpenIcon /> : <EyeClosedIcon />}
                   </button>
@@ -305,38 +249,27 @@ export default function LoginPage() {
               {/* ✅ 기존 type="submit" + disabled={loading} 유지 */}
               <button
                 type="submit"
-                className="login-btn"
+                className="login-btn w-full p-3.5 bg-indigo-600 dark:bg-[#4F52B8] hover:bg-indigo-700 dark:hover:bg-[#5254CC] text-white text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed mb-6 tracking-tight"
                 disabled={loading}
-                style={{
-                  width: '100%', padding: '14px',
-                  background: '#4F52B8',
-                  border: 'none', borderRadius: '8px',
-                  color: 'white', fontSize: '15px', fontWeight: 600,
-                  fontFamily: 'inherit', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  transition: 'background 0.15s, transform 0.1s',
-                  marginBottom: '24px',
-                  letterSpacing: '-0.2px',
-                }}
               >
                 {loading
-                  ? <><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ animation: 'spin 0.75s linear infinite' }}><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.3)" strokeWidth="2" /><path d="M8 2C11.314 2 14 4.686 14 8" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg> 로그인 중...</>
+                  ? <><svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="animate-spin"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" /><path d="M8 2C11.314 2 14 4.686 14 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg> 로그인 중...</>
                   : '로그인'
                 }
               </button>
 
               {/* 하단 링크 — ✅ 기존 Link href="/signup" 유지 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <button type="button" className="ghost-btn" style={{ color: '#6B7280', fontSize: '13px' }}>
+              <div className="flex justify-between items-center">
+                <button type="button" className="ghost-btn text-gray-500 dark:text-gray-400 text-xs hover:opacity-70">
                   비밀번호를 잊으셨나요?
                 </button>
-                <span style={{ color: '#6B7280', fontSize: '13px' }}>
+                <span className="text-gray-500 dark:text-gray-400 text-xs">
                   계정이 없으신가요?{' '}
-                  <Link href="/signup" style={{ color: '#6366F1', fontWeight: 600, textDecoration: 'none' }}>
+                  <Link href="/signup" className="text-indigo-600 dark:text-indigo-400 font-semibold no-underline hover:opacity-70">
                     회원가입
                   </Link>
                 </span>
-                <div style={{ marginLeft: '16px' }}>
+                <div className="ml-4">
                   <ThemeToggle />
                 </div>
               </div>
@@ -345,21 +278,11 @@ export default function LoginPage() {
         </div>
 
         {/* 푸터 */}
-        <div style={{
-          padding: '20px 40px',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        }}>
-          <p style={{ color: '#374151', fontSize: '12px' }}>
+        <div className="py-5 px-10 border-t border-gray-200 dark:border-white/5 flex justify-between items-center">
+          <p className="text-gray-400 dark:text-gray-600 text-xs">
             © 2026 Scope Manager. All rights reserved.
           </p>
-          <div style={{
-            width: '32px', height: '32px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-          }}>
+          <div className="w-8 h-8 border border-gray-200 dark:border-white/10 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <QuestionIcon />
           </div>
         </div>

@@ -36,7 +36,7 @@ function SummaryCard({
     value,
     label,
     subtext,
-    valueColor = 'text-white',
+    valueColor = 'text-gray-900 dark:text-white',
 }: {
     icon: React.ElementType;
     value: string | number;
@@ -45,15 +45,15 @@ function SummaryCard({
     valueColor?: string;
 }) {
     return (
-        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 hover:-translate-y-1 transition-all duration-200 cursor-default shadow-sm hover:shadow-md">
+        <div className="bg-white dark:bg-[#1C1F2E] border border-gray-200 dark:border-white/[0.07] rounded-xl p-6 hover:-translate-y-1 transition-all duration-200 cursor-default shadow-sm hover:shadow-md">
             <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-[#4F52B8]/10 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-[#6366F1]" />
+                <div className="w-12 h-12 rounded-lg bg-indigo-50 dark:bg-[#4F52B8]/10 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-indigo-600 dark:text-[#6366F1]" />
                 </div>
             </div>
             <div className={`text-3xl font-bold mb-1 ${valueColor}`}>{value}</div>
-            <div className="text-[var(--text-muted)] text-sm mb-2">{label}</div>
-            <div className="text-xs text-[var(--text-muted)]/70">{subtext}</div>
+            <div className="text-gray-500 dark:text-gray-400 text-sm mb-2">{label}</div>
+            <div className="text-xs text-gray-400 dark:text-gray-500">{subtext}</div>
         </div>
     );
 }
@@ -74,7 +74,7 @@ export default function DashboardClient({ summaryData, recentJudgments }: Dashbo
                 {/* ✅ 기존 /history/new 링크 유지 */}
                 <Link
                     href="/history/new"
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#4F52B8] hover:bg-[#5254CC] text-white text-sm font-semibold rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 dark:bg-[#4F52B8] hover:bg-indigo-700 dark:hover:bg-[#5254CC] text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                     <Plus className="w-4 h-4" />
                     새로운 판정하기
@@ -113,7 +113,7 @@ export default function DashboardClient({ summaryData, recentJudgments }: Dashbo
 
             {/* ── 최근 판정 내역 테이블 (Figma Make RecentJudgmentsTable.tsx) ── */}
             {/* ✅ 기존 recentJudgments props + StatusBadge 유지 */}
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-[#1C1F2E] border border-gray-200 dark:border-white/[0.07] rounded-xl p-6 shadow-sm">
                 {/* 테이블 헤더 */}
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-[var(--text-primary)] text-xl font-semibold">최근 판정 내역</h2>
@@ -130,35 +130,35 @@ export default function DashboardClient({ summaryData, recentJudgments }: Dashbo
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-[var(--border)]">
-                                <th className="text-left text-[var(--text-muted)] text-sm font-medium pb-3 w-[150px]">프로젝트명</th>
-                                <th className="text-left text-[var(--text-muted)] text-sm font-medium pb-3">요청 내용</th>
-                                <th className="text-left text-[var(--text-muted)] text-sm font-medium pb-3 w-[120px]">판정 결과</th>
-                                <th className="text-right text-[var(--text-muted)] text-sm font-medium pb-3 w-[120px]">날짜</th>
+                            <tr className="border-b border-gray-200 dark:border-white/[0.07]">
+                                <th className="text-left text-gray-500 dark:text-gray-400 text-sm font-medium pb-3 w-[150px]">프로젝트명</th>
+                                <th className="text-left text-gray-500 dark:text-gray-400 text-sm font-medium pb-3">요청 내용</th>
+                                <th className="text-left text-gray-500 dark:text-gray-400 text-sm font-medium pb-3 w-[120px]">판정 결과</th>
+                                <th className="text-right text-gray-500 dark:text-gray-400 text-sm font-medium pb-3 w-[120px]">날짜</th>
                             </tr>
                         </thead>
                         <tbody>
                             {recentJudgments.map((item) => (
                                 <tr
                                     key={item.id}
-                                    className="border-b border-[var(--border)]/50 hover:bg-[var(--text-primary)]/[0.02] transition-colors cursor-pointer"
+                                    className="border-b border-gray-100 dark:border-white/[0.05] hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
                                 >
-                                    <td className="py-4 text-[var(--text-primary)] text-sm font-medium">{item.projectName}</td>
-                                    <td className="py-4 text-[var(--text-muted)] text-sm transition-colors group-hover:text-[var(--text-primary)]">
+                                    <td className="py-4 text-gray-900 dark:text-white text-sm font-medium">{item.projectName}</td>
+                                    <td className="py-4 text-gray-600 dark:text-gray-300 text-sm transition-colors group-hover:text-gray-900 dark:group-hover:text-white">
                                         <span className="line-clamp-1">{item.requestContent}</span>
                                     </td>
                                     <td className="py-4">
                                         {/* ✅ 기존 StatusBadge 컴포넌트 유지 */}
                                         <StatusBadge status={item.status} />
                                     </td>
-                                    <td className="py-4 text-gray-400 text-sm text-right">{item.date}</td>
+                                    <td className="py-4 text-gray-500 dark:text-gray-400 text-sm text-right">{item.date}</td>
                                 </tr>
                             ))}
 
                             {/* ✅ 기존 빈 상태 처리 유지 */}
                             {recentJudgments.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="text-center text-gray-500 h-24 text-sm">
+                                    <td colSpan={4} className="text-center text-gray-500 dark:text-gray-400 h-24 text-sm">
                                         최근 판정 내역이 없습니다.
                                     </td>
                                 </tr>
