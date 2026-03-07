@@ -64,11 +64,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#0F1117] p-4 sm:p-6">
+      <Card className="w-full max-w-md bg-[#1A1F2E] border-[#232B3E] shadow-2xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-[#E8EAF0]">회원가입</CardTitle>
+          <CardDescription className="text-[#8C95AA]">
             스코프 매니저를 시작해보세요
           </CardDescription>
         </CardHeader>
@@ -77,14 +77,14 @@ export default function SignupPage() {
           <CardContent className="space-y-4">
             {/* 오류 메시지 */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-4 py-3">
+              <div className="bg-red-900/20 border border-red-900/50 text-red-400 text-sm rounded-md px-4 py-3">
                 {error}
               </div>
             )}
 
             {/* 이름 */}
             <div className="space-y-2">
-              <Label htmlFor="fullName">이름</Label>
+              <Label htmlFor="fullName" className="text-[#E8EAF0]">이름</Label>
               <Input
                 id="fullName"
                 type="text"
@@ -93,12 +93,13 @@ export default function SignupPage() {
                 onChange={(e) => setFullName(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-[#0F1117] border-[#232B3E] text-[#E8EAF0] placeholder:text-[#8C95AA] focus-visible:ring-[#4F80FF]"
               />
             </div>
 
             {/* 에이전시명 */}
             <div className="space-y-2">
-              <Label htmlFor="companyName">에이전시명</Label>
+              <Label htmlFor="companyName" className="text-[#E8EAF0]">에이전시명</Label>
               <Input
                 id="companyName"
                 type="text"
@@ -107,12 +108,13 @@ export default function SignupPage() {
                 onChange={(e) => setCompanyName(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-[#0F1117] border-[#232B3E] text-[#E8EAF0] placeholder:text-[#8C95AA] focus-visible:ring-[#4F80FF]"
               />
             </div>
 
             {/* 이메일 */}
             <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="email" className="text-[#E8EAF0]">이메일</Label>
               <Input
                 id="email"
                 type="email"
@@ -121,12 +123,13 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-[#0F1117] border-[#232B3E] text-[#E8EAF0] placeholder:text-[#8C95AA] focus-visible:ring-[#4F80FF]"
               />
             </div>
 
             {/* 비밀번호 */}
             <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
+              <Label htmlFor="password" className="text-[#E8EAF0]">비밀번호</Label>
               <Input
                 id="password"
                 type="password"
@@ -135,12 +138,13 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-[#0F1117] border-[#232B3E] text-[#E8EAF0] placeholder:text-[#8C95AA] focus-visible:ring-[#4F80FF]"
               />
             </div>
 
             {/* 비밀번호 확인 */}
             <div className="space-y-2 mb-4">
-              <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+              <Label htmlFor="confirmPassword" className="text-[#E8EAF0]">비밀번호 확인</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -149,6 +153,7 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-[#0F1117] border-[#232B3E] text-[#E8EAF0] placeholder:text-[#8C95AA] focus-visible:ring-[#4F80FF]"
               />
             </div>
           </CardContent>
@@ -157,16 +162,16 @@ export default function SignupPage() {
             {/* 회원가입 버튼 */}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-[#4F80FF] hover:bg-[#4070EF] text-white"
               disabled={loading}
             >
               {loading ? '가입 중...' : '회원가입'}
             </Button>
 
             {/* 로그인 링크 */}
-            <p className="text-sm text-center text-gray-500">
+            <p className="text-sm text-center text-[#8C95AA]">
               이미 계정이 있으신가요?{' '}
-              <Link href="/login" className="text-black font-medium hover:underline">
+              <Link href="/login" className="text-[#4F80FF] hover:underline">
                 로그인
               </Link>
             </p>
