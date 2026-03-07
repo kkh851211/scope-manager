@@ -15,7 +15,7 @@ import { ThemeToggle } from '@/components/common/ThemeToggle';
 const menuItems = [
     { icon: LayoutDashboard, label: '대시보드', href: '/dashboard' },
     { icon: FolderKanban, label: '프로젝트', href: '/projects' },
-    { icon: Sparkles, label: '판정 요청', href: '/history/new' },
+    { icon: Sparkles, label: '판정 요청', href: '/history' },
     { icon: Settings, label: '설정', href: '/settings' },
 ];
 
