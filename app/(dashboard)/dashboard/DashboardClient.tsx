@@ -1,21 +1,20 @@
-"use client";
+'use client';
 
-import React from "react";
-import { ArrowRight, FileText, Pickaxe, Target } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/common/PageHeader";
-import { StatusBadge, StatusType } from "@/components/common/StatusBadge";
+// ── 기존 기능 import (건드리지 않음) ─────────────────────────
+import React from 'react';
+import Link from 'next/link';
+import { StatusBadge, StatusType } from '@/components/common/StatusBadge';
+
+// ── Figma Make 아이콘 (lucide-react) ─────────────────────────
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import Link from "next/link";
+    FolderOpen,
+    Sparkles,
+    ShieldAlert,
+    ArrowRight,
+    Plus,
+} from 'lucide-react';
 
+// ── 기존 props 인터페이스 (건드리지 않음) ────────────────────
 interface DashboardClientProps {
     summaryData: {
         totalProjects: number;
@@ -31,131 +30,144 @@ interface DashboardClientProps {
     }[];
 }
 
-export default function DashboardClient({ summaryData, recentJudgments }: DashboardClientProps) {
+// ── 요약 카드 컴포넌트 ────────────────────────────────────────
+function SummaryCard({
+    icon: Icon,
+    value,
+    label,
+    subtext,
+    valueColor = 'text-white',
+}: {
+    icon: React.ElementType;
+    value: string | number;
+    label: string;
+    subtext: string;
+    valueColor?: string;
+}) {
     return (
-        <div className="space-y-8 animate-in fade-in-50 duration-500">
-            <PageHeader
-                title="대시보드"
-                description="전체 프로젝트 현황과 최근 판단 내역을 한눈에 확인하세요."
-            >
-                <Button asChild className="gap-2">
-                    <Link href="/history/new">
-                        <Pickaxe className="h-4 w-4" />
-                        새로운 판단하기
-                    </Link>
-                </Button>
-            </PageHeader>
-
-            {/* 1. 요약 카드 3개 */}
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">전체 프로젝트 수</CardTitle>
-                        <FolderOpenIcon className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{summaryData.totalProjects}개</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            현재 관리 중인 활성 프로젝트
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">이번 달 판단 수</CardTitle>
-                        <Target className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{summaryData.thisMonthJudgments}건</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            이번 달 기준 누적
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">범위 외(Out of Scope) 비율</CardTitle>
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-rose-600">{summaryData.outOfScopeRate}%</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            스코프 크립 방지 효과
-                        </p>
-                    </CardContent>
-                </Card>
+        <div className="bg-[#1C1F2E] border border-white/[0.07] rounded-xl p-6 hover:-translate-y-1 transition-all duration-200 cursor-default">
+            <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-lg bg-[#4F52B8]/10 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-[#6366F1]" />
+                </div>
             </div>
-
-            {/* 2. 최근 판단 내역 5개 */}
-            <Card className="shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle className="text-lg">최근 판단 내역</CardTitle>
-                    </div>
-                    <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1">
-                        <Link href="/history">
-                            전체보기 <ArrowRight className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader className="bg-muted/50">
-                                <TableRow>
-                                    <TableHead className="w-[150px]">프로젝트명</TableHead>
-                                    <TableHead>요청 내용</TableHead>
-                                    <TableHead className="w-[120px] text-center">결과</TableHead>
-                                    <TableHead className="w-[120px] text-right">날짜</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {recentJudgments.map((item) => (
-                                    <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50">
-                                        <TableCell className="font-medium text-foreground">{item.projectName}</TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            <span className="line-clamp-1">{item.requestContent}</span>
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                            <StatusBadge status={item.status} />
-                                        </TableCell>
-                                        <TableCell className="text-right text-muted-foreground text-sm">{item.date}</TableCell>
-                                    </TableRow>
-                                ))}
-                                {recentJudgments.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
-                                            최근 판단 내역이 없습니다.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className={`text-3xl font-bold mb-1 ${valueColor}`}>{value}</div>
+            <div className="text-gray-400 text-sm mb-2">{label}</div>
+            <div className="text-xs text-gray-500">{subtext}</div>
         </div>
     );
 }
 
-// 아이콘 헬퍼용
-function FolderOpenIcon(props: React.SVGProps<SVGSVGElement>) {
+// ── 메인 컴포넌트 ─────────────────────────────────────────────
+export default function DashboardClient({ summaryData, recentJudgments }: DashboardClientProps) {
     return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2" />
-        </svg>
+        <div className="space-y-8 animate-in fade-in-50 duration-500">
+
+            {/* 페이지 타이틀 */}
+            <div className="flex items-start justify-between">
+                <div>
+                    <h1 className="text-white text-2xl font-bold tracking-tight">대시보드</h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        전체 프로젝트 현황과 최근 판정 내역을 한눈에 확인하세요.
+                    </p>
+                </div>
+                {/* ✅ 기존 /history/new 링크 유지 */}
+                <Link
+                    href="/history/new"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#4F52B8] hover:bg-[#5254CC] text-white text-sm font-semibold rounded-lg transition-colors"
+                >
+                    <Plus className="w-4 h-4" />
+                    새로운 판정하기
+                </Link>
+            </div>
+
+            {/* ── 요약 카드 3개 (Figma Make SummaryCard.tsx) ── */}
+            {/* ✅ 기존 summaryData props 그대로 연결 */}
+            <div className="grid gap-4 md:grid-cols-3">
+                <SummaryCard
+                    icon={FolderOpen}
+                    value={`${summaryData.totalProjects}개`}
+                    label="전체 프로젝트 수"
+                    subtext="현재 관리 중인 활성 프로젝트"
+                />
+                <SummaryCard
+                    icon={Sparkles}
+                    value={`${summaryData.thisMonthJudgments}건`}
+                    label="이번 달 판정 수"
+                    subtext="이번 달 기준 누적"
+                />
+                <SummaryCard
+                    icon={ShieldAlert}
+                    value={`${summaryData.outOfScopeRate}%`}
+                    label="범위 외(Out of Scope) 비율"
+                    subtext="스코프 크립 방지 효과"
+                    valueColor={
+                        summaryData.outOfScopeRate >= 40
+                            ? 'text-[#EF4444]'
+                            : summaryData.outOfScopeRate >= 20
+                                ? 'text-[#F59E0B]'
+                                : 'text-[#10B981]'
+                    }
+                />
+            </div>
+
+            {/* ── 최근 판정 내역 테이블 (Figma Make RecentJudgmentsTable.tsx) ── */}
+            {/* ✅ 기존 recentJudgments props + StatusBadge 유지 */}
+            <div className="bg-[#1C1F2E] border border-white/[0.07] rounded-xl p-6">
+                {/* 테이블 헤더 */}
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-white text-xl font-semibold">최근 판정 내역</h2>
+                    {/* ✅ 기존 /history 링크 유지 */}
+                    <Link
+                        href="/history"
+                        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                    >
+                        전체보기 <ArrowRight className="w-4 h-4" />
+                    </Link>
+                </div>
+
+                {/* 테이블 */}
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-white/[0.07]">
+                                <th className="text-left text-gray-400 text-sm font-medium pb-3 w-[150px]">프로젝트명</th>
+                                <th className="text-left text-gray-400 text-sm font-medium pb-3">요청 내용</th>
+                                <th className="text-left text-gray-400 text-sm font-medium pb-3 w-[120px]">판정 결과</th>
+                                <th className="text-right text-gray-400 text-sm font-medium pb-3 w-[120px]">날짜</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {recentJudgments.map((item) => (
+                                <tr
+                                    key={item.id}
+                                    className="border-b border-white/[0.05] hover:bg-white/[0.02] transition-colors cursor-pointer"
+                                >
+                                    <td className="py-4 text-white text-sm font-medium">{item.projectName}</td>
+                                    <td className="py-4 text-gray-300 text-sm">
+                                        <span className="line-clamp-1">{item.requestContent}</span>
+                                    </td>
+                                    <td className="py-4">
+                                        {/* ✅ 기존 StatusBadge 컴포넌트 유지 */}
+                                        <StatusBadge status={item.status} />
+                                    </td>
+                                    <td className="py-4 text-gray-400 text-sm text-right">{item.date}</td>
+                                </tr>
+                            ))}
+
+                            {/* ✅ 기존 빈 상태 처리 유지 */}
+                            {recentJudgments.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="text-center text-gray-500 h-24 text-sm">
+                                        최근 판정 내역이 없습니다.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     );
 }
