@@ -2,6 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 
 export function FinalCTA() {
   const { theme } = useTheme();
@@ -18,9 +19,12 @@ export function FinalCTA() {
         <p className="text-white/80 text-base sm:text-lg mb-6 sm:mb-8">
           시스템이 말하면, 관계가 지켜집니다
         </p>
-        <button className="bg-white px-6 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-gray-50 transition-all font-semibold text-base sm:text-lg flex items-center gap-2 mx-auto shadow-lg text-[#4F80FF]">
+        <Link
+          href="/signup"
+          className="bg-white px-6 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-gray-50 transition-all font-semibold text-base sm:text-lg flex items-center gap-2 mx-auto shadow-lg text-[#4F80FF] w-fit"
+        >
           지금 바로 시작하기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
-        </button>
+        </Link>
       </div>
     </section>
   );

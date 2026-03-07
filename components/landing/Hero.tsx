@@ -2,6 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 
 export function Hero() {
   const { theme } = useTheme();
@@ -33,9 +34,12 @@ export function Hero() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-4 sm:mb-6 px-4">
-          <button className="w-full sm:w-auto bg-[#4F80FF] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-[#4070EF] transition-all flex items-center justify-center gap-2 font-semibold text-base sm:text-lg">
+          <Link
+            href="/signup"
+            className="w-full sm:w-auto bg-[#4F80FF] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-[#4070EF] transition-all flex items-center justify-center gap-2 font-semibold text-base sm:text-lg"
+          >
             얼리 액세스 신청하기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
-          </button>
+          </Link>
           <button className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all font-semibold text-base sm:text-lg ${theme === 'dark'
             ? 'border border-white/20 text-white hover:bg-white/5'
             : 'border border-gray-300 text-gray-700 hover:bg-gray-50'

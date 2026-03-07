@@ -2,6 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
+import Link from 'next/link';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
@@ -59,14 +60,25 @@ export function Header() {
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          {/* CTA */}
-          <button
-            onClick={() => scrollToSection('pricing')}
-            className="bg-[#4F80FF] text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-full hover:bg-[#4070EF] transition-all text-xs sm:text-sm whitespace-nowrap"
-          >
-            <span className="hidden sm:inline">얼리 액세스 신청하기</span>
-            <span className="inline sm:hidden">신청하기</span>
-          </button>
+          {/* Auth Actions */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className={`px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border transition-all text-xs sm:text-sm font-medium ${theme === 'dark'
+                  ? 'border-[#232B3E] text-[#8C95AA] hover:bg-[#232B3E] hover:text-white'
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+            >
+              로그인
+            </Link>
+            <Link
+              href="/signup"
+              className="bg-[#4F80FF] text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-full hover:bg-[#4070EF] transition-all text-xs sm:text-sm whitespace-nowrap inline-flex items-center justify-center font-medium"
+            >
+              <span className="hidden sm:inline">얼리 액세스 신청하기</span>
+              <span className="inline sm:hidden">신청하기</span>
+            </Link>
+          </div>
         </div>
       </div>
     </header>

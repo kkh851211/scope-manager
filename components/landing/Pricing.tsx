@@ -2,6 +2,7 @@
 
 import { Check, ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 
 export function Pricing() {
   const { theme } = useTheme();
@@ -74,9 +75,12 @@ export function Pricing() {
             </div>
 
             {/* CTA */}
-            <button className="w-full bg-[#4F80FF] text-white py-3 sm:py-4 rounded-full hover:bg-[#4070EF] transition-all font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-3 sm:mb-4">
+            <Link
+              href="/signup"
+              className="w-full bg-[#4F80FF] text-white py-3 sm:py-4 rounded-full hover:bg-[#4070EF] transition-all font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-3 sm:mb-4"
+            >
               베타 무료 체험 시작하기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
-            </button>
+            </Link>
 
             {/* Below CTA text */}
             <p className={`text-center text-sm ${theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-600'
