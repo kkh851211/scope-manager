@@ -209,16 +209,16 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="space-y-6 pt-6 pb-16">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#111318] space-y-6 p-8 pt-6 pb-16">
             <div>
-                <h3 className="text-2xl font-bold tracking-tight">설정</h3>
-                <p className="text-sm text-muted-foreground mt-2">
+                <h3 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">설정</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                     계정 설정 및 프로필 정보를 관리합니다.
                 </p>
             </div>
 
             <div className="grid gap-6 max-w-2xl">
-                <Card>
+                <Card className="bg-white dark:bg-[#1C1F2E] border-gray-200 dark:border-white/10">
                     <form onSubmit={handleUpdateProfile}>
                         <CardHeader>
                             <CardTitle>프로필 설정</CardTitle>
@@ -228,21 +228,23 @@ export default function SettingsPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="fullName">이름</Label>
+                                <Label htmlFor="fullName" className="text-gray-700 dark:text-gray-300">이름</Label>
                                 <Input
                                     id="fullName"
                                     placeholder="예: 홍길동"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
+                                    className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="companyName">에이전시명</Label>
+                                <Label htmlFor="companyName" className="text-gray-700 dark:text-gray-300">에이전시명</Label>
                                 <Input
                                     id="companyName"
                                     placeholder="예: 스코프 에이전시"
                                     value={companyName}
                                     onChange={(e) => setCompanyName(e.target.value)}
+                                    className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                                 />
                             </div>
                         </CardContent>
@@ -254,7 +256,7 @@ export default function SettingsPage() {
                     </form>
                 </Card>
 
-                <Card>
+                <Card className="bg-white dark:bg-[#1C1F2E] border-gray-200 dark:border-white/10">
                     <CardHeader>
                         <CardTitle>계정 설정</CardTitle>
                         <CardDescription>
@@ -263,11 +265,11 @@ export default function SettingsPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label>이메일</Label>
+                            <Label className="text-gray-700 dark:text-gray-300">이메일</Label>
                             <Input
                                 value={email}
                                 disabled
-                                className="bg-muted/50"
+                                className="bg-gray-50 dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400"
                             />
                         </div>
 
@@ -321,33 +323,36 @@ export default function SettingsPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="currentPassword">현재 비밀번호</Label>
+                                <Label htmlFor="currentPassword" className="text-gray-700 dark:text-gray-300">현재 비밀번호</Label>
                                 <Input
                                     id="currentPassword"
                                     type="password"
                                     placeholder="현재 비밀번호"
                                     value={currentPassword}
                                     onChange={(e) => setCurrentPassword(e.target.value)}
+                                    className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="newPassword">새 비밀번호</Label>
+                                <Label htmlFor="newPassword" className="text-gray-700 dark:text-gray-300">새 비밀번호</Label>
                                 <Input
                                     id="newPassword"
                                     type="password"
                                     placeholder="새 비밀번호 (6자 이상)"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
+                                    className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">새 비밀번호 확인</Label>
+                                <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">새 비밀번호 확인</Label>
                                 <Input
                                     id="confirmPassword"
                                     type="password"
                                     placeholder="새 비밀번호 다시 입력"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                                 />
                             </div>
                         </CardContent>
@@ -356,9 +361,9 @@ export default function SettingsPage() {
                                 {updatingPassword ? '변경 중...' : '비밀번호 변경'}
                             </Button>
                         </CardFooter>
-                    </form>
-                </Card>
-            </div>
-        </div>
+                    </form >
+                </Card >
+            </div >
+        </div >
     )
 }

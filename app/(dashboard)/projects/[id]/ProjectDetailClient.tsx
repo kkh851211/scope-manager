@@ -37,13 +37,13 @@ export default function ProjectDetailClient({ project, judgmentHistory }: Projec
     } | null>(null);
 
     return (
-        <div className="flex-1 space-y-6 p-8 pt-6">
+        <div className="flex-1 min-h-screen bg-gray-50 dark:bg-[#111318] space-y-6 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">{project.name}</h2>
+                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{project.name}</h2>
                     <div className="flex items-center space-x-2 mt-2">
-                        <span className="text-muted-foreground">{project.client}</span>
-                        <Badge variant={project.status === "진행중" ? "default" : "secondary"}>
+                        <span className="text-gray-500 dark:text-gray-400">{project.client}</span>
+                        <Badge variant={project.status === "진행중" ? "default" : "secondary"} className={project.status === "진행중" ? "bg-indigo-600 dark:bg-indigo-600/20 text-white dark:text-indigo-400" : "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400"}>
                             {project.status}
                         </Badge>
                     </div>
@@ -56,7 +56,7 @@ export default function ProjectDetailClient({ project, judgmentHistory }: Projec
                     <TabsTrigger value="history">판단 내역</TabsTrigger>
                 </TabsList>
                 <TabsContent value="judge" className="space-y-4">
-                    <Card>
+                    <Card className="bg-white dark:bg-[#1C1F2E] border-gray-200 dark:border-white/10">
                         <CardHeader className="py-4">
                             <Collapsible>
                                 <div className="flex items-center justify-between">
@@ -68,11 +68,11 @@ export default function ProjectDetailClient({ project, judgmentHistory }: Projec
                                         </Button>
                                     </CollapsibleTrigger>
                                 </div>
-                                <CardDescription className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                                <CardDescription className="mt-2 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                                     {project.scopeText?.substring(0, 100)}...
                                 </CardDescription>
                                 <CollapsibleContent className="mt-4">
-                                    <div className="rounded-md border p-4 bg-muted/50 whitespace-pre-wrap text-sm">
+                                    <div className="rounded-md border border-gray-100 dark:border-white/5 p-4 bg-gray-50 dark:bg-muted/10 whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
                                         {project.scopeText}
                                     </div>
                                 </CollapsibleContent>
@@ -103,7 +103,7 @@ export default function ProjectDetailClient({ project, judgmentHistory }: Projec
                     </Card>
                 </TabsContent>
                 <TabsContent value="history">
-                    <Card>
+                    <Card className="bg-white dark:bg-[#1C1F2E] border-gray-200 dark:border-white/10">
                         <CardHeader>
                             <CardTitle>이 프로젝트의 판단 기록 목록</CardTitle>
                             <CardDescription>
@@ -145,7 +145,7 @@ export default function ProjectDetailClient({ project, judgmentHistory }: Projec
                                     ))}
                                     {judgmentHistory.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
+                                            <TableCell colSpan={4} className="text-center text-gray-400 dark:text-gray-500 h-24">
                                                 아직 판단 내역이 없습니다.
                                             </TableCell>
                                         </TableRow>

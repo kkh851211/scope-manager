@@ -31,7 +31,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
 
     return (
         <>
-            <div className="space-y-8 animate-in fade-in-50 duration-500">
+            <div className="min-h-screen bg-gray-50 dark:bg-[#111318] p-8 space-y-8 animate-in fade-in-50 duration-500">
                 <PageHeader
                     title="프로젝트 관리"
                     description="진행 중이거나 완료된 모든 프로젝트를 확인하고 관리하세요."

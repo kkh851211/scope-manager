@@ -89,45 +89,47 @@ export function CreateProjectModal({ open, onOpenChange }: CreateProjectModalPro
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#1C1F2E] border-gray-200 dark:border-white/10">
                 <DialogHeader>
-                    <DialogTitle>새 프로젝트 생성</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-gray-900 dark:text-white">새 프로젝트 생성</DialogTitle>
+                    <DialogDescription className="text-gray-500 dark:text-gray-400">
                         클라이언트와 합의된 계약 범위를 등록하여 스코프 관리를 시작하세요.
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6 pt-4">
                     <div className="space-y-2">
-                        <Label htmlFor="projectName">프로젝트명 <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="projectName" className="text-gray-700 dark:text-gray-300">프로젝트명 <span className="text-red-500">*</span></Label>
                         <Input
                             id="projectName"
                             placeholder="예) A 쇼핑몰 리뉴얼 프로젝트"
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             disabled={isLoading}
+                            className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="clientName">클라이언트명 <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="clientName" className="text-gray-700 dark:text-gray-300">클라이언트명 <span className="text-red-500">*</span></Label>
                         <Input
                             id="clientName"
                             placeholder="예) (주)알파커머스"
                             value={clientName}
                             onChange={(e) => setClientName(e.target.value)}
                             disabled={isLoading}
+                            className="bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="contractScope">계약 범위 (상세) <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="contractScope" className="text-gray-700 dark:text-gray-300">계약 범위 (상세) <span className="text-red-500">*</span></Label>
                         <Textarea
                             id="contractScope"
                             placeholder="예) 메인 페이지, 회원가입/로그인, 게시판 CRUD..."
                             value={contractScope}
                             onChange={(e) => setContractScope(e.target.value)}
-                            className="min-h-[120px]"
+                            className="min-h-[120px] bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
                             disabled={isLoading}
                         />
                     </div>

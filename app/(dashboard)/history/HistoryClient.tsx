@@ -89,40 +89,41 @@ export default function HistoryClient({ historyData }: HistoryClientProps) {
     };
 
     return (
-        <div className="flex-1 space-y-6 p-8 pt-6">
+        <div className="flex-1 min-h-screen bg-gray-50 dark:bg-[#111318] space-y-6 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">판단 히스토리</h2>
-                    <p className="text-muted-foreground mt-2">
+                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">판단 히스토리</h2>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
                         모든 프로젝트의 AI 계약 범위 판단 내역을 확인할 수 있습니다.
                     </p>
                 </div>
             </div>
 
-            <div className="flex space-x-2 border-b pb-4">
+            <div className="flex space-x-2 border-b border-gray-100 dark:border-white/10 pb-4">
                 <Button
                     variant={filter === "ALL" ? "default" : "outline"}
+                    className={filter === "ALL" ? "" : "bg-white dark:bg-transparent border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-400"}
                     onClick={() => handleFilterChange("ALL")}
                 >
                     전체
                 </Button>
                 <Button
                     variant={filter === "IN_SCOPE" ? "default" : "outline"}
-                    className={filter === "IN_SCOPE" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "border-gray-200 text-gray-700"}
+                    className={filter === "IN_SCOPE" ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "bg-white dark:bg-transparent border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-400"}
                     onClick={() => handleFilterChange("IN_SCOPE")}
                 >
                     범위 내
                 </Button>
                 <Button
                     variant={filter === "OUT_OF_SCOPE" ? "default" : "outline"}
-                    className={filter === "OUT_OF_SCOPE" ? "bg-red-600 hover:bg-red-700 text-white border-red-600" : "border-gray-200 text-gray-700"}
+                    className={filter === "OUT_OF_SCOPE" ? "bg-red-600 hover:bg-red-700 text-white border-red-600" : "bg-white dark:bg-transparent border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-400"}
                     onClick={() => handleFilterChange("OUT_OF_SCOPE")}
                 >
                     범위 외
                 </Button>
                 <Button
                     variant={filter === "AMBIGUOUS" ? "default" : "outline"}
-                    className={filter === "AMBIGUOUS" ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500" : "border-gray-200 text-gray-700"}
+                    className={filter === "AMBIGUOUS" ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500" : "bg-white dark:bg-transparent border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-400"}
                     onClick={() => handleFilterChange("AMBIGUOUS")}
                 >
                     확인 필요
@@ -131,7 +132,7 @@ export default function HistoryClient({ historyData }: HistoryClientProps) {
 
             <div className="space-y-4">
                 {paginatedItems.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground border rounded-lg bg-gray-50/50">
+                    <div className="text-center py-12 text-gray-400 dark:text-gray-500 border border-dashed border-gray-200 dark:border-white/10 rounded-lg bg-gray-50/50 dark:bg-white/5">
                         선택한 조건의 판단 내역이 없습니다.
                     </div>
                 ) : (
@@ -146,64 +147,64 @@ export default function HistoryClient({ historyData }: HistoryClientProps) {
                                 open={isOpen}
                                 onOpenChange={() => toggleItem(item.id)}
                             >
-                                <Card className={`overflow-hidden transition-colors ${isOpen ? 'border-primary/50 shadow-sm' : 'hover:border-primary/30'}`}>
+                                <Card className={`overflow-hidden transition-colors bg-white dark:bg-[#1C1F2E] ${isOpen ? 'border-indigo-600 dark:border-indigo-500 shadow-sm' : 'border-gray-200 dark:border-white/10 hover:border-indigo-600/30'}`}>
                                     <CollapsibleTrigger asChild>
-                                        <div className="p-4 flex items-center gap-4 cursor-pointer hover:bg-accent/5 transition-colors">
+                                        <div className="p-4 flex items-center gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                                             <div className="text-sm font-medium text-muted-foreground whitespace-nowrap w-24">
                                                 {item.date}
                                             </div>
 
                                             <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2 overflow-hidden">
-                                                <div className="font-semibold text-sm truncate md:w-48 whitespace-nowrap flex-shrink-0">
+                                                <div className="font-semibold text-sm truncate md:w-48 whitespace-nowrap flex-shrink-0 text-gray-900 dark:text-white">
                                                     {item.projectName}
                                                 </div>
-                                                <div className="text-sm text-foreground truncate hidden md:block" title={item.request}>
+                                                <div className="text-sm text-gray-600 dark:text-gray-300 truncate hidden md:block" title={item.request}>
                                                     {truncateString(item.request, 50)}
                                                 </div>
-                                                <div className="text-sm text-foreground md:hidden mt-1 line-clamp-2">
+                                                <div className="text-sm text-gray-600 dark:text-gray-300 md:hidden mt-1 line-clamp-2">
                                                     {item.request}
                                                 </div>
                                             </div>
 
                                             <div className="flex items-center gap-3">
-                                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border bg-background shrink-0">
-                                                    <div className="text-xs font-medium text-muted-foreground">신뢰도</div>
-                                                    <div className="text-sm font-bold">{item.confidence}%</div>
+                                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/5 shrink-0">
+                                                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">신뢰도</div>
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-white">{item.confidence}%</div>
                                                 </div>
                                                 <Badge className={`${config.color} shrink-0`} variant="secondary">
                                                     {config.label}
                                                 </Badge>
-                                                <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                                                <ChevronDown className={`h-5 w-5 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                                             </div>
                                         </div>
                                     </CollapsibleTrigger>
 
                                     <CollapsibleContent>
-                                        <div className="px-4 pb-4 pt-2 border-t bg-muted/20">
+                                        <div className="px-4 pb-4 pt-2 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.01]">
                                             <div className="mb-4">
-                                                <h4 className="text-sm font-semibold mb-1 text-muted-foreground">전체 요청 내용</h4>
-                                                <p className="text-sm bg-background p-3 rounded border text-foreground leading-relaxed whitespace-pre-wrap">
+                                                <h4 className="text-sm font-semibold mb-1 text-gray-500 dark:text-gray-400">전체 요청 내용</h4>
+                                                <p className="text-sm bg-white dark:bg-[#111318] p-3 rounded border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                                                     {item.request}
                                                 </p>
                                             </div>
 
                                             <div className="grid gap-4 md:grid-cols-2">
-                                                <div className="flex flex-col gap-1.5 p-4 rounded-lg border bg-background">
+                                                <div className="flex flex-col gap-1.5 p-4 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#111318]">
                                                     <div className="flex items-center gap-2">
                                                         <Icon className={`h-4 w-4 ${config.iconColor}`} />
-                                                        <h4 className="text-sm font-semibold">판단 근거</h4>
+                                                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">판단 근거</h4>
                                                     </div>
-                                                    <p className="text-sm mt-1 text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                                    <p className="text-sm mt-1 text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
                                                         {item.reason}
                                                     </p>
                                                 </div>
 
-                                                <div className="flex flex-col gap-1.5 p-4 rounded-lg border bg-background">
+                                                <div className="flex flex-col gap-1.5 p-4 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#111318]">
                                                     <div className="flex items-center gap-2">
-                                                        <AlertCircle className="h-4 w-4 text-primary" />
-                                                        <h4 className="text-sm font-semibold">대응 추천</h4>
+                                                        <AlertCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">대응 추천</h4>
                                                     </div>
-                                                    <p className="text-sm mt-1 text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                                    <p className="text-sm mt-1 text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
                                                         {item.suggestion}
                                                     </p>
                                                 </div>
