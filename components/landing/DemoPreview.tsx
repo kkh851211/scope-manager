@@ -1,7 +1,7 @@
 'use client';
 
 import { Edit3, Brain, FileText, ArrowRight } from 'lucide-react';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 
 export function DemoPreview() {
   const { theme } = useTheme();

@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, ArrowRight } from 'lucide-react';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 
 export function Pricing() {
   const { theme } = useTheme();

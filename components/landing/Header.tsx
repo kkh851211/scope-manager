@@ -1,10 +1,10 @@
 'use client';
 
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 
 export function Header() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -49,7 +49,7 @@ export function Header() {
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
           <button
-            onClick={toggleTheme}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className={`p-2 rounded-full transition-colors ${theme === 'dark'
               ? 'bg-[#232B3E] hover:bg-[#2A3346] text-[#8C95AA]'
               : 'bg-gray-100 hover:bg-gray-200 text-gray-600'

@@ -10,6 +10,7 @@ import {
     Sparkles,
     Settings,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 
 const menuItems = [
     { icon: LayoutDashboard, label: '대시보드', href: '/dashboard' },
@@ -26,20 +27,21 @@ export default function DashboardLayout({
     const pathname = usePathname();
 
     return (
-        <div className="min-h-screen bg-[#111318]">
+        <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] transition-colors duration-300 font-sans">
 
             {/* 헤더 */}
-            <header className="fixed top-0 left-0 right-0 h-16 bg-[#111318] border-b border-white/[0.07] z-50">
+            <header className="fixed top-0 left-0 right-0 h-16 bg-[var(--bg-base)] border-b border-[var(--border)] z-50 transition-colors duration-300">
                 <div className="h-full px-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#4F52B8] to-[#6366F1] flex items-center justify-center">
                             <span className="text-white font-bold text-sm">SM</span>
                         </div>
-                        <span className="text-white font-semibold text-lg">Scope Manager</span>
+                        <span className="text-[var(--text-primary)] font-semibold text-lg">Scope Manager</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button className="w-9 h-9 rounded-lg bg-[#1C1F2E] border border-white/[0.07] flex items-center justify-center hover:bg-[#252838] transition-colors">
-                            <Bell className="w-5 h-5 text-gray-400" />
+                        <ThemeToggle />
+                        <button className="w-9 h-9 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] flex items-center justify-center hover:opacity-80 transition-colors">
+                            <Bell className="w-5 h-5 text-[var(--text-muted)]" />
                         </button>
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#4F52B8] to-[#6366F1] flex items-center justify-center">
                             <span className="text-white font-medium text-sm">PM</span>
@@ -49,7 +51,7 @@ export default function DashboardLayout({
             </header>
 
             {/* 사이드바 */}
-            <aside className="fixed left-0 top-16 bottom-0 w-[220px] bg-[#111318] border-r border-white/[0.07] z-40">
+            <aside className="fixed left-0 top-16 bottom-0 w-[220px] bg-[var(--bg-sidebar)] border-r border-[var(--border)] z-40 transition-colors duration-300">
                 <nav className="p-4 space-y-1">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
@@ -58,9 +60,9 @@ export default function DashboardLayout({
                             <Link
                                 key={item.label}
                                 href={item.href}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-                                        ? 'bg-[#4F52B8]/10 text-[#6366F1] border border-[#4F52B8]/20'
-                                        : 'text-gray-400 hover:bg-[#1C1F2E] hover:text-gray-200'
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${isActive
+                                    ? 'bg-[var(--point)]/10 text-[var(--point)] border border-[var(--point)]/20 shadow-sm'
+                                    : 'text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]'
                                     }`}
                             >
                                 <Icon className="w-5 h-5" />

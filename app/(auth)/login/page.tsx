@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { ThemeToggle } from '@/components/common/ThemeToggle'
 
 // ── 아이콘 컴포넌트 ──────────────────────────────────────────
 const ScopeIcon = () => (
@@ -335,6 +336,9 @@ export default function LoginPage() {
                     회원가입
                   </Link>
                 </span>
+                <div style={{ marginLeft: '16px' }}>
+                  <ThemeToggle />
+                </div>
               </div>
             </form>
           </div>

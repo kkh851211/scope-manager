@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 
 export function PainPoints() {
   const { theme } = useTheme();

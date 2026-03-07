@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 
 export function SocialProof() {
   const { theme } = useTheme();

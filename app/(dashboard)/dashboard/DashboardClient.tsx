@@ -45,15 +45,15 @@ function SummaryCard({
     valueColor?: string;
 }) {
     return (
-        <div className="bg-[#1C1F2E] border border-white/[0.07] rounded-xl p-6 hover:-translate-y-1 transition-all duration-200 cursor-default">
+        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 hover:-translate-y-1 transition-all duration-200 cursor-default shadow-sm hover:shadow-md">
             <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 rounded-lg bg-[#4F52B8]/10 flex items-center justify-center">
                     <Icon className="w-6 h-6 text-[#6366F1]" />
                 </div>
             </div>
             <div className={`text-3xl font-bold mb-1 ${valueColor}`}>{value}</div>
-            <div className="text-gray-400 text-sm mb-2">{label}</div>
-            <div className="text-xs text-gray-500">{subtext}</div>
+            <div className="text-[var(--text-muted)] text-sm mb-2">{label}</div>
+            <div className="text-xs text-[var(--text-muted)]/70">{subtext}</div>
         </div>
     );
 }
@@ -66,8 +66,8 @@ export default function DashboardClient({ summaryData, recentJudgments }: Dashbo
             {/* 페이지 타이틀 */}
             <div className="flex items-start justify-between">
                 <div>
-                    <h1 className="text-white text-2xl font-bold tracking-tight">대시보드</h1>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <h1 className="text-[var(--text-primary)] text-2xl font-bold tracking-tight">대시보드</h1>
+                    <p className="text-[var(--text-muted)] text-sm mt-1">
                         전체 프로젝트 현황과 최근 판정 내역을 한눈에 확인하세요.
                     </p>
                 </div>
@@ -113,14 +113,14 @@ export default function DashboardClient({ summaryData, recentJudgments }: Dashbo
 
             {/* ── 최근 판정 내역 테이블 (Figma Make RecentJudgmentsTable.tsx) ── */}
             {/* ✅ 기존 recentJudgments props + StatusBadge 유지 */}
-            <div className="bg-[#1C1F2E] border border-white/[0.07] rounded-xl p-6">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-xl p-6 shadow-sm">
                 {/* 테이블 헤더 */}
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-white text-xl font-semibold">최근 판정 내역</h2>
+                    <h2 className="text-[var(--text-primary)] text-xl font-semibold">최근 판정 내역</h2>
                     {/* ✅ 기존 /history 링크 유지 */}
                     <Link
                         href="/history"
-                        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                        className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                     >
                         전체보기 <ArrowRight className="w-4 h-4" />
                     </Link>
@@ -130,21 +130,21 @@ export default function DashboardClient({ summaryData, recentJudgments }: Dashbo
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-white/[0.07]">
-                                <th className="text-left text-gray-400 text-sm font-medium pb-3 w-[150px]">프로젝트명</th>
-                                <th className="text-left text-gray-400 text-sm font-medium pb-3">요청 내용</th>
-                                <th className="text-left text-gray-400 text-sm font-medium pb-3 w-[120px]">판정 결과</th>
-                                <th className="text-right text-gray-400 text-sm font-medium pb-3 w-[120px]">날짜</th>
+                            <tr className="border-b border-[var(--border)]">
+                                <th className="text-left text-[var(--text-muted)] text-sm font-medium pb-3 w-[150px]">프로젝트명</th>
+                                <th className="text-left text-[var(--text-muted)] text-sm font-medium pb-3">요청 내용</th>
+                                <th className="text-left text-[var(--text-muted)] text-sm font-medium pb-3 w-[120px]">판정 결과</th>
+                                <th className="text-right text-[var(--text-muted)] text-sm font-medium pb-3 w-[120px]">날짜</th>
                             </tr>
                         </thead>
                         <tbody>
                             {recentJudgments.map((item) => (
                                 <tr
                                     key={item.id}
-                                    className="border-b border-white/[0.05] hover:bg-white/[0.02] transition-colors cursor-pointer"
+                                    className="border-b border-[var(--border)]/50 hover:bg-[var(--text-primary)]/[0.02] transition-colors cursor-pointer"
                                 >
-                                    <td className="py-4 text-white text-sm font-medium">{item.projectName}</td>
-                                    <td className="py-4 text-gray-300 text-sm">
+                                    <td className="py-4 text-[var(--text-primary)] text-sm font-medium">{item.projectName}</td>
+                                    <td className="py-4 text-[var(--text-muted)] text-sm transition-colors group-hover:text-[var(--text-primary)]">
                                         <span className="line-clamp-1">{item.requestContent}</span>
                                     </td>
                                     <td className="py-4">
