@@ -39,8 +39,7 @@ export default async function ProjectsPage() {
             requests (
                 id,
                 scope_judgments (
-                    result,
-                    created_at
+                    result
                 )
             )
         `)
@@ -72,7 +71,7 @@ export default async function ProjectsPage() {
         else if (p.status === 'paused') uiStatus = "보류";
 
         // Date format (YYYY-MM-DD)
-        const formatDt = (dtStr: string) => dtStr ? dtStr.split('T')[0] : '-';
+        const formatDt = (dtStr: string | null) => dtStr ? dtStr.split('T')[0] : '-';
 
         return {
             id: p.id,
@@ -81,7 +80,7 @@ export default async function ProjectsPage() {
             startDate: formatDt(p.start_date || p.created_at),
             endDate: formatDt(p.end_date || p.created_at),
             status: uiStatus,
-            contractAmount: p.contract_amount ? p.contract_amount.toLocaleString() + '원' : '-',
+            contractAmount: p.contract_amount ? p.contract_amount.toLocaleString() + '원' : '계약금 미정',
             workDays: p.ai_estimated_days || 0,
             scopeExceededCount: exceededCount,
         };

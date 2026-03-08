@@ -1,3 +1,5 @@
+"use client";
+
 interface ProjectBasicInfoProps {
     projectName: string;
     clientName: string;

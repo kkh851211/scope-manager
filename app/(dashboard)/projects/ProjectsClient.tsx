@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Search, Grid3x3, List, AlertTriangle, CheckCircle, X } from "lucide-react";
+import { Search, Grid3x3, List, AlertTriangle, CheckCircle, X, Loader2 } from "lucide-react";
 import { ProjectListUIItem } from "./page";
 
 type QuickDateFilter = "이번 달" | "최근 3개월" | "올해" | null;
@@ -20,7 +20,73 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
     const [endDate, setEndDate] = useState("");
     const [quickDateFilter, setQuickDateFilter] = useState<QuickDateFilter>(null);
 
-    const projects = initialProjects;
+    const [projects, setProjects] = useState<ProjectListUIItem[]>(initialProjects);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // API 호출 함수
+    const fetchProjects = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const params = new URLSearchParams();
+            if (searchQuery) params.append('name', searchQuery);
+            if (statusFilter !== '전체') params.append('status', statusFilter);
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            if (showExceededOnly) params.append('out_of_scope', 'true');
+
+            const res = await fetch(`/api/projects?${params.toString()}`);
+            if (!res.ok) throw new Error('Failed to fetch projects');
+
+            const data = await res.json();
+
+            // UI 데이터 매핑 (page.tsx의 로직과 동일하게 유지하거나 API에서 처리)
+            const mappedProjects: ProjectListUIItem[] = data.map((p: any) => {
+                const reqs = p.requests || [];
+                let exceededCount = 0;
+                reqs.forEach((r: any) => {
+                    const judgements = r.scope_judgments || [];
+                    judgements.forEach((j: any) => {
+                        if (j.result === 'out_of_scope') exceededCount++;
+                    });
+                });
+
+                let uiStatus: "진행중" | "완료" | "보류" = "진행중";
+                if (p.status === 'completed') uiStatus = "완료";
+                else if (p.status === 'paused') uiStatus = "보류";
+
+                const formatDt = (dtStr: string | null) => dtStr ? dtStr.split('T')[0] : '-';
+
+                return {
+                    id: p.id,
+                    name: p.name,
+                    client: p.client_name || '-',
+                    startDate: formatDt(p.start_date || p.created_at),
+                    endDate: formatDt(p.end_date || p.created_at),
+                    status: uiStatus,
+                    contractAmount: p.contract_amount ? p.contract_amount.toLocaleString() + '원' : '계약금 미정',
+                    workDays: p.ai_estimated_days || 0,
+                    scopeExceededCount: exceededCount,
+                };
+            });
+
+            setProjects(mappedProjects);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [searchQuery, statusFilter, startDate, endDate, showExceededOnly]);
+
+    // 필터 변경 시 페칭 (디바운스 처리는 생략하거나 필요시 추가)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchProjects();
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [fetchProjects]);
 
     // 날짜 문자열을 Date 객체로 변환
     const parseDate = (dateStr: string) => {
@@ -62,39 +128,6 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
         setEndDate("");
         setQuickDateFilter(null);
     };
-
-    // 필터링 로직
-    const filteredProjects = projects.filter((project) => {
-        const matchesSearch =
-            project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            project.client.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === "전체" || project.status === statusFilter;
-        const matchesExceeded = !showExceededOnly || project.scopeExceededCount > 0;
-
-        // 날짜 필터링
-        let matchesDate = true;
-        if (startDate || endDate) {
-            let projectStart: Date | null = null;
-            let projectEnd: Date | null = null;
-            try {
-                if (project.startDate !== '-') projectStart = parseDate(project.startDate);
-                if (project.endDate !== '-') projectEnd = parseDate(project.endDate);
-            } catch (e) {
-                // ignore parsing errors
-            }
-
-            if (startDate && projectEnd) {
-                const filterStart = new Date(startDate);
-                matchesDate = matchesDate && projectEnd >= filterStart;
-            }
-            if (endDate && projectStart) {
-                const filterEnd = new Date(endDate);
-                matchesDate = matchesDate && projectStart <= filterEnd;
-            }
-        }
-
-        return matchesSearch && matchesStatus && matchesExceeded && matchesDate;
-    });
 
     // 활성 필터 개수 계산
     const activeFilterCount = [
@@ -306,8 +339,31 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                     </div>
                 </div>
 
+                {/* 로딩 상태 */}
+                {isLoading && (
+                    <div className="flex flex-col items-center justify-center py-20 bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl">
+                        <Loader2 className="w-10 h-10 text-[#4f80ff] animate-spin mb-4" />
+                        <p className="text-gray-500 dark:text-[#8c95aa]">데이터를 불러오는 중입니다...</p>
+                    </div>
+                )}
+
+                {/* 에러 상태 */}
+                {!isLoading && error && (
+                    <div className="flex flex-col items-center justify-center py-20 bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl">
+                        <AlertTriangle className="w-10 h-10 text-red-500 mb-4" />
+                        <p className="text-gray-900 dark:text-[#e8eaf0] mb-2 font-medium">오류가 발생했습니다</p>
+                        <p className="text-gray-500 dark:text-[#8c95aa] mb-4">{error}</p>
+                        <button
+                            onClick={() => fetchProjects()}
+                            className="bg-[#4f80ff] text-white px-4 py-2 rounded-lg text-sm"
+                        >
+                            다시 시도
+                        </button>
+                    </div>
+                )}
+
                 {/* 빈 상태 */}
-                {filteredProjects.length === 0 && (
+                {!isLoading && !error && projects.length === 0 && (
                     <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-12">
                         <div className="flex flex-col items-center justify-center text-center">
                             <Search className="w-16 h-16 text-gray-400 dark:text-[#8c95aa] mb-4" />
@@ -326,9 +382,9 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                 )}
 
                 {/* 카드 뷰 */}
-                {viewMode === "card" && filteredProjects.length > 0 && (
+                {!isLoading && !error && viewMode === "card" && projects.length > 0 && (
                     <div className="grid grid-cols-3 gap-[14px]">
-                        {filteredProjects.map((project) => {
+                        {projects.map((project: ProjectListUIItem) => {
                             const statusColors = getStatusColor(project.status);
                             return (
                                 <div
@@ -386,7 +442,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                 )}
 
                 {/* 테이블 뷰 */}
-                {viewMode === "table" && filteredProjects.length > 0 && (
+                {!isLoading && !error && viewMode === "table" && projects.length > 0 && (
                     <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl overflow-hidden">
                         <table className="w-full">
                             <thead>
@@ -418,7 +474,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredProjects.map((project) => {
+                                {projects.map((project: ProjectListUIItem) => {
                                     const statusColors = getStatusColor(project.status);
                                     return (
                                         <tr

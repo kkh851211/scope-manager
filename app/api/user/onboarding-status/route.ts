@@ -1,11 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    const { id: projectId } = await params;
+export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -15,29 +11,20 @@ export async function GET(
 
     try {
         const { data, error } = await supabase
-            .from('requests')
-            .select(`
-                *,
-                scope_judgments (*)
-            `)
-            .eq('project_id', projectId)
+            .from('onboarding_surveys')
+            .select('id')
             .eq('user_id', user.id)
-            .order('requested_at', { ascending: false });
+            .maybeSingle();
 
         if (error) throw error;
 
-        return NextResponse.json(data);
+        return NextResponse.json({ hasCompleted: !!data });
     } catch (error: any) {
-        console.error(`Error in GET /api/projects/${projectId}/requests:`, error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-export async function POST(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    const { id: projectId } = await params;
+export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -48,12 +35,11 @@ export async function POST(
     try {
         const body = await request.json();
         const { data, error } = await supabase
-            .from('requests')
+            .from('onboarding_surveys')
             .insert({
-                ...body,
-                project_id: projectId,
                 user_id: user.id,
-                requested_at: body.requested_at || new Date().toISOString()
+                agency_size: body.agencySize || 'unknown',
+                has_given_up_billing: body.hasGivenUpBilling || false
             })
             .select()
             .single();
@@ -62,7 +48,6 @@ export async function POST(
 
         return NextResponse.json(data, { status: 201 });
     } catch (error: any) {
-        console.error(`Error in POST /api/projects/${projectId}/requests:`, error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

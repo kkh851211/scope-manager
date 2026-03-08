@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { MailOpen } from "lucide-react";
 import { JudgmentItem } from "@/app/(dashboard)/projects/[id]/ProjectDetailClient";

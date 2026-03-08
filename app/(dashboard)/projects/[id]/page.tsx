@@ -46,15 +46,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         .limit(20);
 
     const mappedHistory = (judgmentsData || []).map((item: any) => {
-        let resultLabel = "경계";
+        let resultLabel: "범위 내" | "범위 외" | "경계" = "경계";
         if (item.result === "in_scope") resultLabel = "범위 내";
-        if (item.result === "out_of_scope") resultLabel = "범위 외";
+        else if (item.result === "out_of_scope") resultLabel = "범위 외";
 
         return {
             id: item.id,
             date: new Date(item.created_at).toLocaleDateString(),
-            request: item.requests.content,
-            result: resultLabel as "범위 내" | "범위 외" | "경계",
+            request: item.requests?.content || "-",
+            result: resultLabel,
             confidence: (item.confidence_score || 0) / 100,
         };
     });

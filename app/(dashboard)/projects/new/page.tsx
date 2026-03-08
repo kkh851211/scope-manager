@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { ProjectBasicInfo } from '@/components/projects/ProjectBasicInfo';
@@ -44,6 +44,25 @@ export default function NewProjectPage() {
     const [analysisResult, setAnalysisResult] = useState<AnalysisItem[] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Onboarding status check
+    const [hasCompletedSurvey, setHasCompletedSurvey] = useState<boolean>(false);
+    const [newProjectId, setNewProjectId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const checkSurveyStatus = async () => {
+            try {
+                const res = await fetch('/api/user/onboarding-status');
+                if (res.ok) {
+                    const { hasCompleted } = await res.json();
+                    setHasCompletedSurvey(hasCompleted);
+                }
+            } catch (error) {
+                console.error("Failed to check onboarding status:", error);
+            }
+        };
+        checkSurveyStatus();
+    }, []);
+
     // Handlers
     const handleBasicInfoChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -58,6 +77,7 @@ export default function NewProjectPage() {
         setIsAnalyzing(true);
 
         try {
+            // Real API call for analysis (Placeholder for now, keeping mock logic as requested or can use real Claude API)
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             const mockResult: AnalysisItem[] = [
@@ -111,20 +131,22 @@ export default function NewProjectPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: formData.projectName,
-                    clientName: formData.clientName,
-                    startDate: formData.startDate,
-                    endDate: formData.endDate,
-                    contractAmount: Number(formData.contractAmount),
-                    aiEstimatedAmount: analysisResult?.reduce((sum, item) => sum + item.amount, 0),
-                    aiEstimatedDays: analysisResult?.reduce((sum, item) => sum + item.days, 0),
+                    client_name: formData.clientName,
+                    start_date: formData.startDate || null,
+                    end_date: formData.endDate || null,
+                    contract_amount: Number(formData.contractAmount.replace(/[^0-9]/g, "")) || 0,
+                    ai_estimated_amount: analysisResult?.reduce((sum, item) => sum + item.amount, 0),
+                    ai_estimated_days: analysisResult?.reduce((sum, item) => sum + item.days, 0),
+                    status: 'active'
                 }),
             });
 
             if (!projectResponse.ok) throw new Error('프로젝트 생성 실패');
             const project = await projectResponse.json();
             const projectId = project.id;
+            setNewProjectId(projectId);
 
-            // 2. Create Contract Features if exists
+            // 2. Create Contract Features if exist
             if (analysisResult && analysisResult.length > 0) {
                 const featuresResponse = await fetch(`/api/projects/${projectId}/contract-features`, {
                     method: 'POST',
@@ -142,7 +164,13 @@ export default function NewProjectPage() {
             }
 
             toast.success("프로젝트가 생성되었습니다.");
-            setIsModalOpen(true);
+
+            // 3. Conditional Onboarding Modal or Redirect
+            if (!hasCompletedSurvey) {
+                setIsModalOpen(true);
+            } else {
+                router.push(`/projects/${projectId}`);
+            }
         } catch (error: any) {
             toast.error(error.message || "프로젝트 생성 중 오류가 발생했습니다.");
         } finally {
@@ -150,9 +178,23 @@ export default function NewProjectPage() {
         }
     };
 
-    const handleModalClose = () => {
+    const handleModalClose = (surveyResult?: any) => {
         setIsModalOpen(false);
-        router.push('/projects');
+
+        // Survey result가 있으면 DB 저장 (surveyResult는 OnboardingModal에서 완성된 설문 데이터)
+        if (surveyResult) {
+            fetch('/api/user/onboarding-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(surveyResult)
+            }).catch(err => console.error("Survey submission failed:", err));
+        }
+
+        if (newProjectId) {
+            router.push(`/projects/${newProjectId}`);
+        } else {
+            router.push('/projects');
+        }
     };
 
     return (

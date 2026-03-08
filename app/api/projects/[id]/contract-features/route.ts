@@ -1,68 +1,68 @@
-import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { ContractFeatureInsert } from '@/types/database';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id: projectId } = await params;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        const supabase = await createClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const { data: features, error } = await supabase
+        const { data, error } = await supabase
             .from('contract_features')
             .select('*')
-            .eq('project_id', params.id)
+            .eq('project_id', projectId)
             .eq('user_id', user.id)
             .order('sort_order', { ascending: true });
 
         if (error) throw error;
 
-        return NextResponse.json(features || []);
+        return NextResponse.json(data);
     } catch (error: any) {
-        console.error('Error fetching contract features:', error);
+        console.error(`Error in GET /api/projects/${projectId}/contract-features:`, error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
 export async function POST(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id: projectId } = await params;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        const features = await request.json(); // Array of features
-        const supabase = await createClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const body = await request.json();
+        // 배열 형식의 bulk insert 처리
+        const features = Array.isArray(body) ? body : [body];
 
-        if (authError || !user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        if (!Array.isArray(features)) {
-            return NextResponse.json({ error: 'Expected an array of features' }, { status: 400 });
-        }
-
-        const featuresToInsert: ContractFeatureInsert[] = features.map((f: any) => ({
+        const preparedFeatures = features.map(f => ({
             ...f,
-            project_id: params.id,
+            project_id: projectId,
             user_id: user.id
         }));
 
         const { data, error } = await supabase
             .from('contract_features')
-            .insert(featuresToInsert)
+            .insert(preparedFeatures)
             .select();
 
         if (error) throw error;
 
-        return NextResponse.json(data);
+        return NextResponse.json(data, { status: 201 });
     } catch (error: any) {
-        console.error('Error creating contract features:', error);
+        console.error(`Error in POST /api/projects/${projectId}/contract-features:`, error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

@@ -3,10 +3,8 @@ import { Project } from "@/types/database";
 export default function BasicInfo({ project }: { project: Project }) {
     const aiAmount = project.ai_estimated_amount || 0;
     const contractAmountStr = project.contract_amount ? project.contract_amount.toLocaleString() + '원' : '-';
-    const aiAmountStr = aiAmount > 0 ? aiAmount.toLocaleString() + '원' : '-';
-
     // 차액 계산
-    const diff = (project.contract_amount || 0) - aiAmount;
+    let diff = (project.contract_amount || 0) - aiAmount;
     const diffAbsStr = Math.abs(diff).toLocaleString() + '원';
 
     let diffColor = "text-gray-500 dark:text-[#8c95aa]";
@@ -36,13 +34,17 @@ export default function BasicInfo({ project }: { project: Project }) {
             <div className="grid grid-cols-3 gap-4">
                 {/* 계약 금액 */}
                 <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-[#e8eaf0] mb-1">{contractAmountStr}</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-[#e8eaf0] mb-1">
+                        {project.contract_amount ? project.contract_amount.toLocaleString() + '원' : '미정'}
+                    </div>
                     <div className="text-sm text-gray-500 dark:text-[#8c95aa]">계약 금액</div>
                 </div>
 
                 {/* AI 산출 금액 */}
                 <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5">
-                    <div className="text-2xl font-bold text-[#4f80ff] mb-1">{aiAmountStr}</div>
+                    <div className="text-2xl font-bold text-[#4f80ff] mb-1">
+                        {project.ai_estimated_amount ? project.ai_estimated_amount.toLocaleString() + '원' : '미정'}
+                    </div>
                     <div className="text-sm text-gray-500 dark:text-[#8c95aa]">AI 산출 금액</div>
                 </div>
 

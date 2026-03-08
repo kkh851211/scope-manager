@@ -48,7 +48,7 @@ export default function ContractScope({ features, project }: { features: Contrac
                             )}
 
                             {/* 합계 행 */}
-                            {features.length > 0 && (
+                            {features && features.length > 0 && (
                                 <tr className="bg-gray-100 dark:bg-[#1e2538]">
                                     <td className="py-4 px-4 font-semibold text-gray-900 dark:text-[#e8eaf0]">합계</td>
                                     <td className="py-4 px-4"></td>

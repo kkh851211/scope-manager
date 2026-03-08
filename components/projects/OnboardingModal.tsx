@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import { Rocket, Loader2 } from 'lucide-react';
 import { toast } from "sonner";
@@ -18,7 +20,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/onboarding', {
+            const response = await fetch('/api/user/onboarding-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
