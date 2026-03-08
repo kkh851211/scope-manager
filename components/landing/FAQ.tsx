@@ -1,11 +1,18 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import * as Accordion from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 export function FAQ() {
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const faqs = [
     {
@@ -23,10 +30,10 @@ export function FAQ() {
   ];
 
   return (
-    <section id="faq" className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
+    <section id="faq" className={`py-16 sm:py-20 px-5 sm:px-7 ${mounted && theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
       }`}>
       <div className="max-w-[800px] mx-auto">
-        <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+        <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 text-center ${mounted && theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
           자주 묻는 질문
         </h2>
@@ -36,29 +43,29 @@ export function FAQ() {
             <Accordion.Item
               key={index}
               value={`item-${index}`}
-              className={`border rounded-xl overflow-hidden ${theme === 'dark'
+              className={`border rounded-xl overflow-hidden ${mounted && theme === 'dark'
                 ? 'bg-[#1A1F2E] border-[#232B3E]'
                 : 'bg-gray-50 border-gray-200'
                 }`}
             >
               <Accordion.Header>
-                <Accordion.Trigger className={`w-full flex items-center justify-between p-4 sm:p-6 text-left transition-colors group ${theme === 'dark'
+                <Accordion.Trigger className={`w-full flex items-center justify-between p-4 sm:p-6 text-left transition-colors group ${mounted && theme === 'dark'
                   ? 'hover:bg-[#232B3E]/30'
                   : 'hover:bg-gray-100'
                   }`}>
-                  <span className={`font-semibold text-base sm:text-lg pr-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  <span className={`font-semibold text-base sm:text-lg pr-4 ${mounted && theme === 'dark' ? 'text-white' : 'text-gray-900'
                     }`}>
                     {faq.question}
                   </span>
                   <ChevronDown
                     size={20}
-                    className={`sm:w-6 sm:h-6 transition-transform duration-300 group-data-[state=open]:rotate-180 flex-shrink-0 ${theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-400'
+                    className={`sm:w-6 sm:h-6 transition-transform duration-300 group-data-[state=open]:rotate-180 flex-shrink-0 ${mounted && theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-400'
                       }`}
                   />
                 </Accordion.Trigger>
               </Accordion.Header>
               <Accordion.Content className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-                <div className={`px-4 sm:px-6 pb-4 sm:pb-6 leading-relaxed text-sm sm:text-base ${theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-600'
+                <div className={`px-4 sm:px-6 pb-4 sm:pb-6 leading-relaxed text-sm sm:text-base ${mounted && theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-600'
                   }`}>
                   {faq.answer}
                 </div>

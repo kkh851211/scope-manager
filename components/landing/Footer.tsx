@@ -1,12 +1,18 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 
 export function Footer() {
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <footer className={`border-t py-10 sm:py-12 px-5 sm:px-7 ${theme === 'dark'
+    <footer className={`border-t py-10 sm:py-12 px-5 sm:px-7 ${mounted && theme === 'dark'
       ? 'bg-[#1A1F2E] border-[#232B3E]'
       : 'bg-gray-50 border-gray-200'
       }`}>
@@ -14,19 +20,19 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <span className={`font-semibold text-base sm:text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+            <span className={`font-semibold text-base sm:text-lg ${mounted && theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>Scope Manager</span>
           </div>
 
           {/* Nav Links */}
           <nav className="flex items-center gap-4 sm:gap-6">
-            <a href="#" className={`text-sm transition-colors ${theme === 'dark'
+            <a href="#" className={`text-sm transition-colors ${mounted && theme === 'dark'
               ? 'text-[#8C95AA] hover:text-white'
               : 'text-gray-600 hover:text-gray-900'
               }`}>
               이용약관
             </a>
-            <a href="#" className={`text-sm transition-colors ${theme === 'dark'
+            <a href="#" className={`text-sm transition-colors ${mounted && theme === 'dark'
               ? 'text-[#8C95AA] hover:text-white'
               : 'text-gray-600 hover:text-gray-900'
               }`}>
@@ -36,9 +42,9 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className={`mt-6 sm:mt-8 pt-6 sm:pt-8 border-t text-center ${theme === 'dark' ? 'border-[#232B3E]' : 'border-gray-200'
+        <div className={`mt-6 sm:mt-8 pt-6 sm:pt-8 border-t text-center ${mounted && theme === 'dark' ? 'border-[#232B3E]' : 'border-gray-200'
           }`}>
-          <p className={`text-sm ${theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-500'
+          <p className={`text-sm ${mounted && theme === 'dark' ? 'text-[#8C95AA]' : 'text-gray-500'
             }`}>
             © 2025 Scope Manager. All rights reserved.
           </p>

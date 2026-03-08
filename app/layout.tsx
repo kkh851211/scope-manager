@@ -29,6 +29,7 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
