@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { ProjectBasicInfo } from '@/components/projects/ProjectBasicInfo';
 import { ContractFeatures } from '@/components/projects/ContractFeatures';
 import { AIAnalysisResult } from '@/components/projects/AIAnalysisResult';
 import { OnboardingModal } from '@/components/projects/OnboardingModal';
+import { toast } from "sonner";
 
 // Types
 interface AnalysisItem {
@@ -39,6 +40,7 @@ export default function NewProjectPage() {
 
     const [features, setFeatures] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<AnalysisItem[] | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,11 +49,17 @@ export default function NewProjectPage() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleAnalyze = () => {
+    const handleAnalyze = async () => {
+        if (!features.trim()) {
+            toast.error("기능 설명을 입력해주세요.");
+            return;
+        }
+
         setIsAnalyzing(true);
 
-        // Simulate AI analysis delay
-        setTimeout(() => {
+        try {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const mockResult: AnalysisItem[] = [
                 {
                     feature: '반응형 메인 웹사이트',
@@ -66,34 +74,22 @@ export default function NewProjectPage() {
                     days: 7,
                     dailyRate: 350000,
                     amount: 2450000,
-                },
-                {
-                    feature: '회원가입 / 로그인',
-                    task: 'Supabase Auth 연동 및 프로필 관리',
-                    days: 2,
-                    dailyRate: 350000,
-                    amount: 700000,
-                },
-                {
-                    feature: '결제 연동',
-                    task: '토스페이먼츠 API 연동 및 검증',
-                    days: 3,
-                    dailyRate: 400000,
-                    amount: 1200000,
-                },
+                }
             ];
 
             setAnalysisResult(mockResult);
-            setIsAnalyzing(false);
 
-            // Scroll to result
             setTimeout(() => {
                 window.scrollTo({
                     top: document.body.scrollHeight,
                     behavior: 'smooth'
                 });
             }, 100);
-        }, 1500);
+        } catch (error) {
+            toast.error("분석 중 오류가 발생했습니다.");
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     const handleReset = () => {
@@ -101,13 +97,62 @@ export default function NewProjectPage() {
         setFeatures('');
     };
 
-    const handleCreateProject = () => {
-        setIsModalOpen(true);
+    const handleCreateProject = async () => {
+        if (!formData.projectName || !formData.clientName) {
+            toast.error("기본 정보를 모두 입력해주세요.");
+            return;
+        }
+
+        setIsCreating(true);
+        try {
+            // 1. Create Project
+            const projectResponse = await fetch('/api/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: formData.projectName,
+                    clientName: formData.clientName,
+                    startDate: formData.startDate,
+                    endDate: formData.endDate,
+                    contractAmount: Number(formData.contractAmount),
+                    aiEstimatedAmount: analysisResult?.reduce((sum, item) => sum + item.amount, 0),
+                    aiEstimatedDays: analysisResult?.reduce((sum, item) => sum + item.days, 0),
+                }),
+            });
+
+            if (!projectResponse.ok) throw new Error('프로젝트 생성 실패');
+            const project = await projectResponse.json();
+            const projectId = project.id;
+
+            // 2. Create Contract Features if exists
+            if (analysisResult && analysisResult.length > 0) {
+                const featuresResponse = await fetch(`/api/projects/${projectId}/contract-features`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(analysisResult.map((item, index) => ({
+                        feature_name: item.feature,
+                        detail_work: item.task,
+                        estimated_days: item.days,
+                        daily_rate: item.dailyRate,
+                        amount: item.amount,
+                        sort_order: index
+                    }))),
+                });
+                if (!featuresResponse.ok) throw new Error('계약 기능 저장 실패');
+            }
+
+            toast.success("프로젝트가 생성되었습니다.");
+            setIsModalOpen(true);
+        } catch (error: any) {
+            toast.error(error.message || "프로젝트 생성 중 오류가 발생했습니다.");
+        } finally {
+            setIsCreating(false);
+        }
     };
 
     const handleModalClose = () => {
         setIsModalOpen(false);
-        router.push('/dashboard');
+        router.push('/projects');
     };
 
     return (
@@ -158,6 +203,7 @@ export default function NewProjectPage() {
                             contractAmount={Number(formData.contractAmount)}
                             onReset={handleReset}
                             onCreateProject={handleCreateProject}
+                            isSubmitting={isCreating}
                         />
                     </div>
                 )}

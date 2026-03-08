@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Rocket } from 'lucide-react';
+import { Rocket, Loader2 } from 'lucide-react';
+import { toast } from "sonner";
 
 interface OnboardingModalProps {
     isOpen: boolean;
@@ -9,17 +10,35 @@ interface OnboardingModalProps {
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     const [teamSize, setTeamSize] = useState<string>('');
     const [additionalChargeExperience, setAdditionalChargeExperience] = useState<string>('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Onboarding responses:', { teamSize, additionalChargeExperience });
-        onClose();
+        setIsSubmitting(true);
+        try {
+            const response = await fetch('/api/onboarding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agencySize: teamSize,
+                    hasGivenUpBilling: additionalChargeExperience
+                }),
+            });
+
+            if (!response.ok) throw new Error('설문 저장 실패');
+
+            toast.success("설문이 저장되었습니다.");
+            onClose();
+        } catch (error: any) {
+            toast.error("설문 저장 중 오류가 발생했습니다.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleSkip = () => {
-        console.log('User skipped onboarding');
         onClose();
     };
 
@@ -102,11 +121,17 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        disabled={!teamSize || !additionalChargeExperience}
+                        disabled={!teamSize || !additionalChargeExperience || isSubmitting}
                         className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#4f80ff] hover:bg-[#6192ff] disabled:bg-[#2a3348] disabled:text-[#5a5f73] text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
                     >
-                        시작하기
-                        <Rocket className="w-5 h-5" />
+                        {isSubmitting ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <>
+                                시작하기
+                                <Rocket className="w-5 h-5" />
+                            </>
+                        )}
                     </button>
 
                     {/* Skip Link */}

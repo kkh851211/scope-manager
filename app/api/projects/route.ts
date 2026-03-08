@@ -1,76 +1,116 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { ProjectInsert } from '@/types/database';
+
+export async function GET(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const search = searchParams.get('search') || '';
+        const status = searchParams.get('status') || 'ALL';
+        const showExceededOnly = searchParams.get('showExceededOnly') === 'true';
+        const startDate = searchParams.get('startDate');
+        const endDate = searchParams.get('endDate');
+
+        const supabase = await createClient();
+        console.log('API: GET /api/projects - Supabase client created');
+
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+            console.error('API: GET /api/projects - Session error:', sessionError);
+            return NextResponse.json({ error: 'Auth session error' }, { status: 401 });
+        }
+
+        const user = session?.user;
+        console.log('API: GET /api/projects - User:', user?.id || 'No user');
+
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        let query = supabase
+            .from('projects')
+            .select('*')
+            .eq('user_id', user.id);
+
+        if (search) {
+            query = query.or(`name.ilike.%${search}%,client_name.ilike.%${search}%`);
+        }
+
+        if (status !== 'ALL') {
+            query = query.eq('status', status.toLowerCase());
+        }
+
+        if (startDate) {
+            query = query.gte('created_at', startDate);
+        }
+
+        if (endDate) {
+            query = query.lte('created_at', endDate);
+        }
+
+        const { data: projects, error } = await query.order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Note: 'showExceededOnly' logic might need a join or additional logic once calculation is implemented
+        let filteredProjects = projects || [];
+        if (showExceededOnly) {
+            // For now, mockup calculation or placeholder
+            // In real app, we might compare contract_amount with total additional requests or features
+        }
+
+        return NextResponse.json(filteredProjects);
+    } catch (error: any) {
+        console.error('Error fetching projects:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json()
-        const { name, clientName, contractScope } = body
+        const body = await request.json();
+        const { name, clientName, description, startDate, endDate, contractAmount, aiEstimatedAmount, aiEstimatedDays } = body;
 
-        if (!name || !clientName || !contractScope) {
-            return NextResponse.json(
-                { error: 'Missing required fields: name, clientName, contractScope' },
-                { status: 400 }
-            )
+        const supabase = await createClient();
+        console.log('API: POST /api/projects - Supabase client created');
+
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+            console.error('API: POST /api/projects - Session error:', sessionError);
+            return NextResponse.json({ error: 'Auth session error' }, { status: 401 });
         }
 
-        const supabase = await createClient()
+        const user = session?.user;
+        console.log('API: POST /api/projects - User:', user?.id || 'No user');
 
-        // 실제 로그인한 유저 세션에서 user_id 가져오기
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-        if (authError || !user) {
-            return NextResponse.json(
-                { error: '로그인이 필요합니다.' },
-                { status: 401 }
-            )
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const userId = user.id
+        const projectInsert: ProjectInsert = {
+            user_id: user.id,
+            name,
+            client_name: clientName,
+            description,
+            start_date: startDate,
+            end_date: endDate,
+            contract_amount: contractAmount,
+            ai_estimated_amount: aiEstimatedAmount,
+            ai_estimated_days: aiEstimatedDays,
+            status: 'active'
+        };
 
-        // 1. projects 테이블에 프로젝트 저장
-        const { data: projectData, error: projError } = await supabase
+        const { data: project, error } = await supabase
             .from('projects')
-            .insert({
-                name,
-                client_name: clientName,
-                status: 'active',
-                user_id: userId
-            })
-            .select('id')
-            .single()
+            .insert(projectInsert)
+            .select()
+            .single();
 
-        if (projError) {
-            throw new Error(`프로젝트 저장 실패: ${projError.message}`)
-        }
+        if (error) throw error;
 
-        const projectId = projectData.id
-
-        // 2. contracts 테이블에 계약 범위 저장
-        const { error: contractError } = await supabase
-            .from('contracts')
-            .insert({
-                project_id: projectId,
-                title: `${name} 초기 계약서`,
-                content: contractScope,
-                user_id: userId
-            })
-
-        if (contractError) {
-            // Optional: You could rollback the project creation here
-            throw new Error(`계약 내용 저장 실패: ${contractError.message}`)
-        }
-
-        return NextResponse.json({
-            success: true,
-            data: { projectId }
-        })
-
+        return NextResponse.json(project);
     } catch (error: any) {
-        console.error('Error creating project:', error)
-
-        return NextResponse.json(
-            { error: error?.message || 'Internal Server Error' },
-            { status: 500 }
-        )
+        console.error('Error creating project:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

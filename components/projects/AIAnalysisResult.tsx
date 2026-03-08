@@ -1,4 +1,4 @@
-import { Pencil, ArrowLeft, ArrowRight, Lightbulb } from 'lucide-react';
+import { Pencil, ArrowLeft, ArrowRight, Lightbulb, Loader2 } from 'lucide-react';
 
 interface AnalysisItem {
     feature: string;
@@ -13,9 +13,10 @@ interface AIAnalysisResultProps {
     contractAmount: number;
     onReset: () => void;
     onCreateProject: () => void;
+    isSubmitting?: boolean;
 }
 
-export function AIAnalysisResult({ items, contractAmount, onReset, onCreateProject }: AIAnalysisResultProps) {
+export function AIAnalysisResult({ items, contractAmount, onReset, onCreateProject, isSubmitting = false }: AIAnalysisResultProps) {
     const totalDays = items.reduce((sum, item) => sum + item.days, 0);
     const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
     const difference = contractAmount - totalAmount;
@@ -141,10 +142,20 @@ export function AIAnalysisResult({ items, contractAmount, onReset, onCreateProje
                 <button
                     type="button"
                     onClick={onCreateProject}
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-[#4f80ff] hover:bg-[#6192ff] text-white font-semibold rounded-lg shadow-lg shadow-[#4f80ff]/20 transition-all"
+                    disabled={isSubmitting}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-[#4f80ff] hover:bg-[#6192ff] disabled:bg-[#4f80ff]/50 text-white font-semibold rounded-lg shadow-lg shadow-[#4f80ff]/20 transition-all"
                 >
-                    이 범위로 프로젝트 생성
-                    <ArrowRight className="w-5 h-5" />
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            생성 중...
+                        </>
+                    ) : (
+                        <>
+                            이 범위로 프로젝트 생성
+                            <ArrowRight className="w-5 h-5" />
+                        </>
+                    )}
                 </button>
             </div>
         </div>
