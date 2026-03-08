@@ -28,19 +28,19 @@ export default function ProjectDetailClient({ project, features, judgmentHistory
     const formatDt = (dtStr: string | null) => dtStr ? dtStr.split('T')[0].replace(/-/g, '.') : '-';
 
     return (
-        <div className="min-h-screen bg-[#0f1117] text-[#e8eaf0] py-8 px-4" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
+        <div className="min-h-screen bg-white dark:bg-[#0f1117] text-gray-900 dark:text-[#e8eaf0] py-8 px-4" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
             <div className="max-w-[900px] mx-auto">
                 {/* 헤더 영역 */}
                 <div className="mb-8">
-                    <Link href="/projects" className="inline-flex items-center gap-2 text-[#8c95aa] hover:text-[#e8eaf0] transition-colors mb-4 text-sm">
+                    <Link href="/projects" className="inline-flex items-center gap-2 text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] transition-colors mb-4 text-sm">
                         <ArrowLeft className="w-4 h-4" />
                         프로젝트 목록
                     </Link>
 
                     <div className="flex items-start justify-between">
                         <div>
-                            <h1 className="text-[22px] font-bold mb-2">{project.name}</h1>
-                            <div className="flex items-center gap-2 text-sm text-[#8c95aa]">
+                            <h1 className="text-[22px] font-bold mb-2 text-gray-900 dark:text-[#e8eaf0]">{project.name}</h1>
+                            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8c95aa]">
                                 <span>{project.client_name || '-'}</span>
                                 <span>·</span>
                                 <span>{formatDt(project.start_date)} ~ {formatDt(project.end_date)}</span>
@@ -58,13 +58,13 @@ export default function ProjectDetailClient({ project, features, judgmentHistory
                 </div>
 
                 {/* 탭 네비게이션 */}
-                <div className="border-b border-[#232b3e] mb-6">
+                <div className="border-b border-gray-200 dark:border-[#232b3e] mb-6">
                     <div className="flex gap-8">
                         <button
                             onClick={() => setActiveTab("basic")}
                             className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === "basic"
                                 ? "text-[#4f80ff] font-semibold"
-                                : "text-[#8c95aa] hover:text-[#e8eaf0]"
+                                : "text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                 }`}
                         >
                             📋 기본 정보
@@ -77,7 +77,7 @@ export default function ProjectDetailClient({ project, features, judgmentHistory
                             onClick={() => setActiveTab("contract")}
                             className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === "contract"
                                 ? "text-[#4f80ff] font-semibold"
-                                : "text-[#8c95aa] hover:text-[#e8eaf0]"
+                                : "text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                 }`}
                         >
                             ⚖️ 계약 범위
@@ -90,7 +90,7 @@ export default function ProjectDetailClient({ project, features, judgmentHistory
                             onClick={() => setActiveTab("requests")}
                             className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === "requests"
                                 ? "text-[#4f80ff] font-semibold"
-                                : "text-[#8c95aa] hover:text-[#e8eaf0]"
+                                : "text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                 }`}
                         >
                             📌 추가 요구

@@ -136,48 +136,48 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
     };
 
     return (
-        <div className="min-h-screen bg-[#0f1117] text-[#e8eaf0] py-12 px-4" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
+        <div className="min-h-screen bg-white dark:bg-[#0f1117] text-gray-900 dark:text-[#e8eaf0] py-12 px-4" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
             <div className="max-w-[1060px] mx-auto">
                 <h1 className="text-2xl font-bold mb-8">프로젝트 목록</h1>
 
                 {/* 상단 요약 대시보드 */}
                 <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
-                        <div className="text-2xl font-bold text-[#e8eaf0] mb-1">{totalProjects}개</div>
-                        <div className="text-sm text-[#8c95aa]">전체 프로젝트</div>
+                    <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-[#e8eaf0] mb-1">{totalProjects}개</div>
+                        <div className="text-sm text-gray-500 dark:text-[#8c95aa]">전체 프로젝트</div>
                     </div>
 
-                    <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
+                    <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
                         <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#4f80ff]" />
                         <div className="text-2xl font-bold text-[#4f80ff] mb-1">{inProgressProjects}개</div>
-                        <div className="text-sm text-[#8c95aa]">진행중</div>
+                        <div className="text-sm text-gray-500 dark:text-[#8c95aa]">진행중</div>
                     </div>
 
-                    <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
+                    <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
                         <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#f87171]" />
                         <div className="text-2xl font-bold text-[#f87171] mb-1">{exceededProjects}개</div>
-                        <div className="text-sm text-[#8c95aa]">범위 초과 발생</div>
+                        <div className="text-sm text-gray-500 dark:text-[#8c95aa]">범위 초과 발생</div>
                     </div>
 
-                    <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
+                    <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5 relative overflow-hidden">
                         <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#10b981]" />
                         <div className="text-2xl font-bold text-[#10b981] mb-1">{completedThisMonth}개</div>
-                        <div className="text-sm text-[#8c95aa]">이번 달 완료</div>
+                        <div className="text-sm text-gray-500 dark:text-[#8c95aa]">이번 달 완료</div>
                     </div>
                 </div>
 
                 {/* 검색 & 필터 바 (2줄 구조) */}
-                <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-4 mb-6 space-y-4">
+                <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-4 mb-6 space-y-4">
                     {/* 1줄: 메인 검색 */}
                     <div className="flex items-center justify-between gap-4">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8c95aa]" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#8c95aa]" />
                             <input
                                 type="text"
                                 placeholder="프로젝트명 또는 클라이언트명 검색"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-[#1e2538] border border-[#232b3e] rounded-lg pl-10 pr-4 py-2 text-sm text-[#e8eaf0] placeholder:text-[#8c95aa] focus:outline-none focus:border-[#4f80ff]"
+                                className="w-full bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg pl-10 pr-4 py-2 text-sm text-gray-900 dark:text-[#e8eaf0] placeholder:text-gray-500 dark:placeholder:text-[#8c95aa] focus:outline-none focus:border-[#4f80ff]"
                             />
                         </div>
 
@@ -205,7 +205,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                                className="bg-[#1e2538] border border-[#232b3e] rounded-lg px-4 py-2 text-sm text-[#e8eaf0] focus:outline-none focus:border-[#4f80ff]"
+                                className="bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-2 text-sm text-gray-900 dark:text-[#e8eaf0] focus:outline-none focus:border-[#4f80ff]"
                             >
                                 <option value="전체">전체</option>
                                 <option value="진행중">진행중</option>
@@ -218,15 +218,15 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                 onClick={() => setShowExceededOnly(!showExceededOnly)}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${showExceededOnly
                                     ? "bg-[#f87171]/20 text-[#f87171] border border-[#f87171]/30"
-                                    : "bg-[#1e2538] text-[#8c95aa] border border-[#232b3e] hover:text-[#e8eaf0]"
+                                    : "bg-gray-100 dark:bg-[#1e2538] text-gray-500 dark:text-[#8c95aa] border border-gray-200 dark:border-[#232b3e] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                     }`}
                             >
                                 ⚠️ 범위 초과만
                             </button>
 
                             {/* 기간 검색 영역 */}
-                            <div className="flex items-center gap-2 bg-[#1e2538] border border-[#232b3e] rounded-lg px-3 py-2">
-                                <span className="text-xs text-[#8c95aa]">기간</span>
+                            <div className="flex items-center gap-2 bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-3 py-2">
+                                <span className="text-xs text-gray-500 dark:text-[#8c95aa]">기간</span>
                                 <input
                                     type="date"
                                     value={startDate}
@@ -234,9 +234,9 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                         setStartDate(e.target.value);
                                         setQuickDateFilter(null);
                                     }}
-                                    className="bg-transparent border-none text-sm text-[#e8eaf0] focus:outline-none w-[110px]"
+                                    className="bg-transparent border-none text-sm text-gray-900 dark:text-[#e8eaf0] focus:outline-none w-[110px]"
                                 />
-                                <span className="text-[#8c95aa]">~</span>
+                                <span className="text-gray-500 dark:text-[#8c95aa]">~</span>
                                 <input
                                     type="date"
                                     value={endDate}
@@ -244,7 +244,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                         setEndDate(e.target.value);
                                         setQuickDateFilter(null);
                                     }}
-                                    className="bg-transparent border-none text-sm text-[#e8eaf0] focus:outline-none w-[110px]"
+                                    className="bg-transparent border-none text-sm text-gray-900 dark:text-[#e8eaf0] focus:outline-none w-[110px]"
                                 />
                             </div>
 
@@ -256,7 +256,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                         onClick={() => handleQuickDateSelect(filter)}
                                         className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${quickDateFilter === filter
                                             ? "bg-[#4f80ff]/20 text-[#4f80ff] border border-[#4f80ff]/30"
-                                            : "bg-[#1e2538] text-[#8c95aa] border border-[#232b3e] hover:text-[#e8eaf0]"
+                                            : "bg-gray-100 dark:bg-[#1e2538] text-gray-500 dark:text-[#8c95aa] border border-gray-200 dark:border-[#232b3e] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                             }`}
                                     >
                                         {filter}
@@ -274,7 +274,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                     </span>
                                     <button
                                         onClick={resetAllFilters}
-                                        className="text-xs text-[#8c95aa] hover:text-[#e8eaf0] transition-colors"
+                                        className="text-xs text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] transition-colors"
                                     >
                                         초기화
                                     </button>
@@ -282,12 +282,12 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                             )}
 
                             {/* 뷰 전환 버튼 */}
-                            <div className="flex items-center gap-1 bg-[#1e2538] border border-[#232b3e] rounded-lg p-1">
+                            <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg p-1">
                                 <button
                                     onClick={() => setViewMode("card")}
                                     className={`p-2 rounded transition-colors ${viewMode === "card"
                                         ? "bg-[#4f80ff] text-white"
-                                        : "text-[#8c95aa] hover:text-[#e8eaf0]"
+                                        : "text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                         }`}
                                 >
                                     <Grid3x3 className="w-4 h-4" />
@@ -296,7 +296,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                     onClick={() => setViewMode("table")}
                                     className={`p-2 rounded transition-colors ${viewMode === "table"
                                         ? "bg-[#4f80ff] text-white"
-                                        : "text-[#8c95aa] hover:text-[#e8eaf0]"
+                                        : "text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                         }`}
                                 >
                                     <List className="w-4 h-4" />
@@ -308,16 +308,16 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
 
                 {/* 빈 상태 */}
                 {filteredProjects.length === 0 && (
-                    <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-12">
+                    <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-12">
                         <div className="flex flex-col items-center justify-center text-center">
-                            <Search className="w-16 h-16 text-[#8c95aa] mb-4" />
-                            <div className="text-lg text-[#e8eaf0] mb-2">검색 결과가 없습니다</div>
-                            <div className="text-sm text-[#8c95aa] mb-4">
+                            <Search className="w-16 h-16 text-gray-400 dark:text-[#8c95aa] mb-4" />
+                            <div className="text-lg text-gray-900 dark:text-[#e8eaf0] mb-2">검색 결과가 없습니다</div>
+                            <div className="text-sm text-gray-500 dark:text-[#8c95aa] mb-4">
                                 다른 검색어나 필터를 사용해보세요
                             </div>
                             <button
                                 onClick={resetAllFilters}
-                                className="text-sm text-[#8c95aa] hover:text-[#e8eaf0] transition-colors"
+                                className="text-sm text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] transition-colors"
                             >
                                 필터 초기화
                             </button>
@@ -333,7 +333,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                             return (
                                 <div
                                     key={project.id}
-                                    className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl overflow-hidden hover:border-[#4f80ff] hover:-translate-y-1 transition-all duration-200"
+                                    className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl overflow-hidden hover:border-[#4f80ff] hover:-translate-y-1 transition-all duration-200"
                                 >
                                     <div className="p-5">
                                         {/* 상단 뱃지 */}
@@ -357,25 +357,25 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                         </div>
 
                                         {/* 본문 */}
-                                        <h3 className="text-[15px] font-semibold text-[#e8eaf0] mb-2">
+                                        <h3 className="text-[15px] font-semibold text-gray-900 dark:text-[#e8eaf0] mb-2">
                                             {project.name}
                                         </h3>
-                                        <p className="text-[13px] text-[#8c95aa] mb-1">{project.client}</p>
-                                        <p className="text-[12px] text-[#8c95aa]">
+                                        <p className="text-[13px] text-gray-500 dark:text-[#8c95aa] mb-1">{project.client}</p>
+                                        <p className="text-[12px] text-gray-400 dark:text-[#8c95aa]">
                                             {project.startDate} ~ {project.endDate}
                                         </p>
 
                                         {/* 하단 구분선 */}
-                                        <div className="border-t border-[#232b3e] mt-4 pt-4 flex items-center justify-between">
-                                            <div className="text-[#e8eaf0] font-medium">{project.contractAmount}</div>
-                                            <div className="text-sm text-[#8c95aa]">{project.workDays}일</div>
+                                        <div className="border-t border-gray-200 dark:border-[#232b3e] mt-4 pt-4 flex items-center justify-between">
+                                            <div className="text-gray-900 dark:text-[#e8eaf0] font-medium">{project.contractAmount}</div>
+                                            <div className="text-sm text-gray-500 dark:text-[#8c95aa]">{project.workDays}일</div>
                                         </div>
                                     </div>
 
                                     {/* 하단 링크 */}
                                     <Link
                                         href={`/projects/${project.id}`}
-                                        className="block w-full bg-[#1e2538] hover:bg-[#232b3e] px-5 py-3 text-center text-sm text-[#8c95aa] hover:text-[#4f80ff] transition-colors"
+                                        className="block w-full bg-gray-100 dark:bg-[#1e2538] hover:bg-gray-200 dark:hover:bg-[#232b3e] px-5 py-3 text-center text-sm text-gray-500 dark:text-[#8c95aa] hover:text-[#4f80ff] transition-colors"
                                     >
                                         상세 보기 →
                                     </Link>
@@ -387,32 +387,32 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
 
                 {/* 테이블 뷰 */}
                 {viewMode === "table" && filteredProjects.length > 0 && (
-                    <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl overflow-hidden">
+                    <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl overflow-hidden">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-[#1e2538] border-b border-[#232b3e]">
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                <tr className="bg-gray-100 dark:bg-[#1e2538] border-b border-gray-200 dark:border-[#232b3e]">
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         프로젝트명
                                     </th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         클라이언트
                                     </th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         기간
                                     </th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         계약금액
                                     </th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         공수
                                     </th>
-                                    <th className="text-center py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         상태
                                     </th>
-                                    <th className="text-center py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         범위초과
                                     </th>
-                                    <th className="text-center py-3 px-4 text-xs font-semibold text-[#8c95aa] uppercase">
+                                    <th className="text-center py-3 px-4 text-xs font-semibold text-gray-500 dark:text-[#8c95aa] uppercase">
                                         액션
                                     </th>
                                 </tr>
@@ -423,17 +423,17 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                     return (
                                         <tr
                                             key={project.id}
-                                            className="border-b border-[#232b3e] hover:bg-[#1e2538] transition-colors"
+                                            className="border-b border-gray-200 dark:border-[#232b3e] hover:bg-gray-100 dark:hover:bg-[#1e2538] transition-colors"
                                         >
-                                            <td className="py-3 px-4 text-[#e8eaf0] font-semibold">{project.name}</td>
-                                            <td className="py-3 px-4 text-[#8c95aa]">{project.client}</td>
-                                            <td className="py-3 px-4 text-[#8c95aa] text-sm">
+                                            <td className="py-3 px-4 text-gray-900 dark:text-[#e8eaf0] font-semibold">{project.name}</td>
+                                            <td className="py-3 px-4 text-gray-500 dark:text-[#8c95aa]">{project.client}</td>
+                                            <td className="py-3 px-4 text-gray-500 dark:text-[#8c95aa] text-sm">
                                                 {project.startDate} ~ {project.endDate}
                                             </td>
-                                            <td className="py-3 px-4 text-right text-[#e8eaf0]">
+                                            <td className="py-3 px-4 text-right text-gray-900 dark:text-[#e8eaf0]">
                                                 {project.contractAmount}
                                             </td>
-                                            <td className="py-3 px-4 text-right text-[#8c95aa]">{project.workDays}일</td>
+                                            <td className="py-3 px-4 text-right text-gray-500 dark:text-[#8c95aa]">{project.workDays}일</td>
                                             <td className="py-3 px-4 text-center">
                                                 <span
                                                     className={`${statusColors.bg} ${statusColors.text} ${statusColors.border} px-3 py-1 rounded-full text-xs border inline-block`}
@@ -447,7 +447,7 @@ export default function ProjectsClient({ initialProjects }: ProjectsClientProps)
                                                         {project.scopeExceededCount}건
                                                     </span>
                                                 ) : (
-                                                    <span className="text-[#8c95aa] text-sm">없음</span>
+                                                    <span className="text-gray-400 dark:text-[#8c95aa] text-sm">없음</span>
                                                 )}
                                             </td>
                                             <td className="py-3 px-4 text-center">

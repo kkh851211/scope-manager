@@ -16,13 +16,13 @@ export default function AdditionalRequests({ judgments, projectId }: { judgments
 
             {/* 빈 상태 (상태 A) */}
             {!hasData && (
-                <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-12">
+                <div className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-12">
                     <div className="flex flex-col items-center justify-center text-center">
-                        <MailOpen className="w-16 h-16 text-[#8c95aa] mb-4" />
-                        <div className="text-lg text-[#e8eaf0] mb-2">
+                        <MailOpen className="w-16 h-16 text-gray-400 dark:text-[#8c95aa] mb-4" />
+                        <div className="text-lg text-gray-900 dark:text-[#e8eaf0] mb-2">
                             아직 기록된 추가 요구가 없습니다
                         </div>
-                        <div className="text-sm text-[#8c95aa] max-w-md">
+                        <div className="text-sm text-gray-500 dark:text-[#8c95aa] max-w-md">
                             클라이언트 요청이 생기면 즉시 기록하세요. 범위 초과 여부를 자동으로 판정합니다.
                         </div>
                     </div>
@@ -46,7 +46,7 @@ export default function AdditionalRequests({ judgments, projectId }: { judgments
                         return (
                             <div
                                 key={request.id || index}
-                                className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5 relative overflow-hidden"
+                                className="bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-[#232b3e] rounded-xl p-5 relative overflow-hidden"
                             >
                                 {/* 왼쪽 액센트 라인 */}
                                 <div
@@ -56,13 +56,13 @@ export default function AdditionalRequests({ judgments, projectId }: { judgments
 
                                 <div className="flex items-start justify-between pl-3">
                                     <div className="flex-1">
-                                        <div className="text-[#e8eaf0] mb-3 whitespace-pre-wrap">
+                                        <div className="text-gray-900 dark:text-[#e8eaf0] mb-3 whitespace-pre-wrap">
                                             {request.request}
                                         </div>
 
                                         <div className="flex items-center gap-3 text-sm">
-                                            <span className="text-[#8c95aa]">{request.date}</span>
-                                            <span className="text-[#8c95aa]">·</span>
+                                            <span className="text-gray-500 dark:text-[#8c95aa]">{request.date}</span>
+                                            <span className="text-gray-500 dark:text-[#8c95aa]">·</span>
                                             {/* 임시 채널 (DB에 아직 없을 수 있으므로 하드코딩 또는 확정된 것만) */}
                                             <span
                                                 className="px-3 py-1 rounded-full text-xs border"
@@ -87,7 +87,7 @@ export default function AdditionalRequests({ judgments, projectId }: { judgments
                                         </div>
                                     </div>
 
-                                    <button className="text-sm text-[#8c95aa] hover:text-[#e8eaf0] transition-colors ml-4 flex-shrink-0">
+                                    <button className="text-sm text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] transition-colors ml-4 flex-shrink-0">
                                         상세 보기
                                     </button>
                                 </div>
