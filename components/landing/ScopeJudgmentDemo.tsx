@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 type JudgmentState = 'empty' | 'loading' | 'out-of-scope' | 'in-scope';
@@ -8,40 +8,51 @@ type JudgmentState = 'empty' | 'loading' | 'out-of-scope' | 'in-scope';
 interface JudgmentResult {
     type: 'out-of-scope' | 'in-scope';
     reason: string;
-    estimatedTime: string;
-    scopeStatus: string;
+    judgmentStatus: string;
     needsQuote: string;
+    hasContractBasis: string;
 }
 
 export function ScopeJudgmentDemo() {
-    const [inputText, setInputText] = useState('');
+    const [contractScope, setContractScope] = useState('');
+    const [newRequest, setNewRequest] = useState('');
     const [state, setState] = useState<JudgmentState>('empty');
     const [result, setResult] = useState<JudgmentResult | null>(null);
-    const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    const exampleChips = [
-        '랜딩 페이지 추가 3개 요청',
-        '디자인 수정 요청',
-        '로그인 기능 추가 요청',
-        '텍스트 수정 요청'
+    const contractExamples = [
+        '웹사이트 5페이지 제작',
+        '쇼핑몰 기본 기능',
+        '랜딩 페이지 1개'
     ];
 
-    const handleChipClick = (text: string) => {
+    const requestExamples = [
+        '페이지 3개 추가 요청',
+        '로그인 기능 추가',
+        '디자인 전면 수정',
+        '영문 버전 제작'
+    ];
+
+    const handleContractChipClick = (text: string) => {
         const fullTexts: Record<string, string> = {
-            '랜딩 페이지 추가 3개 요청': '랜딩 페이지 외에 회사 소개 페이지 3개를 추가로 만들어 주실 수 있나요?',
-            '디자인 수정 요청': '메인 페이지의 색상을 파란색에서 초록색으로 변경해 주실 수 있나요?',
-            '로그인 기능 추가 요청': '처음 계약에는 없었는데 로그인 기능을 추가할 수 있을까요?',
-            '텍스트 수정 요청': '홈페이지 상단의 "환영합니다" 문구를 "안녕하세요"로 바꿔주세요'
+            '웹사이트 5페이지 제작': '- 메인 페이지 1개\n- 서브 페이지 4개 (회사소개, 서비스, 포트폴리오, 문의)\n- 반응형 디자인 포함\n- 기간: 4주\n- 디자인 수정 2회 포함',
+            '쇼핑몰 기본 기능': '- 상품 목록 페이지\n- 상품 상세 페이지\n- 장바구니 기능\n- 결제 연동 (PG사 제공)\n- 관리자 페이지 (상품 등록/수정)\n- 기간: 6주',
+            '랜딩 페이지 1개': '- 랜딩 페이지 1개 제작\n- PC/모바일 반응형\n- 애니메이션 효과 포함\n- 디자인 시안 2회 수정\n- 기간: 2주'
         };
-        setInputText(fullTexts[text] || text);
+        setContractScope(fullTexts[text] || text);
+    };
+
+    const handleRequestChipClick = (text: string) => {
+        const fullTexts: Record<string, string> = {
+            '페이지 3개 추가 요청': '회사 소개 페이지를 3개로 나눠서 만들어주실 수 있나요? CEO 인사말, 연혁, 조직도 페이지로요.',
+            '로그인 기능 추가': '회원 로그인 기능이랑 마이페이지도 추가해주실 수 있을까요?',
+            '디자인 전면 수정': '전체적인 디자인 컨셉을 바꾸고 싶은데, 처음부터 다시 디자인해주실 수 있나요?',
+            '영문 버전 제작': '영어 버전 사이트도 같이 만들어주실 수 있나요? 번역은 저희가 할게요.'
+        };
+        setNewRequest(fullTexts[text] || text);
     };
 
     const handleJudge = async () => {
-        if (!inputText.trim()) return;
+        if (!contractScope.trim() || !newRequest.trim()) return;
 
         setState('loading');
 
@@ -51,7 +62,10 @@ export function ScopeJudgmentDemo() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ request: inputText }),
+                body: JSON.stringify({
+                    contract: contractScope,
+                    request: newRequest
+                }),
             });
 
             if (!response.ok) {
@@ -60,30 +74,25 @@ export function ScopeJudgmentDemo() {
             }
 
             const data = await response.json();
-
             const isOutOfScope = data.result === '초과';
 
             setState(isOutOfScope ? 'out-of-scope' : 'in-scope');
             setResult({
                 type: isOutOfScope ? 'out-of-scope' : 'in-scope',
                 reason: data.reason,
-                estimatedTime: isOutOfScope ? '미정' : '1일',
-                scopeStatus: data.result,
-                needsQuote: data.needsQuote ? '예' : '아니요'
+                judgmentStatus: data.result,
+                needsQuote: data.needsQuote ? '필요' : '불필요',
+                hasContractBasis: '있음'
             });
         } catch (error: any) {
             console.error('Judgment error:', error);
             setState('empty');
-
-            // Try to extract more detail if it was a 500 with details
-            const message = error.message || '판정 중 오류가 발생했습니다. 다시 시도해주세요.';
-            alert(message);
+            alert(error.message || '판정 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
     };
 
     const showCTA = state === 'out-of-scope' || state === 'in-scope';
-
-    if (!isMounted) return <div style={{ minHeight: '100vh', background: '#0F1117' }} />;
+    const isButtonDisabled = !contractScope.trim() || !newRequest.trim() || state === 'loading';
 
     return (
         <div style={{ background: '#0F1117', minHeight: '100vh', padding: '80px 24px' }}>
@@ -106,13 +115,16 @@ export function ScopeJudgmentDemo() {
                         marginBottom: '12px',
                         lineHeight: '1.3'
                     }}>
-                        클라이언트 요청, 범위 초과인지 바로 확인하세요
+                        계약 범위 기준으로 AI가 판정합니다
                     </h2>
                     <p style={{
                         fontSize: '14px',
-                        color: '#8C95AA'
+                        color: '#8C95AA',
+                        lineHeight: '1.6',
+                        maxWidth: '600px',
+                        margin: '0 auto'
                     }}>
-                        회원가입 없이 무료로 체험할 수 있습니다
+                        계약서 내용과 새 요청을 입력하면 범위 초과 여부를 즉시 판정해드립니다. 회원가입 없이 무료 체험 가능합니다
                     </p>
                 </div>
 
@@ -125,23 +137,31 @@ export function ScopeJudgmentDemo() {
                     borderRadius: '12px',
                     padding: '32px'
                 }}>
-                    {/* Input Area */}
+                    {/* Input Area 1 - Contract Scope */}
                     <div style={{ marginBottom: '24px' }}>
                         <label style={{
                             display: 'block',
                             fontSize: '13px',
+                            color: '#E8EAF0',
+                            fontWeight: 'bold',
+                            marginBottom: '4px'
+                        }}>
+                            📋 계약서 / 요구사항 정의
+                        </label>
+                        <p style={{
+                            fontSize: '12px',
                             color: '#8C95AA',
                             marginBottom: '8px'
                         }}>
-                            클라이언트 요청 내용
-                        </label>
+                            기존에 합의된 작업 범위를 입력해주세요
+                        </p>
                         <textarea
-                            value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
-                            placeholder="예) 랜딩 페이지 외에 회사 소개 페이지 3개를 추가로 만들어 주실 수 있나요?"
+                            value={contractScope}
+                            onChange={(e) => setContractScope(e.target.value)}
+                            placeholder={'예) \n- 메인 페이지 1개\n- 서브 페이지 3개 (회사소개, 서비스, 문의)\n- 반응형 디자인 포함\n- 기간: 4주\n- 디자인 수정 2회 포함'}
                             style={{
                                 width: '100%',
-                                height: '120px',
+                                height: '140px',
                                 background: '#0F1117',
                                 border: '1px solid #232B3E',
                                 borderRadius: '8px',
@@ -150,29 +170,131 @@ export function ScopeJudgmentDemo() {
                                 fontSize: '14px',
                                 resize: 'none',
                                 outline: 'none',
-                                transition: 'border-color 0.2s'
+                                transition: 'border-color 0.2s',
+                                fontFamily: 'inherit'
                             }}
                             onFocus={(e) => e.target.style.borderColor = '#4F80FF'}
                             onBlur={(e) => e.target.style.borderColor = '#232B3E'}
                         />
 
-                        {/* Example Chips */}
+                        {/* Contract Example Chips */}
                         <div style={{
                             display: 'flex',
                             flexWrap: 'wrap',
                             gap: '8px',
                             marginTop: '12px'
                         }}>
-                            {exampleChips.map((chip) => (
+                            {contractExamples.map((chip) => (
                                 <button
                                     key={chip}
-                                    onClick={() => handleChipClick(chip)}
+                                    onClick={() => handleContractChipClick(chip)}
                                     style={{
                                         background: 'rgba(79, 128, 255, 0.1)',
                                         border: '1px solid rgba(79, 128, 255, 0.3)',
                                         borderRadius: '20px',
                                         padding: '4px 12px',
-                                        fontSize: '12px',
+                                        fontSize: '11px',
+                                        color: '#4F80FF',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(79, 128, 255, 0.15)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(79, 128, 255, 0.1)';
+                                    }}
+                                >
+                                    {chip}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Divider with Arrow */}
+                    <div style={{
+                        position: 'relative',
+                        height: '1px',
+                        background: '#232B3E',
+                        marginBottom: '24px'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            left: '50%',
+                            top: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: '32px',
+                            height: '32px',
+                            background: '#1A1F2E',
+                            border: '1px solid #232B3E',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#4F80FF',
+                            fontSize: '18px'
+                        }}>
+                            ↓
+                        </div>
+                    </div>
+
+                    {/* Input Area 2 - New Request */}
+                    <div style={{ marginBottom: '24px' }}>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '13px',
+                            color: '#E8EAF0',
+                            fontWeight: 'bold',
+                            marginBottom: '4px'
+                        }}>
+                            💬 클라이언트 새 요청
+                        </label>
+                        <p style={{
+                            fontSize: '12px',
+                            color: '#8C95AA',
+                            marginBottom: '8px'
+                        }}>
+                            클라이언트가 새로 요청한 내용을 입력해주세요
+                        </p>
+                        <textarea
+                            value={newRequest}
+                            onChange={(e) => setNewRequest(e.target.value)}
+                            placeholder="예) 쇼핑몰 기능도 추가해주실 수 있나요? 상품 등록이랑 결제 기능이요."
+                            style={{
+                                width: '100%',
+                                height: '100px',
+                                background: '#0F1117',
+                                border: '1px solid #232B3E',
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                color: '#E8EAF0',
+                                fontSize: '14px',
+                                resize: 'none',
+                                outline: 'none',
+                                transition: 'border-color 0.2s',
+                                fontFamily: 'inherit'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#4F80FF'}
+                            onBlur={(e) => e.target.style.borderColor = '#232B3E'}
+                        />
+
+                        {/* Request Example Chips */}
+                        <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '8px',
+                            marginTop: '12px'
+                        }}>
+                            {requestExamples.map((chip) => (
+                                <button
+                                    key={chip}
+                                    onClick={() => handleRequestChipClick(chip)}
+                                    style={{
+                                        background: 'rgba(79, 128, 255, 0.1)',
+                                        border: '1px solid rgba(79, 128, 255, 0.3)',
+                                        borderRadius: '20px',
+                                        padding: '4px 12px',
+                                        fontSize: '11px',
                                         color: '#4F80FF',
                                         cursor: 'pointer',
                                         transition: 'all 0.2s'
@@ -193,32 +315,34 @@ export function ScopeJudgmentDemo() {
                     {/* Judge Button */}
                     <button
                         onClick={handleJudge}
-                        disabled={!inputText.trim() || state === 'loading'}
+                        disabled={isButtonDisabled}
                         style={{
                             width: '100%',
                             height: '48px',
-                            background: inputText.trim() && state !== 'loading' ? '#4F80FF' : '#232B3E',
+                            background: !isButtonDisabled ? '#4F80FF' : '#232B3E',
                             color: 'white',
                             fontSize: '15px',
                             fontWeight: 'bold',
                             borderRadius: '8px',
                             border: 'none',
-                            cursor: inputText.trim() && state !== 'loading' ? 'pointer' : 'not-allowed',
+                            cursor: !isButtonDisabled ? 'pointer' : 'not-allowed',
                             transition: 'background 0.2s',
-                            marginBottom: '24px'
+                            marginBottom: '24px',
+                            opacity: isButtonDisabled ? 0.4 : 1
                         }}
                         onMouseEnter={(e) => {
-                            if (inputText.trim() && state !== 'loading') {
+                            if (!isButtonDisabled) {
                                 e.currentTarget.style.background = '#3A6BDD';
                             }
                         }}
                         onMouseLeave={(e) => {
-                            if (inputText.trim() && state !== 'loading') {
+                            if (!isButtonDisabled) {
                                 e.currentTarget.style.background = '#4F80FF';
                             }
                         }}
+                        title={isButtonDisabled && state !== 'loading' ? '계약 범위와 새 요청을 모두 입력해주세요' : ''}
                     >
-                        범위 판정하기 →
+                        {isButtonDisabled && state !== 'loading' ? '계약 범위와 새 요청을 모두 입력해주세요' : '범위 판정하기 →'}
                     </button>
 
                     {/* Result Area */}
@@ -228,9 +352,12 @@ export function ScopeJudgmentDemo() {
                             border: '1px dashed #232B3E',
                             borderRadius: '8px',
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            gap: '8px'
                         }}>
+                            <div style={{ fontSize: '32px' }}>🔍</div>
                             <p style={{
                                 color: '#8C95AA',
                                 fontSize: '13px'
@@ -262,7 +389,7 @@ export function ScopeJudgmentDemo() {
                                 color: '#8C95AA',
                                 fontSize: '13px'
                             }}>
-                                AI가 분석 중입니다...
+                                계약 내용을 분석 중입니다...
                             </p>
                         </div>
                     )}
@@ -309,7 +436,7 @@ export function ScopeJudgmentDemo() {
                             <p style={{
                                 fontSize: '14px',
                                 color: '#E8EAF0',
-                                lineHeight: '1.6',
+                                lineHeight: '1.7',
                                 marginBottom: '16px'
                             }}>
                                 {result.reason}
@@ -332,7 +459,7 @@ export function ScopeJudgmentDemo() {
                                     background: '#0F1117',
                                     border: '1px solid #232B3E',
                                     borderRadius: '8px',
-                                    padding: '8px 16px',
+                                    padding: '10px 16px',
                                     flex: '1',
                                     minWidth: '140px'
                                 }}>
@@ -341,44 +468,21 @@ export function ScopeJudgmentDemo() {
                                         color: '#8C95AA',
                                         marginBottom: '4px'
                                     }}>
-                                        추가 예상 시간
-                                    </div>
-                                    <div style={{
-                                        fontSize: '14px',
-                                        color: 'white',
-                                        fontWeight: '600'
-                                    }}>
-                                        {result.estimatedTime}
-                                    </div>
-                                </div>
-                                <div style={{
-                                    background: '#0F1117',
-                                    border: '1px solid #232B3E',
-                                    borderRadius: '8px',
-                                    padding: '8px 16px',
-                                    flex: '1',
-                                    minWidth: '140px'
-                                }}>
-                                    <div style={{
-                                        fontSize: '11px',
-                                        color: '#8C95AA',
-                                        marginBottom: '4px'
-                                    }}>
-                                        계약 범위
+                                        판정 결과
                                     </div>
                                     <div style={{
                                         fontSize: '14px',
                                         color: result.type === 'out-of-scope' ? '#F87171' : '#10B981',
                                         fontWeight: '600'
                                     }}>
-                                        {result.scopeStatus}
+                                        {result.judgmentStatus}
                                     </div>
                                 </div>
                                 <div style={{
                                     background: '#0F1117',
                                     border: '1px solid #232B3E',
                                     borderRadius: '8px',
-                                    padding: '8px 16px',
+                                    padding: '10px 16px',
                                     flex: '1',
                                     minWidth: '140px'
                                 }}>
@@ -387,7 +491,7 @@ export function ScopeJudgmentDemo() {
                                         color: '#8C95AA',
                                         marginBottom: '4px'
                                     }}>
-                                        추가 견적 필요
+                                        추가 견적
                                     </div>
                                     <div style={{
                                         fontSize: '14px',
@@ -395,6 +499,29 @@ export function ScopeJudgmentDemo() {
                                         fontWeight: '600'
                                     }}>
                                         {result.needsQuote}
+                                    </div>
+                                </div>
+                                <div style={{
+                                    background: '#0F1117',
+                                    border: '1px solid #232B3E',
+                                    borderRadius: '8px',
+                                    padding: '10px 16px',
+                                    flex: '1',
+                                    minWidth: '140px'
+                                }}>
+                                    <div style={{
+                                        fontSize: '11px',
+                                        color: '#8C95AA',
+                                        marginBottom: '4px'
+                                    }}>
+                                        계약 근거
+                                    </div>
+                                    <div style={{
+                                        fontSize: '14px',
+                                        color: '#10B981',
+                                        fontWeight: '600'
+                                    }}>
+                                        {result.hasContractBasis}
                                     </div>
                                 </div>
                             </div>
@@ -415,7 +542,7 @@ export function ScopeJudgmentDemo() {
                                     color: '#8C95AA',
                                     marginBottom: '16px'
                                 }}>
-                                    더 많은 기능이 궁금하다면
+                                    실제 프로젝트에 적용하고 싶다면
                                 </p>
                                 <div style={{
                                     display: 'flex',

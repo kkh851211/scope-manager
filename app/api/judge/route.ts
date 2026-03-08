@@ -15,32 +15,34 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'API key setup is incomplete' }, { status: 500 });
         }
 
-        const { request } = await req.json();
-        console.log('API Request received:', request);
+        const { contract, request } = await req.json();
+        console.log('API Request received:', { contract, request });
 
-        if (!request) {
-            return NextResponse.json({ error: 'Request content is missing' }, { status: 400 });
+        if (!contract || !request) {
+            return NextResponse.json({ error: 'Contract scope or request content is missing' }, { status: 400 });
         }
 
         const systemPrompt = `당신은 웹 에이전시 프로젝트 스코프 판정 AI입니다.
-클라이언트의 요청이 일반적인 웹 개발 계약 범위 내인지 초과인지 판정해주세요.
 
-응답은 반드시 아래 JSON 형식으로만 답변하세요:
+[계약 범위]에 명시된 내용을 기준으로
+[새 요청]이 계약 범위 내인지 초과인지 판정하세요.
+
+반드시 아래 JSON 형식으로만 응답하세요:
 {
   "result": "초과" 또는 "범위내",
-  "reason": "판정 근거 문장 (2~3문장, 한국어)",
+  "reason": "계약서 내용을 근거로 한 판정 이유 (2~3문장, 한국어)",
   "needsQuote": true 또는 false
 }`;
 
         console.log('Calling Anthropic API...');
         const message = await anthropic.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-3-5-sonnet-latest',
             max_tokens: 1000,
             system: systemPrompt,
             messages: [
                 {
                     role: 'user',
-                    content: request,
+                    content: `[계약 범위]\n${contract}\n\n[새 요청]\n${request}`,
                 },
             ],
         });
