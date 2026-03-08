@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MailOpen } from "lucide-react";
 import { JudgmentItem } from "@/app/(dashboard)/projects/[id]/ProjectDetailClient";
 
@@ -11,9 +12,12 @@ export default function AdditionalRequests({ judgments, projectId }: { judgments
         <div className="space-y-6">
             {/* 상단 버튼 */}
             <div className="flex justify-end">
-                <button className="bg-[#4f80ff] hover:bg-[#4f80ff]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                <Link
+                    href={`/projects/${projectId}/requests/new`}
+                    className="bg-[#4f80ff] hover:bg-[#4f80ff]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
                     + 추가 요구 기록
-                </button>
+                </Link>
             </div>
 
             {/* 빈 상태 (상태 A) */}

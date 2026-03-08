@@ -107,9 +107,12 @@ export default function ProjectDetailClient({
                             </div>
                         </div>
 
-                        <button className="bg-[#4f80ff] hover:bg-[#4f80ff]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <Link
+                            href={`/projects/${project.id}/requests/new`}
+                            className="bg-[#4f80ff] hover:bg-[#4f80ff]/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        >
                             추가 요구 기록
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
