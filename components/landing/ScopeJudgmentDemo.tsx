@@ -113,7 +113,7 @@ export function ScopeJudgmentDemo() {
                     <h2 style={{
                         fontSize: '28px',
                         fontWeight: 'bold',
-                        color: 'white',
+                        color: theme === 'dark' ? '#E8EAF0' : '#1A1F2E',
                         marginBottom: '12px',
                         lineHeight: '1.3'
                     }}>
@@ -121,7 +121,7 @@ export function ScopeJudgmentDemo() {
                     </h2>
                     <p style={{
                         fontSize: '14px',
-                        color: '#8C95AA',
+                        color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                         lineHeight: '1.6',
                         maxWidth: '600px',
                         margin: '0 auto'
