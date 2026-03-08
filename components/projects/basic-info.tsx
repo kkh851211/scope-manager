@@ -1,25 +1,58 @@
-export default function BasicInfo() {
+import { Project } from "@/types/database";
+
+export default function BasicInfo({ project }: { project: Project }) {
+    const aiAmount = project.ai_estimated_amount || 0;
+    const contractAmountStr = project.contract_amount ? project.contract_amount.toLocaleString() + '원' : '-';
+    const aiAmountStr = aiAmount > 0 ? aiAmount.toLocaleString() + '원' : '-';
+
+    // 차액 계산
+    const diff = (project.contract_amount || 0) - aiAmount;
+    const diffAbsStr = Math.abs(diff).toLocaleString() + '원';
+
+    let diffColor = "text-[#8c95aa]";
+    let diffSign = "";
+    let diffLabel = "계약 금액 미정 또는 AI 산출 금액 미정";
+
+    if (project.contract_amount && aiAmount) {
+        if (diff > 0) {
+            diffColor = "text-[#10b981]";
+            diffSign = "+";
+            diffLabel = "계약 금액이 산출 금액보다 높음";
+        } else if (diff < 0) {
+            diffColor = "text-[#f87171]";
+            diffSign = "-";
+            diffLabel = "계약 금액이 산출 금액보다 낮음";
+        } else {
+            diffColor = "text-[#8c95aa]";
+            diffLabel = "계약 금액과 AI 산출 금액 동일";
+        }
+    }
+
+    const formatDt = (dtStr: string | null) => dtStr ? dtStr.split('T')[0].replace(/-/g, '.') : '-';
+
     return (
         <div className="space-y-6">
             {/* 상단 3컬럼 수치 카드 */}
             <div className="grid grid-cols-3 gap-4">
                 {/* 계약 금액 */}
                 <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5">
-                    <div className="text-2xl font-bold text-[#e8eaf0] mb-1">5,000,000원</div>
+                    <div className="text-2xl font-bold text-[#e8eaf0] mb-1">{contractAmountStr}</div>
                     <div className="text-sm text-[#8c95aa]">계약 금액</div>
                 </div>
 
                 {/* AI 산출 금액 */}
                 <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5">
-                    <div className="text-2xl font-bold text-[#4f80ff] mb-1">4,350,000원</div>
+                    <div className="text-2xl font-bold text-[#4f80ff] mb-1">{aiAmountStr}</div>
                     <div className="text-sm text-[#8c95aa]">AI 산출 금액</div>
                 </div>
 
                 {/* 차액 */}
                 <div className="bg-[#1a1f2e] border border-[#232b3e] rounded-xl p-5">
-                    <div className="text-2xl font-bold text-[#10b981] mb-1">+650,000원</div>
+                    <div className={`text-2xl font-bold ${diffColor} mb-1`}>
+                        {diffSign}{diffAbsStr}
+                    </div>
                     <div className="text-sm text-[#8c95aa] mb-1">계약 여유 금액</div>
-                    <div className="text-xs text-[#8c95aa]">계약 금액이 산출 금액보다 높음</div>
+                    <div className="text-xs text-[#8c95aa]">{diffLabel}</div>
                 </div>
             </div>
 
@@ -35,32 +68,32 @@ export default function BasicInfo() {
                 <div className="grid grid-cols-2 gap-x-12 gap-y-4">
                     <div>
                         <div className="text-sm text-[#8c95aa] mb-1">프로젝트 이름</div>
-                        <div className="text-[#e8eaf0]">올리브영 리뉴얼 웹사이트</div>
+                        <div className="text-[#e8eaf0]">{project.name}</div>
                     </div>
 
                     <div>
                         <div className="text-sm text-[#8c95aa] mb-1">클라이언트명</div>
-                        <div className="text-[#e8eaf0]">(주)올리브영</div>
+                        <div className="text-[#e8eaf0]">{project.client_name || '-'}</div>
                     </div>
 
                     <div>
                         <div className="text-sm text-[#8c95aa] mb-1">시작일</div>
-                        <div className="text-[#e8eaf0]">2025.03.01</div>
+                        <div className="text-[#e8eaf0]">{formatDt(project.start_date)}</div>
                     </div>
 
                     <div>
                         <div className="text-sm text-[#8c95aa] mb-1">종료일</div>
-                        <div className="text-[#e8eaf0]">2025.05.31</div>
+                        <div className="text-[#e8eaf0]">{formatDt(project.end_date)}</div>
                     </div>
 
                     <div>
                         <div className="text-sm text-[#8c95aa] mb-1">총 예상 공수</div>
-                        <div className="text-[#e8eaf0]">29일</div>
+                        <div className="text-[#e8eaf0]">{project.ai_estimated_days ? project.ai_estimated_days + '일' : '-'}</div>
                     </div>
 
                     <div>
                         <div className="text-sm text-[#8c95aa] mb-1">등록일</div>
-                        <div className="text-[#e8eaf0]">2025.02.15</div>
+                        <div className="text-[#e8eaf0]">{formatDt(project.created_at)}</div>
                     </div>
                 </div>
             </div>

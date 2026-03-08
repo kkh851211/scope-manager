@@ -1,41 +1,8 @@
-export default function ContractScope() {
-    const scopeItems = [
-        {
-            name: "반응형 웹사이트",
-            detail: "UI디자인+퍼블리싱",
-            days: 10,
-            rate: "150,000원",
-            amount: "1,500,000원",
-        },
-        {
-            name: "관리자 페이지",
-            detail: "기획+프론트+백엔드",
-            days: 8,
-            rate: "150,000원",
-            amount: "1,200,000원",
-        },
-        {
-            name: "회원가입·로그인",
-            detail: "개발+테스트",
-            days: 3,
-            rate: "150,000원",
-            amount: "450,000원",
-        },
-        {
-            name: "결제 연동",
-            detail: "PG연동+예외처리",
-            days: 5,
-            rate: "150,000원",
-            amount: "750,000원",
-        },
-        {
-            name: "QA·배포",
-            detail: "통합테스트+서버배포",
-            days: 3,
-            rate: "150,000원",
-            amount: "450,000원",
-        },
-    ];
+import { ContractFeature, Project } from "@/types/database";
+
+export default function ContractScope({ features, project }: { features: ContractFeature[], project: Project }) {
+    const totalDays = features.reduce((sum, f) => sum + (f.estimated_days || 0), 0);
+    const totalAmount = features.reduce((sum, f) => sum + (f.amount || 0), 0);
 
     return (
         <div className="space-y-6">
@@ -61,27 +28,35 @@ export default function ContractScope() {
                             </tr>
                         </thead>
                         <tbody>
-                            {scopeItems.map((item, index) => (
+                            {features.map((item, index) => (
                                 <tr
                                     key={index}
                                     className="border-b border-[#232b3e] hover:bg-[#1e2538] transition-colors"
                                 >
-                                    <td className="py-3 px-4 text-[#e8eaf0]">{item.name}</td>
-                                    <td className="py-3 px-4 text-[#8c95aa] text-sm">{item.detail}</td>
-                                    <td className="py-3 px-4 text-right text-[#e8eaf0]">{item.days}일</td>
-                                    <td className="py-3 px-4 text-right text-[#8c95aa]">{item.rate}</td>
-                                    <td className="py-3 px-4 text-right text-[#e8eaf0]">{item.amount}</td>
+                                    <td className="py-3 px-4 text-[#e8eaf0]">{item.feature_name}</td>
+                                    <td className="py-3 px-4 text-[#8c95aa] text-sm">{item.detail_work || '-'}</td>
+                                    <td className="py-3 px-4 text-right text-[#e8eaf0]">{item.estimated_days ? item.estimated_days + '일' : '-'}</td>
+                                    <td className="py-3 px-4 text-right text-[#8c95aa]">{item.daily_rate ? item.daily_rate.toLocaleString() + '원' : '-'}</td>
+                                    <td className="py-3 px-4 text-right text-[#e8eaf0]">{item.amount ? item.amount.toLocaleString() + '원' : '-'}</td>
                                 </tr>
                             ))}
 
+                            {features.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="py-8 text-center text-[#8c95aa]">등록된 기능이 없습니다.</td>
+                                </tr>
+                            )}
+
                             {/* 합계 행 */}
-                            <tr className="bg-[#1e2538]">
-                                <td className="py-4 px-4 font-semibold text-[#e8eaf0]">합계</td>
-                                <td className="py-4 px-4"></td>
-                                <td className="py-4 px-4 text-right font-semibold text-[#e8eaf0]">29일</td>
-                                <td className="py-4 px-4"></td>
-                                <td className="py-4 px-4 text-right font-semibold text-[#4f80ff]">4,350,000원</td>
-                            </tr>
+                            {features.length > 0 && (
+                                <tr className="bg-[#1e2538]">
+                                    <td className="py-4 px-4 font-semibold text-[#e8eaf0]">합계</td>
+                                    <td className="py-4 px-4"></td>
+                                    <td className="py-4 px-4 text-right font-semibold text-[#e8eaf0]">{totalDays}일</td>
+                                    <td className="py-4 px-4"></td>
+                                    <td className="py-4 px-4 text-right font-semibold text-[#4f80ff]">{totalAmount.toLocaleString()}원</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
