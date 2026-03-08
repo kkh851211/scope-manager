@@ -398,12 +398,12 @@ export function ScopeJudgmentDemo() {
 
                     {(state === 'out-of-scope' || state === 'in-scope') && result && (
                         <div style={{
-                            background: result.type === 'out-of-scope'
-                                ? 'rgba(248, 113, 113, 0.08)'
-                                : 'rgba(16, 185, 129, 0.08)',
-                            border: `1px solid ${result.type === 'out-of-scope'
-                                ? 'rgba(248, 113, 113, 0.3)'
-                                : 'rgba(16, 185, 129, 0.3)'}`,
+                            background: theme === 'dark'
+                                ? (result.type === 'out-of-scope' ? 'rgba(248, 113, 113, 0.08)' : 'rgba(16, 185, 129, 0.08)')
+                                : (result.type === 'out-of-scope' ? 'rgba(248, 113, 113, 0.05)' : 'rgba(16, 185, 129, 0.05)'),
+                            border: `1px solid ${theme === 'dark'
+                                ? (result.type === 'out-of-scope' ? 'rgba(248, 113, 113, 0.3)' : 'rgba(16, 185, 129, 0.3)')
+                                : (result.type === 'out-of-scope' ? 'rgba(248, 113, 113, 0.4)' : 'rgba(16, 185, 129, 0.4)')}`,
                             borderRadius: '8px',
                             padding: '20px'
                         }}>
@@ -428,7 +428,7 @@ export function ScopeJudgmentDemo() {
                                 </div>
                                 <div style={{
                                     fontSize: '11px',
-                                    color: '#8C95AA'
+                                    color: theme === 'dark' ? '#8C95AA' : '#5A6478'
                                 }}>
                                     AI 판정 완료
                                 </div>
@@ -437,7 +437,7 @@ export function ScopeJudgmentDemo() {
                             {/* Judgment Text */}
                             <p style={{
                                 fontSize: '14px',
-                                color: '#E8EAF0',
+                                color: theme === 'dark' ? '#E8EAF0' : '#1A1F2E',
                                 lineHeight: '1.7',
                                 marginBottom: '16px'
                             }}>
@@ -447,7 +447,7 @@ export function ScopeJudgmentDemo() {
                             {/* Divider */}
                             <div style={{
                                 height: '1px',
-                                background: '#232B3E',
+                                background: theme === 'dark' ? '#232B3E' : '#D1D9E6',
                                 marginBottom: '16px'
                             }} />
 
@@ -458,8 +458,8 @@ export function ScopeJudgmentDemo() {
                                 flexWrap: 'wrap'
                             }}>
                                 <div style={{
-                                    background: '#0F1117',
-                                    border: '1px solid #232B3E',
+                                    background: theme === 'dark' ? '#0F1117' : '#F5F7FA',
+                                    border: `1px solid ${theme === 'dark' ? '#232B3E' : '#D1D9E6'}`,
                                     borderRadius: '8px',
                                     padding: '10px 16px',
                                     flex: '1',
@@ -467,7 +467,7 @@ export function ScopeJudgmentDemo() {
                                 }}>
                                     <div style={{
                                         fontSize: '11px',
-                                        color: '#8C95AA',
+                                        color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                                         marginBottom: '4px'
                                     }}>
                                         판정 결과
@@ -481,8 +481,8 @@ export function ScopeJudgmentDemo() {
                                     </div>
                                 </div>
                                 <div style={{
-                                    background: '#0F1117',
-                                    border: '1px solid #232B3E',
+                                    background: theme === 'dark' ? '#0F1117' : '#F5F7FA',
+                                    border: `1px solid ${theme === 'dark' ? '#232B3E' : '#D1D9E6'}`,
                                     borderRadius: '8px',
                                     padding: '10px 16px',
                                     flex: '1',
@@ -490,7 +490,7 @@ export function ScopeJudgmentDemo() {
                                 }}>
                                     <div style={{
                                         fontSize: '11px',
-                                        color: '#8C95AA',
+                                        color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                                         marginBottom: '4px'
                                     }}>
                                         추가 견적
@@ -504,8 +504,8 @@ export function ScopeJudgmentDemo() {
                                     </div>
                                 </div>
                                 <div style={{
-                                    background: '#0F1117',
-                                    border: '1px solid #232B3E',
+                                    background: theme === 'dark' ? '#0F1117' : '#F5F7FA',
+                                    border: `1px solid ${theme === 'dark' ? '#232B3E' : '#D1D9E6'}`,
                                     borderRadius: '8px',
                                     padding: '10px 16px',
                                     flex: '1',
@@ -513,7 +513,7 @@ export function ScopeJudgmentDemo() {
                                 }}>
                                     <div style={{
                                         fontSize: '11px',
-                                        color: '#8C95AA',
+                                        color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                                         marginBottom: '4px'
                                     }}>
                                         계약 근거
@@ -535,13 +535,13 @@ export function ScopeJudgmentDemo() {
                         <>
                             <div style={{
                                 height: '1px',
-                                background: '#232B3E',
+                                background: theme === 'dark' ? '#232B3E' : '#D1D9E6',
                                 margin: '32px 0 24px'
                             }} />
                             <div style={{ textAlign: 'center' }}>
                                 <p style={{
                                     fontSize: '13px',
-                                    color: '#8C95AA',
+                                    color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                                     marginBottom: '16px'
                                 }}>
                                     실제 프로젝트에 적용하고 싶다면
@@ -570,12 +570,12 @@ export function ScopeJudgmentDemo() {
                                     </button>
                                     <button style={{
                                         background: 'transparent',
-                                        color: '#8C95AA',
+                                        color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                                         padding: '12px 24px',
                                         borderRadius: '8px',
                                         fontSize: '14px',
                                         fontWeight: '600',
-                                        border: '1px solid #232B3E',
+                                        border: `1px solid ${theme === 'dark' ? '#232B3E' : '#D1D9E6'}`,
                                         cursor: 'pointer',
                                         transition: 'all 0.2s'
                                     }}
@@ -584,8 +584,8 @@ export function ScopeJudgmentDemo() {
                                             e.currentTarget.style.color = '#4F80FF';
                                         }}
                                         onMouseLeave={(e) => {
-                                            e.currentTarget.style.borderColor = '#232B3E';
-                                            e.currentTarget.style.color = '#8C95AA';
+                                            e.currentTarget.style.borderColor = theme === 'dark' ? '#232B3E' : '#D1D9E6';
+                                            e.currentTarget.style.color = theme === 'dark' ? '#8C95AA' : '#5A6478';
                                         }}
                                     >
                                         기능 더 보기
