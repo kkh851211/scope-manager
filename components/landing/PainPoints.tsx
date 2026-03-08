@@ -1,9 +1,11 @@
 'use client';
 
 import { useTheme } from 'next-themes';
+import { useSectionTracking } from '@/hooks/use-section-tracking';
 
 export function PainPoints() {
   const { theme } = useTheme();
+  const sectionRef = useSectionTracking('PainPoints');
 
   const pains = [
     {
@@ -36,7 +38,7 @@ export function PainPoints() {
   ];
 
   return (
-    <section className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-gray-50'
+    <section ref={sectionRef as any} className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-gray-50'
       }`}>
       <div className="max-w-[1060px] mx-auto">
         {/* Label */}

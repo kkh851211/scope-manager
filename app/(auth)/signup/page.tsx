@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import posthog from 'posthog-js'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -57,6 +58,8 @@ export default function SignupPage() {
 
     // 이메일 인증이 꺼져있어 자동 로그인된 세션을 강제로 로그아웃 처리
     await supabase.auth.signOut()
+
+    posthog.capture('signup_completed')
 
     alert('회원가입이 완료되었습니다. 로그인해주세요.')
     router.push('/login')

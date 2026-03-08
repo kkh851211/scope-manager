@@ -1,9 +1,11 @@
 'use client';
 
 import { useTheme } from 'next-themes';
+import { useSectionTracking } from '@/hooks/use-section-tracking';
 
 export function SocialProof() {
   const { theme } = useTheme();
+  const sectionRef = useSectionTracking('SocialProof');
 
   const stats = [
     { value: "52%", label: "전 세계 프로젝트 스코프 크리프 발생률" },
@@ -12,7 +14,7 @@ export function SocialProof() {
   ];
 
   return (
-    <section className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-gray-50'
+    <section ref={sectionRef as any} className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-gray-50'
       }`}>
       <div className="max-w-[1060px] mx-auto">
         {/* Headline */}

@@ -2,9 +2,16 @@
 
 import { Edit3, Brain, FileText, ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import posthog from 'posthog-js';
+import { useSectionTracking } from '@/hooks/use-section-tracking';
 
 export function DemoPreview() {
   const { theme } = useTheme();
+  const sectionRef = useSectionTracking('DemoPreview');
+
+  const handleDemoClick = () => {
+    posthog.capture('demo_button_clicked');
+  };
 
   const steps = [
     { icon: Edit3, label: "클라이언트 요청 입력" },
@@ -13,7 +20,7 @@ export function DemoPreview() {
   ];
 
   return (
-    <section id="demo" className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
+    <section id="demo" ref={sectionRef as any} className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
       }`}>
       <div className="max-w-[1060px] mx-auto">
         {/* Label */}
@@ -143,10 +150,12 @@ export function DemoPreview() {
 
         {/* CTA */}
         <div className="text-center">
-          <button className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all flex items-center gap-2 font-semibold text-base sm:text-lg mx-auto ${theme === 'dark'
-            ? 'bg-[#10B981] hover:bg-[#0EA572] text-white'
-            : 'bg-green-600 hover:bg-green-700 text-white'
-            }`}>
+          <button
+            onClick={handleDemoClick}
+            className={`px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all flex items-center gap-2 font-semibold text-base sm:text-lg mx-auto ${theme === 'dark'
+              ? 'bg-[#10B981] hover:bg-[#0EA572] text-white'
+              : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}>
             직접 써보기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
           </button>
         </div>

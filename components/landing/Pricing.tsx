@@ -3,9 +3,16 @@
 import { Check, ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import posthog from 'posthog-js';
+import { useSectionTracking } from '@/hooks/use-section-tracking';
 
 export function Pricing() {
   const { theme } = useTheme();
+  const sectionRef = useSectionTracking('Pricing');
+
+  const handleCTAClick = () => {
+    posthog.capture('pricing_cta_clicked');
+  };
 
   const features = [
     "AI 범위 초과 판정 무제한",
@@ -16,7 +23,7 @@ export function Pricing() {
   ];
 
   return (
-    <section id="pricing" className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-gray-50'
+    <section id="pricing" ref={sectionRef as any} className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-gray-50'
       }`}>
       <div className="max-w-[1060px] mx-auto">
         {/* Label */}
@@ -77,6 +84,7 @@ export function Pricing() {
             {/* CTA */}
             <Link
               href="/signup"
+              onClick={handleCTAClick}
               className="w-full bg-[#4F80FF] text-white py-3 sm:py-4 rounded-full hover:bg-[#4070EF] transition-all font-semibold text-base sm:text-lg flex items-center justify-center gap-2 mb-3 sm:mb-4"
             >
               베타 무료 체험 시작하기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />

@@ -3,12 +3,19 @@
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import posthog from 'posthog-js';
+import { useSectionTracking } from '@/hooks/use-section-tracking';
 
 export function Hero() {
   const { theme } = useTheme();
+  const sectionRef = useSectionTracking('Hero');
+
+  const handleCTAClick = () => {
+    posthog.capture('hero_cta_clicked');
+  };
 
   return (
-    <section className={`py-16 sm:py-20 md:py-32 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
+    <section ref={sectionRef as any} className={`py-16 sm:py-20 md:py-32 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
       }`}>
       <div className="max-w-[1060px] mx-auto text-center">
         {/* Badge */}
@@ -36,14 +43,17 @@ export function Hero() {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-4 sm:mb-6 px-4">
           <Link
             href="/signup"
+            onClick={handleCTAClick}
             className="w-full sm:w-auto bg-[#4F80FF] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-[#4070EF] transition-all flex items-center justify-center gap-2 font-semibold text-base sm:text-lg"
           >
             얼리 액세스 신청하기 <ArrowRight size={18} className="sm:w-5 sm:h-5" />
           </Link>
-          <button className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all font-semibold text-base sm:text-lg ${theme === 'dark'
-            ? 'border border-white/20 text-white hover:bg-white/5'
-            : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-            }`}>
+          <button
+            onClick={handleCTAClick}
+            className={`w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all font-semibold text-base sm:text-lg ${theme === 'dark'
+              ? 'border border-white/20 text-white hover:bg-white/5'
+              : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}>
             데모 보기
           </button>
         </div>

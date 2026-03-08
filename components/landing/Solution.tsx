@@ -1,9 +1,11 @@
 'use client';
 
 import { useTheme } from 'next-themes';
+import { useSectionTracking } from '@/hooks/use-section-tracking';
 
 export function Solution() {
   const { theme } = useTheme();
+  const sectionRef = useSectionTracking('Solution');
 
   const features = [
     {
@@ -33,7 +35,7 @@ export function Solution() {
   ];
 
   return (
-    <section id="solution" className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
+    <section id="solution" ref={sectionRef as any} className={`py-16 sm:py-20 px-5 sm:px-7 ${theme === 'dark' ? 'bg-[#0F1117]' : 'bg-white'
       }`}>
       <div className="max-w-[1060px] mx-auto">
         {/* Label */}
