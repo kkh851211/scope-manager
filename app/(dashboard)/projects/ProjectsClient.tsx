@@ -18,16 +18,9 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
     const router = useRouter();
 
     const handleNewProject = () => {
-        setIsModalOpen(true);
+        router.push('/projects/new');
     };
 
-    const handleModalChange = (open: boolean) => {
-        setIsModalOpen(open);
-        // If modal was closed, refresh the router to fetch new project
-        if (!open) {
-            router.refresh();
-        }
-    }
 
     return (
         <>
@@ -58,10 +51,6 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
                 )}
             </div>
 
-            <CreateProjectModal
-                open={isModalOpen}
-                onOpenChange={handleModalChange}
-            />
         </>
     );
 }
