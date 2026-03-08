@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
 import { Loader2 } from 'lucide-react';
 
 type JudgmentState = 'empty' | 'loading' | 'out-of-scope' | 'in-scope';
@@ -18,6 +19,7 @@ export function ScopeJudgmentDemo() {
     const [newRequest, setNewRequest] = useState('');
     const [state, setState] = useState<JudgmentState>('empty');
     const [result, setResult] = useState<JudgmentResult | null>(null);
+    const { theme } = useTheme();
 
     const contractExamples = [
         '웹사이트 5페이지 제작',
@@ -95,7 +97,7 @@ export function ScopeJudgmentDemo() {
     const isButtonDisabled = !contractScope.trim() || !newRequest.trim() || state === 'loading';
 
     return (
-        <div style={{ background: '#0F1117', minHeight: '100vh', padding: '80px 24px' }}>
+        <div style={{ background: theme === 'dark' ? '#0F1117' : '#F5F7FA', minHeight: '100vh', padding: '80px 24px' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: '48px' }}>
@@ -132,8 +134,8 @@ export function ScopeJudgmentDemo() {
                 <div style={{
                     maxWidth: '720px',
                     margin: '0 auto',
-                    background: '#1A1F2E',
-                    border: '1px solid #232B3E',
+                    background: theme === 'dark' ? '#1A1F2E' : '#FFFFFF',
+                    border: '1px solid ' + (theme === 'dark' ? '#232B3E' : '#D1D9E6'),
                     borderRadius: '12px',
                     padding: '32px'
                 }}>
@@ -142,7 +144,7 @@ export function ScopeJudgmentDemo() {
                         <label style={{
                             display: 'block',
                             fontSize: '13px',
-                            color: '#E8EAF0',
+                            color: theme === 'dark' ? '#E8EAF0' : '#1A1F2E',
                             fontWeight: 'bold',
                             marginBottom: '4px'
                         }}>
@@ -150,7 +152,7 @@ export function ScopeJudgmentDemo() {
                         </label>
                         <p style={{
                             fontSize: '12px',
-                            color: '#8C95AA',
+                            color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                             marginBottom: '8px'
                         }}>
                             기존에 합의된 작업 범위를 입력해주세요
@@ -162,11 +164,11 @@ export function ScopeJudgmentDemo() {
                             style={{
                                 width: '100%',
                                 height: '140px',
-                                background: '#0F1117',
-                                border: '1px solid #232B3E',
+                                background: theme === 'dark' ? '#0F1117' : '#F5F7FA',
+                                border: '1px solid ' + (theme === 'dark' ? '#232B3E' : '#D1D9E6'),
                                 borderRadius: '8px',
                                 padding: '12px 16px',
-                                color: '#E8EAF0',
+                                color: theme === 'dark' ? '#E8EAF0' : '#1A1F2E',
                                 fontSize: '14px',
                                 resize: 'none',
                                 outline: 'none',
@@ -174,7 +176,7 @@ export function ScopeJudgmentDemo() {
                                 fontFamily: 'inherit'
                             }}
                             onFocus={(e) => e.target.style.borderColor = '#4F80FF'}
-                            onBlur={(e) => e.target.style.borderColor = '#232B3E'}
+                            onBlur={(e) => e.target.style.borderColor = theme === 'dark' ? '#232B3E' : '#D1D9E6'}
                         />
 
                         {/* Contract Example Chips */}
@@ -243,7 +245,7 @@ export function ScopeJudgmentDemo() {
                         <label style={{
                             display: 'block',
                             fontSize: '13px',
-                            color: '#E8EAF0',
+                            color: theme === 'dark' ? '#E8EAF0' : '#1A1F2E',
                             fontWeight: 'bold',
                             marginBottom: '4px'
                         }}>
@@ -251,7 +253,7 @@ export function ScopeJudgmentDemo() {
                         </label>
                         <p style={{
                             fontSize: '12px',
-                            color: '#8C95AA',
+                            color: theme === 'dark' ? '#8C95AA' : '#5A6478',
                             marginBottom: '8px'
                         }}>
                             클라이언트가 새로 요청한 내용을 입력해주세요
@@ -263,11 +265,11 @@ export function ScopeJudgmentDemo() {
                             style={{
                                 width: '100%',
                                 height: '100px',
-                                background: '#0F1117',
-                                border: '1px solid #232B3E',
+                                background: theme === 'dark' ? '#0F1117' : '#F5F7FA',
+                                border: '1px solid ' + (theme === 'dark' ? '#232B3E' : '#D1D9E6'),
                                 borderRadius: '8px',
                                 padding: '12px 16px',
-                                color: '#E8EAF0',
+                                color: theme === 'dark' ? '#E8EAF0' : '#1A1F2E',
                                 fontSize: '14px',
                                 resize: 'none',
                                 outline: 'none',
@@ -275,7 +277,7 @@ export function ScopeJudgmentDemo() {
                                 fontFamily: 'inherit'
                             }}
                             onFocus={(e) => e.target.style.borderColor = '#4F80FF'}
-                            onBlur={(e) => e.target.style.borderColor = '#232B3E'}
+                            onBlur={(e) => e.target.style.borderColor = theme === 'dark' ? '#232B3E' : '#D1D9E6'}
                         />
 
                         {/* Request Example Chips */}
