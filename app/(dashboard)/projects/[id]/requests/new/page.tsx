@@ -155,7 +155,7 @@ export default function AddRequest() {
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 placeholder="예: 메인 페이지에 팝업 배너 추가해달라고 합니다"
-                                className="w-full h-[120px] bg-white dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-3 text-gray-900 dark:text-[#e8eaf0] placeholder:text-gray-400 dark:placeholder:text-[#5a5f73] focus:outline-none focus:border-[#4f80ff] resize-none"
+                                className="w-full h-[120px] bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-3 text-gray-900 dark:text-[#e8eaf0] placeholder:text-gray-400 dark:placeholder:text-[#5a5f73] focus:outline-none focus:border-[#4f80ff] resize-none"
                             />
                         </div>
 
@@ -169,7 +169,7 @@ export default function AddRequest() {
                                         onClick={() => setChannel(ch)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${channel === ch
                                             ? "bg-[#4f80ff] text-white"
-                                            : "bg-[#1e2538] text-gray-500 dark:text-[#8c95aa] border border-gray-200 dark:border-[#232b3e] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
+                                            : "bg-gray-100 dark:bg-[#1e2538] text-gray-700 dark:text-[#e8eaf0] border border-gray-200 dark:border-[#232b3e] hover:text-gray-900 dark:hover:text-[#e8eaf0]"
                                             }`}
                                     >
                                         {ch}
@@ -186,7 +186,7 @@ export default function AddRequest() {
                                     type="date"
                                     value={requestDate}
                                     onChange={(e) => setRequestDate(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-2 text-sm text-gray-900 dark:text-[#e8eaf0] focus:outline-none focus:border-[#4f80ff] dark:[color-scheme:dark]"
+                                    className="w-full bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-2 text-sm text-gray-900 dark:text-[#e8eaf0] focus:outline-none focus:border-[#4f80ff] dark:[color-scheme:dark]"
                                 />
                             </div>
                             <div>
@@ -198,7 +198,7 @@ export default function AddRequest() {
                                     value={requesterName}
                                     onChange={(e) => setRequesterName(e.target.value)}
                                     placeholder="예: 김대리"
-                                    className="w-full bg-white dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-2 text-sm text-gray-900 dark:text-[#e8eaf0] placeholder:text-gray-400 dark:placeholder:text-[#5a5f73] focus:outline-none focus:border-[#4f80ff]"
+                                    className="w-full bg-gray-100 dark:bg-[#1e2538] border border-gray-200 dark:border-[#232b3e] rounded-lg px-4 py-2 text-sm text-gray-900 dark:text-[#e8eaf0] placeholder:text-gray-400 dark:placeholder:text-[#5a5f73] focus:outline-none focus:border-[#4f80ff]"
                                 />
                             </div>
                         </div>
@@ -327,7 +327,7 @@ export default function AddRequest() {
                             </div>
 
                             {/* 요청 내용 요약 */}
-                            <div className="bg-white dark:bg-[#1e2538] rounded-lg p-4">
+                            <div className="bg-gray-100 dark:bg-[#1e2538] rounded-lg p-4">
                                 <p className="text-gray-900 dark:text-[#e8eaf0]">{content}</p>
                             </div>
 
@@ -380,7 +380,7 @@ export default function AddRequest() {
                             </div>
 
                             {/* 요청 내용 요약 */}
-                            <div className="bg-white dark:bg-[#1e2538] rounded-lg p-4">
+                            <div className="bg-gray-100 dark:bg-[#1e2538] rounded-lg p-4">
                                 <p className="text-gray-900 dark:text-[#e8eaf0]">{content}</p>
                             </div>
 
@@ -425,7 +425,7 @@ export default function AddRequest() {
                             </div>
 
                             {/* 요청 내용 요약 */}
-                            <div className="bg-white dark:bg-[#1e2538] rounded-lg p-4">
+                            <div className="bg-gray-100 dark:bg-[#1e2538] rounded-lg p-4">
                                 <p className="text-gray-900 dark:text-[#e8eaf0]">{content}</p>
                             </div>
 
