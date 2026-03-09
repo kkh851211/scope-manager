@@ -1,0 +1,2532 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — IA 정보구조도</title>
+  <style>
+
+    /* ════════════════════════════════════════
+       DESIGN TOKENS — 기존 문서 시스템과 동일
+    ════════════════════════════════════════ */
+    :root {
+      --bg:  #0f1117;
+      --s1:  #1a1f2e;
+      --s2:  #212840;
+      --t1:  #e8eaf0;
+      --t3:  #8c95aa;
+      --bd:  #232b3e;
+      --blue:   #4f80ff;
+      --green:  #10b981;
+      --red:    #f87171;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+    }
+
+    body.light {
+      --bg:  #f5f7fa;
+      --s1:  #ffffff;
+      --s2:  #eef1f7;
+      --t1:  #1a1f2e;
+      --t3:  #5a6478;
+      --bd:  #d1d9e6;
+    }
+
+    /* ════════════════════════════════════════
+       RESET & BASE
+    ════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background .2s, color .2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
+
+    .inner-wrap {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* ════════════════════════════════════════
+       HEADER
+    ════════════════════════════════════════ */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: background .2s;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -.3px;
+      white-space: nowrap;
+    }
+    .logo span { color: var(--t1); }
+
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
+    .badge.blue   { border-color: var(--blue);   color: var(--blue);   }
+    .badge.green  { border-color: var(--green);  color: var(--green);  }
+    .badge.yellow { border-color: var(--yellow); color: var(--yellow); }
+    .badge.purple { border-color: var(--purple); color: var(--purple); }
+    .badge.orange { border-color: var(--orange); color: var(--orange); }
+
+    .toggle-btn {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all .2s;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(79,128,255,.3);
+    }
+    .toggle-btn:hover {
+      background: #3a6bea;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79,128,255,.4);
+    }
+
+    /* ════════════════════════════════════════
+       NAV
+    ════════════════════════════════════════ */
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      transition: background .2s;
+    }
+
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-content::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover  { color: var(--t1); }
+    .tab-btn.active { color: var(--blue); border-bottom: 2px solid var(--blue); font-weight: 600; }
+
+    /* ════════════════════════════════════════
+       MAIN / PAGE
+    ════════════════════════════════════════ */
+    main { width: 100%; }
+
+    .page {
+      display: none;
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+    .page.active { display: block; }
+
+    /* ════════════════════════════════════════
+       TYPOGRAPHY
+    ════════════════════════════════════════ */
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 6px;
+    }
+    .page-desc {
+      color: var(--t3);
+      font-size: 13px;
+      margin-bottom: 28px;
+      line-height: 1.75;
+    }
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 12px;
+    }
+
+    /* ════════════════════════════════════════
+       CARD
+    ════════════════════════════════════════ */
+    .card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: background .2s;
+      scroll-margin-top: 80px;
+    }
+
+    /* ════════════════════════════════════════
+       TAGS & BADGES
+    ════════════════════════════════════════ */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--s2);
+      color: var(--t3);
+      border: 1px solid var(--bd);
+      margin: 2px 2px 2px 0;
+    }
+    .tag.blue   { background: rgba(79,128,255,.12);  color: var(--blue);   border-color: rgba(79,128,255,.25);  }
+    .tag.green  { background: rgba(16,185,129,.12);  color: var(--green);  border-color: rgba(16,185,129,.25);  }
+    .tag.red    { background: rgba(248,113,113,.12); color: var(--red);    border-color: rgba(248,113,113,.25); }
+    .tag.yellow { background: rgba(251,191,36,.12);  color: var(--yellow); border-color: rgba(251,191,36,.25);  }
+    .tag.purple { background: rgba(167,139,250,.12); color: var(--purple); border-color: rgba(167,139,250,.25); }
+    .tag.orange { background: rgba(251,146,60,.12);  color: var(--orange); border-color: rgba(251,146,60,.25);  }
+
+    .ver-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .ver-badge.mvp  { background: rgba(16,185,129,.15); color: var(--green);  border: 1px solid rgba(16,185,129,.3);  }
+    .ver-badge.v11  { background: rgba(79,128,255,.15);  color: var(--blue);   border: 1px solid rgba(79,128,255,.3);   }
+    .ver-badge.v20  { background: rgba(167,139,250,.15); color: var(--purple); border: 1px solid rgba(167,139,250,.3);  }
+
+    /* ════════════════════════════════════════
+       ACCENT TOP LINE
+    ════════════════════════════════════════ */
+    .accent-top { position: relative; }
+    .accent-top::before {
+      content: '';
+      display: block;
+      height: 3px;
+      border-radius: 12px 12px 0 0;
+      position: absolute;
+      top: -1px; left: -1px; right: -1px;
+    }
+    .accent-blue::before   { background: var(--blue);   }
+    .accent-green::before  { background: var(--green);  }
+    .accent-red::before    { background: var(--red);    }
+    .accent-yellow::before { background: var(--yellow); }
+    .accent-purple::before { background: var(--purple); }
+    .accent-orange::before { background: var(--orange); }
+
+    /* ════════════════════════════════════════
+       GRIDS
+    ════════════════════════════════════════ */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .detail-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .detail-grid.quad   { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    /* ════════════════════════════════════════
+       CALLOUT
+    ════════════════════════════════════════ */
+    .callout {
+      border-radius: 12px;
+      padding: 18px 20px;
+      border: 1px solid;
+    }
+    .callout.blue   { background: rgba(79,128,255,.07);  border-color: rgba(79,128,255,.3);  }
+    .callout.green  { background: rgba(16,185,129,.07);  border-color: rgba(16,185,129,.3);  }
+    .callout.yellow { background: rgba(251,191,36,.07);  border-color: rgba(251,191,36,.3);  }
+    .callout.purple { background: rgba(167,139,250,.07); border-color: rgba(167,139,250,.3); }
+    .callout.orange { background: rgba(251,146,60,.07);  border-color: rgba(251,146,60,.3);  }
+
+    .callout-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .callout.blue   .callout-title { color: var(--blue);   }
+    .callout.green  .callout-title { color: var(--green);  }
+    .callout.yellow .callout-title { color: var(--yellow); }
+    .callout.purple .callout-title { color: var(--purple); }
+    .callout.orange .callout-title { color: var(--orange); }
+
+    .callout p { font-size: 13px; color: var(--t3); line-height: 1.75; }
+    .callout p strong { color: var(--t1); }
+
+    /* ════════════════════════════════════════
+       TABLE
+    ════════════════════════════════════════ */
+    .prd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .prd-table th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--t3);
+      font-weight: 600;
+      border-bottom: 2px solid var(--bd);
+      white-space: nowrap;
+    }
+    .prd-table td {
+      padding: 10px 14px;
+      color: var(--t3);
+      border-bottom: 1px solid var(--bd);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .prd-table td strong { color: var(--t1); }
+    .prd-table tr:last-child td { border-bottom: none; }
+    .prd-table tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ════════════════════════════════════════
+       STAT ROW
+    ════════════════════════════════════════ */
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+    .stat-card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .stat-num {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-num.blue   { color: var(--blue);   }
+    .stat-num.green  { color: var(--green);  }
+    .stat-num.yellow { color: var(--yellow); }
+    .stat-num.purple { color: var(--purple); }
+    .stat-num.orange { color: var(--orange); }
+    .stat-lbl { font-size: 12px; color: var(--t3); font-weight: 500; }
+    .stat-sub { font-size: 11px; color: var(--t3); margin-top: 4px; }
+
+    /* ════════════════════════════════════════
+       BULLET LIST
+    ════════════════════════════════════════ */
+    .blist { list-style: none; padding: 0; }
+    .blist li {
+      font-size: 13px;
+      color: var(--t3);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--bd);
+      line-height: 1.65;
+    }
+    .blist li:last-child { border-bottom: none; }
+    .blist li::before { content: '›'; color: var(--blue); margin-right: 8px; font-weight: 700; }
+    .blist li strong { color: var(--t1); }
+
+    /* ════════════════════════════════════════
+       PLACEHOLDER
+    ════════════════════════════════════════ */
+    .placeholder {
+      background: var(--s2);
+      border: 2px dashed var(--bd);
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--t3);
+      font-size: 13px;
+    }
+    .placeholder-icon  { font-size: 32px; margin-bottom: 12px; }
+    .placeholder-title { font-size: 15px; font-weight: 600; color: var(--t1); margin-bottom: 6px; }
+
+    /* ════════════════════════════════════════
+       IA 전용 컴포넌트 ①
+       DEPTH INDICATOR — 뎁스 레벨 시각화
+    ════════════════════════════════════════ */
+    .depth-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      flex-shrink: 0;
+      letter-spacing: 0;
+    }
+    .depth-0 { background: rgba(79,128,255,.2);  color: var(--blue);   border: 1.5px solid rgba(79,128,255,.4);  }
+    .depth-1 { background: rgba(16,185,129,.2);  color: var(--green);  border: 1.5px solid rgba(16,185,129,.4);  }
+    .depth-2 { background: rgba(251,191,36,.2);  color: var(--yellow); border: 1.5px solid rgba(251,191,36,.4);  }
+    .depth-3 { background: rgba(167,139,250,.2); color: var(--purple); border: 1.5px solid rgba(167,139,250,.4); }
+
+    /* ════════════════════════════════════════
+       IA 전용 컴포넌트 ②
+       TREE NODE — 구조 트리의 개별 노드
+    ════════════════════════════════════════ */
+    .tree-root { padding: 0; list-style: none; }
+
+    /* depth 0 — 루트 */
+    .tree-node-d0 {
+      background: rgba(79,128,255,.08);
+      border: 1.5px solid rgba(79,128,255,.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      cursor: default;
+    }
+
+    /* depth 1 — 섹션 헤더 */
+    .tree-node-d1 {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+      border-left: 3px solid var(--green);
+      transition: border-color .15s;
+    }
+
+    /* depth 2 — 개별 화면 */
+    .tree-node-d2 {
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      margin-left: 24px;
+      font-size: 13px;
+      transition: background .15s;
+    }
+    .tree-node-d2:hover { background: rgba(79,128,255,.06); }
+
+    /* depth 3 — 하위 화면 */
+    .tree-node-d3 {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+      margin-left: 48px;
+      font-size: 12px;
+      color: var(--t3);
+    }
+
+    /* 트리 연결선 */
+    .tree-branch {
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .tree-branch::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 10px;
+      width: 1.5px;
+      background: var(--bd);
+      border-radius: 2px;
+    }
+    .tree-branch-item {
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .tree-branch-item::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 14px;
+      width: 10px;
+      height: 1.5px;
+      background: var(--bd);
+    }
+
+    .tree-node-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t1);
+      flex: 1;
+    }
+    .tree-node-d3 .tree-node-label { font-size: 12px; font-weight: 500; }
+
+    .tree-node-id {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      color: var(--t3);
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 4px;
+      padding: 1px 6px;
+      flex-shrink: 0;
+    }
+
+    .tree-node-meta {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    /* ════════════════════════════════════════
+       IA 전용 컴포넌트 ③
+       SCREEN CARD — 화면 상세 정의 카드
+    ════════════════════════════════════════ */
+    .screen-card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      transition: border-color .2s;
+      scroll-margin-top: 80px;
+    }
+    .screen-card:hover { border-color: rgba(79,128,255,.3); }
+    .screen-card:last-child { margin-bottom: 0; }
+
+    /* 왼쪽 뎁스 컬러 라인 */
+    .screen-card.d0 { border-left: 3px solid var(--blue);   }
+    .screen-card.d1 { border-left: 3px solid var(--green);  }
+    .screen-card.d2 { border-left: 3px solid var(--yellow); }
+    .screen-card.d3 { border-left: 3px solid var(--purple); }
+
+    .screen-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .screen-card-id {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      color: var(--t3);
+      background: var(--s2);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 2px 8px;
+      flex-shrink: 0;
+    }
+    .screen-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      flex: 1;
+      line-height: 1.4;
+    }
+    .screen-card-url {
+      font-size: 11px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--blue);
+      background: rgba(79,128,255,.08);
+      border: 1px solid rgba(79,128,255,.2);
+      border-radius: 6px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .screen-card-desc {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.75;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: var(--s2);
+      border-radius: 8px;
+    }
+    .screen-card-desc strong { color: var(--t1); }
+
+    .screen-card-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .screen-meta-item {
+      background: var(--s2);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .screen-meta-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--t3);
+      margin-bottom: 4px;
+    }
+    .screen-meta-value {
+      font-size: 12px;
+      color: var(--t3);
+      line-height: 1.5;
+    }
+    .screen-meta-value strong { color: var(--t1); }
+    .screen-meta-value code {
+      font-size: 11px;
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ════════════════════════════════════════
+       IA 전용 컴포넌트 ④
+       FLOW STEP — 네비게이션 플로우 타임라인
+       (기존 유저 스토리 문서의 flow-step과 동일)
+    ════════════════════════════════════════ */
+    .flow-wrap { display: flex; flex-direction: column; gap: 0; }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .flow-step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+
+    .flow-step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+      border: 2px solid;
+    }
+    .flow-step-num.blue   { background: rgba(79,128,255,.2);  color: var(--blue);   border-color: var(--blue);   }
+    .flow-step-num.green  { background: rgba(16,185,129,.2);  color: var(--green);  border-color: var(--green);  }
+    .flow-step-num.yellow { background: rgba(251,191,36,.2);  color: var(--yellow); border-color: var(--yellow); }
+    .flow-step-num.purple { background: rgba(167,139,250,.2); color: var(--purple); border-color: var(--purple); }
+    .flow-step-num.orange { background: rgba(251,146,60,.2);  color: var(--orange); border-color: var(--orange); }
+    .flow-step-num.red    { background: rgba(248,113,113,.2); color: var(--red);    border-color: var(--red);    }
+
+    .flow-step-line {
+      width: 2px;
+      flex: 1;
+      min-height: 28px;
+      background: var(--bd);
+      margin-top: 4px;
+      border-radius: 2px;
+    }
+
+    .flow-step-body {
+      flex: 1;
+      padding-bottom: 24px;
+    }
+
+    .flow-step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    /* ════════════════════════════════════════
+       IA 전용 컴포넌트 ⑤
+       SCREEN PILL — 화면 ID 인라인 배지
+       (플로우 다이어그램에서 화면 연결 표시용)
+    ════════════════════════════════════════ */
+    .screen-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+      border: 1px solid;
+      cursor: default;
+    }
+    .screen-pill.blue   { background: rgba(79,128,255,.1);  color: var(--blue);   border-color: rgba(79,128,255,.3);  }
+    .screen-pill.green  { background: rgba(16,185,129,.1);  color: var(--green);  border-color: rgba(16,185,129,.3);  }
+    .screen-pill.yellow { background: rgba(251,191,36,.1);  color: var(--yellow); border-color: rgba(251,191,36,.3);  }
+    .screen-pill.purple { background: rgba(167,139,250,.1); color: var(--purple); border-color: rgba(167,139,250,.3); }
+    .screen-pill.gray   { background: var(--s2);            color: var(--t3);     border-color: var(--bd);            }
+
+    /* 화면 간 화살표 */
+    .flow-arrow {
+      display: inline-flex;
+      align-items: center;
+      color: var(--t3);
+      font-size: 14px;
+      margin: 0 4px;
+    }
+
+    /* ════════════════════════════════════════
+       IA 전용 컴포넌트 ⑥
+       SECTION GROUP — 트리 섹션 구분용 래퍼
+    ════════════════════════════════════════ */
+    .ia-section {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .ia-section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .ia-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      flex: 1;
+    }
+
+    /* ════════════════════════════════════════
+       UTILS
+    ════════════════════════════════════════ */
+    hr { border: none; border-top: 1px solid var(--bd); margin: 18px 0; }
+    .mb14 { margin-bottom: 14px; }
+    .mb18 { margin-bottom: 18px; }
+    .mb24 { margin-bottom: 24px; }
+    .mt12 { margin-top: 12px; }
+
+    /* ════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════ */
+    @media (max-width: 860px) {
+      .detail-grid,
+      .detail-grid.triple,
+      .detail-grid.quad { grid-template-columns: 1fr; }
+      .stat-row          { grid-template-columns: 1fr 1fr; }
+      .screen-card-meta  { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .inner-wrap  { padding: 0 16px; }
+      .page        { padding: 28px 16px; }
+      .tab-btn     { padding: 11px 11px; font-size: 12px; }
+      .stat-row    { grid-template-columns: 1fr; }
+      .screen-card-meta { grid-template-columns: 1fr; }
+      .tree-node-d2 { margin-left: 12px; }
+      .tree-node-d3 { margin-left: 24px; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ╔══ HEADER ══╗ -->
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="header-left">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="badge blue">IA 정보구조도 v1.0</span>
+          <span class="badge">Information Architecture</span>
+          <span class="badge yellow">MVP 단계</span>
+        </div>
+      </div>
+      <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
+    </div>
+  </header>
+
+  <!-- ╔══ NAV ══╗ -->
+  <nav>
+    <div class="inner-wrap nav-content">
+      <button class="tab-btn active" onclick="showTab('overview',  this)">📋 문서 개요</button>
+      <button class="tab-btn"        onclick="showTab('tree',      this)">🌳 화면 구조 트리</button>
+      <button class="tab-btn"        onclick="showTab('screens',   this)">🖥 화면별 상세 정의</button>
+      <button class="tab-btn"        onclick="showTab('flow',      this)">🔀 네비게이션 플로우</button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ══ TAB 1 — 문서 개요 ══ -->
+    <div id="page-overview" class="page active">
+      <div class="page-title">문서 개요</div>
+      <div class="page-desc">IA 정보구조도의 목적, 화면 분류 기준, 관련 문서와의 연결 구조를 정의합니다.</div>
+
+      <!-- 문서 목적 callout -->
+      <div class="callout blue mb18">
+        <div class="callout-title">📌 이 문서의 목적과 사용 방법</div>
+        <p>
+          IA(Information Architecture) 정보구조도는 Scope Manager의 <strong>전체 화면 목록, 화면 간 계층 구조, 각 화면의 URL과 역할</strong>을 정의하는 문서다.<br><br>
+          <strong>누가 사용하는가</strong> — Antigravity(AI IDE)로 Next.js 라우트와 페이지를 생성할 때, 특정 화면에 어떤 컴포넌트와 기능이 필요한지 확인할 때, 화면 간 이동 경로를 설계할 때 이 문서를 기준으로 삼는다.<br><br>
+          <strong>다른 문서와의 차이</strong> — PRD는 <em>기능 요구사항</em>, 유저 스토리는 <em>사용 맥락</em>, 기능 목록표는 <em>버전 배치</em>를 정의한다. 이 문서는 <em>화면 구조와 라우팅</em>을 정의한다.
+        </p>
+      </div>
+
+      <!-- IA 원칙 카드 -->
+      <div class="card mb18 accent-top accent-green" style="padding: 26px 28px; text-align: center;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--green); margin-bottom: 12px;">IA 설계 원칙</div>
+        <div style="font-size: 19px; font-weight: 800; color: var(--t1); line-height: 1.65; letter-spacing: -.3px; margin-bottom: 14px;">
+          "화면 구조는 <span style="color: var(--green);">유저 스토리 흐름을 따른다.</span><br>
+          라우트는 <span style="color: var(--blue);">기능 단위가 아니라 사용자 목적 단위</span>로 나눈다."
+        </div>
+        <div style="width: 40px; height: 2px; background: var(--green); margin: 0 auto 14px;"></div>
+        <div style="font-size: 13px; color: var(--t3); max-width: 560px; margin: 0 auto; line-height: 1.75;">
+          PM이 "판정을 요청한다"는 목적으로 앱을 열었을 때, <strong style="color: var(--t1);">최소한의 탭 이동과 클릭으로 목적을 완수</strong>할 수 있어야 한다.
+          화면 깊이(Depth)가 깊을수록 이탈 위험이 높아진다.
+        </div>
+      </div>
+
+      <!-- 뎁스 분류 기준 -->
+      <div class="sec-label mb14">🗂 화면 뎁스 분류 기준 — Depth 0 ~ 3</div>
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px;">
+
+          <div style="background: rgba(79,128,255,.07); border: 1px solid rgba(79,128,255,.2); border-radius: 10px; padding: 14px 16px; text-align: center;">
+            <div class="depth-badge depth-0" style="margin: 0 auto 10px; width: 32px; height: 32px; font-size: 13px;">0</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 6px;">Depth 0</div>
+            <div style="font-size: 12px; color: var(--t3); line-height: 1.6; margin-bottom: 8px;">앱 진입점<br>비인증 공개 화면</div>
+            <div style="font-size: 11px; color: var(--t3); background: var(--s2); border-radius: 6px; padding: 4px 8px;">랜딩 · 로그인 · 가입</div>
+          </div>
+
+          <div style="background: rgba(16,185,129,.07); border: 1px solid rgba(16,185,129,.2); border-radius: 10px; padding: 14px 16px; text-align: center;">
+            <div class="depth-badge depth-1" style="margin: 0 auto 10px; width: 32px; height: 32px; font-size: 13px;">1</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 6px;">Depth 1</div>
+            <div style="font-size: 12px; color: var(--t3); line-height: 1.6; margin-bottom: 8px;">최상위 섹션<br>사이드바 메뉴 항목</div>
+            <div style="font-size: 11px; color: var(--t3); background: var(--s2); border-radius: 6px; padding: 4px 8px;">대시보드 · 프로젝트 · 설정</div>
+          </div>
+
+          <div style="background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.2); border-radius: 10px; padding: 14px 16px; text-align: center;">
+            <div class="depth-badge depth-2" style="margin: 0 auto 10px; width: 32px; height: 32px; font-size: 13px;">2</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--yellow); margin-bottom: 6px;">Depth 2</div>
+            <div style="font-size: 12px; color: var(--t3); line-height: 1.6; margin-bottom: 8px;">섹션 내 개별 화면<br>목록 → 상세 전환</div>
+            <div style="font-size: 11px; color: var(--t3); background: var(--s2); border-radius: 6px; padding: 4px 8px;">프로젝트 상세 · 판정 입력</div>
+          </div>
+
+          <div style="background: rgba(167,139,250,.07); border: 1px solid rgba(167,139,250,.2); border-radius: 10px; padding: 14px 16px; text-align: center;">
+            <div class="depth-badge depth-3" style="margin: 0 auto 10px; width: 32px; height: 32px; font-size: 13px;">3</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 6px;">Depth 3</div>
+            <div style="font-size: 12px; color: var(--t3); line-height: 1.6; margin-bottom: 8px;">세부 액션 화면<br>모달 / 슬라이드오버</div>
+            <div style="font-size: 11px; color: var(--t3); background: var(--s2); border-radius: 6px; padding: 4px 8px;">리포트 상세 · 오버라이드</div>
+          </div>
+
+        </div>
+
+        <!-- 뎁스 원칙 -->
+        <div style="background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.2); border-radius: 8px; padding: 12px 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--yellow); margin-bottom: 8px;">⚡ 뎁스 설계 원칙</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: var(--t3); line-height: 1.65;">
+            <div><strong style="color: var(--t1);">핵심 액션은 Depth 2 이내</strong> — "판정 요청"과 "리포트 생성"은 최대 Depth 2에서 완료 가능해야 한다.</div>
+            <div><strong style="color: var(--t1);">Depth 3은 보조 액션만</strong> — 오버라이드, 상세 확인, 설정 변경 등 주 플로우 이탈 없이 처리 가능한 모달·슬라이드오버로 구현.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MVP vs 이후 버전 화면 구분 -->
+      <div class="sec-label mb14">🚀 MVP 포함 화면 vs 이후 버전 화면</div>
+      <div class="detail-grid mb18">
+
+        <div class="card accent-top accent-green">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="ver-badge mvp">🚀 MVP v1.0</span>
+            <span style="font-size: 12px; color: var(--t3);">— 지금 바로 만드는 화면</span>
+          </div>
+          <ul class="blist">
+            <li><strong>기준</strong> — 핵심 가치 루프(가입→판정→리포트→PDF) 완성에 필수인 화면</li>
+            <li><strong>S-01 ~ S-12</strong> 총 12개 화면</li>
+            <li>인증(로그인·가입) / 온보딩 / 프로젝트 관리 / 판정·리포트 / 기본 설정</li>
+            <li>데스크톱 퍼스트 — 모바일 반응형은 v2.0으로 이월</li>
+          </ul>
+        </div>
+
+        <div class="card accent-top accent-blue">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="ver-badge v11">🔵 v1.1</span>
+            <span style="font-size: 12px; color: var(--t3);">— PMF 후 추가되는 화면</span>
+          </div>
+          <ul class="blist">
+            <li><strong>기준</strong> — Free → Starter 전환 가속에 필요한 화면</li>
+            <li><strong>S-13 ~ S-17</strong> 총 5개 화면 추가</li>
+            <li>홈 대시보드 / 손익 뷰 / 히스토리 타임라인 / 결제 관리</li>
+            <li>진입 조건 — 첫 판정 완료율 &gt;40% + 2주 재방문율 &gt;30%</li>
+          </ul>
+        </div>
+
+        <div class="card accent-top accent-purple">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span class="ver-badge v20">🟣 v2.0</span>
+            <span style="font-size: 12px; color: var(--t3);">— Pro 업셀 단계 화면</span>
+          </div>
+          <ul class="blist">
+            <li><strong>기준</strong> — Starter → Pro 전환 유인이 되는 화면</li>
+            <li><strong>S-18 ~ S-22</strong> 총 5개 화면 추가</li>
+            <li>팀원 관리 / 손익 분석 리포트 / 커스텀 규칙 / Pro 플랜 관리</li>
+            <li>진입 조건 — Starter 30개 + Pro 업셀 문의 5건 이상</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border: 1px dashed var(--bd);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--t3);">🚫 MVP에서 제외된 화면</span>
+          </div>
+          <ul class="blist">
+            <li><strong>이메일 발송 화면</strong> — Gmail로 수동 대체 가능 (v1.1)</li>
+            <li><strong>모바일 최적화 레이아웃</strong> — 데스크톱 우선 (v2.0)</li>
+            <li><strong>팀원 초대·권한 관리</strong> — 1인 사용 MVP 원칙 (v2.0)</li>
+            <li><strong>API 문서 / 개발자 포털</strong> — v2.0+ P3 단계</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- 관련 문서 관계 -->
+      <div class="sec-label mb14">🔗 관련 문서와의 관계 — 4문서 연결 구조</div>
+      <div class="card mb18 accent-top accent-blue">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 580px;">
+            <thead>
+              <tr>
+                <th style="width: 16%;">문서</th>
+                <th style="width: 14%;">핵심 질문</th>
+                <th style="width: 36%;">IA와의 관계</th>
+                <th style="width: 18%;">IA 작성 시 참조</th>
+                <th style="width: 16%;">링크</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>PRD</strong><br><span class="tag blue">What · How</span></td>
+                <td>기능 요구사항</td>
+                <td>F-01~F-09 기능이 어느 화면에서 구현되는지 매핑. 각 화면 카드의 "연결 기능(F-xx)" 항목의 원천.</td>
+                <td>화면별 기능 연결 확인 시</td>
+                <td><a href="prd.html" style="color: var(--blue); font-size: 12px; text-decoration: none;">열기 →</a></td>
+              </tr>
+              <tr>
+                <td><strong>유저 스토리</strong><br><span class="tag green">Who · Why</span></td>
+                <td>사용 맥락</td>
+                <td>US-P/US-O 스토리의 흐름이 화면 순서와 네비게이션 플로우 설계의 기준. 온보딩·핵심 플로우 탭의 직접 원천.</td>
+                <td>화면 순서·진입 경로 설계 시</td>
+                <td><a href="user-story-flow.html" style="color: var(--green); font-size: 12px; text-decoration: none;">열기 →</a></td>
+              </tr>
+              <tr>
+                <td><strong>기능 목록표</strong><br><span class="tag">When</span></td>
+                <td>버전 배치</td>
+                <td>각 화면이 MVP·v1.1·v2.0 중 어느 버전에 속하는지의 근거. P0~P3 분류를 화면 포함 여부로 변환.</td>
+                <td>화면 MVP 여부 판단 시</td>
+                <td><a href="feature-list.html" style="color: var(--t3); font-size: 12px; text-decoration: none;">열기 →</a></td>
+              </tr>
+              <tr>
+                <td><strong>IA 정보구조도</strong><br><span class="tag yellow">Where</span></td>
+                <td>화면 구조</td>
+                <td>위 3개 문서를 통합해 "어디에 어떤 화면이 있는가"를 정의. Next.js 라우트 설계의 직접 기준.</td>
+                <td>Antigravity 빌드 세션 전</td>
+                <td><em style="color: var(--t3); font-size: 12px;">현재 문서</em></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 4문서 흐름도 -->
+        <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
+          <div style="background: rgba(79,128,255,.1); border: 1px solid rgba(79,128,255,.3); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--blue); text-align: center;">📋 PRD<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">What · How</span></div>
+          <div style="color: var(--t3);">+</div>
+          <div style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--green); text-align: center;">👥 유저 스토리<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">Who · Why</span></div>
+          <div style="color: var(--t3);">+</div>
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--t3); text-align: center;">📊 기능 목록표<br><span style="font-size: 10px; font-weight: 400;">When</span></div>
+          <div style="color: var(--t3); font-size: 18px;">→</div>
+          <div style="background: rgba(251,191,36,.15); border: 2px solid var(--yellow); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--yellow); text-align: center;">🗺 IA 정보구조도 (현재)<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">Where</span></div>
+          <div style="color: var(--t3); font-size: 18px;">→</div>
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--t3); text-align: center;">🚀 빌드<br><span style="font-size: 10px; font-weight: 400;">Antigravity</span></div>
+        </div>
+      </div>
+
+      <!-- 전체 화면 수 통계 -->
+      <div class="sec-label mb14">📊 전체 화면 현황 — 버전별 화면 수</div>
+      <div class="stat-row mb18">
+        <div class="stat-card accent-top accent-green">
+          <div class="stat-num green">12</div>
+          <div class="stat-lbl">MVP v1.0 화면</div>
+          <div class="stat-sub">S-01 ~ S-12</div>
+        </div>
+        <div class="stat-card accent-top accent-blue">
+          <div class="stat-num blue">5</div>
+          <div class="stat-lbl">v1.1 추가 화면</div>
+          <div class="stat-sub">S-13 ~ S-17</div>
+        </div>
+        <div class="stat-card accent-top accent-purple">
+          <div class="stat-num purple">5</div>
+          <div class="stat-lbl">v2.0 추가 화면</div>
+          <div class="stat-sub">S-18 ~ S-22</div>
+        </div>
+        <div class="stat-card accent-top accent-yellow">
+          <div class="stat-num yellow">22</div>
+          <div class="stat-lbl">전체 화면 수</div>
+          <div class="stat-sub">S-01 ~ S-22 합계</div>
+        </div>
+      </div>
+
+      <!-- 화면 ID 체계 설명 -->
+      <div class="sec-label mb14">🆔 화면 ID 체계</div>
+      <div class="card accent-top accent-orange">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 14px;">S-XX 형식 — Screen ID</div>
+        <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px;">
+          <div style="background: var(--s2); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--orange); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px;">형식</div>
+            <div style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 20px; font-weight: 800; color: var(--t1); margin-bottom: 4px;">S-01</div>
+            <div style="font-size: 12px; color: var(--t3);">S = Screen<br>01 = 순번 (01~22)</div>
+          </div>
+          <div style="background: var(--s2); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px;">MVP 범위</div>
+            <div style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 16px; font-weight: 800; color: var(--green); margin-bottom: 4px;">S-01 ~ S-12</div>
+            <div style="font-size: 12px; color: var(--t3);">인증 · 온보딩 · 핵심 루프<br>지금 바로 빌드</div>
+          </div>
+          <div style="background: var(--s2); border-radius: 8px; padding: 12px 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--blue); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px;">이후 버전</div>
+            <div style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 16px; font-weight: 800; color: var(--blue); margin-bottom: 4px;">S-13 ~ S-22</div>
+            <div style="font-size: 12px; color: var(--t3);">PMF 신호 확인 후<br>단계적 추가</div>
+          </div>
+        </div>
+        <div style="background: rgba(251,146,60,.07); border: 1px solid rgba(251,146,60,.2); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--t3); line-height: 1.65;">
+          💡 화면 ID는 <strong style="color: var(--t1);">Next.js 파일 기반 라우팅 구조</strong>와 직접 대응한다. 예: S-05(프로젝트 목록) → <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">app/dashboard/projects/page.tsx</code>
+        </div>
+      </div>
+
+    </div><!-- /page-overview -->
+
+    <!-- ══ TAB 2 — 화면 구조 트리 ══ -->
+    <div id="page-tree" class="page">
+      <div class="page-title">화면 구조 트리</div>
+      <div class="page-desc">전체 앱의 메뉴·화면 구조를 Depth 0~3 트리로 시각화합니다. 각 노드에 화면 ID, MVP 여부, 연결 기능을 표시합니다.</div>
+
+      <!-- 범례 -->
+      <div class="detail-grid mb18">
+        <div class="card" style="padding: 14px 18px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--t1); margin-bottom: 10px;">📖 범례 — 뎁스 컬러</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="depth-badge depth-0">0</span> 앱 진입점 (비인증)</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="depth-badge depth-1">1</span> 최상위 섹션</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="depth-badge depth-2">2</span> 개별 화면</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="depth-badge depth-3">3</span> 모달·슬라이드오버</div>
+          </div>
+        </div>
+        <div class="card" style="padding: 14px 18px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--t1); margin-bottom: 10px;">📖 범례 — 버전 배지</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span> 지금 빌드</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span> PMF 후 추가</div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3);"><span class="ver-badge v20" style="font-size: 10px;">🟣 v2.0</span> Pro 업셀 단계</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────
+           DEPTH 0 — 앱 루트
+      ──────────────────────────────────────── -->
+      <div class="sec-label mb14">🌐 Depth 0 — 앱 진입점 (비인증 공개 화면)</div>
+
+      <!-- D0 루트 노드 -->
+      <div class="tree-node-d0 mb18">
+        <span class="depth-badge depth-0">0</span>
+        <span style="font-size: 15px; font-weight: 800; color: var(--blue); flex: 1; letter-spacing: -.3px;">scopemanager.app</span>
+        <span style="font-size: 12px; color: var(--t3);">앱 루트 — 비인증 접근 시 랜딩 or 로그인으로 분기</span>
+      </div>
+
+      <!-- D0 하위 노드들 -->
+      <div style="margin-left: 20px; margin-bottom: 28px;">
+
+        <!-- S-01 랜딩 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 6px;">
+          <span class="depth-badge depth-0">0</span>
+          <span class="tree-node-id">S-01</span>
+          <span class="tree-node-label">랜딩 페이지</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-01</span>
+          </div>
+        </div>
+
+        <!-- S-02 로그인 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 6px;">
+          <span class="depth-badge depth-0">0</span>
+          <span class="tree-node-id">S-02</span>
+          <span class="tree-node-label">로그인</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/login</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-01</span>
+          </div>
+        </div>
+
+        <!-- S-03 회원가입 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 6px;">
+          <span class="depth-badge depth-0">0</span>
+          <span class="tree-node-id">S-03</span>
+          <span class="tree-node-label">회원가입</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/signup</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-01</span>
+          </div>
+        </div>
+
+        <!-- S-04 온보딩 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 6px;">
+          <span class="depth-badge depth-0">0</span>
+          <span class="tree-node-id">S-04</span>
+          <span class="tree-node-label">온보딩 — 워크스페이스 설정</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/onboarding</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-01</span>
+            <span class="tag" style="font-size: 10px;">F-02</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ────────────────────────────────────────
+           DEPTH 1 — 최상위 섹션 4개
+      ──────────────────────────────────────── -->
+      <div class="sec-label mb14">📂 Depth 1~3 — 인증 후 앱 구조 (사이드바 기준)</div>
+
+      <!-- ── 섹션 A: 대시보드 ── -->
+      <div class="ia-section mb14">
+        <div class="ia-section-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="ia-section-title">대시보드</span>
+          <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard</span>
+          <span class="tag green" style="font-size: 11px;">F-09</span>
+          <span style="font-size: 12px; color: var(--t3); margin-left: 4px;">— 로그인 직후 랜딩 섹션</span>
+        </div>
+
+        <!-- D2: 홈 요약 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 6px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-13</span>
+          <span class="tree-node-label">홈 대시보드 — 전체 지표 요약</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard</span>
+            <span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span>
+            <span class="tag" style="font-size: 10px;">F-09</span>
+          </div>
+        </div>
+
+        <div style="background: rgba(79,128,255,.05); border: 1px dashed rgba(79,128,255,.25); border-radius: 8px; padding: 8px 14px; font-size: 12px; color: var(--t3); margin-left: 0;">
+          💡 <strong style="color: var(--t1);">MVP에서는 프로젝트 목록(S-05)이 홈 역할</strong>을 한다. 대시보드 화면(S-13)은 v1.1에서 별도 추가.
+        </div>
+      </div>
+
+      <!-- ── 섹션 B: 프로젝트 ── -->
+      <div class="ia-section mb14">
+        <div class="ia-section-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="ia-section-title">프로젝트</span>
+          <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects</span>
+          <span class="tag green" style="font-size: 11px;">F-03 ~ F-05</span>
+          <span style="font-size: 12px; color: var(--t3); margin-left: 4px;">— 핵심 가치 루프 전체 포함</span>
+        </div>
+
+        <!-- D2: 프로젝트 목록 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-05</span>
+          <span class="tree-node-label">프로젝트 목록 <span style="font-size: 11px; color: var(--green); font-weight: 600;">(MVP 홈)</span></span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-03</span>
+          </div>
+        </div>
+
+        <!-- D3 하위: 새 프로젝트 모달 -->
+        <div class="tree-node-d3" style="margin-bottom: 8px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-05a</span>
+          <span class="tree-node-label">새 프로젝트 생성 모달</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">modal</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-03</span>
+          </div>
+        </div>
+
+        <!-- D2: 프로젝트 상세 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-06</span>
+          <span class="tree-node-label">프로젝트 상세 — 계약 범위·판정 목록</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-03</span>
+            <span class="tag" style="font-size: 10px;">F-04</span>
+          </div>
+        </div>
+
+        <!-- D3 하위: 계약 범위 등록 -->
+        <div class="tree-node-d3" style="margin-bottom: 4px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-06a</span>
+          <span class="tree-node-label">계약 범위 등록 — AI 파싱 슬라이드오버</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">slideover</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag yellow" style="font-size: 10px;">F-03 🤖</span>
+          </div>
+        </div>
+
+        <!-- D3 하위: 히스토리 타임라인 -->
+        <div class="tree-node-d3" style="margin-bottom: 8px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-15</span>
+          <span class="tree-node-label">추가 요청 히스토리 타임라인</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]/history</span>
+            <span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span>
+            <span class="tag" style="font-size: 10px;">F-08</span>
+          </div>
+        </div>
+
+        <!-- D2: 판정 요청 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-07</span>
+          <span class="tree-node-label">판정 요청 입력 화면</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]/request</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag yellow" style="font-size: 10px;">F-04 🤖</span>
+          </div>
+        </div>
+
+        <!-- D3: 판정 결과 + 오버라이드 -->
+        <div class="tree-node-d3" style="margin-bottom: 4px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-07a</span>
+          <span class="tree-node-label">판정 결과 뷰 — 배지·근거 표시</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">inline</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag yellow" style="font-size: 10px;">F-04 🤖</span>
+          </div>
+        </div>
+        <div class="tree-node-d3" style="margin-bottom: 8px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-07b</span>
+          <span class="tree-node-label">PM 수동 오버라이드 모달</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">modal</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-04</span>
+          </div>
+        </div>
+
+        <!-- D2: 리포트 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-08</span>
+          <span class="tree-node-label">리포트 생성 &amp; 편집 화면 <span style="font-size: 11px; color: var(--green); font-weight: 600;">⭐ AHA</span></span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]/reports/[rid]</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag yellow" style="font-size: 10px;">F-05 🤖</span>
+          </div>
+        </div>
+
+        <!-- D3: PDF 다운로드, 이메일 발송 -->
+        <div class="tree-node-d3" style="margin-bottom: 4px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-08a</span>
+          <span class="tree-node-label">PDF 다운로드 액션</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">action</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-05</span>
+          </div>
+        </div>
+        <div class="tree-node-d3" style="margin-bottom: 8px;">
+          <span class="depth-badge depth-3">3</span>
+          <span class="tree-node-id">S-08b</span>
+          <span class="tree-node-label">이메일 발송 슬라이드오버</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">slideover</span>
+            <span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span>
+            <span class="tag" style="font-size: 10px;">F-06</span>
+          </div>
+        </div>
+
+        <!-- D2: 손익 뷰 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 8px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-14</span>
+          <span class="tree-node-label">프로젝트 손익 뷰</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]/profit</span>
+            <span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span>
+            <span class="tag" style="font-size: 10px;">F-07</span>
+          </div>
+        </div>
+
+        <!-- D2: 손익 분석 리포트 (v2.0) -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px; opacity: .75;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-19</span>
+          <span class="tree-node-label">손익 분석 리포트 &amp; 벤치마크</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]/analytics</span>
+            <span class="ver-badge v20" style="font-size: 10px;">🟣 v2.0</span>
+            <span class="tag" style="font-size: 10px;">F-12</span>
+          </div>
+        </div>
+
+        <!-- D2: 커스텀 규칙 (v2.0) -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px; opacity: .75;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-20</span>
+          <span class="tree-node-label">판정 커스텀 규칙 관리</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/projects/[id]/rules</span>
+            <span class="ver-badge v20" style="font-size: 10px;">🟣 v2.0</span>
+            <span class="tag" style="font-size: 10px;">F-15</span>
+          </div>
+        </div>
+
+      </div><!-- /섹션 B -->
+
+      <!-- ── 섹션 C: 설정 ── -->
+      <div class="ia-section mb14">
+        <div class="ia-section-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="ia-section-title">설정</span>
+          <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings</span>
+          <span style="font-size: 12px; color: var(--t3); margin-left: 4px;">— 워크스페이스·계정·플랜 관리</span>
+        </div>
+
+        <!-- D2: 워크스페이스 설정 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-09</span>
+          <span class="tree-node-label">워크스페이스 설정 — 에이전시명·기본 정보</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings/workspace</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-02</span>
+          </div>
+        </div>
+
+        <!-- D2: 계정 설정 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-10</span>
+          <span class="tree-node-label">계정 설정 — 프로필·비밀번호 변경</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings/account</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+            <span class="tag" style="font-size: 10px;">F-01</span>
+          </div>
+        </div>
+
+        <!-- D2: 플랜·결제 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-16</span>
+          <span class="tree-node-label">플랜 업그레이드 — Free → Starter</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings/plan</span>
+            <span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span>
+            <span class="tag" style="font-size: 10px;">F-10</span>
+          </div>
+        </div>
+
+        <!-- D2: 결제 이력 -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-17</span>
+          <span class="tree-node-label">결제 이력 &amp; 카드 관리</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings/billing</span>
+            <span class="ver-badge v11" style="font-size: 10px;">🔵 v1.1</span>
+            <span class="tag" style="font-size: 10px;">F-10</span>
+          </div>
+        </div>
+
+        <!-- D2: 팀원 관리 (v2.0) -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px; opacity: .75;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-18</span>
+          <span class="tree-node-label">팀원 초대 &amp; 역할 관리</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings/members</span>
+            <span class="ver-badge v20" style="font-size: 10px;">🟣 v2.0</span>
+            <span class="tag" style="font-size: 10px;">F-11</span>
+          </div>
+        </div>
+
+        <!-- D2: Pro 플랜 관리 (v2.0) -->
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px; opacity: .75;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-21</span>
+          <span class="tree-node-label">Pro 플랜 업그레이드 &amp; 관리</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/dashboard/settings/plan/pro</span>
+            <span class="ver-badge v20" style="font-size: 10px;">🟣 v2.0</span>
+            <span class="tag" style="font-size: 10px;">F-10</span>
+          </div>
+        </div>
+
+      </div><!-- /섹션 C -->
+
+      <!-- ── 섹션 D: 시스템·에러 ── -->
+      <div class="ia-section mb24">
+        <div class="ia-section-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="ia-section-title">시스템 &amp; 에러 화면</span>
+          <span style="font-size: 12px; color: var(--t3); margin-left: 4px;">— 라우팅 예외 처리, MVP 필수</span>
+        </div>
+
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-11</span>
+          <span class="tree-node-label">404 — 페이지를 찾을 수 없음</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/not-found</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+          </div>
+        </div>
+
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-12</span>
+          <span class="tree-node-label">에러 화면 — 서버·API 오류</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">/error</span>
+            <span class="ver-badge mvp" style="font-size: 10px;">🚀 MVP</span>
+          </div>
+        </div>
+
+        <div class="tree-node-d2" style="margin-left: 0; margin-bottom: 4px; opacity: .75;">
+          <span class="depth-badge depth-2">2</span>
+          <span class="tree-node-id">S-22</span>
+          <span class="tree-node-label">데이터 내보내기 — CSV / Excel</span>
+          <div class="tree-node-meta">
+            <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--t3); background: var(--s2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd);">action / modal</span>
+            <span class="ver-badge v20" style="font-size: 10px;">🟣 v2.0</span>
+            <span class="tag" style="font-size: 10px;">F-14</span>
+          </div>
+        </div>
+      </div><!-- /섹션 D -->
+
+      <!-- Next.js 라우트 맵 -->
+      <div class="sec-label mb14">📁 Next.js App Router 파일 구조 — MVP 기준</div>
+      <div class="card accent-top accent-blue">
+        <div style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; line-height: 2; color: var(--t3);">
+          <div><span style="color: var(--blue);">app/</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-01 랜딩</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">login/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-02</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">signup/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-03</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">onboarding/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-04</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--blue);">├── dashboard/</span></div>
+          <div style="padding-left: 40px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">layout.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← 사이드바 + 인증 미들웨어</span></div>
+          <div style="padding-left: 40px;"><span style="color: var(--blue);">├── projects/</span></div>
+          <div style="padding-left: 60px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-05 목록 (MVP 홈)</span></div>
+          <div style="padding-left: 60px;"><span style="color: var(--blue);">└── [id]/</span></div>
+          <div style="padding-left: 80px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-06 프로젝트 상세</span></div>
+          <div style="padding-left: 80px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">request/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-07 판정 요청</span></div>
+          <div style="padding-left: 80px;"><span style="color: var(--t3);">└── </span><span style="color: var(--t1);">reports/[rid]/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-08 리포트 ⭐</span></div>
+          <div style="padding-left: 40px;"><span style="color: var(--blue);">└── settings/</span></div>
+          <div style="padding-left: 60px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">workspace/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-09</span></div>
+          <div style="padding-left: 60px;"><span style="color: var(--t3);">└── </span><span style="color: var(--t1);">account/page.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-10</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--t3);">├── </span><span style="color: var(--t1);">not-found.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-11</span></div>
+          <div style="padding-left: 20px;"><span style="color: var(--t3);">└── </span><span style="color: var(--t1);">error.tsx</span><span style="color: var(--t3); font-size: 11px; font-family: inherit;"> ← S-12</span></div>
+        </div>
+      </div>
+
+    </div><!-- /page-tree -->
+
+    <!-- ══ TAB 3 — 화면별 상세 정의 ══ -->
+    <div id="page-screens" class="page">
+      <div class="page-title">화면별 상세 정의</div>
+      <div class="page-desc">S-01~S-12 MVP 핵심 화면의 URL·목적·주요 UI·진입/이탈 경로를 정의합니다.</div>
+
+      <!-- 읽는 법 안내 -->
+      <div class="callout blue mb18">
+        <div class="callout-title">📖 이 탭을 읽는 법 — Antigravity 빌드 시 참조 순서</div>
+        <p><strong>1단계</strong> 화면 ID 확인 → <strong>2단계</strong> URL 경로로 Next.js 파일 생성 → <strong>3단계</strong> 주요 UI 컴포넌트 목록으로 shadcn/ui 컴포넌트 선정 → <strong>4단계</strong> 진입/이탈 경로로 라우팅 로직 구현 → <strong>5단계</strong> 연결 기능(F-xx)으로 API Route·Supabase 쿼리 연결</p>
+      </div>
+
+      <!-- ─────────────────────────────────
+           그룹 A — 인증·온보딩 (S-01~S-04)
+      ───────────────────────────────── -->
+      <div class="sec-label mb14">🔐 그룹 A — 인증 &amp; 온보딩 (S-01 ~ S-04)</div>
+
+      <!-- S-01 -->
+      <div class="screen-card d0 mb14" id="s01">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-0">0</span>
+          <span class="screen-card-id">S-01</span>
+          <span class="screen-card-name">랜딩 페이지</span>
+          <span class="screen-card-url">/</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          비인증 사용자가 처음 접하는 공개 화면. <strong>제품 가치 한 줄 소개 + CTA(시작하기)</strong>로 가입·로그인을 유도한다. MVP에서는 마케팅 요소 최소화, 핵심 메시지 1개만.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">헤드라인 텍스트 · CTA 버튼(시작하기) · 로그인 링크 · 제품 스크린샷 1장</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">직접 URL 접근 · 구글 검색 · 공유 링크</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value"><code>/signup</code> (CTA 클릭) · <code>/login</code> (로그인 클릭) · 브라우저 뒤로가기</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-01</span> 로그인·가입 진입점</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚡ 인증 상태</div>
+            <div class="screen-meta-value">비인증 공개 — 인증 상태면 <code>/dashboard/projects</code>로 리다이렉트</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-02 -->
+      <div class="screen-card d0 mb14" id="s02">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-0">0</span>
+          <span class="screen-card-id">S-02</span>
+          <span class="screen-card-name">로그인</span>
+          <span class="screen-card-url">/login</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          기존 사용자가 이메일+비밀번호 또는 <strong>Google OAuth 1클릭으로 로그인</strong>하는 화면. 로그인 성공 시 <code>/dashboard/projects</code>로 이동. 비밀번호 찾기 링크 포함.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">Google OAuth 버튼 · 이메일 Input · 비밀번호 Input · 로그인 버튼 · "비밀번호 찾기" 링크 · 가입 링크</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-01 CTA · 비인증 상태 미들웨어 리다이렉트 · S-03 "로그인" 링크</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value"><code>/dashboard/projects</code> (성공) · <code>/signup</code> (가입 클릭) · <code>/</code> (뒤로)</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-01</span> Supabase Auth · Google OAuth 2.0</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚡ 인증 상태</div>
+            <div class="screen-meta-value">비인증 전용 — 인증 상태면 <code>/dashboard/projects</code>로 즉시 리다이렉트</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/login/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-03 -->
+      <div class="screen-card d0 mb14" id="s03">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-0">0</span>
+          <span class="screen-card-id">S-03</span>
+          <span class="screen-card-name">회원가입</span>
+          <span class="screen-card-url">/signup</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          신규 사용자가 계정을 생성하는 화면. Google OAuth 우선 권장. 이메일 가입 시 <strong>인증 메일 발송 → 링크 클릭 → S-04 온보딩</strong>으로 이동. 이메일 인증 대기 화면 분기 포함.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">Google OAuth 버튼 · 이메일 Input · 비밀번호 Input · 가입 버튼 · 인증 메일 발송 안내 Toast · 로그인 링크</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-01 CTA · S-02 "가입" 링크</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value"><code>/onboarding</code> (가입 성공) · <code>/login</code> (로그인 클릭) · 이메일 인증 대기 중간 화면</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-01</span> Supabase Auth signUp · PostHog <code>user_signed_up</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚠️ 이탈 위험</div>
+            <div class="screen-meta-value">이메일 인증 메일 미수신 → 이탈. Google OAuth 버튼을 상단 우선 배치로 마찰 최소화.</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/signup/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-04 -->
+      <div class="screen-card d0 mb14" id="s04">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-0">0</span>
+          <span class="screen-card-id">S-04</span>
+          <span class="screen-card-name">온보딩 — 워크스페이스 설정</span>
+          <span class="screen-card-url">/onboarding</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          첫 로그인 직후 1회만 표시. <strong>에이전시명 입력 1개만 필수</strong>로 받아 워크스페이스를 자동 생성한다. 완료 즉시 <code>/dashboard/projects</code>로 이동하며 첫 프로젝트 생성 유도 Toast 표시.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">에이전시명 Input (필수) · 완료 버튼 · 환영 메시지 · 진행 표시 (1/1 스텝) · 샘플 프로젝트 체험 옵션 (선택)</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-03 가입 완료 직후 자동 리다이렉트 · 최초 로그인 시 워크스페이스 미설정 감지</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value"><code>/dashboard/projects</code> (완료) — 이전/뒤로 버튼 비활성화</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-01</span> <span class="tag green">F-02</span> organizations 테이블 생성 · RLS 정책 활성화 · PostHog <code>workspace_created</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚠️ 이탈 위험</div>
+            <div class="screen-meta-value">입력 필드가 많으면 이탈. 에이전시명 1개만 요구 — 나머지는 S-09 설정에서 나중에 입력 가능.</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/onboarding/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────
+           그룹 B — 핵심 가치 루프 (S-05~S-08)
+      ───────────────────────────────── -->
+      <div class="sec-label mb14">⚙️ 그룹 B — 핵심 가치 루프 (S-05 ~ S-08) <span style="color: var(--green); font-size: 11px;">— 제품의 심장부</span></div>
+
+      <!-- S-05 -->
+      <div class="screen-card d1 mb14" id="s05">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="screen-card-id">S-05</span>
+          <span class="screen-card-name">프로젝트 목록 <span style="font-size: 12px; color: var(--green);">(MVP 홈)</span></span>
+          <span class="screen-card-url">/dashboard/projects</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          로그인 후 랜딩되는 MVP 홈 화면. 해당 워크스페이스의 <strong>전체 프로젝트 카드 목록</strong>을 표시하고, 새 프로젝트 생성 버튼(S-05a 모달)을 통해 핵심 루프를 시작한다.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">프로젝트 카드 그리드 (클라이언트명·생성일·판정 건수) · "새 프로젝트" 버튼 · 빈 상태(Empty State) · 사이드바 네비게이션</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-04 온보딩 완료 · S-02 로그인 성공 · 사이드바 "프로젝트" 클릭 · 브라우저 뒤로가기</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">카드 클릭 → <code>/dashboard/projects/[id]</code> S-06 · 모달 오픈 S-05a · 사이드바 설정 클릭 S-09</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-03</span> Supabase projects 조회 (RLS 적용) · PostHog <code>project_list_viewed</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔒 인증 상태</div>
+            <div class="screen-meta-value">인증 필수 — middleware.ts에서 비인증 시 <code>/login</code> 리다이렉트</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/dashboard/projects/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-06 -->
+      <div class="screen-card d2 mb14" id="s06">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-2">2</span>
+          <span class="screen-card-id">S-06</span>
+          <span class="screen-card-name">프로젝트 상세 — 계약 범위 &amp; 판정 목록</span>
+          <span class="screen-card-url">/dashboard/projects/[id]</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          개별 프로젝트의 허브 화면. <strong>계약 범위 항목 목록</strong>(S-06a 슬라이드오버로 등록)과 <strong>판정 요청 히스토리 테이블</strong>을 보여준다. "판정 요청하기" 버튼으로 S-07로 이동.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">프로젝트 헤더(이름·클라이언트·기간) · 계약 범위 태그 목록 · "범위 등록/편집" 버튼 · 판정 요청 테이블(날짜·결과 배지·리포트 링크) · "판정 요청하기" CTA</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-05 카드 클릭 · S-05a 프로젝트 생성 완료 · 브라우저 직접 URL</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">S-06a (범위 등록 슬라이드오버) · S-07 (판정 요청) · S-08 (리포트 링크 클릭) · S-05 (뒤로)</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-03</span> scope_definitions 조회 <span class="tag green">F-04</span> scope_requests 목록 조회</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚠️ 빈 상태</div>
+            <div class="screen-meta-value">계약 범위 미등록 시 → "AI로 계약서 파싱하기" Empty State CTA 표시. 범위 없으면 판정 요청 버튼 비활성화.</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/dashboard/projects/[id]/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-07 -->
+      <div class="screen-card d2 mb14" id="s07">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-2">2</span>
+          <span class="screen-card-id">S-07</span>
+          <span class="screen-card-name">판정 요청 입력 화면</span>
+          <span class="screen-card-url">/dashboard/projects/[id]/request</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          클라이언트가 보낸 추가 요청 텍스트를 입력하고 AI 판정을 요청하는 화면. <strong>Fast Path → Claude API</strong> 분기 후 스트리밍 결과(S-07a)를 인라인으로 표시. 오버라이드(S-07b)와 리포트 생성(S-08) 진입점.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">요청 텍스트 Textarea · "판정 요청" 버튼 · 로딩 스피너(스트리밍 중) · 판정 결과 배지(3단계) · 계약 근거 인용 블록 · "오버라이드" 링크 · "리포트 생성" CTA</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-06 "판정 요청하기" 버튼 클릭</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">S-07b (오버라이드 모달) · S-08 (리포트 생성) · S-06 (뒤로/취소)</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag yellow">F-04 🤖</span> Fast Path + Claude API · scope_requests INSERT · PostHog <code>first_scope_judgment</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚡ API 호출</div>
+            <div class="screen-meta-value">Fast Path 적중 시 즉시 반환(API 없음) · 미적중 시 <code>/api/judge</code> 호출 → 스트리밍 응답 · 목표 30초 이내</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/dashboard/projects/[id]/request/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-08 -->
+      <div class="screen-card d2 mb14" id="s08">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-2">2</span>
+          <span class="screen-card-id">S-08</span>
+          <span class="screen-card-name">리포트 생성 &amp; 편집 화면</span>
+          <span class="screen-card-url">/dashboard/projects/[id]/reports/[rid]</span>
+          <div style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12px; color: var(--green); font-weight: 700;">⭐ AHA 모멘트</span>
+            <span class="ver-badge mvp">🚀 MVP</span>
+          </div>
+        </div>
+        <div class="screen-card-desc">
+          판정 결과를 바탕으로 <strong>Claude API가 한국어 중립 어조 리포트를 자동 생성</strong>하는 화면. PM이 편집·확정 후 PDF 다운로드. <em>"기계가 대신 말한다"</em>는 경험이 발생하는 Free → Paid 전환 핵심 트리거 화면.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">"리포트 자동 생성" 버튼 · 6섹션 리포트 미리보기 · 인라인 편집 에디터 · "확정" 버튼 · "PDF 다운로드" 버튼 · 생성 중 스켈레톤 로딩</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">S-07 "리포트 생성" CTA · S-06 판정 목록 리포트 링크 클릭</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">S-08a PDF 다운로드(액션) · S-08b 이메일 발송(v1.1) · S-06 (뒤로)</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag yellow">F-05 🤖</span> Claude API 리포트 생성 · reports INSERT · PostHog <code>report_generated</code> <code>pdf_downloaded</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">⚡ API 호출</div>
+            <div class="screen-meta-value"><code>/api/report</code> → Claude API 1회 · 목표 15초 이내 초안 생성 · 편집 후 확정 시 reports 테이블 저장</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/dashboard/projects/[id]/reports/[rid]/page.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────
+           그룹 C — 설정 (S-09~S-10)
+      ───────────────────────────────── -->
+      <div class="sec-label mb14">⚙️ 그룹 C — 설정 (S-09 ~ S-10)</div>
+
+      <!-- S-09 -->
+      <div class="screen-card d2 mb14" id="s09">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-2">2</span>
+          <span class="screen-card-id">S-09</span>
+          <span class="screen-card-name">워크스페이스 설정</span>
+          <span class="screen-card-url">/dashboard/settings/workspace</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          에이전시명·기본 정보를 수정하는 워크스페이스 설정 화면. S-04 온보딩에서 입력했던 정보를 나중에 변경할 수 있다. MVP에서는 에이전시명 수정만 필수.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">에이전시명 Input · 저장 버튼 · 설정 사이드 탭 네비게이션(워크스페이스·계정)</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">사이드바 "설정" 클릭 → 기본 탭 · S-10 "워크스페이스" 탭 클릭</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">S-10 (계정 탭) · 사이드바로 다른 섹션 이동</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-02</span> organizations UPDATE · Supabase RLS 확인</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/dashboard/settings/workspace/page.tsx</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📌 MVP 범위</div>
+            <div class="screen-meta-value">에이전시명 수정만. 로고 업로드·추가 정보는 v1.1 이후.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-10 -->
+      <div class="screen-card d2 mb14" id="s10">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-2">2</span>
+          <span class="screen-card-id">S-10</span>
+          <span class="screen-card-name">계정 설정 — 프로필 &amp; 비밀번호</span>
+          <span class="screen-card-url">/dashboard/settings/account</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          개인 계정 정보(이름·이메일) 확인 및 비밀번호 변경 화면. Google OAuth 가입자는 비밀번호 변경 UI 숨김 처리.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">이름 Input · 이메일(읽기 전용) · 현재/새 비밀번호 Input(이메일 가입자만) · 저장 버튼 · 로그아웃 버튼</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">➡️ 진입 경로</div>
+            <div class="screen-meta-value">사이드바 프로필 영역 클릭 · S-09 "계정" 탭 클릭</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">S-09 (워크스페이스 탭) · 로그아웃 → S-02 · 사이드바로 이동</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🔗 연결 기능</div>
+            <div class="screen-meta-value"><span class="tag green">F-01</span> Supabase Auth updateUser · 세션 토큰 갱신</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/dashboard/settings/account/page.tsx</code></div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📌 MVP 범위</div>
+            <div class="screen-meta-value">이름·비밀번호 변경만. 프로필 사진·알림 설정은 v1.1 이후.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────
+           그룹 D — 시스템 화면 (S-11~S-12)
+      ───────────────────────────────── -->
+      <div class="sec-label mb14">🛑 그룹 D — 시스템 &amp; 에러 (S-11 ~ S-12)</div>
+
+      <!-- S-11 -->
+      <div class="screen-card d1 mb14" id="s11">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="screen-card-id">S-11</span>
+          <span class="screen-card-name">404 — 페이지를 찾을 수 없음</span>
+          <span class="screen-card-url">/not-found (Next.js not-found.tsx)</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          존재하지 않는 URL 접근 시 표시. "프로젝트 목록으로 돌아가기" CTA로 이탈을 최소화한다.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">404 메시지 · "프로젝트 목록으로" 버튼</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value"><code>/dashboard/projects</code> S-05</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/not-found.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S-12 -->
+      <div class="screen-card d1 mb14" id="s12">
+        <div class="screen-card-header">
+          <span class="depth-badge depth-1">1</span>
+          <span class="screen-card-id">S-12</span>
+          <span class="screen-card-name">에러 화면 — 서버·API 오류</span>
+          <span class="screen-card-url">/error (Next.js error.tsx)</span>
+          <span class="ver-badge mvp" style="margin-left: auto;">🚀 MVP</span>
+        </div>
+        <div class="screen-card-desc">
+          서버 오류·Claude API 오류·네트워크 장애 시 표시. 에러 메시지와 "다시 시도" 버튼 제공. Claude API 타임아웃은 별도 인라인 처리 우선.
+        </div>
+        <div class="screen-card-meta">
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">🧩 주요 UI 컴포넌트</div>
+            <div class="screen-meta-value">에러 메시지(사용자 친화적) · "다시 시도" 버튼 · "홈으로" 링크</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">↩️ 이탈 경로</div>
+            <div class="screen-meta-value">reset() 다시 시도 · <code>/dashboard/projects</code> S-05</div>
+          </div>
+          <div class="screen-meta-item">
+            <div class="screen-meta-label">📁 Next.js 파일</div>
+            <div class="screen-meta-value"><code>app/error.tsx</code> + <code>app/dashboard/error.tsx</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 이후 버전 화면 예고 -->
+      <hr class="mb18">
+      <div class="callout blue">
+        <div class="callout-title">🔵 v1.1 · v2.0 화면 상세 정의 (S-13 ~ S-22)</div>
+        <p>S-13(홈 대시보드) · S-14(손익 뷰) · S-15(히스토리 타임라인) · S-16(플랜 업그레이드) · S-17(결제 이력) — v1.1 PMF 신호 충족 후 이 문서에 추가됩니다. 현재는 화면 구조 트리(탭 2)에서 ID와 URL 경로를 확인하세요.</p>
+      </div>
+
+    </div><!-- /page-screens -->
+
+    <!-- ══ TAB 4 — 네비게이션 플로우 ══ -->
+    <div id="page-flow" class="page">
+      <div class="page-title">네비게이션 플로우</div>
+      <div class="page-desc">온보딩 · 핵심 반복 · 설정 관리 3가지 플로우를 화면 ID 연결 스텝 다이어그램으로 시각화합니다.</div>
+
+      <!-- 읽는 법 -->
+      <div class="callout green mb18">
+        <div class="callout-title">📖 플로우 다이어그램 읽는 법</div>
+        <p>각 스텝의 <strong>화면 ID 배지</strong>는 탭 3(화면별 상세 정의)과 연결됩니다. 배지 색상은 뎁스 컬러와 동일합니다. <span class="screen-pill green" style="font-size: 10px;">S-XX</span> 초록 = Depth 0~1 · <span class="screen-pill yellow" style="font-size: 10px;">S-XX</span> 노랑 = Depth 2 · <span class="screen-pill gray" style="font-size: 10px;">S-XX</span> 회색 = 모달·슬라이드오버(Depth 3). 분기 경로는 스텝 내 분기 박스로 구분합니다.</p>
+      </div>
+
+      <!-- 플로우 통계 -->
+      <div class="stat-row mb24">
+        <div class="stat-card accent-top accent-green">
+          <div class="stat-num green">3</div>
+          <div class="stat-lbl">정의된 플로우 수</div>
+          <div class="stat-sub">온보딩 · 반복 · 설정</div>
+        </div>
+        <div class="stat-card accent-top accent-blue">
+          <div class="stat-num blue">10분</div>
+          <div class="stat-lbl">목표 온보딩 시간</div>
+          <div class="stat-sub">가입 → 첫 리포트</div>
+        </div>
+        <div class="stat-card accent-top accent-yellow">
+          <div class="stat-num yellow">3분</div>
+          <div class="stat-lbl">목표 반복 사이클</div>
+          <div class="stat-sub">판정 → 리포트 → PDF</div>
+        </div>
+        <div class="stat-card accent-top accent-purple">
+          <div class="stat-num purple">2회</div>
+          <div class="stat-lbl">Claude API 호출</div>
+          <div class="stat-sub">판정 1회 + 리포트 1회</div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           플로우 ① — 온보딩
+      ════════════════════════════════ -->
+      <div class="sec-label mb14">① 온보딩 플로우 — 가입 → 첫 리포트 (10분 목표)</div>
+      <div class="card mb24 accent-top accent-green">
+
+        <!-- 플로우 헤더 -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+          <span class="ver-badge mvp">🚀 MVP</span>
+          <span style="font-size:13px; color:var(--t3);">신규 사용자가 <strong style="color:var(--t1);">처음 가입해서 첫 번째 리포트 PDF를 다운로드</strong>하기까지의 전체 흐름</span>
+          <span style="margin-left:auto; font-size:12px; color:var(--green); font-weight:700;">목표: 10분 이내</span>
+        </div>
+
+        <!-- 전체 경로 요약 필 -->
+        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:20px; background:var(--s2); border-radius:10px; padding:10px 14px;">
+          <span class="screen-pill green">S-01</span><span class="flow-arrow">→</span>
+          <span class="screen-pill green">S-03</span><span class="flow-arrow">→</span>
+          <span class="screen-pill green">S-04</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-05</span><span class="flow-arrow">→</span>
+          <span class="screen-pill gray">S-05a</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-06</span><span class="flow-arrow">→</span>
+          <span class="screen-pill gray">S-06a</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-07</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-08</span><span class="flow-arrow">→</span>
+          <span class="screen-pill green" style="background:rgba(16,185,129,.2); font-weight:800; border-color:var(--green);">🎉 PDF</span>
+        </div>
+
+        <div class="flow-wrap">
+
+          <!-- STEP 1 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num green">1</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">랜딩 → 가입 선택</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill green">S-01 랜딩</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">"시작하기" CTA 클릭</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill green">S-03 회원가입</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--green); font-weight:700; margin-bottom:4px;">경로 A — Google OAuth (권장)</div>
+                  버튼 1클릭 → 즉시 S-04로 이동<br><span style="color:var(--green);">이탈 위험 최소</span>
+                </div>
+                <div style="background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--yellow); font-weight:700; margin-bottom:4px;">경로 B — 이메일 가입</div>
+                  인증 메일 수신 → 링크 클릭 → S-04<br><span style="color:var(--yellow);">⚠️ 이탈 위험: 메일 미확인</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num green">2</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">워크스페이스 생성</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill green">S-04 온보딩</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">에이전시명 입력 (필수 1개)</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">organizations 자동 생성 · RLS 활성화</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-05</span>
+              </div>
+              <div style="background:var(--s2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                💡 PostHog <code style="font-size:11px;">workspace_created</code> 이벤트 수신 — 온보딩 완료 확인 기준
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num green">3</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">첫 프로젝트 생성</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill yellow">S-05 목록</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">"새 프로젝트" 버튼</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill gray">S-05a 생성 모달</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">이름·클라이언트 입력</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-06 상세</span>
+              </div>
+              <div style="background:var(--s2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                ⚠️ <strong style="color:var(--t1);">Empty State 이탈 위험 포인트</strong> — 빈 목록 화면에서 "새 프로젝트" CTA가 명확하지 않으면 이탈. 첫 방문 시 툴팁·가이드 강조 필요.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num yellow">4</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">계약 범위 등록 — Claude API 1회 파싱</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill yellow">S-06 상세</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">"범위 등록" 버튼</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill gray">S-06a 슬라이드오버</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--yellow); font-weight:600;">🤖 Claude API 파싱</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">결과 확인·편집·확정</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-06</span>
+              </div>
+              <div style="background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                ⚡ <code style="font-size:11px;">/api/parse-scope</code> → Claude API (temperature 0.2) → JSON 배열 반환 → PM 편집 → scope_definitions 저장 · PostHog <code style="font-size:11px;">scope_defined</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 5 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num yellow">5</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">첫 판정 요청 — AHA 직전</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill yellow">S-06</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">"판정 요청하기" CTA</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-07 판정 입력</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">요청 텍스트 입력</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--yellow); font-weight:600;">🤖 Fast Path / Claude API</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-07a 결과</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--green); font-weight:700; margin-bottom:4px;">Fast Path 적중 (경로 A·B·C)</div>
+                  즉시 결과 표시 · API 비용 없음<br>목표 30~40% 요청에서 적중
+                </div>
+                <div style="background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--yellow); font-weight:700; margin-bottom:4px;">Claude API 호출 (경로 D)</div>
+                  스트리밍 응답 · 목표 30초 이내<br>PostHog <code style="font-size:10px;">first_scope_judgment</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 6 — AHA -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num" style="background:rgba(16,185,129,.25); color:var(--green); border-color:var(--green); font-size:15px;">⭐</div>
+              <div class="flow-step-line" style="background:var(--green);"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title" style="color:var(--green);">AHA 모멘트 — 리포트 자동 생성</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill yellow">S-07a 결과</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">"리포트 생성" CTA</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-08 리포트</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--yellow); font-weight:600;">🤖 Claude API 리포트</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">PM 편집·확정</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill green" style="background:rgba(16,185,129,.2); border-color:var(--green); font-weight:800;">🎉 PDF 다운로드</span>
+              </div>
+              <div style="background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.25); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--t3); line-height:1.75;">
+                ⭐ <strong style="color:var(--green);">"기계가 대신 말한다"는 경험 발생</strong> — 리포트 초안이 화면에 렌더링되는 순간이 AHA 모멘트. PostHog <code style="font-size:10px;">report_generated</code> + <code style="font-size:10px;">pdf_downloaded</code> 이벤트로 추적. 이 두 이벤트가 동일 세션에서 발생하면 온보딩 완전 완료로 판단.
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /flow-wrap -->
+      </div>
+
+      <!-- ════════════════════════════════
+           플로우 ② — 핵심 반복
+      ════════════════════════════════ -->
+      <div class="sec-label mb14">② 핵심 반복 플로우 — 판정 → 리포트 → PDF (3분 목표)</div>
+      <div class="card mb24 accent-top accent-yellow">
+
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+          <span class="ver-badge mvp">🚀 MVP</span>
+          <span style="font-size:13px; color:var(--t3);">온보딩 이후 <strong style="color:var(--t1);">매 클라이언트 요청마다 반복되는</strong> 일상 사이클 — 제품의 Daily Use 핵심</span>
+          <span style="margin-left:auto; font-size:12px; color:var(--yellow); font-weight:700;">목표: 3분 이내</span>
+        </div>
+
+        <!-- 전체 경로 요약 -->
+        <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:20px; background:var(--s2); border-radius:10px; padding:10px 14px;">
+          <span class="screen-pill yellow">S-05</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-06</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-07</span><span class="flow-arrow">→</span>
+          <span style="font-size:11px; color:var(--t3);">[Fast Path or API]</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-07a</span><span class="flow-arrow">→</span>
+          <span class="screen-pill yellow">S-08</span><span class="flow-arrow">→</span>
+          <span class="screen-pill green" style="background:rgba(16,185,129,.2); border-color:var(--green);">PDF</span>
+        </div>
+
+        <div class="flow-wrap">
+
+          <!-- R-STEP 1 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num yellow">1</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">프로젝트 진입</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <span class="screen-pill yellow">S-05 목록</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">해당 프로젝트 카드 클릭</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-06 상세</span>
+              </div>
+              <div style="font-size:12px; color:var(--t3); background:var(--s2); border-radius:8px; padding:8px 12px;">
+                계약 범위가 이미 등록된 상태 (온보딩 완료 후 반복 사이클). "판정 요청하기" CTA 바로 클릭 가능.
+              </div>
+            </div>
+          </div>
+
+          <!-- R-STEP 2 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num yellow">2</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">요청 입력 &amp; AI 판정 (Fast Path 우선)</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <span class="screen-pill yellow">S-07 판정 입력</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">클라이언트 요청 붙여넣기</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">"판정 요청" 클릭</span>
+              </div>
+              <!-- Fast Path 4경로 -->
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:8px;">
+                <div style="background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.2); border-radius:8px; padding:7px 10px; text-align:center; font-size:11px; color:var(--t3);">
+                  <div style="color:var(--green); font-weight:700; margin-bottom:3px;">경로 A</div>완전 일치<br><span style="color:var(--green);">⚡ 즉시</span>
+                </div>
+                <div style="background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.2); border-radius:8px; padding:7px 10px; text-align:center; font-size:11px; color:var(--t3);">
+                  <div style="color:var(--red); font-weight:700; margin-bottom:3px;">경로 B</div>명백한 신규<br><span style="color:var(--red);">⚡ 즉시</span>
+                </div>
+                <div style="background:rgba(79,128,255,.08); border:1px solid rgba(79,128,255,.2); border-radius:8px; padding:7px 10px; text-align:center; font-size:11px; color:var(--t3);">
+                  <div style="color:var(--blue); font-weight:700; margin-bottom:3px;">경로 C</div>캐시 적중<br><span style="color:var(--blue);">⚡ 즉시</span>
+                </div>
+                <div style="background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.2); border-radius:8px; padding:7px 10px; text-align:center; font-size:11px; color:var(--t3);">
+                  <div style="color:var(--yellow); font-weight:700; margin-bottom:3px;">경로 D</div>애매·복합<br><span style="color:var(--yellow);">🤖 Claude</span>
+                </div>
+              </div>
+              <div style="font-size:12px; color:var(--t3);">→ 모든 경로에서 S-07a 판정 결과 인라인 표시</div>
+            </div>
+          </div>
+
+          <!-- R-STEP 3 오버라이드 분기 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num yellow">3</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">결과 확인 — 동의 or 오버라이드</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill yellow">S-07a 결과 뷰</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--green); font-weight:700; margin-bottom:4px;">✅ 결과에 동의</div>
+                  판정 배지 확인 → "리포트 생성" CTA 클릭 → S-08
+                </div>
+                <div style="background:rgba(251,146,60,.07); border:1px solid rgba(251,146,60,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--orange); font-weight:700; margin-bottom:4px;">🔄 PM 오버라이드</div>
+                  "오버라이드" 링크 → <span class="screen-pill gray" style="font-size:10px;">S-07b 모달</span> → 이유 입력 → 수정 저장 → S-08<br><span style="color:var(--t3); font-size:11px;">오버라이드 기록 → Fast Path 캐시로 누적</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- R-STEP 4 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num green">4</div>
+              <div class="flow-step-line" style="min-height:0;"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">리포트 생성 → PDF 다운로드 완료</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="screen-pill yellow">S-08 리포트</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--yellow); font-weight:600;">🤖 Claude API</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">초안 렌더링 (15초)</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">편집·확정</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill gray">S-08a PDF</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill green" style="background:rgba(16,185,129,.2); border-color:var(--green); font-weight:800;">✅ 완료</span>
+              </div>
+              <div style="background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.2); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--t3);">
+                클라이언트에게 PDF 전달 → 다음 요청 대기 → S-05 or S-06 복귀해 반복 사이클 재개
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /flow-wrap -->
+      </div>
+
+      <!-- ════════════════════════════════
+           플로우 ③ — 설정·관리
+      ════════════════════════════════ -->
+      <div class="sec-label mb14">③ 설정 &amp; 관리 플로우 — 계정·워크스페이스·플랜</div>
+      <div class="card mb24 accent-top accent-purple">
+
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+          <span class="ver-badge mvp">🚀 MVP</span>
+          <span class="ver-badge v11" style="margin-left:0;">🔵 v1.1</span>
+          <span style="font-size:13px; color:var(--t3);">사이드바 설정 섹션 내 <strong style="color:var(--t1);">모든 관리 화면 이동 경로</strong></span>
+        </div>
+
+        <div class="flow-wrap">
+
+          <!-- M-STEP 1 설정 진입 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num purple">1</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">설정 진입 — 어느 화면에서든 사이드바로</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <span style="font-size:12px; color:var(--t3);">S-05 ~ S-08 어느 화면에서든</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">사이드바 "설정" 메뉴</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill yellow">S-09 워크스페이스</span>
+              </div>
+              <div style="font-size:12px; color:var(--t3); background:var(--s2); border-radius:8px; padding:8px 12px;">
+                설정 섹션은 탭 네비게이션 구조 — 워크스페이스 / 계정 / (v1.1) 플랜·결제
+              </div>
+            </div>
+          </div>
+
+          <!-- M-STEP 2 탭 이동 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num purple">2</div>
+              <div class="flow-step-line"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">설정 탭 내 이동</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                <div style="background:rgba(167,139,250,.07); border:1px solid rgba(167,139,250,.2); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--purple); font-weight:700; margin-bottom:6px;">🚀 MVP 탭</div>
+                  <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:6px;"><span class="screen-pill yellow" style="font-size:10px;">S-09</span> 워크스페이스 설정</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><span class="flow-arrow" style="margin-left:4px;">↕</span> 탭 전환</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><span class="screen-pill yellow" style="font-size:10px;">S-10</span> 계정 설정</div>
+                  </div>
+                </div>
+                <div style="background:rgba(79,128,255,.07); border:1px solid rgba(79,128,255,.2); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--t3);">
+                  <div style="color:var(--blue); font-weight:700; margin-bottom:6px;">🔵 v1.1 추가 탭</div>
+                  <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:6px;"><span class="screen-pill" style="font-size:10px; background:rgba(79,128,255,.1); color:var(--blue); border-color:rgba(79,128,255,.3);">S-16</span> 플랜 업그레이드</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><span class="flow-arrow" style="margin-left:4px;">↕</span> 탭 전환</div>
+                    <div style="display:flex; align-items:center; gap:6px;"><span class="screen-pill" style="font-size:10px; background:rgba(79,128,255,.1); color:var(--blue); border-color:rgba(79,128,255,.3);">S-17</span> 결제 이력</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- M-STEP 3 로그아웃 -->
+          <div class="flow-step">
+            <div class="flow-step-left">
+              <div class="flow-step-num purple">3</div>
+              <div class="flow-step-line" style="min-height:0;"></div>
+            </div>
+            <div class="flow-step-body">
+              <div class="flow-step-title">로그아웃 플로우</div>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <span class="screen-pill yellow">S-10 계정 설정</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">로그아웃 버튼</span>
+                <span class="flow-arrow">→</span>
+                <span style="font-size:12px; color:var(--t3);">세션 토큰 무효화 · Supabase signOut</span>
+                <span class="flow-arrow">→</span>
+                <span class="screen-pill green">S-02 로그인</span>
+              </div>
+              <div style="font-size:12px; color:var(--t3); background:var(--s2); border-radius:8px; padding:8px 12px;">
+                로그아웃 후 모든 /dashboard/* 라우트 → middleware.ts에서 /login 리다이렉트 자동 처리
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /flow-wrap -->
+      </div>
+
+      <!-- ════════════════════════════════
+           화면 간 전체 연결 요약 테이블
+      ════════════════════════════════ -->
+      <div class="sec-label mb14">📋 화면 간 전체 이동 경로 요약</div>
+      <div class="card mb24 accent-top accent-blue" style="padding:0; overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table class="prd-table" style="min-width:620px;">
+            <thead>
+              <tr style="background:var(--s2);">
+                <th style="width:10%;">화면 ID</th>
+                <th style="width:22%;">화면명</th>
+                <th style="width:30%;">주요 진입 경로</th>
+                <th style="width:30%;">주요 이탈 경로</th>
+                <th style="width:8%;">버전</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>S-01</strong></td><td>랜딩</td><td>직접 URL · 공유 링크</td><td>S-03 가입 · S-02 로그인</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr><td><strong>S-02</strong></td><td>로그인</td><td>S-01 CTA · 미들웨어 리다이렉트</td><td>S-05 (성공) · S-03 가입</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr><td><strong>S-03</strong></td><td>회원가입</td><td>S-01 CTA · S-02 링크</td><td>S-04 온보딩 (성공)</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr><td><strong>S-04</strong></td><td>온보딩</td><td>S-03 가입 완료 후 자동</td><td>S-05 (완료, 1회성)</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr style="background:rgba(16,185,129,.03);"><td><strong>S-05</strong></td><td>프로젝트 목록</td><td>로그인 성공 · 사이드바</td><td>S-06 카드 클릭 · S-05a 모달</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr style="background:rgba(16,185,129,.03);"><td><strong>S-06</strong></td><td>프로젝트 상세</td><td>S-05 카드 · S-05a 생성 완료</td><td>S-06a · S-07 판정 · S-08 리포트</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr style="background:rgba(16,185,129,.05);"><td><strong>S-07</strong></td><td>판정 요청</td><td>S-06 "판정 요청하기"</td><td>S-07a 결과 (인라인) · S-06 취소</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr style="background:rgba(16,185,129,.07);"><td><strong>S-08 ⭐</strong></td><td>리포트 (AHA)</td><td>S-07a "리포트 생성" · S-06 링크</td><td>S-08a PDF · S-08b 이메일(v1.1) · S-06</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr><td><strong>S-09</strong></td><td>워크스페이스 설정</td><td>사이드바 설정 클릭</td><td>S-10 탭 전환 · 사이드바</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+              <tr><td><strong>S-10</strong></td><td>계정 설정</td><td>S-09 탭 전환 · 프로필 클릭</td><td>S-09 탭 · 로그아웃 → S-02</td><td><span class="ver-badge mvp" style="font-size:10px;">MVP</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 관련 문서 링크 -->
+      <div class="sec-label mb14">🔗 관련 기획 문서 바로가기</div>
+      <div class="card accent-top accent-blue">
+        <div style="font-size:13px; font-weight:700; color:var(--t1); margin-bottom:6px;">IA 정보구조도 v1.0 — 완성</div>
+        <div style="font-size:13px; color:var(--t3); margin-bottom:20px; line-height:1.75;">
+          S-01~S-12 MVP 전체 화면 구조·상세·플로우가 정의됐습니다. Antigravity 빌드 세션 전 <strong style="color:var(--t1);">"이 화면의 URL·컴포넌트·진입 경로"</strong>를 탭 3에서 확인하세요.
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="prd.html"
+            style="display:inline-flex; align-items:center; gap:7px; background:var(--blue); color:#fff; text-decoration:none; border-radius:20px; padding:9px 18px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(79,128,255,.3); transition:all .2s;"
+            onmouseover="this.style.background='#3a6bea'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--blue)'; this.style.transform='translateY(0)'">📋 PRD</a>
+          <a href="user-story-flow.html"
+            style="display:inline-flex; align-items:center; gap:7px; background:var(--green); color:#fff; text-decoration:none; border-radius:20px; padding:9px 18px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(16,185,129,.3); transition:all .2s;"
+            onmouseover="this.style.background='#0da271'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--green)'; this.style.transform='translateY(0)'">👥 유저 스토리 / 플로우</a>
+          <a href="feature-list.html"
+            style="display:inline-flex; align-items:center; gap:7px; background:var(--s2); color:var(--t3); text-decoration:none; border-radius:20px; padding:9px 18px; font-size:13px; font-weight:600; border:1px solid var(--bd); transition:all .2s;"
+            onmouseover="this.style.background='var(--bd)'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--s2)'; this.style.transform='translateY(0)'">📊 기능 목록표</a>
+        </div>
+      </div>
+
+    </div><!-- /page-flow -->
+
+  </main>
+
+  <script>
+    function showTab(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+
+    function toggleMode() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+    }
+  </script>
+
+</body>
+</html>
