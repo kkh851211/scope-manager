@@ -52,17 +52,17 @@ export async function PATCH(
         const { title, content, status } = body;
 
         const { data, error } = await (supabase
-            .from('requests')
+            .from('requests') as any)
             .update({
                 ...(title && { title }),
                 ...(content && { content }),
                 ...(status && { status }),
-            } as any)
+            })
             .eq('id', requestId)
             .eq('project_id', projectId)
             .eq('user_id', user.id)
             .select()
-            .single() as any);
+            .single();
 
         if (error) throw error;
 

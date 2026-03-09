@@ -45,8 +45,8 @@ export async function PATCH(
 
     try {
         const body = await request.json();
-        const { data, error } = await supabase
-            .from('projects')
+        const { data, error } = await (supabase
+            .from('projects') as any)
             .update(body)
             .eq('id', id)
             .eq('user_id', user.id)

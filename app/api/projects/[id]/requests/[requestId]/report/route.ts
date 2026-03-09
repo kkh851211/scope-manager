@@ -115,11 +115,11 @@ export async function POST(
         };
 
         const { data: finalReport, error: updateError } = await (supabase
-            .from('reports')
-            .update({ report_data: updatedReportData } as any)
+            .from('reports') as any)
+            .update({ report_data: updatedReportData })
             .eq('id', newReport.id)
             .select()
-            .single() as unknown as Promise<any>);
+            .single();
 
         if (updateError) throw updateError;
 

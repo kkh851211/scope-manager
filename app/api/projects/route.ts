@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         // out_of_scope 필터 적용 (클라이언트 사이드에서 할 수도 있지만 요청사항에 포함됨)
         let filteredData = data || [];
         if (outOfScope) {
-            filteredData = filteredData.filter(p => {
+            filteredData = filteredData.filter((p: any) => {
                 const reqs = p.requests || [];
                 return reqs.some((r: any) =>
                     r.scope_judgments?.some((j: any) => j.result === 'out_of_scope')

@@ -53,7 +53,7 @@ export async function POST(
 
         // 1. 요청(requests) 테이블에 INSERT (상태: 'pending')
         const { data: newRequest, error: requestError } = await (supabase
-            .from('requests')
+            .from('requests') as any)
             .insert({
                 project_id: projectId,
                 user_id: user.id,
@@ -63,9 +63,9 @@ export async function POST(
                 requested_at: requested_at || new Date().toISOString().split('T')[0], // date 타입에 맞춰 포맷
                 requester_name,
                 status: 'pending'
-            } as any)
+            })
             .select()
-            .single() as any);
+            .single();
 
         if (requestError) throw requestError;
 
@@ -115,7 +115,7 @@ export async function POST(
 
         // 4. scope_judgments 테이블에 판정 결과 INSERT
         const { error: judgmentError } = await (supabase
-            .from('scope_judgments')
+            .from('scope_judgments') as any)
             .insert({
                 request_id: newRequest.id,
                 user_id: user.id,
@@ -124,15 +124,15 @@ export async function POST(
                 confidence_score: aiResult.confidence_score,
                 recommendation: aiResult.recommendation,
                 model_used: 'claude-3-5-sonnet-latest'
-            } as any) as any);
+            });
 
         if (judgmentError) throw judgmentError;
 
         // 5. requests 테이블 status 업데이트
         const { error: updateError } = await (supabase
-            .from('requests')
-            .update({ status: 'judged' } as any)
-            .eq('id', newRequest.id) as any);
+            .from('requests') as any)
+            .update({ status: 'judged' })
+            .eq('id', newRequest.id);
 
         if (updateError) throw updateError;
 
