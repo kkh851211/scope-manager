@@ -51,8 +51,8 @@ export async function PATCH(
         const body = await request.json();
         const { title, content, status } = body;
 
-        const { data, error } = await (supabase
-            .from('requests') as any)
+        const { data, error } = await supabase
+            .from('requests')
             .update({
                 ...(title && { title }),
                 ...(content && { content }),

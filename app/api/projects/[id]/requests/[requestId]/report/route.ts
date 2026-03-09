@@ -93,7 +93,7 @@ export async function POST(
             report_url: ""
         };
 
-        const { data: newReport, error: insertError } = await (supabase
+        const { data: newReport, error: insertError } = await supabase
             .from('reports')
             .insert({
                 project_id: projectId,
@@ -101,9 +101,9 @@ export async function POST(
                 user_id: user.id,
                 report_data: initialReportData,
                 is_public: true
-            } as any)
+            })
             .select()
-            .single() as any);
+            .single();
 
         if (insertError) throw insertError;
 
@@ -114,8 +114,8 @@ export async function POST(
             report_url: reportUrl
         };
 
-        const { data: finalReport, error: updateError } = await (supabase
-            .from('reports') as any)
+        const { data: finalReport, error: updateError } = await supabase
+            .from('reports')
             .update({ report_data: updatedReportData })
             .eq('id', newReport.id)
             .select()

@@ -6,9 +6,36 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          company_name: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          company_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          company_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           id: string
@@ -55,6 +82,15 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       contract_features: {
         Row: {
@@ -93,6 +129,22 @@ export interface Database {
           sort_order?: number | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "contract_features_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_features_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       requests: {
         Row: {
@@ -102,7 +154,7 @@ export interface Database {
           title: string | null
           content: string | null
           requester_name: string | null
-          status: 'pending' | 'in_scope' | 'out_of_scope' | 'needs_review'
+          status: 'pending' | 'in_scope' | 'out_of_scope' | 'needs_review' | 'judged'
           channel: 'kakao' | 'email' | 'phone' | 'meeting' | 'other' | null
           requested_at: string | null
           is_overridden: boolean
@@ -116,7 +168,7 @@ export interface Database {
           title?: string | null
           content?: string | null
           requester_name?: string | null
-          status?: 'pending' | 'in_scope' | 'out_of_scope' | 'needs_review'
+          status?: 'pending' | 'in_scope' | 'out_of_scope' | 'needs_review' | 'judged'
           channel?: 'kakao' | 'email' | 'phone' | 'meeting' | 'other' | null
           requested_at?: string | null
           is_overridden?: boolean
@@ -130,13 +182,29 @@ export interface Database {
           title?: string | null
           content?: string | null
           requester_name?: string | null
-          status?: 'pending' | 'in_scope' | 'out_of_scope' | 'needs_review'
+          status?: 'pending' | 'in_scope' | 'out_of_scope' | 'needs_review' | 'judged'
           channel?: 'kakao' | 'email' | 'phone' | 'meeting' | 'other' | null
           requested_at?: string | null
           is_overridden?: boolean
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       scope_judgments: {
         Row: {
@@ -175,6 +243,22 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "scope_judgments_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scope_judgments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       onboarding_surveys: {
         Row: {
@@ -198,7 +282,80 @@ export interface Database {
           has_given_up_billing?: boolean | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_surveys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
+      reports: {
+        Row: {
+          id: string
+          project_id: string
+          request_id: string
+          user_id: string
+          report_data: Json
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          request_id: string
+          user_id: string
+          report_data: Json
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          request_id?: string
+          user_id?: string
+          report_data?: Json
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_request_id_fkey"
+            columns: ["request_id"]
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }
@@ -222,3 +379,11 @@ export type ScopeJudgmentUpdate = Database['public']['Tables']['scope_judgments'
 export type OnboardingSurvey = Database['public']['Tables']['onboarding_surveys']['Row']
 export type OnboardingSurveyInsert = Database['public']['Tables']['onboarding_surveys']['Insert']
 export type OnboardingSurveyUpdate = Database['public']['Tables']['onboarding_surveys']['Update']
+
+export type Profile = Database['public']['Tables']['profiles']['Row']
+export type ProfileInsert = Database['public']['Tables']['profiles']['Insert']
+export type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
+
+export type Report = Database['public']['Tables']['reports']['Row']
+export type ReportInsert = Database['public']['Tables']['reports']['Insert']
+export type ReportUpdate = Database['public']['Tables']['reports']['Update']

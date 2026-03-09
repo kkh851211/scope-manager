@@ -34,12 +34,12 @@ export async function GET(request: NextRequest) {
         if (name) query = query.ilike('name', `%${name}%`);
         if (clientName) query = query.ilike('client_name', `%${clientName}%`);
         if (status && status !== '전체') {
-            const statusMap: Record<string, string> = {
+            const statusMap: Record<string, 'active' | 'completed' | 'paused'> = {
                 '진행중': 'active',
                 '완료': 'completed',
                 '보류': 'paused'
             };
-            const mappedStatus = statusMap[status] || status;
+            const mappedStatus = (statusMap[status] || status) as 'active' | 'completed' | 'paused';
             query = query.eq('status', mappedStatus);
         }
         if (startDate) query = query.gte('start_date', startDate);
