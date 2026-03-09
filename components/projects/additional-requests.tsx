@@ -93,9 +93,12 @@ export default function AdditionalRequests({ judgments, projectId }: { judgments
                                         </div>
                                     </div>
 
-                                    <button className="text-sm text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] transition-colors ml-4 flex-shrink-0">
-                                        상세 보기
-                                    </button>
+                                    <Link
+                                        href={`/projects/${projectId}/requests/${request.id}/report`}
+                                        className="text-sm text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] transition-colors ml-4 flex-shrink-0"
+                                    >
+                                        리포트 생성
+                                    </Link>
                                 </div>
                             </div>
                         );

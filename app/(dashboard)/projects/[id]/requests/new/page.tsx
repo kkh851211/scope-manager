@@ -26,6 +26,7 @@ export default function AddRequest() {
     const [confidence, setConfidence] = useState(0);
     const [aiReason, setAiReason] = useState("");
     const [aiRecommendation, setAiRecommendation] = useState("");
+    const [requestId, setRequestId] = useState<string | null>(null);
 
     // 프로젝트 정보 상태
     const [projectName, setProjectName] = useState("");
@@ -97,6 +98,7 @@ export default function AddRequest() {
             setConfidence(judgment.confidence_score);
             setAiReason(judgment.reasoning);
             setAiRecommendation(judgment.recommendation);
+            setRequestId(data.id);
 
             // 상태 매핑
             if (judgment.result === "in_scope") setJudgmentResult("범위 내");
@@ -349,12 +351,12 @@ export default function AddRequest() {
 
                             {/* 액션 버튼 */}
                             <div className="flex gap-3 pt-2">
-                                <button
-                                    onClick={handleConfirm}
-                                    className="flex-1 bg-[#4f80ff] hover:bg-[#4f80ff]/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                                <Link
+                                    href={`/projects/${id}/requests/${requestId}/report`}
+                                    className="flex-1 bg-[#4f80ff] hover:bg-[#4f80ff]/90 text-white px-6 py-3 rounded-lg font-medium transition-colors text-center"
                                 >
                                     📄 리포트 자동 생성
-                                </button>
+                                </Link>
                                 <button className="px-6 py-3 rounded-lg text-gray-500 dark:text-[#8c95aa] hover:text-gray-900 dark:hover:text-[#e8eaf0] hover:bg-gray-100 dark:hover:bg-[#1e2538] transition-colors">
                                     ✏️ 판정 결과 수정
                                 </button>
