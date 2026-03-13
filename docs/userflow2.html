@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scope Manager — User Flow</title>
+  <style>
+    /* 아래 명시된 변수와 클래스를 사용하여 CSS를 완벽히 구성할 것 */
+    :root {
+      --bg: #0f1117;
+      --s1: #1a1f2e;
+      --s2: #212840;
+      --t1: #e8eaf0;
+      --t3: #8c95aa;
+      --bd: #232b3e;
+      --blue: #4f80ff;
+      --green: #10b981;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --orange: #fb923c;
+    }
+
+    body.light {
+      --bg: #f5f7fa;
+      --s1: #ffffff;
+      --s2: #eef1f7;
+      --t1: #1a1f2e;
+      --t3: #5a6478;
+      --bd: #d1d9e6;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      transition: background 0.2s, color 0.2s;
+      min-height: 100vh;
+      overflow-y: scroll;
+    }
+
+    .inner-wrap {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 100%;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      padding: 13px 0;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: background 0.2s;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+
+    .logo span { color: var(--t1); }
+
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--bd);
+      color: var(--t3);
+      white-space: nowrap;
+    }
+
+    .badge.blue   { border-color: var(--blue);   color: var(--blue);   }
+    .badge.green  { border-color: var(--green);  color: var(--green);  }
+    .badge.yellow { border-color: var(--yellow); color: var(--yellow); }
+    .badge.purple { border-color: var(--purple); color: var(--purple); }
+    .badge.orange { border-color: var(--orange); color: var(--orange); }
+    .badge.red    { border-color: var(--red);    color: var(--red);    }
+
+    .toggle-btn {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(79,128,255,0.3);
+    }
+
+    .toggle-btn:hover {
+      background: #3a6bea;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79,128,255,0.4);
+    }
+
+    .toggle-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 4px rgba(79,128,255,0.3);
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--s1);
+      border-bottom: 1px solid var(--bd);
+      transition: background 0.2s;
+      padding: 0;
+    }
+
+    .nav-content {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-content::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 15px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--t1); }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom: 2px solid var(--blue);
+      font-weight: 600;
+    }
+
+    /* ── MAIN / PAGE ── */
+    main { width: 100%; }
+
+    .page {
+      display: none;
+      padding: 36px 28px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    .page.active { display: block; }
+
+    /* ── TYPOGRAPHY ── */
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--t1);
+      margin-bottom: 6px;
+    }
+
+    .page-desc {
+      color: var(--t3);
+      font-size: 13px;
+      margin-bottom: 28px;
+      line-height: 1.75;
+    }
+
+    .sec-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--t1);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .card-body {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.75;
+    }
+
+    .card-body strong { color: var(--t1); }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: background 0.2s;
+      scroll-margin-top: 80px;
+    }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--s2);
+      color: var(--t3);
+      border: 1px solid var(--bd);
+      margin: 2px 3px 2px 0;
+    }
+
+    .tag.blue   { background: rgba(79,128,255,.12);  color: var(--blue);   border-color: rgba(79,128,255,.25);  }
+    .tag.green  { background: rgba(16,185,129,.12);  color: var(--green);  border-color: rgba(16,185,129,.25);  }
+    .tag.red    { background: rgba(248,113,113,.12); color: var(--red);    border-color: rgba(248,113,113,.25); }
+    .tag.yellow { background: rgba(251,191,36,.12);  color: var(--yellow); border-color: rgba(251,191,36,.25);  }
+    .tag.purple { background: rgba(167,139,250,.12); color: var(--purple); border-color: rgba(167,139,250,.25); }
+    .tag.orange { background: rgba(251,146,60,.12);  color: var(--orange); border-color: rgba(251,146,60,.25);  }
+
+    /* ── BULLET LIST ── */
+    .blist { list-style: none; padding: 0; }
+
+    .blist li {
+      font-size: 13px;
+      color: var(--t3);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--bd);
+      line-height: 1.65;
+    }
+
+    .blist li:last-child { border-bottom: none; }
+
+    .blist li::before {
+      content: '›';
+      color: var(--blue);
+      margin-right: 8px;
+      font-weight: 700;
+    }
+
+    .blist li strong { color: var(--t1); }
+
+    /* ── CHECKLIST ── */
+    .checklist { list-style: none; padding: 0; }
+
+    .checklist li {
+      font-size: 13px;
+      color: var(--t3);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--bd);
+      line-height: 1.65;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .checklist li::before {
+      content: '☐';
+      color: var(--t3);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .checklist li strong { color: var(--t1); }
+
+    /* ── ACCENT TOP LINE ── */
+    .accent-top { position: relative; }
+
+    .accent-top::before {
+      content: '';
+      display: block;
+      height: 3px;
+      border-radius: 12px 12px 0 0;
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+    }
+
+    .accent-blue::before   { background: var(--blue);   }
+    .accent-green::before  { background: var(--green);  }
+    .accent-red::before    { background: var(--red);    }
+    .accent-yellow::before { background: var(--yellow); }
+    .accent-purple::before { background: var(--purple); }
+    .accent-orange::before { background: var(--orange); }
+
+    /* ── GRIDS ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .detail-grid.triple {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      border: 1px solid;
+    }
+
+    .callout.blue   { background: rgba(79,128,255,.07);  border-color: rgba(79,128,255,.3);  }
+    .callout.green  { background: rgba(16,185,129,.07);  border-color: rgba(16,185,129,.3);  }
+    .callout.red    { background: rgba(248,113,113,.07); border-color: rgba(248,113,113,.3); }
+    .callout.yellow { background: rgba(251,191,36,.07);  border-color: rgba(251,191,36,.3);  }
+    .callout.purple { background: rgba(167,139,250,.07); border-color: rgba(167,139,250,.3); }
+    .callout.orange { background: rgba(251,146,60,.07);  border-color: rgba(251,146,60,.3);  }
+
+    .callout-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+
+    .callout.blue   .callout-title { color: var(--blue);   }
+    .callout.green  .callout-title { color: var(--green);  }
+    .callout.red    .callout-title { color: var(--red);    }
+    .callout.yellow .callout-title { color: var(--yellow); }
+    .callout.purple .callout-title { color: var(--purple); }
+    .callout.orange .callout-title { color: var(--orange); }
+
+    .callout p { font-size: 13px; color: var(--t3); line-height: 1.75; }
+    .callout p strong { color: var(--t1); }
+
+    /* ── VS WRAP ── */
+    .vs-wrap {
+      display: grid;
+      grid-template-columns: 1fr 40px 1fr;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .vs-card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .vs-card.old { border-color: rgba(248,113,113,.35); }
+    .vs-card.new { border-color: rgba(16,185,129,.35);  }
+
+    .vs-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+
+    .vs-card.old .vs-label { color: var(--red);   }
+    .vs-card.new .vs-label { color: var(--green); }
+
+    .vs-items li {
+      list-style: none;
+      font-size: 12px;
+      color: var(--t3);
+      padding: 4px 0;
+      border-bottom: 1px solid var(--bd);
+      line-height: 1.6;
+    }
+
+    .vs-items li:last-child { border-bottom: none; }
+    .vs-card.old .vs-items li::before { content: '✕ '; color: var(--red);   }
+    .vs-card.new .vs-items li::before { content: '✓ '; color: var(--green); }
+
+    .vs-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--t3);
+      font-size: 20px;
+      padding-top: 50px;
+    }
+
+    /* ── STAT ROW ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card {
+      background: var(--s1);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .stat-num {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-num.blue   { color: var(--blue);   }
+    .stat-num.green  { color: var(--green);  }
+    .stat-num.yellow { color: var(--yellow); }
+    .stat-num.red    { color: var(--red);    }
+    .stat-num.purple { color: var(--purple); }
+    .stat-num.orange { color: var(--orange); }
+
+    .stat-lbl { font-size: 12px; color: var(--t3); font-weight: 500; }
+    .stat-sub { font-size: 11px; color: var(--t3); margin-top: 4px; }
+
+    /* ── PROGRESS ── */
+    .prog-row { margin-bottom: 12px; }
+
+    .prog-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .prog-label span:first-child { color: var(--t1); }
+    .prog-label span:last-child  { color: var(--t3); }
+
+    .prog-bar {
+      background: var(--bd);
+      border-radius: 4px;
+      height: 7px;
+      overflow: hidden;
+    }
+
+    .prog-fill   { height: 100%; border-radius: 4px; }
+    .fill-blue   { background: var(--blue);   }
+    .fill-green  { background: var(--green);  }
+    .fill-yellow { background: var(--yellow); }
+    .fill-red    { background: var(--red);    }
+    .fill-orange { background: var(--orange); }
+    .fill-purple { background: var(--purple); }
+
+    /* ── TABLE ── */
+    .prd-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .prd-table th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--t3);
+      font-weight: 600;
+      border-bottom: 2px solid var(--bd);
+    }
+
+    .prd-table td {
+      padding: 10px 14px;
+      color: var(--t3);
+      border-bottom: 1px solid var(--bd);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    .prd-table td strong { color: var(--t1); }
+    .prd-table tr:last-child td { border-bottom: none; }
+
+    /* ── UTILS ── */
+    hr { border: none; border-top: 1px solid var(--bd); margin: 18px 0; }
+    .mt12 { margin-top: 12px; }
+    .mt18 { margin-top: 18px; }
+    .mb14 { margin-bottom: 14px; }
+    .mb18 { margin-bottom: 18px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .detail-grid,
+      .detail-grid.triple { grid-template-columns: 1fr; }
+      .vs-wrap              { grid-template-columns: 1fr; }
+      .vs-center            { display: none; }
+      .stat-row             { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .inner-wrap { padding: 0 20px; }
+      header      { padding: 11px 14px; }
+      .page       { padding: 36px 20px; }
+      .tab-btn    { padding: 11px 11px; font-size: 12px; }
+      .stat-row   { grid-template-columns: 1fr; }
+    }
+
+    /* ── FLOW STEP ── */
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .flow-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .flow-content {
+      flex-grow: 1;
+      padding-top: 3px;
+    }
+    .flow-step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--t1);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="inner-wrap header-content">
+      <div class="header-left">
+        <div class="logo">Scope<span>Manager</span></div>
+        <div class="badges">
+          <span class="badge blue">User Flow</span>
+          <span class="badge">MVP 단계</span>
+        </div>
+      </div>
+      <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
+    </div>
+  </header>
+
+  <nav>
+    <div class="inner-wrap nav-content">
+      <button class="tab-btn active" onclick="showTab('auth', this)">1-2. 계정 & 로그인</button>
+      <button class="tab-btn" onclick="showTab('project', this)">3. 프로젝트 생성</button>
+      <button class="tab-btn" onclick="showTab('judgment', this)">4. AI 판정 플로우</button>
+      <button class="tab-btn" onclick="showTab('report', this)">5-7. 리포트 & 발송</button>
+      <button class="tab-btn" onclick="showTab('dashboard', this)">8-10. 대시보드 & 플랜</button>
+    </div>
+  </nav>
+
+  <main>
+    <div id="page-auth" class="page active">
+      <div class="page-title">Flow 1. 회원가입 & 온보딩</div>
+      <div class="page-desc">신규 사용자의 가입부터 첫 빈 화면 대시보드 진입까지의 흐름입니다.</div>
+
+      <div class="card mb18 accent-top accent-blue">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <div class="flow-step-title">사용자가 서비스 랜딩 페이지에 진입한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <div class="flow-step-title">"무료로 시작하기" CTA 버튼을 클릭한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <div class="flow-step-title">가입 방식을 선택한다</div>
+            <ul class="blist">
+              <li><strong>3-A. 이메일 + 패스워드 입력 후 가입 버튼 클릭:</strong> 입력한 이메일로 인증 메일 발송 → 이메일 인증 링크 클릭 → 인증 완료 → 온보딩 화면으로 이동</li>
+              <li><strong>3-B. Google 계정으로 계속하기 클릭:</strong> Google OAuth 동의 화면 표시 → 계정 선택 및 권한 승인 → 인증 완료 → 온보딩 화면으로 이동</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <div class="flow-step-title">시스템이 organization(워크스페이스)을 자동 생성하고 사용자와 연결한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <div class="flow-step-title">빈 상태(Empty State) 대시보드가 표시된다</div>
+            <ul class="blist">
+              <li>화면 중앙에 <strong>"첫 프로젝트 만들기"</strong> CTA 버튼 표시</li>
+              <li>"30초 만에 첫 판정 받기" 안내 문구 표시</li>
+              <li>3단계 온보딩 가이드 (프로젝트 등록 → 요청 입력 → 리포트 생성) 표시</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step" style="margin-bottom: 0;">
+          <div class="flow-num" style="background: var(--purple);">6</div>
+          <div class="flow-content">
+            <div class="flow-step-title">PostHog에 <code style="font-size: 12px; background: var(--s2); padding: 2px 6px; border-radius: 4px;">user_signed_up</code> 이벤트가 기록된다</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-title mt18">Flow 2. 로그인</div>
+      <div class="card mb18 accent-top accent-green">
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">1</div>
+          <div class="flow-content">
+            <div class="flow-step-title">사용자가 /login 페이지에 진입한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">2</div>
+          <div class="flow-content">
+            <div class="flow-step-title">로그인 방식을 선택한다</div>
+            <ul class="blist">
+              <li><strong>2-A.</strong> 이메일 + 패스워드 입력 후 로그인</li>
+              <li><strong>2-B.</strong> Google 계정으로 로그인</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">3</div>
+          <div class="flow-content">
+            <div class="flow-step-title">인증 성공 시 홈 대시보드(/)로 리다이렉트한다</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;">미인증 상태에서 보호 경로 직접 접근 시 /login으로 리다이렉트한다.</div>
+          </div>
+        </div>
+        <hr>
+        <div class="flow-step-title" style="margin-left: 44px; color: var(--t3);">비밀번호를 잊은 경우</div>
+        <ul class="blist" style="margin-left: 44px;">
+          <li>"비밀번호 재설정" 링크 클릭</li>
+          <li>이메일 입력 후 재설정 메일 요청</li>
+          <li>이메일 수신 → 재설정 링크 클릭</li>
+          <li>새 비밀번호 입력 후 저장 → 로그인 화면으로 이동</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="page-project" class="page">
+      <div class="page-title">Flow 3. 프로젝트 생성 & 계약 범위 등록</div>
+      <div class="page-desc">새로운 프로젝트를 만들고 AI 파싱을 통해 계약 범위를 구조화하는 흐름입니다.</div>
+
+      <div class="card mb18 accent-top accent-blue">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <div class="flow-step-title">대시보드에서 "새 프로젝트 만들기" 버튼을 클릭한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <div class="flow-step-title">프로젝트 정보를 입력한다</div>
+            <ul class="blist">
+              <li>프로젝트명 (필수)</li>
+              <li>클라이언트명 (필수)</li>
+              <li>계약 시작일 (필수)</li>
+              <li>계약 금액 (선택)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <div class="flow-step-title">계약서 보유 여부를 확인한다</div>
+            <ul class="blist">
+              <li><strong>3-A. 계약서 있음:</strong> 계약 범위 텍스트 입력 단계로 이동</li>
+              <li><strong>3-B. 계약서 없음 (구두 계약 등):</strong> "계약 범위 직접 작성 가이드" 팝업 표시 → 가이드 양식에 따라 범위 항목 직접 작성 → 작성 완료 후 동일 흐름으로 진행</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <div class="flow-step-title">계약 범위 텍스트를 textarea에 입력한다 (최대 5,000자)</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <div class="flow-step-title">"범위 등록 및 파싱 시작" 버튼을 클릭한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <div class="flow-step-title">시스템이 Claude API를 1회 호출하여 계약 범위를 구조화 항목으로 파싱한다</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;">로딩 인디케이터가 표시됩니다.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">7</div>
+          <div class="flow-content">
+            <div class="flow-step-title">파싱된 항목 목록이 미리보기로 표시된다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">8</div>
+          <div class="flow-content">
+            <div class="flow-step-title">PM이 파싱 결과를 검토한다</div>
+            <ul class="blist">
+              <li><strong>8-A. 항목 수정이 필요한 경우:</strong> 직접 편집 후 저장</li>
+              <li><strong>8-B. 항목이 맞으면:</strong> "확정" 버튼 클릭</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">9</div>
+          <div class="flow-content">
+            <div class="flow-step-title"><code style="font-size: 12px; background: var(--s2); padding: 2px 6px; border-radius: 4px;">scope_definitions</code> 테이블에 JSON으로 저장된다</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;">프로젝트 상태가 "진행 중"으로 설정되고 프로젝트 상세 페이지로 이동합니다.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--purple);">10</div>
+          <div class="flow-content">
+            <div class="flow-step-title">PostHog에 <code style="font-size: 12px; background: var(--s2); padding: 2px 6px; border-radius: 4px;">first_project_created</code> 이벤트가 기록된다</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout yellow mb18">
+        <div class="callout-title">⚠️ Free 플랜 프로젝트 제한</div>
+        <p>Free 플랜 사용자가 프로젝트 3개 초과 생성 시도 시:<br>
+        1. 업그레이드 유도 모달 표시<br>
+        2. "Starter로 업그레이드" 또는 "닫기" 선택<br>
+        3. 닫기 선택 시 해당 월 동안 모달 재표시 없음</p>
+      </div>
+    </div>
+
+    <div id="page-judgment" class="page">
+      <div class="page-title">Flow 4. 클라이언트 요청 입력 & AI 범위 판정</div>
+      <div class="page-desc">클라이언트 요청을 분석하여 판정 결과를 제공하는 핵심 흐름과 에러 핸들링입니다.</div>
+
+      <div class="card mb18 accent-top accent-green">
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">1</div>
+          <div class="flow-content">
+            <div class="flow-step-title">프로젝트 상세 페이지에서 "새 요청 판정하기" 버튼을 클릭한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">2</div>
+          <div class="flow-content">
+            <div class="flow-step-title">Free 플랜 월 판정 잔여 횟수를 확인한다</div>
+            <ul class="blist">
+              <li><strong>2-A. 잔여 횟수 있음:</strong> 입력 단계로 이동</li>
+              <li><strong>2-B. 잔여 횟수 없음 (월 10회 소진):</strong> 업그레이드 유도 모달 표시 ("이번 달 AI 판정 10회를 모두 사용했습니다") → "Starter 업그레이드" 또는 "닫기" (닫기 시 판정 불가 유지)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">3</div>
+          <div class="flow-content">
+            <div class="flow-step-title">클라이언트 요청 내용을 textarea에 입력한다 (최대 2,000자)</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">4</div>
+          <div class="flow-content">
+            <div class="flow-step-title">"판정 시작" 버튼을 클릭한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">5</div>
+          <div class="flow-content">
+            <div class="flow-step-title">시스템이 Fast Path 체크를 실행한다</div>
+            
+            <div style="margin-top: 10px; background: rgba(16,185,129,.05); border: 1px dashed rgba(16,185,129,.4); padding: 12px; border-radius: 8px;">
+              <strong style="color: var(--green);">5-A. Fast Path 적중 — Claude API 호출 없음 (1초 이내 결과 표시)</strong>
+              <ul class="blist mt12">
+                <li>완전 일치: 코사인 유사도 ≥ 0.92 → "범위 내" 즉시 반환</li>
+                <li>명백한 신규: 최대 유사도 ≤ 0.35 → "범위 초과" 즉시 반환</li>
+                <li>중복 요청: 동일 SHA-256 해시 캐시 발견 → 캐시 결과 반환</li>
+                <li>PM 오버라이드 패턴: 유사도 ≥ 0.88 → 오버라이드 기록 우선 적용</li>
+              </ul>
+            </div>
+            
+            <div style="margin-top: 10px; background: rgba(251,191,36,.05); border: 1px dashed rgba(251,191,36,.4); padding: 12px; border-radius: 8px;">
+              <strong style="color: var(--yellow);">5-B. Claude API 호출 — 유사도 0.35 초과 0.92 미만</strong>
+              <ul class="blist mt12">
+                <li>Claude API 호출 (temperature 0.2 고정)</li>
+                <li>스트리밍 응답으로 결과 표시 (목표 15초 이내)</li>
+                <li>판정 결과 및 근거 문장 표시</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num" style="background: var(--green);">6</div>
+          <div class="flow-content">
+            <div class="flow-step-title">판정 결과 3단계 중 하나가 표시된다</div>
+            <ul class="blist">
+              <li><span class="tag green">범위 내</span> → Flow 4-A로 이동</li>
+              <li><span class="tag yellow">판단 필요</span> → Flow 4-B로 이동</li>
+              <li><span class="tag red">범위 초과</span> → Flow 4-C로 이동</li>
+            </ul>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 8px;">판정 근거 문장이 함께 표시된다 (계약서 어느 항목과 비교했는지 명시)</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;"><code style="font-size: 11px; background: var(--s2); padding: 2px 6px; border-radius: 4px;">scope_requests</code> 테이블에 판정 결과가 자동 저장된다.</div>
+          </div>
+        </div>
+        <div class="flow-step" style="margin-bottom: 0;">
+          <div class="flow-num" style="background: var(--purple);">7</div>
+          <div class="flow-content">
+            <div class="flow-step-title">PostHog에 이벤트가 기록된다</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;">`first_scope_judgment` (첫 판정 시) 또는 `scope_judgment_completed` 기록.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-grid triple mb18">
+        <div class="card accent-top accent-green">
+          <div class="sec-label">Flow 4-A. 범위 내</div>
+          <ul class="blist">
+            <li>"범위 내" 결과와 근거 문장 표시</li>
+            <li>PM이 결과를 확인한다.</li>
+            <li><strong>동의:</strong> 판정 완료. 히스토리에 기록. (플로우 종료)</li>
+            <li><strong>동의 안함:</strong> "재판정 요청" 클릭 → Claude API 재호출.</li>
+          </ul>
+        </div>
+        <div class="card accent-top accent-yellow">
+          <div class="sec-label">Flow 4-B. 판단 필요</div>
+          <ul class="blist">
+            <li>"판단 필요" 결과와 근거 문장 표시</li>
+            <li>PM이 <strong>수동으로 최종 판정을 선택</strong>한다. (오버라이드 기록 저장)</li>
+            <li><strong>"범위 내" 선택:</strong> 플로우 종료</li>
+            <li><strong>"범위 초과" 선택:</strong> Flow 4-C로 연결</li>
+          </ul>
+        </div>
+        <div class="card accent-top accent-red">
+          <div class="sec-label">Flow 4-C. 범위 초과</div>
+          <ul class="blist">
+            <li>"범위 초과" 결과와 근거 문장 표시</li>
+            <li>PM이 결과를 확인한다.</li>
+            <li><strong>동의:</strong> "리포트 생성하기" 버튼 활성화 → Flow 5로 이동</li>
+            <li><strong>동의 안함:</strong> "재판정 요청" 클릭 → API 재호출.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout orange">
+        <div class="callout-title">Flow 4-D. 에러 처리</div>
+        <ul class="blist">
+          <li><strong>Claude API 타임아웃 (30초 초과):</strong> 자동으로 1회 재시도. 재시도 실패 시 "일시적 오류" 메시지 + 수동 판정 모드 제공.</li>
+          <li><strong>Claude API 연속 2회 실패:</strong> 수동 판정 모드 자동 전환. "AI 판정 일시 중단" 배너 표시. PM이 수동으로 직접 결과 선택.</li>
+          <li><strong>Supabase 연결 오류:</strong> 입력 내용을 로컬 세션 스토리지에 임시 저장. 연결 복구 후 자동 동기화.</li>
+          <li><strong>판정 중 브라우저 새로고침:</strong> `status` 컬럼(pending/completed/failed) 확인 후 pending이면 재시도 안내, 완료면 결과 복원.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="page-report" class="page">
+      <div class="page-title">Flow 5-7. 리포트 자동 생성 및 발송</div>
+      <div class="page-desc">범위 초과 시 리포트를 생성하고 클라이언트에게 전달하는 흐름입니다.</div>
+
+      <div class="sec-label mb14">Flow 5. 리포트 자동 생성 (AHA 모멘트)</div>
+      <div class="card mb18 accent-top accent-blue">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <div class="flow-step-title">"범위 초과" 판정 결과 화면에서 "리포트 생성하기" 버튼을 클릭한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <div class="flow-step-title">Free 플랜 월 리포트 잔여 건수를 확인한다</div>
+            <ul class="blist">
+              <li><strong>2-A. 잔여 건수 있음:</strong> 생성 단계로 이동</li>
+              <li><strong>2-B. 잔여 건수 없음 (월 3건 소진):</strong> 업그레이드 모달 표시 ("이번 달 리포트 3건 모두 사용") → "Starter 업그레이드" 또는 "닫기"</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <div class="flow-step-title">시스템이 Claude API를 1회 호출하여 리포트 초안을 생성한다</div>
+            <ul class="blist">
+              <li>로딩 인디케이터 표시 (목표 10초 이내)</li>
+              <li>프롬프트 내 금지 표현 목록 적용 ("죄송합니다", "유감입니다" 등 감정 언어 금지)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <div class="flow-step-title">리포트 초안이 표시된다</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;">구성: 프로젝트명 / 요청 일시 / 요약 / 판정 결과 / 계약 근거 / 추가 비용 안내 문구 (중립적 시스템 어조)</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <div class="flow-step-title">PM이 리포트 내용을 검토한다</div>
+            <ul class="blist">
+              <li><strong>5-A. 수정 필요 시:</strong> 편집 모드 진입 → 내용 수정 → 저장</li>
+              <li><strong>5-B. 수정 불필요 시:</strong> "리포트 확정" 버튼 클릭</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <div class="flow-step-title">확정된 리포트가 DB에 저장되고, 미리보기가 표시된다</div>
+            <div style="font-size: 12px; color: var(--t3); margin-top: 4px;">PDF 다운로드 버튼이 활성화(Flow 6). Starter 이상은 이메일 발송 버튼 활성화(Flow 7).</div>
+          </div>
+        </div>
+        <div class="flow-step" style="margin-bottom: 0;">
+          <div class="flow-num" style="background: var(--purple);">7</div>
+          <div class="flow-content">
+            <div class="flow-step-title">PostHog에 <code style="font-size: 12px; background: var(--s2); padding: 2px 6px; border-radius: 4px;">report_generated</code> 이벤트가 기록된다</div>
+            <div style="font-size: 12px; color: var(--yellow); margin-top: 4px;"><strong>⭐ AHA 모멘트 추적 완료</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-grid mb18">
+        <div class="card accent-top accent-green">
+          <div class="sec-label">Flow 6. PDF 다운로드</div>
+          <ul class="blist" style="margin-bottom: 0;">
+            <li>리포트 확정 화면에서 <strong>"PDF 다운로드"</strong> 버튼을 클릭한다</li>
+            <li>브라우저 `window.print()` 실행 → PDF 저장 다이얼로그 표시</li>
+            <li>사용자가 저장 위치 지정 후 다운로드 완료</li>
+            <li>PostHog에 `pdf_downloaded` 이벤트가 기록된다</li>
+          </ul>
+        </div>
+        <div class="card accent-top accent-purple">
+          <div class="sec-label">Flow 7. 이메일 발송 (Starter 이상)</div>
+          <ul class="blist" style="margin-bottom: 0;">
+            <li>확정 화면에서 <strong>"이메일 발송"</strong> 버튼 클릭 (Starter 이상)</li>
+            <li>클라이언트 이메일 주소 입력</li>
+            <li>발송 전 리포트 미리보기 확인 (실수 방지)</li>
+            <li>발송 진행("발송하기") 또는 취소</li>
+            <li>발송 완료 후 상태 <strong>"발송 완료"</strong> 변경 및 이력 DB 기록</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-dashboard" class="page">
+      <div class="page-title">Flow 8-10. 대시보드 & 플랜 업그레이드</div>
+      <div class="page-desc">프로젝트 현황을 파악하고 유료 플랜으로 업그레이드하는 흐름입니다.</div>
+
+      <div class="sec-label mb14">Flow 8. 히스토리 타임라인 조회</div>
+      <div class="card mb18 accent-top accent-blue">
+        <ul class="blist">
+          <li>프로젝트 상세 페이지에서 <strong>"요청 히스토리"</strong> 탭을 클릭한다</li>
+          <li>해당 프로젝트의 전체 판정 이력이 <strong>시간 순</strong>으로 표시된다 (일시 / 요약 / 결과 / 발송 여부 / 청구 상태)</li>
+          <li>판정 결과별 <span class="tag green">초록</span> <span class="tag yellow">노랑</span> <span class="tag red">빨강</span> 색상 구분 적용</li>
+          <li>결과별 필터(전체/범위 내/초과/판단 필요)를 선택하여 정렬한다</li>
+          <li>개별 요청 항목을 클릭하면 상세 판정 결과 및 리포트 확인 화면이 표시된다</li>
+        </ul>
+      </div>
+
+      <div class="sec-label mb14">Flow 9. 홈 대시보드 확인</div>
+      <div class="card mb18 accent-top accent-blue">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <div class="flow-step-title">로그인 직후 홈 대시보드(/)로 랜딩한다</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <div class="flow-step-title">프로젝트가 없는 경우</div>
+            <ul class="blist">
+              <li>빈 상태(Empty State) UI 표시</li>
+              <li>"첫 프로젝트 등록하기" CTA 버튼 노출 → Flow 3으로 이동</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step" style="margin-bottom: 0;">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <div class="flow-step-title">프로젝트가 있는 경우</div>
+            <ul class="blist">
+              <li><strong>핵심 수치 4개 카드 표시:</strong> 진행 중 프로젝트 수, 이번 달 추가 요청 건수, 청구 성공 건수, 누적 방어 금액</li>
+              <li><strong>손익 위험 프로젝트 목록:</strong> 적자 가능성 높은 순으로 정렬되어 표시</li>
+              <li><strong>최근 판정 이력:</strong> 최신 5건이 요약 표시됨</li>
+              <li>목록 클릭 시 해당 상세 페이지로 이동</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-label mb14">Flow 10. 플랜 업그레이드</div>
+      <div class="card mb18 accent-top accent-yellow">
+        <ul class="blist" style="margin-bottom: 0;">
+          <li>기능 제한 모달이 표시되거나 설정에서 <strong>플랜 변경</strong>을 클릭한다</li>
+          <li>Free / Starter / Pro <strong>플랜 비교 화면</strong>이 표시된다</li>
+          <li>원하는 플랜의 "업그레이드" 버튼을 클릭한다</li>
+          <li>결제 정보 입력 화면으로 이동한다</li>
+          <li>결제 완료 후 해당 플랜 <strong>기능이 즉시 활성화</strong>된다</li>
+          <li>PostHog에 `upgrade_modal_shown` → `plan_upgraded` 이벤트가 기록된다</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function showTab(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+
+    function toggleMode() {
+      const isLight = document.body.classList.toggle('light');
+      document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+    }
+  </script>
+</body>
+</html>
