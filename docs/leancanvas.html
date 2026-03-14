@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scope Manager — Lean Canvas</title>
+  <title>Scope Manager — Lean Canvas v1.3</title>
   <style>
-    /* 아래 명시된 변수와 클래스를 사용하여 CSS를 완벽히 구성할 것 */
     :root {
       --bg: #0f1117;
       --s1: #1a1f2e;
@@ -201,6 +200,19 @@
       font-size: 13px;
       margin-bottom: 28px;
       line-height: 1.75;
+    }
+
+    .h2-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--t1);
+      margin: 36px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .h2-title:first-child {
+      margin-top: 0;
     }
 
     .sec-label {
@@ -488,7 +500,6 @@
       .detail-grid.triple { grid-template-columns: 1fr; }
       .vs-wrap              { grid-template-columns: 1fr; }
       .vs-center            { display: none; }
-      .stat-row             { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 560px) {
@@ -496,7 +507,6 @@
       header      { padding: 11px 14px; }
       .page       { padding: 36px 20px; }
       .tab-btn    { padding: 11px 11px; font-size: 12px; }
-      .stat-row   { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -508,7 +518,7 @@
         <div class="logo">Scope<span>Manager</span></div>
         <div class="badges">
           <span class="badge blue">Lean Canvas</span>
-          <span class="badge yellow">Business Model</span>
+          <span class="badge yellow">v1.3</span>
         </div>
       </div>
       <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀️ 라이트</button>
@@ -517,211 +527,259 @@
 
   <nav>
     <div class="inner-wrap nav-content">
-      <button class="tab-btn active" onclick="showTab('canvas1', this)">🧩 캔버스 I (개요)</button>
-      <button class="tab-btn" onclick="showTab('canvas2', this)">💎 캔버스 II (가치/고객)</button>
-      <button class="tab-btn" onclick="showTab('business', this)">📈 비즈니스 (지표/수익)</button>
-      <button class="tab-btn" onclick="showTab('strategy', this)">🚀 MVP 검증 전략</button>
+      <button class="tab-btn active" onclick="showTab('problem-solution', this)">01-02. 문제 & 해결책</button>
+      <button class="tab-btn" onclick="showTab('value-customer', this)">03-05. 가치 & 고객</button>
+      <button class="tab-btn" onclick="showTab('metrics-channels', this)">06-07. 지표 & 채널</button>
+      <button class="tab-btn" onclick="showTab('cost-revenue', this)">08-09. 비용 & 수익</button>
+      <button class="tab-btn" onclick="showTab('strategy', this)">🚀 우선 검증 전략</button>
     </div>
   </nav>
 
   <main>
-    <div id="page-canvas1" class="page active">
-      <div class="page-title">린캔버스 I — 문제와 해결책</div>
-      <div class="page-desc">Scope Manager의 비즈니스 모델을 9개 블록으로 요약한 린캔버스입니다. 
+    <div id="page-problem-solution" class="page active">
+      <div class="page-title">Scope Manager 린캔버스 v1.3</div>
+      <div class="page-desc">빌더: Jey (김제이) | Scope Manager의 비즈니스 모델을 9개 블록으로 요약합니다.</div>
 
-[Image of Lean Canvas business model]
-</div>
-
-      <div class="detail-grid">
-        <div class="card accent-top accent-red">
-          <div class="sec-label">01 — Problem · 해결할 문제</div>
-          <div class="card-title" style="color: var(--red);">핵심 문제 3가지</div>
-          <ul class="blist mb14">
-            <li><strong>청구 포기 구조</strong> — "돈 달라는 말을 꺼내기 어렵다"는 심리적 장벽이 반복적 손실로 이어짐. 범위 초과 청구 포기율 <span class="tag red">68%</span></li>
-            <li><strong>AI 인식 격차</strong> — 클라이언트는 "AI가 다 해주니 싸야 한다", 에이전시는 "AI 검증 비용이 새로 생겼다"</li>
-            <li><strong>표준 부재</strong> — 변경 관리 단가의 업계 표준이 없어 협상이 PM 개인의 담력에 의존</li>
-          </ul>
-          
-          <div class="card-title" style="color: var(--red);">기존 대안과 한계</div>
-          <ul class="blist mb14">
-            <li><strong>카카오톡 + 엑셀</strong> — 기록은 있으나 판정·근거 생성 불가</li>
-            <li><strong>Jira / Asana / Notion</strong> — 과업 관리 목적, 범위 초과 청구 설계 없음</li>
-            <li><strong>엔터프라이즈 CM 도구</strong> — 고비용·복잡, 5~20인 에이전시 현실과 괴리</li>
-          </ul>
-
-          <div style="background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.2); padding: 10px 12px; border-radius: 8px; font-size: 11px; color: var(--t3);">
-            <strong style="color: var(--red);">PMI 통계:</strong> 프로젝트 52% 스코프 크리프 경험 / 예산 초과율 85% / 평균 초과 27%
-          </div>
+      <div class="h2-title">01 — Problem · 해결할 문제</div>
+      
+      <div class="card mb18 accent-top accent-red">
+        <div class="card-title" style="color: var(--red);">핵심 문제 3가지</div>
+        <ul class="blist mb14">
+          <li><strong>청구 포기 구조</strong> — "돈 달라는 말을 꺼내기 어렵다"는 심리적 장벽이 반복적 손실로 이어짐. 범위 초과 청구 포기율 <span class="tag red">68%</span></li>
+          <li><strong>AI 인식 격차</strong> — 클라이언트는 "AI가 다 해주니 싸야 한다", 에이전시는 "AI 검증 비용이 새로 생겼다"</li>
+          <li><strong>표준 부재</strong> — 변경 관리 단가의 업계 표준이 없어 협상이 PM 개인의 담력에 의존. "전달했다"와 "클라이언트가 인지했다" 사이의 입증 불가</li>
+        </ul>
+        <div class="card-title" style="color: var(--red);">기존 대안과 한계</div>
+        <ul class="blist mb14">
+          <li><strong>카카오톡 + 엑셀</strong> — 기록은 있으나 판정·근거 생성 불가. 클라이언트 인지 여부 입증 불가</li>
+          <li><strong>Jira / Asana / Notion</strong> — 과업 관리 목적, 범위 초과 청구 설계 없음</li>
+          <li><strong>엔터프라이즈 CM 도구</strong> — 고비용·복잡, 5~20인 에이전시 현실과 괴리</li>
+        </ul>
+        <div class="callout red" style="margin-bottom: 0; padding: 12px 16px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 4px;">PMI 통계</div>
+          <div style="font-size: 12px; color: var(--t3);">프로젝트 52% 스코프 크리프 경험 / 예산 초과율 85% / 평균 초과 27%</div>
         </div>
+      </div>
 
-        <div class="card accent-top accent-green">
-          <div class="sec-label">02 — Solution · 솔루션</div>
-          <div class="card-title" style="color: var(--green);">핵심 해결책</div>
-          <ul class="blist mb14">
-            <li><strong>범위 초과 자동 판정</strong> — 계약 범위 대비 자동 비교. Fast Path 로직으로 30~40% 케이스는 API 호출 없이 즉시 처리</li>
-            <li><strong>청구 근거 자동 생성</strong> — "시스템상 과업 범위를 초과한 것으로 기록되었습니다"라는 문장을 도구가 자동 생성. PM은 전달만 한다</li>
-            <li><strong>프로젝트 손익 누적 기록</strong> — 프로젝트별 실제 손익을 누적 기록하여 다음 견적·계약의 기준을 데이터로 만든다</li>
-          </ul>
-        </div>
+      <div class="h2-title">02 — Solution · 솔루션</div>
+      <div class="card mb18 accent-top accent-green">
+        <div class="card-title" style="color: var(--green);">핵심 해결책</div>
+        <ul class="blist">
+          <li><strong>범위 초과 자동 판정</strong> — 계약 범위 대비 자동 비교. 복합 요청의 경우 부분 초과 항목 구분 표시. Fast Path 로직으로 30~40% 케이스는 API 호출 없이 즉시 처리</li>
+          <li><strong>청구 근거 자동 생성</strong> — "시스템상 과업 범위를 초과한 것으로 기록되었습니다"라는 문장을 도구가 자동 생성. PM은 전달만 한다. 편집 가능 영역과 불가 영역을 구분해 리포트 신뢰성 보장</li>
+          <li><strong>클라이언트 동의 기록</strong> — 리포트 확인 링크를 통해 클라이언트가 내용을 열람하고 동의한 시점의 타임스탬프를 자동 기록. "전달했다"에서 "인지했다"로 입증 수준 격상</li>
+          <li><strong>프로젝트 손익 누적 기록</strong> — 청구 완료 / 청구 포기 / 무상 진행 상태를 구분해 실제 손실액을 누적 기록. 다음 견적·계약의 기준을 데이터로 만든다</li>
+        </ul>
       </div>
     </div>
 
-    <div id="page-canvas2" class="page">
-      <div class="page-title">린캔버스 II — 가치 제안과 고객</div>
-      <div class="page-desc">제품의 고유한 가치와 타겟 고객층을 정의합니다.</div>
-
-      <div class="sec-label mb14">03 — Unique Value Proposition · 핵심 가치 제안</div>
+    <div id="page-value-customer" class="page">
+      <div class="h2-title">03 — Unique Value Proposition · 핵심 가치 제안</div>
       <div class="callout blue mb18">
-        <div class="callout-title" style="font-size: 16px;">"PM이 아쉬운 소리 하지 않아도 범위 초과 비용을 받아낼 수 있는 구조"</div>
-        <p>기존 PM 도구가 과업 <strong>'관리'</strong>에 집중했다면, Scope Manager는 <strong>관계 보호 + 수익 방어</strong>에 집중한다.<br>
-        "제가 그러는 게 아니라, 시스템이 범위를 벗어났다고 판정했습니다" — PM의 감정 노동 없이 데이터가 협상한다.</p>
+        <div class="callout-title" style="font-size: 15px;">"PM이 아쉬운 소리 하지 않아도 범위 초과 비용을 받아낼 수 있는 구조. 그리고 클라이언트가 인지했다는 증거까지 남긴다."</div>
+        <p>기존 PM 도구가 과업 <strong>'관리'</strong>에 집중했다면, Scope Manager는 <strong>관계 보호 + 수익 방어 + 분쟁 대응 근거</strong>에 집중한다.<br><br>
+        "제가 그러는 게 아니라, 시스템이 범위를 벗어났다고 판정했습니다. 그리고 고객사도 이미 확인하셨습니다." — PM의 감정 노동 없이 데이터가 협상하고, 타임스탬프가 증거가 된다.</p>
       </div>
-
       <div class="card mb18 accent-top accent-blue">
         <div class="card-title">포지셔닝 차별화</div>
         <ul class="blist">
           <li><strong>타겟 특화</strong> — 5~20인 에이전시 PM만을 위한 전용 설계</li>
           <li><strong>역할 전환</strong> — PM의 감정 노동을 시스템의 데이터 판정으로 대체</li>
           <li><strong>협상 구조 변화</strong> — "개인 요청"에서 "시스템 판정 결과"로 프레임 전환</li>
+          <li><strong>입증 수준 격상</strong> — 리포트 전달에서 클라이언트 인지 확인 타임스탬프까지</li>
           <li><strong>누적 가치</strong> — 사용할수록 더 정확한 업계 단가 기준 형성</li>
-          <li><strong>클라이언트 대면 기능 없음</strong> — 내부 도구 원칙 고수. 리포트는 PM이 전달 주체</li>
+          <li><strong>클라이언트 대면 기능 없음</strong> — 내부 도구 원칙 고수. 확인 링크는 읽기 전용 예외</li>
         </ul>
       </div>
 
-      <div class="detail-grid">
+      <div class="detail-grid mb18">
         <div class="card accent-top accent-purple">
           <div class="sec-label">04 — Unfair Advantage · 경쟁 우위</div>
           <ul class="blist">
-            <li><strong>도메인 전문성</strong> — PM 현장 경험에서 나온 페인포인트 설계</li>
-            <li><strong>전용 포지셔닝</strong> — 범용 PM 도구가 진입하기 어려운 "청구 협상" 특화</li>
+            <li><strong>도메인 전문성</strong> — PM 현장 경험에서 나온 페인포인트 설계. 실제 분쟁 상황에서 필요한 기록 구조 직접 설계</li>
+            <li><strong>전용 포지셔닝</strong> — 범용 PM 도구가 진입하기 어려운 "청구 협상 + 동의 기록" 특화</li>
             <li><strong>데이터 네트워크 효과</strong> — 누적 프로젝트 데이터 → 업계 단가 기준 → 신규 고객 유인</li>
             <li><strong>First Mover</strong> — 국내 에이전시 변경 관리 SaaS 공백 시장 선점</li>
-            <li><strong>PM 오버라이드 학습</strong> — PM이 직접 판정한 패턴이 누적될수록 Fast Path 정확도 향상</li>
+            <li><strong>PM 오버라이드 학습</strong> — PM이 직접 판정한 패턴 누적 시 Fast Path 정확도 향상</li>
+            <li><strong>분쟁 방어 구조</strong> — 열람 타임스탬프 + IP + User-Agent 기록으로 "몰랐다" 반박 차단</li>
           </ul>
         </div>
-
         <div class="card accent-top accent-orange">
           <div class="sec-label">05 — Customer Segments · 고객 세그먼트</div>
           <ul class="blist">
-            <li><span class="tag green">핵심 (MVP)</span> 5~20인 웹 에이전시 PM. 프로젝트 1개 적자가 회사 현금흐름에 직접 영향</li>
-            <li><span class="tag blue">얼리어답터</span> PM 겸직 대표. 문제 인식 + 결제 권한 모두 보유</li>
-            <li><span class="tag orange">확장 (Phase 2)</span> 프리랜서 개발자·디자이너, 소규모 IT 컨설팅사 (에이전시 PMF 검증 후 별도 JTBD 검증 필요)</li>
+            <li><span class="tag green">핵심 (MVP)</span> 5~20인 웹 에이전시 PM. 프로젝트 1개 적자가 현금흐름에 직접 영향. 클라이언트와 직접 협상.</li>
+            <li><span class="tag blue">얼리어답터</span> PM 겸직 대표. 문제 인식+결제 권한 보유. 분쟁 경험이 있어 동의 기록의 가치 즉시 인식.</li>
+            <li><span class="tag orange">확장 (Phase 2)</span> 프리랜서 개발자·디자이너, 소규모 IT 컨설팅사 (에이전시 PMF 검증 후 별도 검증 필요)</li>
             <li><span class="tag red">제외</span> 5인 미만(체계 불필요), 20인 초과(자체 해결책 보유)</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <div id="page-business" class="page">
-      <div class="page-title">비즈니스 — 지표, 채널, 수익, 비용</div>
-      <div class="page-desc">제품의 성장 지표와 채널, 그리고 수익 모델 및 비용 구조를 정의합니다.</div>
-
-      <div class="detail-grid">
-        <div class="card accent-top accent-green">
-          <div class="sec-label">06 — Key Metrics · 핵심 지표</div>
-          <div style="overflow-x: auto; margin-bottom: 14px;">
-            <table class="prd-table">
-              <thead>
-                <tr>
-                  <th>단계</th>
-                  <th>지표</th>
-                  <th>목표</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Acquisition</strong></td>
-                  <td>월 신규 가입 수</td>
-                  <td><span class="tag">200명/월</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Activation</strong></td>
-                  <td>가입 후 첫 프로젝트 등록률</td>
-                  <td><span class="tag green">&gt; 40% (24시간 내)</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Retention</strong></td>
-                  <td>2주 재방문율</td>
-                  <td><span class="tag green">&gt; 30%</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Revenue</strong></td>
-                  <td>Free → Paid 전환율</td>
-                  <td><span class="tag blue">&gt; 5% (6주 내)</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Referral</strong></td>
-                  <td>초대 레퍼럴율</td>
-                  <td><span class="tag purple">&gt; 15%</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="card-title">수익 목표 (MRR)</div>
-          <ul class="blist">
-            <li><strong>1개월</strong> — Starter 5개 = 145,000원 (생존 검증)</li>
-            <li><strong>3개월</strong> — Starter 15개 = 435,000원 (채널 검증)</li>
-            <li><strong>6개월</strong> — Starter 30개 = 870,000원 (손익분기점)</li>
-            <li><strong>12개월</strong> — Starter 80개 + Pro 20개 = 3,700,000원 (성장 궤도)</li>
-          </ul>
-        </div>
-
-        <div class="card accent-top accent-blue">
-          <div class="sec-label">07 — Channels · 채널</div>
-          <div class="card-title">인바운드</div>
-          <ul class="blist mb14">
-            <li><strong>SEO</strong> — "스코프 크리프", "추가 요금 청구", "PM 도구" 키워드</li>
-            <li><strong>콘텐츠</strong> — PM 커뮤니티 (디스콰이엇, 퍼블리) 실무 아티클</li>
-            <li><strong>YouTube</strong> — "에이전시 PM 실수" 사례 중심 교육 콘텐츠</li>
-          </ul>
-          <div class="card-title">아웃바운드</div>
-          <ul class="blist mb14">
-            <li><strong>LinkedIn</strong> — 에이전시 PM·대표 직접 접근</li>
-            <li><strong>네트워크</strong> — 에이전시 협회·커뮤니티 파트너십</li>
-            <li><strong>레퍼럴</strong> — 사용자 초대 인센티브 (Free 플랜 판정 횟수 추가 제공)</li>
-          </ul>
+    <div id="page-metrics-channels" class="page">
+      <div class="h2-title">06 — Key Metrics · 핵심 지표</div>
+      <div class="card mb18 accent-top accent-green" style="padding: 0; overflow: hidden;">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 600px; margin: 0;">
+            <thead>
+              <tr>
+                <th style="width: 20%;">단계</th>
+                <th style="width: 50%;">지표</th>
+                <th>목표</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Acquisition</strong></td>
+                <td>월 신규 가입 수</td>
+                <td><span class="tag">200명/월</span></td>
+              </tr>
+              <tr>
+                <td><strong>Activation</strong></td>
+                <td>가입 후 첫 프로젝트 등록률</td>
+                <td><span class="tag green">&gt; 40% (24시간 내)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Retention</strong></td>
+                <td>2주 재방문율</td>
+                <td><span class="tag green">&gt; 30%</span></td>
+              </tr>
+              <tr>
+                <td><strong>Revenue</strong></td>
+                <td>Free → Paid 전환율</td>
+                <td><span class="tag blue">&gt; 5% (6주 내)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Referral</strong></td>
+                <td>초대 레퍼럴율</td>
+                <td><span class="tag purple">&gt; 15%</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="card mb18" style="background: var(--s2); border: 1px dashed var(--bd);">
-        <div class="sec-label">전환 퍼널</div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+      <div class="card mb18 accent-top accent-green" style="padding: 0; overflow: hidden;">
+        <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">추가 제품 지표 (v1.3 신규)</div>
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 600px; margin: 0;">
+            <thead>
+              <tr>
+                <th style="width: 40%;">지표</th>
+                <th style="width: 25%;">목표</th>
+                <th>의미</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>첫 판정 완료율</td>
+                <td><span class="tag green">&gt; 40%</span></td>
+                <td>온보딩 완료 기준</td>
+              </tr>
+              <tr>
+                <td>리포트 생성률 (판정 대비)</td>
+                <td><span class="tag yellow">&gt; 25%</span></td>
+                <td>AHA 모멘트 도달률</td>
+              </tr>
+              <tr>
+                <td>확인 링크 발송률 (리포트 대비)</td>
+                <td><span class="tag">측정 시작</span></td>
+                <td>F-10 실사용 의향</td>
+              </tr>
+              <tr>
+                <td>클라이언트 동의 완료율 (링크 대비)</td>
+                <td><span class="tag">측정 시작</span></td>
+                <td>분쟁 방어 실효성</td>
+              </tr>
+              <tr>
+                <td>부분 초과 판정 비율</td>
+                <td><span class="tag">측정 시작</span></td>
+                <td>복합 요청 처리 실효성</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb18 accent-top accent-green">
+        <div class="card-title">수익 목표 (MRR)</div>
+        <ul class="blist" style="margin-bottom: 0;">
+          <li><strong>1개월</strong> — Starter 5개 = 145,000원 (생존 검증)</li>
+          <li><strong>3개월</strong> — Starter 15개 = 435,000원 (채널 검증)</li>
+          <li><strong>6개월</strong> — Starter 30개 = 870,000원 (손익분기점)</li>
+          <li><strong>12개월</strong> — Starter 80개 + Pro 20개 = 3,700,000원 (성장 궤도)</li>
+        </ul>
+      </div>
+
+      <div class="h2-title">07 — Channels · 채널</div>
+      
+
+[Image of a marketing conversion funnel diagram]
+
+      <div class="card mb18 accent-top accent-blue">
+        <div class="detail-grid" style="margin-bottom: 12px;">
+          <div>
+            <div class="card-title">인바운드</div>
+            <ul class="blist">
+              <li><strong>SEO</strong> — "스코프 크리프", "추가 요금 청구", "PM 도구", "범위 초과 증거" 키워드</li>
+              <li><strong>콘텐츠</strong> — PM 커뮤니티 (디스콰이엇, 퍼블리) 실무 아티클. "클라이언트가 나중에 모른다고 할 때" 사례 중심</li>
+              <li><strong>YouTube</strong> — "에이전시 PM 실수", "범위 초과 분쟁 대응" 사례 교육</li>
+            </ul>
+          </div>
+          <div>
+            <div class="card-title">아웃바운드</div>
+            <ul class="blist">
+              <li><strong>LinkedIn</strong> — 에이전시 PM·대표 직접 접근. 동의 기록 기능을 분쟁 방어 관점으로 소구</li>
+              <li><strong>네트워크</strong> — 에이전시 협회·커뮤니티 파트너십</li>
+              <li><strong>레퍼럴</strong> — 사용자 초대 인센티브 (Free 플랜 판정 횟수 추가 제공)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sec-label mt18">전환 퍼널</div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; background: var(--s2); padding: 16px; border-radius: 8px; border: 1px dashed var(--bd);">
           <div style="background: rgba(79,128,255,.1); border: 1px solid rgba(79,128,255,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--blue);">콘텐츠/SEO</div>
           <div style="color: var(--t3); font-size: 16px;">→</div>
           <div style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--green);">Free 가입</div>
           <div style="color: var(--t3); font-size: 16px;">→</div>
-          <div style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--green);">첫 프로젝트 등록</div>
-          <div style="color: var(--t3); font-size: 16px;">→</div>
           <div style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--green);">첫 판정</div>
           <div style="color: var(--t3); font-size: 16px;">→</div>
-          <div style="background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--yellow);">리포트 생성 (AHA)</div>
+          <div style="background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--yellow);">리포트(AHA)</div>
           <div style="color: var(--t3); font-size: 16px;">→</div>
           <div style="background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--purple);">Paid 전환</div>
           <div style="color: var(--t3); font-size: 16px;">→</div>
-          <div style="background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--purple);">2개 이상 프로젝트</div>
+          <div style="background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--purple);">확인 링크</div>
           <div style="color: var(--t3); font-size: 16px;">→</div>
           <div style="background: rgba(251,146,60,.1); border: 1px solid rgba(251,146,60,.3); border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--orange);">Pro 업그레이드</div>
         </div>
       </div>
+    </div>
 
+    <div id="page-cost-revenue" class="page">
       <div class="detail-grid">
         <div class="card accent-top accent-red">
-          <div class="sec-label">08 — Cost Structure · 비용 구조</div>
+          <div class="h2-title">08 — Cost Structure · 비용 구조</div>
           <ul class="blist mb14">
-            <li><strong>서버/인프라</strong> — Vercel (서버리스) + Supabase (DB/Auth, 초기 무료티어)</li>
-            <li><strong>AI API</strong> — Claude API 범위 판정·리포트 생성 비용</li>
+            <li><strong>서버/인프라</strong> — Vercel (서버리스) + Supabase (DB/Auth/Storage, 초기 무료티어)</li>
+            <li><strong>AI API</strong> — Claude API 범위 파싱·판정·리포트 생성. (이미지 판정 P1 추가 시 vision 비용 포함)</li>
             <li><strong>MVP 개발</strong> — Antigravity(AI IDE) 활용으로 최소화</li>
+            <li><strong>이메일 발송</strong> — SendGrid API 비용 (P1 이후 발생)</li>
             <li><strong>고객 지원</strong> — 초기 창업자 직접 대응, 이후 자동화</li>
             <li><strong>마케팅</strong> — 콘텐츠 제작비, 광고 (MVP 단계 최소화)</li>
           </ul>
-          <div style="background: rgba(16,185,129,.05); border: 1px dashed rgba(16,185,129,.4); padding: 12px; border-radius: 8px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 4px;">비용 절감 전략</div>
-            <div style="font-size: 12px; color: var(--t3);">Fast Path로 Claude API 호출 30~40% 절감. Vercel+Supabase 무료티어로 초기 인프라 최소화. 별도 백엔드 서버 없이 Next.js 단일 스택 구성.</div>
+          <div style="background: rgba(248,113,113,.05); border: 1px dashed rgba(248,113,113,.4); padding: 12px; border-radius: 8px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--red); margin-bottom: 4px;">비용 절감 전략</div>
+            <ul style="list-style: circle; padding-left: 20px; font-size: 12px; color: var(--t3); margin: 0;">
+              <li>Fast Path로 Claude API 호출 30~40% 절감</li>
+              <li>계약 범위 파싱 결과 캐시 재사용 (판정마다 재파싱 없음)</li>
+              <li>Vercel + Supabase 무료티어로 초기 인프라 최소화</li>
+              <li>별도 백엔드 서버 없이 Next.js 단일 스택 구성</li>
+              <li>손익 리포트는 Claude API 미호출, 단순 집계로 처리</li>
+            </ul>
           </div>
         </div>
 
         <div class="card accent-top accent-blue">
-          <div class="sec-label">09 — Revenue Streams · 수익 모델</div>
+          <div class="h2-title">09 — Revenue Streams · 수익 모델</div>
           <div style="overflow-x: auto; margin-bottom: 14px;">
             <table class="prd-table">
               <thead>
@@ -735,17 +793,17 @@
                 <tr>
                   <td><strong>Free</strong></td>
                   <td>무료</td>
-                  <td>프로젝트 3개, 월 판정 10회, 월 리포트 3건, PDF</td>
+                  <td>프로젝트 3개, 월 판정 10회(재판정 포함), 월 리포트 3건, PDF</td>
                 </tr>
                 <tr>
                   <td><strong>Starter</strong></td>
                   <td>29,000원/월</td>
-                  <td>무제한 프로젝트/판정/리포트, 이메일 발송, 손익 대시보드</td>
+                  <td>무제한 프로젝트/판정/리포트, 이메일, 대시보드, 확인 링크/동의 기록</td>
                 </tr>
                 <tr>
                   <td><strong>Pro</strong></td>
                   <td>89,000원/월</td>
-                  <td>Starter + 팀원 계정 공유, 분석 리포트, 단가 벤치마크, CSV</td>
+                  <td>Starter + 팀원 공유, 분석 리포트, 단가 벤치마크, CSV, 동의 알림</td>
                 </tr>
               </tbody>
             </table>
@@ -755,6 +813,7 @@
             <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px; color: var(--t3);">
               <li>› Free 판정 10회 소진 → Starter 유도 모달</li>
               <li>› Free 리포트 3건 소진 → Starter 유도 모달</li>
+              <li>› 확인 링크 생성 시도 (Free) → Starter 유도 모달</li>
               <li>› 팀원 공유 필요 시 → Pro 유도</li>
             </ul>
           </div>
@@ -763,9 +822,7 @@
     </div>
 
     <div id="page-strategy" class="page">
-      <div class="page-title">MVP 우선 검증 전략</div>
-      <div class="page-desc">전통적인 린 스타트업 방법론을 AI 시대에 맞게 재설계했습니다.</div>
-
+      <div class="h2-title">MVP 우선 검증 전략</div>
       <div class="callout orange mb18">
         <div class="callout-title">💡 전략적 선택 — 고객 인터뷰 → MVP 순서 역전</div>
         <p>AI 개발 도구의 발달로 MVP 제작 비용과 시간이 극적으로 낮아졌다. 불확실성이 높은 인터뷰를 생략하고 <strong>MVP를 즉시 배포하여 실제 행동 데이터로 가설을 검증</strong>하는 전략을 선택했다.</p>
@@ -786,30 +843,72 @@
           <ul class="checklist">
             <li>PM의 추가 비용 청구 포기율이 &gt; 60% 인가?</li>
             <li>시스템 판정 결과를 클라이언트가 수용하는가?</li>
-            <li>Free → Paid 전환을 유발하는 AHA 모멘트는 "첫 리포트 생성"인가? (단일 트리거)</li>
+            <li>Free → Paid 전환을 유발하는 AHA 모멘트는 "첫 리포트 생성"인가?</li>
             <li>29,000원/월 가격에 지불 의향이 존재하는가?</li>
+            <li>클라이언트 동의 기록이 Starter 전환의 추가 트리거가 되는가?</li>
+            <li>부분 초과 판정이 PM의 협상 자신감을 높이는가?</li>
           </ul>
         </div>
       </div>
 
-      <div class="card accent-top accent-green" style="text-align: center; padding: 24px;">
-        <div class="sec-label">MVP 검증 성공 기준 (6주 내)</div>
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 14px;">
-          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 18px;">
-            <div style="font-size: 11px; color: var(--t3); margin-bottom: 4px;">가입 후 첫 프로젝트 등록률</div>
-            <div style="font-size: 18px; font-weight: 700; color: var(--t1);">&gt; 40%</div>
+      <div class="detail-grid mb18">
+        <div class="card accent-top accent-green" style="padding: 0; overflow: hidden;">
+          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">MVP 검증 성공 기준 (6주 내)</div>
+          <div style="overflow-x: auto;">
+            <table class="prd-table" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th>지표</th>
+                  <th>목표</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>가입 후 첫 프로젝트 등록률</td>
+                  <td><span class="tag green">&gt; 40%</span></td>
+                </tr>
+                <tr>
+                  <td>2주 재방문율</td>
+                  <td><span class="tag green">&gt; 30%</span></td>
+                </tr>
+                <tr>
+                  <td>리포트 생성 1회 이상 유저</td>
+                  <td><span class="tag yellow">&gt; 20%</span></td>
+                </tr>
+                <tr>
+                  <td>Paid 전환율</td>
+                  <td><span class="tag blue">&gt; 5%</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 18px;">
-            <div style="font-size: 11px; color: var(--t3); margin-bottom: 4px;">2주 재방문율</div>
-            <div style="font-size: 18px; font-weight: 700; color: var(--t1);">&gt; 30%</div>
-          </div>
-          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 18px;">
-            <div style="font-size: 11px; color: var(--t3); margin-bottom: 4px;">리포트 생성 1회 이상 유저</div>
-            <div style="font-size: 18px; font-weight: 700; color: var(--t1);">&gt; 20%</div>
-          </div>
-          <div style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 8px; padding: 12px 18px;">
-            <div style="font-size: 11px; color: var(--green); margin-bottom: 4px;">Paid 전환율</div>
-            <div style="font-size: 18px; font-weight: 700; color: var(--green);">&gt; 5%</div>
+        </div>
+
+        <div class="card accent-top accent-blue" style="padding: 0; overflow: hidden;">
+          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">P1 검증 성공 기준 (출시 후 8주 내)</div>
+          <div style="overflow-x: auto;">
+            <table class="prd-table" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th>지표</th>
+                  <th>목표</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>확인 링크 생성률 (리포트 생성 대비)</td>
+                  <td><span class="tag blue">&gt; 30%</span></td>
+                </tr>
+                <tr>
+                  <td>클라이언트 동의 완료율 (링크 발송 대비)</td>
+                  <td><span class="tag blue">&gt; 50%</span></td>
+                </tr>
+                <tr>
+                  <td>확인 링크 기능이 Starter 전환 트리거가 된 비율</td>
+                  <td><span class="tag purple">&gt; 20%</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
