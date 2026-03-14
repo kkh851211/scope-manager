@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scope Manager — Master PRD v1.3</title>
+  <title>Scope Manager — PRD v2.0</title>
   <style>
     :root {
       --bg: #0f1117;
@@ -200,20 +200,6 @@
       font-size: 13px;
       margin-bottom: 28px;
       line-height: 1.75;
-    }
-
-    /* 번호가 붙은 메인 섹션 타이틀 통일용 클래스 */
-    .h2-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--t1);
-      margin: 36px 0 16px 0;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--bd);
-    }
-
-    .h2-title:first-child {
-      margin-top: 0;
     }
 
     .sec-label {
@@ -462,6 +448,34 @@
     .stat-lbl { font-size: 12px; color: var(--t3); font-weight: 500; }
     .stat-sub { font-size: 11px; color: var(--t3); margin-top: 4px; }
 
+    /* ── PROGRESS ── */
+    .prog-row { margin-bottom: 12px; }
+
+    .prog-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .prog-label span:first-child { color: var(--t1); }
+    .prog-label span:last-child  { color: var(--t3); }
+
+    .prog-bar {
+      background: var(--bd);
+      border-radius: 4px;
+      height: 7px;
+      overflow: hidden;
+    }
+
+    .prog-fill   { height: 100%; border-radius: 4px; }
+    .fill-blue   { background: var(--blue);   }
+    .fill-green  { background: var(--green);  }
+    .fill-yellow { background: var(--yellow); }
+    .fill-red    { background: var(--red);    }
+    .fill-orange { background: var(--orange); }
+    .fill-purple { background: var(--purple); }
+
     /* ── TABLE ── */
     .prd-table {
       width: 100%;
@@ -475,7 +489,6 @@
       color: var(--t3);
       font-weight: 600;
       border-bottom: 2px solid var(--bd);
-      white-space: nowrap;
     }
 
     .prd-table td {
@@ -500,9 +513,9 @@
     @media (max-width: 860px) {
       .detail-grid,
       .detail-grid.triple { grid-template-columns: 1fr; }
-      .vs-wrap              { grid-template-columns: 1fr; }
-      .vs-center            { display: none; }
-      .stat-row             { grid-template-columns: 1fr 1fr; }
+      .vs-wrap             { grid-template-columns: 1fr; }
+      .vs-center           { display: none; }
+      .stat-row            { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 560px) {
@@ -516,13 +529,15 @@
 </head>
 
 <body>
+
+  <!-- ╔══ HEADER ══╗ -->
   <header>
     <div class="inner-wrap header-content">
       <div class="header-left">
         <div class="logo">Scope<span>Manager</span></div>
         <div class="badges">
-          <span class="badge blue">Master PRD</span>
-          <span class="badge">v1.3 통합본</span>
+          <span class="badge blue">PRD v2.0</span>
+          <span class="badge">Scope Manager</span>
           <span class="badge yellow">MVP 단계</span>
         </div>
       </div>
@@ -530,74 +545,114 @@
     </div>
   </header>
 
+  <!-- ╔══ NAV ══╗ -->
   <nav>
     <div class="inner-wrap nav-content">
-      <button class="tab-btn active" onclick="showTab('overview', this)">📋 1-2. 개요 & 제약</button>
-      <button class="tab-btn" onclick="showTab('features', this)">⚙️ 3. 기능 명세</button>
-      <button class="tab-btn" onclick="showTab('flow', this)">🚀 4-6. 플로우 & 우선순위</button>
-      <button class="tab-btn" onclick="showTab('scope', this)">🔲 7 & 11. 범위 & 정책</button>
-      <button class="tab-btn" onclick="showTab('db', this)">🗄️ 9 & 12. DB & 지표</button>
-      <button class="tab-btn" onclick="showTab('acceptance', this)">✅ 8. 인수 기준</button>
+      <button class="tab-btn active" onclick="showTab('overview',   this)">📋 제품 개요</button>
+      <button class="tab-btn"        onclick="showTab('features',   this)">⚙️ 기능 요구사항</button>
+      <button class="tab-btn"        onclick="showTab('priority',   this)">🎯 우선순위</button>
+      <button class="tab-btn"        onclick="showTab('scope',      this)">🔲 범위 정의</button>
+      <button class="tab-btn"        onclick="showTab('acceptance', this)">✅ 인수 기준</button>
+      <button class="tab-btn"        onclick="showTab('policy',     this)">🗄️ DB 스키마</button>
+      <button class="tab-btn"        onclick="showTab('techstack',  this)">🛠 기술 스택 &amp; 운영</button>
+      <button class="tab-btn"        onclick="showTab('posthog',    this)">📈 PostHog 퍼널</button>
     </div>
   </nav>
 
   <main>
-    <div id="page-overview" class="page active">
-      <div class="page-title">1. 제품 개요</div>
-      <div class="page-desc">빌더: Jey (김제이) | GitHub: kkh851211/scope-managermvp | 배포: Vercel | 분석: PostHog</div>
 
+    <!-- ══ TAB 1 — 제품 개요 ══ -->
+    <div id="page-overview" class="page active">
+      <div class="page-title">제품 개요</div>
+      <div class="page-desc">Scope Manager PRD v2.0의 목적과 제품 목표, 전제 조건, 관련 문서 연결 구조를 정의합니다.<br>v2.0에서는 클라이언트 사전 동의(범위 확인 링크) 및 사후 인지(리포트 확인 링크) 기능이 추가되었습니다.</div>
+
+      <!-- ── 1-1. 문서 목적 callout ── -->
       <div class="callout blue mb18">
         <div class="callout-title">📌 1-1. 이 문서의 목적과 사용 방법</div>
         <p>
-          이 PRD는 Scope Manager MVP를 만드는 데 필요한 <strong>모든 기능 요구사항, 우선순위, 포함/제외 범위, 완료 기준 및 운영 정책</strong>을 통합 정의한다.<br><br>
-          <strong>누가 사용하는가:</strong> 현재 유일한 빌더인 Jey(PM 겸 기획자)가 Antigravity(AI IDE)에 프롬프트를 작성할 때 기준 문서로 활용한다.<br>
-          <strong>다른 기획 문서와의 관계:</strong> 린캔버스(Why), 사용자 리서치(Who), 제품 비전(What & How)이 이미 완성되어 있으며, 이 PRD는 구체적으로 <strong>무엇을 어떤 순서로 만드는가</strong>를 정의한다.
+          이 PRD(Product Requirements Document)는 Scope Manager MVP를 만드는 데 필요한 <strong>모든 기능 요구사항, 우선순위, 포함/제외 범위, 완료 기준 및 운영 정책</strong>을 통합 정의한다.<br><br>
+          <strong>누가 이 문서를 사용하는가</strong> — 현재 유일한 빌더인 Jey(PM 겸 기획자)가 Antigravity(AI IDE)에 프롬프트를 작성할 때 기준 문서로 활용한다. 기능 범위나 우선순위, 정책 결정이 필요할 때 이 문서로 돌아온다.<br><br>
+          <strong>다른 기획 문서와의 관계</strong> — 린캔버스(Why), 사용자 리서치(Who), 제품 비전(What &amp; How)이 이미 완성되어 있으며, 이 PRD는 그 위에서 <strong>구체적으로 무엇을 어떤 순서로 만드는가</strong>를 정의한다.
         </p>
       </div>
 
-      <div class="card mb18 accent-top accent-blue" style="padding: 0; overflow: hidden;">
+      <!-- 관련 문서 테이블 -->
+      <div class="card mb18 accent-top accent-blue">
         <div style="overflow-x: auto;">
-          <table class="prd-table" style="min-width: 600px; margin: 0;">
+          <table class="prd-table" style="min-width: 460px;">
             <thead>
               <tr>
-                <th style="width: 25%;">문서</th>
-                <th style="width: 30%;">핵심 질문</th>
+                <th style="width: 22%;">문서</th>
+                <th style="width: 22%;">핵심 질문</th>
                 <th>PRD와의 관계</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>린캔버스 (Why)</strong></td>
+                <td><strong>린캔버스</strong> <span class="tag blue">Why</span></td>
                 <td>왜 만드는가</td>
                 <td>수익 모델(Free/Starter/Pro)과 AARRR 지표가 PRD 비즈니스 목표 기준</td>
               </tr>
               <tr>
-                <td><strong>사용자 리서치 (Who)</strong></td>
+                <td><strong>사용자 리서치</strong> <span class="tag green">Who</span></td>
                 <td>누구를 위한가</td>
                 <td>페르소나 3인의 고통점·JTBD가 기능 요구사항의 근거. AHA 모멘트 = 첫 리포트 생성</td>
               </tr>
               <tr>
-                <td><strong>제품 비전 (What)</strong></td>
+                <td><strong>제품 비전</strong> <span class="tag purple">What</span></td>
                 <td>어떤 제품인가</td>
                 <td>What We Build / Don't Build / Design Principles가 포함·제외 판단 기준</td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <!-- 문서 흐름 시각화 -->
+        <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          <div style="background: rgba(79,128,255,.1); border: 1px solid rgba(79,128,255,.3); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--blue); text-align: center;">
+            🗂 린캔버스<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">Why</span>
+          </div>
+          <div style="color: var(--t3); font-size: 18px; font-weight: 300;">→</div>
+          <div style="background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--green); text-align: center;">
+            🔍 사용자 리서치<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">Who</span>
+          </div>
+          <div style="color: var(--t3); font-size: 18px; font-weight: 300;">→</div>
+          <div style="background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.3); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--purple); text-align: center;">
+            🎯 제품 비전<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">What</span>
+          </div>
+          <div style="color: var(--t3); font-size: 18px; font-weight: 300;">→</div>
+          <div style="background: rgba(79,128,255,.18); border: 2px solid var(--blue); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; color: var(--blue); text-align: center;">
+            📋 PRD v2.0 (현재)<br><span style="font-size: 10px; font-weight: 400; color: var(--t3);">How</span>
+          </div>
+          <div style="color: var(--t3); font-size: 18px; font-weight: 300;">→</div>
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--t3); text-align: center;">
+            🚀 빌드<br><span style="font-size: 10px; font-weight: 400;">Antigravity</span>
+          </div>
+        </div>
       </div>
 
+      <!-- ── 1-2. Product Definition ── -->
       <div class="card mb18 accent-top accent-blue" style="padding: 28px 30px; text-align: center;">
         <div style="font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px;">1-2. Product Definition</div>
-        <div style="font-size: 22px; font-weight: 800; color: var(--t1); line-height: 1.5; letter-spacing: -0.4px; margin-bottom: 16px;">
+        <div style="font-size: 20px; font-weight: 800; color: var(--t1); line-height: 1.6; letter-spacing: -0.4px; margin-bottom: 16px;">
           "5~20인 한국 웹 에이전시 PM이<br>
           <span style="color: var(--blue);">클라이언트 요청의 범위 초과 여부를 AI로 판정하고,</span><br>
-          청구 근거 리포트 자동 생성 및 클라이언트 동의 기록까지 남기는 내부 관리 도구"
+          청구 근거 리포트 자동 생성 및<br>
+          <span style="color: var(--green);">클라이언트 동의 기록까지 남기는</span> 내부 관리 도구"
         </div>
         <div style="width: 40px; height: 2px; background: var(--blue); margin: 0 auto 18px;"></div>
+
+        <!-- v2 신규 추가 하이라이트 -->
+        <div style="background: rgba(16,185,129,.07); border: 1px solid rgba(16,185,129,.25); border-radius: 10px; padding: 12px 18px; margin-bottom: 18px; font-size: 12px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap;">
+          <span>✨ v2.0 신규</span>
+          <span style="color: var(--bd);">|</span>
+          <span style="color: var(--t3); font-weight: 400;">범위 사전 동의 타임스탬프 &amp; 추가 요청 사후 인지 타임스탬프 기록 추가</span>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; max-width: 720px; margin: 0 auto;">
           <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; padding: 14px 16px; text-align: left;">
             <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--blue); margin-bottom: 8px;">타겟 사용자</div>
-            <div style="font-size: 13px; color: var(--t3); line-height: 1.65;">5~20인 웹 에이전시<br>PM 겸직 대표 또는 전담 PM<br>(결제 권한자 우선)</div>
+            <div style="font-size: 13px; color: var(--t3); line-height: 1.65;">5~20인 웹 에이전시<br>PM 겸직 대표 또는 전담 PM<br>결제 권한자 우선</div>
           </div>
           <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; padding: 14px 16px; text-align: left;">
             <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--red); margin-bottom: 8px;">핵심 문제</div>
@@ -605,13 +660,16 @@
           </div>
           <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; padding: 14px 16px; text-align: left;">
             <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--green); margin-bottom: 8px;">핵심 해결책</div>
-            <div style="font-size: 13px; color: var(--t3); line-height: 1.65;">AI 판정 프레임 + 리포트 생성<br>+ 클라이언트 동의 타임스탬프</div>
+            <div style="font-size: 13px; color: var(--t3); line-height: 1.65;">AI 판정 + 리포트 자동 생성<br>범위 사전 동의 기록<br>추가 요청 사후 인지 기록</div>
           </div>
         </div>
       </div>
 
-      <div class="h2-title">1-3. 제품 목표</div>
+      <!-- ── 1-3. 제품 목표 ── -->
+      <div class="sec-label mb14">🎯 1-3. 제품 목표 — Product Goals</div>
       <div class="detail-grid triple mb18">
+
+        <!-- 비즈니스 목표 -->
         <div class="card accent-top accent-blue">
           <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px;">💼 비즈니스 목표</div>
           <ul class="blist">
@@ -622,17 +680,22 @@
             <li>PostHog 데이터로 <strong>PMF 신호 조기 포착</strong></li>
           </ul>
         </div>
+
+        <!-- 사용자 목표 -->
         <div class="card accent-top accent-green">
           <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">👤 사용자 목표</div>
           <ul class="blist">
             <li>클라이언트 요청 수신 후 <strong>30초 내 판정 결과</strong> 확인</li>
             <li>PM이 직접 말하지 않고 <strong>리포트로 비용 청구 근거 전달</strong></li>
-            <li>클라이언트 인지·동의 <strong>타임스탬프 기록</strong>으로 분쟁 대응</li>
+            <li>프로젝트 시작 전 클라이언트의 <strong>계약 범위 사전 동의 타임스탬프</strong> 확보</li>
+            <li>추가 요청 발생 후 클라이언트의 <strong>범위 초과 사후 인지 타임스탬프</strong> 확보</li>
             <li>프로젝트 진행 중 <strong>실시간 손익 파악</strong> 가능</li>
-            <li>첫 리포트 생성 후 <strong>AHA 모멘트 경험</strong></li>
+            <li>첫 리포트 생성 후 <strong>AHA 모멘트</strong> 경험 (Free → Paid 전환 트리거)</li>
             <li>범위 협상에서 <strong>개인 책임 부담 감소</strong></li>
           </ul>
         </div>
+
+        <!-- 기술 목표 -->
         <div class="card accent-top accent-purple">
           <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">🛠 기술 목표</div>
           <ul class="blist">
@@ -640,405 +703,951 @@
             <li>Supabase RLS로 <strong>멀티테넌트 데이터 완전 격리</strong></li>
             <li>Claude API Temperature 0.2 — <strong>판정 일관성 확보</strong></li>
             <li>Fast Path 로직으로 <strong>API 호출 비용 최소화</strong></li>
-            <li>확인 링크 — 클라이언트 <strong>가입 불필요한 서명 토큰(UUID)</strong> 방식</li>
             <li>Vercel 서버리스 배포로 <strong>인프라 관리 제로</strong></li>
+            <li>확인 링크 — <strong>클라이언트 가입 불필요한 토큰(UUID) 방식</strong></li>
           </ul>
         </div>
+
       </div>
 
-      <div class="h2-title">2. 전제 조건 및 제약사항</div>
+      <!-- ── 2. 전제 조건 및 제약사항 ── -->
+      <div class="callout orange mb18">
+        <div class="callout-title">⚠️ 섹션 2 — 전제 조건 및 제약사항</div>
+        <p>이 섹션은 시스템 설계의 근본 가정과 변경 불가능한 제약을 정의한다. <strong>Antigravity 빌드 프롬프트 작성 전 반드시 확인</strong>해야 하는 항목들이다.</p>
+      </div>
+
+      <div class="sec-label mb14">✅ 2-1. 전제 조건 — Assumptions</div>
+      <div class="card mb18 accent-top accent-blue">
+        <ul class="blist">
+          <li>타겟 에이전시 PM은 기존 계약서·범위 정의 문서를 보유하고 있거나, 없는 경우 <strong>시스템 가이드를 통해 직접 작성</strong>한다</li>
+          <li>계약서가 없는 경우(구두 계약 등) 시스템 진입 자체를 차단하고 <strong>"계약 범위 직접 작성 가이드"</strong> UI를 제공한다 — 프리랜서 특화는 P3로 연기</li>
+          <li>클라이언트 추가 요청은 <strong>텍스트 또는 이미지(화면 캡처, 참고 이미지)</strong> 형태로 들어온다. 그 외 형태(구두, 파일, 링크 등)는 PM이 직접 텍스트로 요약해서 입력하는 것을 전제로 한다</li>
+          <li>PM은 판정 결과를 직접 클라이언트에게 <strong>전달하는 역할</strong>을 유지한다</li>
+          <li>리포트의 전달 방식과 Scope Manager 도구 사용 여부 공개는 <strong>PM의 재량</strong>에 맡긴다</li>
+          <li>시스템은 PM이 입력한 계약 범위 텍스트를 그대로 판정 기준으로 사용하며, <strong>계약서의 법적 유효성이나 완결성은 검증하지 않는다</strong></li>
+          <li>클라이언트는 확인 링크를 통해 <strong>가입 없이</strong> 내용을 열람하고 동의 버튼을 누른다. 이 동의는 <strong>법적 구속력 있는 서명이 아닌 인지 확인 수준</strong>으로 정의한다</li>
+          <li><strong>계약 범위 확인(사전 동의)</strong>과 <strong>리포트 확인(사후 인지)</strong>은 목적이 다른 별개의 동의로 구분한다</li>
+          <li>초기 사용자는 <strong>데스크톱 브라우저</strong>로 접속한다 (확인 링크 페이지는 <strong>모바일 대응 필수</strong>)</li>
+          <li>Supabase / Vercel / Claude API 서비스가 <strong>안정적으로 운영</strong>된다</li>
+          <li>MVP는 <strong>한국어 전용</strong>으로 시작한다 (다국어 불필요)</li>
+        </ul>
+      </div>
+
+      <!-- 사전 동의 vs 사후 인지 구분 callout -->
+      <div class="callout green mb18">
+        <div class="callout-title">💡 사전 동의 vs 사후 인지 — 핵심 구분</div>
+        <p>
+          <strong>계약 범위 확인 링크 (사전 동의)</strong> — 프로젝트 시작 전 클라이언트에게 발송. "이 범위로 계약합니다"에 대한 인지 확인. 타임스탬프 기록 목적.<br><br>
+          <strong>리포트 확인 링크 (사후 인지)</strong> — 추가 요청 판정 후 발송. "이 요청은 범위 초과입니다"에 대한 인지 확인. 분쟁 대비 증거 기록 목적.<br><br>
+          두 링크 모두 클라이언트 가입 불필요 (토큰 기반 UUID 접근), 법적 서명 아님.
+        </p>
+      </div>
+
+      <div class="sec-label mb14">🚧 2-2. 제약사항 — Constraints</div>
       <div class="detail-grid mb18">
-        <div class="card accent-top accent-green">
-          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">✅ 2-1. 전제 조건 (Assumptions)</div>
-          <ul class="blist">
-            <li>타겟 에이전시 PM은 <strong>기존 계약서·범위 정의 문서</strong>를 보유하고 있다. (없으면 진입 차단 + 가이드 제공)</li>
-            <li>클라이언트 추가 요청은 <strong>텍스트 또는 이미지</strong> 형태로 들어온다.</li>
-            <li>PM은 판정 결과를 직접 클라이언트에게 <strong>전달하는 역할</strong>을 유지한다. (도구 사용 여부 공개는 PM 재량)</li>
-            <li>시스템은 계약서의 <strong>법적 유효성이나 완결성은 검증하지 않는다.</strong></li>
-            <li>클라이언트 확인 링크 동의는 <strong>법적 구속력 있는 서명이 아닌 인지 확인 수준</strong>이다.</li>
-            <li>MVP는 <strong>한국어 전용</strong>으로 시작한다.</li>
-          </ul>
-        </div>
+
         <div class="card accent-top accent-orange">
-          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">🚧 2-2. 제약사항 (Constraints)</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">🔒 기술 &amp; 개발 제약</div>
           <ul class="blist">
             <li><strong>기술 스택 고정</strong> — Next.js 14 + Supabase + Claude API + Vercel (변경 불가)</li>
             <li><strong>비개발자 빌더</strong> — Antigravity AI IDE 의존, 복잡한 커스텀 인프라 불가</li>
             <li><strong>MVP 예산 제한</strong> — Claude API 호출 비용 최소화 필수 (Fast Path 전략)</li>
-            <li><strong>데스크톱 우선</strong> — 모바일 반응형은 v1.1 연기. 단, 확인 링크 페이지는 모바일 대응 필수.</li>
             <li><strong>1인 개발</strong> — 동시 다발적 기능 개발 불가, 순차 빌드 필수</li>
-            <li><strong>클라이언트 대면 기능 금지</strong> — (내부 도구 원칙) F-10 확인 링크만 예외 허용.</li>
           </ul>
         </div>
+
+        <div class="card accent-top accent-red">
+          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">📱 플랫폼 &amp; 기능 제약</div>
+          <ul class="blist">
+            <li><strong>데스크톱 우선</strong> — 태블릿·모바일 반응형은 v1.1로 연기.<br>단, <span class="tag green">예외</span> 확인 링크 페이지(<code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">/confirm-scope/</code>, <code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">/confirm/</code>)는 <strong>모바일 대응 필수</strong></li>
+            <li><strong>클라이언트 대면 기능 금지</strong> (내부 도구 원칙) — 범위 확인 링크와 리포트 확인 링크는 <strong>읽기 전용 외부 공개 페이지</strong>로 예외 허용</li>
+          </ul>
+        </div>
+
       </div>
-    </div>
 
+      <!-- 제약사항 요약 카드 -->
+      <div class="card accent-top accent-yellow">
+        <div style="font-size: 13px; font-weight: 700; color: var(--yellow); margin-bottom: 14px;">⚠️ 제약사항 요약 — 한눈에 보기</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; text-align: center;">
+            <div style="font-size: 20px; margin-bottom: 6px;">🔧</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--t1); margin-bottom: 4px;">스택 고정</div>
+            <div style="font-size: 11px; color: var(--t3);">Next.js 14<br>Supabase · Vercel<br>Claude API</div>
+          </div>
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; text-align: center;">
+            <div style="font-size: 20px; margin-bottom: 6px;">👤</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--t1); margin-bottom: 4px;">1인 개발</div>
+            <div style="font-size: 11px; color: var(--t3);">Antigravity 의존<br>순차 빌드 필수<br>복잡 인프라 불가</div>
+          </div>
+          <div style="background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.25); border-radius: 8px; padding: 12px 14px; text-align: center;">
+            <div style="font-size: 20px; margin-bottom: 6px;">📱</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--green); margin-bottom: 4px;">모바일 예외</div>
+            <div style="font-size: 11px; color: var(--t3);">내부 도구 데스크톱 우선<br>확인 링크 페이지만<br>모바일 대응 필수</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-overview -->
+
+
+    <!-- ══ TAB 2 — 기능 요구사항 ══ -->
     <div id="page-features" class="page">
-      <div class="page-title">3. 기능 요구사항</div>
-      <div class="page-desc">영역별 핵심 기능과 상세 요구사항, 기술 노트를 정의합니다.</div>
+      <div class="page-title">기능 요구사항</div>
+      <div class="page-desc">인증·멀티테넌트, 핵심 기능, 클라이언트 확인 링크, 대시보드·분석 영역의 상세 요구사항을 정의합니다.</div>
 
+      <div class="callout green mb18">
+        <div class="callout-title">⚙️ 기능 요구사항 작성 원칙</div>
+        <p>각 기능은 <strong>기능명 / 사용자 스토리 / 세부 요구사항 / 기술 노트</strong> 4개 항목으로 구성된다. 세부 요구사항은 Antigravity 빌드 프롬프트에 그대로 붙여 쓸 수 있도록 구체적으로 작성한다. 기술 노트는 구현 시 주의사항·아키텍처 결정을 기록한다.</p>
+      </div>
+
+      <!-- ════════════════════════════════════
+           영역 ① 인증 및 멀티테넌트
+      ════════════════════════════════════ -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
         <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(79,128,255,.15); border: 1.5px solid rgba(79,128,255,.4); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">🔐</div>
         <div>
-          <div style="font-size: 15px; font-weight: 700; color: var(--t1);">영역 ① — 인증 & 멀티테넌트</div>
+          <div style="font-size: 15px; font-weight: 700; color: var(--t1);">영역 ① — Auth &amp; Multi-tenant</div>
+          <div style="font-size: 12px; color: var(--t3);">인증 및 멀티테넌트 격리</div>
         </div>
-        <span class="tag green" style="margin-left: auto;">P0</span>
+        <span class="tag green" style="margin-left: auto;">P0 — MVP 필수</span>
       </div>
 
+      <!-- F-01 -->
       <div class="card mb18 accent-top accent-blue">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
           <span class="tag blue">F-01</span>
           <span style="font-size: 14px; font-weight: 700; color: var(--t1);">이메일 / 소셜 로그인</span>
+          <span class="tag green" style="margin-left: auto;">P0</span>
         </div>
+
         <div class="detail-grid" style="margin-bottom: 12px;">
           <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
-            <ul class="blist">
-              <li>이메일+패스워드 가입/로그인 및 비밀번호 재설정</li>
-              <li>Google OAuth 소셜 로그인 지원</li>
-              <li>가입 시 워크스페이스(organization) 자동 생성 및 연결</li>
-              <li>미인증 접근 시 `/login` 리다이렉트</li>
-              <li>가입 후 온보딩 플로우 진입 (빈 대시보드 + CTA)</li>
-            </ul>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--blue); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--blue);">
+              PM 또는 에이전시 대표로서, 이메일 또는 구글 계정으로 빠르게 가입·로그인하고 싶다. 그래야 추가 설정 없이 바로 프로젝트를 등록할 수 있다.
+            </div>
           </div>
           <div>
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
             <ul class="blist">
-              <li>Supabase Auth 기반 JWT 토큰 세션 관리</li>
-              <li>로그인 유지 (Remember me) 7일</li>
+              <li>Supabase Auth — <strong>이메일+패스워드 / Google OAuth</strong></li>
+              <li>가입 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">organizations</code> 테이블에 워크스페이스 자동 생성</li>
+              <li>JWT 토큰 기반 세션 관리 (Supabase 기본 제공)</li>
+              <li>이메일 인증 확인 후 온보딩 플로우 진입</li>
             </ul>
           </div>
         </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>이메일 + 패스워드 회원가입 / 로그인 / 비밀번호 재설정 구현</li>
+          <li>Google OAuth 소셜 로그인 지원 (Supabase Auth Provider)</li>
+          <li>가입 완료 시 워크스페이스(organization) 자동 생성 및 사용자-워크스페이스 연결</li>
+          <li>미인증 상태에서 보호 경로 접근 시 <strong>/login 으로 리다이렉트</strong></li>
+          <li>로그인 상태 유지 (Remember me) — 기본 7일</li>
+          <li>가입 후 온보딩 플로우 진입 — <strong>빈 상태 대시보드 + "첫 프로젝트 만들기" CTA</strong> 표시</li>
+        </ul>
       </div>
 
-      <div class="card mb18 accent-top accent-red">
+      <!-- F-02 -->
+      <div class="card mb18 accent-top accent-blue">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
           <span class="tag blue">F-02</span>
-          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">워크스페이스 격리 & RLS 기반 데이터 보호</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">워크스페이스 격리 &amp; RLS 기반 데이터 보호</span>
           <span class="tag red" style="margin-left: auto;">⚠️ 보안 필수</span>
         </div>
+
         <div class="detail-grid" style="margin-bottom: 12px;">
           <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
-            <ul class="blist">
-              <li>모든 DB 테이블 RLS 활성화 (`organization_id` 기반)</li>
-              <li>자신이 속한 조직 데이터만 CRUD 가능</li>
-              <li>API Route 레벨 `organization_id` 검증 이중화</li>
-              <li><strong>F-10 확인 링크(`/confirm/[token]`)는 RLS 예외 처리</strong></li>
-            </ul>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--blue); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--blue);">
+              에이전시 대표로서, 우리 회사의 계약서·판정 기록·손익 데이터가 다른 에이전시에게 절대 노출되지 않아야 한다. 고객 정보 유출은 비즈니스 리스크다.
+            </div>
           </div>
           <div>
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
             <ul class="blist">
-              <li>Supabase RLS Policy: SELECT/INSERT/UPDATE/DELETE 적용</li>
-              <li>Claude API 호출 시 타 테넌트 데이터 미포함 검증</li>
+              <li>모든 테이블에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">organization_id UUID NOT NULL</code> 필수</li>
+              <li>Supabase RLS Policy: <strong>SELECT/INSERT/UPDATE/DELETE 전체 적용</strong></li>
+              <li>RLS 의존만 하지 않고 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">WHERE organization_id = ?</code> 명시 추가</li>
             </ul>
           </div>
         </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>모든 DB 테이블에 RLS 활성화 — <strong>organization_id 기반 row 접근 제어</strong></li>
+          <li>사용자는 자신이 속한 organization의 데이터만 조회·수정·삭제 가능</li>
+          <li>API Route 레벨에서도 organization_id 검증 이중화</li>
+          <li>Claude API 프롬프트 구성 시 해당 organization 데이터만 컨텍스트로 주입</li>
+          <li>QA: 다른 organization 계정으로 데이터 접근 시도 → <strong>403 반환 확인</strong></li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm-scope/[token]</code> 및 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm/[token]</code> 페이지는 <span class="tag green">RLS 예외</span> — 토큰 자체가 인증 수단이므로 별도 정책 적용</li>
+        </ul>
       </div>
 
       <hr class="mb18">
 
+      <!-- ════════════════════════════════════
+           영역 ② 핵심 기능
+      ════════════════════════════════════ -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
         <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16,185,129,.15); border: 1.5px solid rgba(16,185,129,.4); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">⚙️</div>
         <div>
-          <div style="font-size: 15px; font-weight: 700; color: var(--t1);">영역 ② — 핵심 기능</div>
+          <div style="font-size: 15px; font-weight: 700; color: var(--t1);">영역 ② — Core Features</div>
+          <div style="font-size: 12px; color: var(--t3);">핵심 기능 — 범위 판정 · 리포트 생성</div>
         </div>
-        <span class="tag green" style="margin-left: auto;">P0</span>
+        <span class="tag green" style="margin-left: auto;">P0 — MVP 필수</span>
       </div>
 
+      <!-- F-03 -->
       <div class="card mb18 accent-top accent-green">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
           <span class="tag green">F-03</span>
           <span style="font-size: 14px; font-weight: 700; color: var(--t1);">프로젝트 생성 및 계약 범위 등록</span>
+          <span class="tag green" style="margin-left: auto;">P0</span>
         </div>
+
         <div class="detail-grid" style="margin-bottom: 12px;">
           <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--green); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--green);">
+              PM으로서, 새 프로젝트를 만들고 계약서의 범위 내용을 등록하고 싶다. 그래야 클라이언트 요청이 왔을 때 AI가 이 기준으로 판정해줄 수 있다.
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트 (공통)</div>
             <ul class="blist">
-              <li>정보 폼: 프로젝트명 / 클라이언트명 / 클라이언트 이메일 / 계약 시작일 / 계약 종료일 / 계약 금액 / 금액 유형(고정/유지보수)</li>
-              <li>범위 텍스트 5,000자 입력 (P1: 파일 업로드)</li>
-              <li>계약서 없는 경우 시스템 진입 차단 + 가이드 제공</li>
-              <li>입력 이탈 시 임시저장 지원</li>
-              <li>완료 시 Claude API 파싱(1회) → 수정 가능한 목록 미리보기. <strong>수정된 `parsed_items`가 최종 판정 기준</strong>.</li>
+              <li>DB 테이블: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">projects</code>, <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definitions</code></li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definitions</code>에 <strong>version 컬럼 관리</strong> — 수정마다 증가, 이전 버전 보존</li>
+              <li>파싱 결과 JSON 저장 → 이후 판정 시 재파싱 없이 재사용 (<strong>API 비용 절감</strong>)</li>
+              <li>PM이 수정한 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">parsed_items</code>가 최종 판정 기준 — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">raw_text</code>는 원본 보존용</li>
             </ul>
+          </div>
+        </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>프로젝트명 / 클라이언트명 / 클라이언트 이메일 / 계약 시작일 / 계약 종료일 / 계약 금액 / 계약 금액 유형(<strong>프로젝트 고정 / 월 유지보수</strong>) 입력 폼</li>
+          <li>계약 범위 텍스트 자유 입력 (textarea, 최대 5,000자)</li>
+          <li>계약서 파일 업로드(PDF/워드) — <span class="tag">P1</span>. MVP에서는 텍스트 입력만 지원</li>
+          <li><strong>계약서가 없는 경우:</strong> 시스템 진입 차단 + "계약 범위 직접 작성 가이드" 팝업 표시 (가이드 양식 제공). 작성 완료 후 파싱·확정 단계를 거친 뒤 클라이언트 범위 확인 링크 생성 강력 권장. 클라이언트 동의 전까지 <span class="tag yellow">클라이언트 미확인 범위</span> 경고 배지 표시</li>
+          <li><strong>계약서가 있는 경우에도</strong> 파싱 확정 후 클라이언트 범위 확인 링크 생성 선택 가능. "확인받으면 분쟁 시 더 강력한 근거가 됩니다" 안내 문구 표시</li>
+          <li>범위 등록 완료 시 <strong>Claude API로 구조화 파싱 1회 실행</strong> → 항목 리스트로 변환</li>
+          <li>파싱 실패 또는 결과 빈약 시: "범위 항목을 자동으로 구성하지 못했습니다" 안내 + <strong>수동 입력 모드 제공</strong></li>
+          <li>파싱된 항목 목록 PM이 확인·수정 가능한 미리보기 UI</li>
+          <li>계약 범위 수정 시 <strong>버전 관리</strong>: 이전 버전 보존, 이전 판정 이력은 수정 전 버전 기준 유지. Fast Path 캐시 전체 자동 무효화</li>
+          <li>범위 수정 후 기존 동의 기록 유지. 프로젝트 상단에 <span class="tag orange">범위 수정됨 — 클라이언트 재확인 권장</span> 경고 배지 (재확인 강제 아님)</li>
+          <li>프로젝트 상태: <strong>진행 중 / 완료 / 보류</strong> 3단계</li>
+          <li>프로젝트 목록 페이지 — 최신순 정렬, 상태 필터</li>
+          <li>계약 범위 입력 중 이탈 시 <strong>임시저장 처리</strong> — 다음 접속 시 이어하기 가능</li>
+        </ul>
+      </div>
+
+      <!-- F-03-S 클라이언트 범위 확인 링크 -->
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag yellow">F-03-S</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">클라이언트 범위 확인 링크 (사전 동의)</span>
+          <span class="tag" style="margin-left: auto;">P1 — Starter</span>
+        </div>
+
+        <!-- 배경 callout -->
+        <div style="background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.25); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 12px; color: var(--t3); line-height: 1.75;">
+          <strong style="color: var(--yellow);">📌 배경</strong> — F-10 리포트 확인 링크가 <strong style="color: var(--t1);">사후 인지</strong>를 기록한다면, F-03-S는 프로젝트 시작 전 <strong style="color: var(--t1);">사전 동의</strong>를 기록한다. 두 기능이 함께 있을 때 "범위에 합의했고, 그 범위를 초과했으며, 클라이언트도 인지했다"는 완결된 증거 구조가 만들어진다.
+        </div>
+
+        <div class="detail-grid" style="margin-bottom: 12px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--yellow); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--yellow);">
+              PM으로서, 계약 범위를 등록한 후 클라이언트에게 그 내용을 확인받고 싶다. 특히 계약서가 없는 경우 "우리가 합의한 범위가 이것이었다"는 사전 동의를 기록으로 남기고 싶다.
+            </div>
           </div>
           <div>
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
             <ul class="blist">
-              <li>파싱 실패 시 수동 입력 모드 전환</li>
-              <li>계약 범위 수정 시 버전(version) 증가, 이전 판정 이력은 구버전 기준 유지.</li>
-              <li><strong>수정 시 Fast Path 캐시 전체 자동 무효화</strong></li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm-scope/[token]</code> — <strong>Public 라우트</strong>, RLS 예외 처리 필요</li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirm_token</code>: UUID v4 (122비트 엔트로피)</li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definitions</code> 컬럼 추가: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirm_token</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_token_expires_at</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_first_viewed_at</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ip</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ua</code></li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 기록된 행은 <strong>삭제 불가</strong> — 증거 보존 목적</li>
+              <li>확인 페이지 <strong>모바일 반응형 필수</strong></li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">robots.txt</code>에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm-scope/*</code> disallow 추가</li>
+              <li>PostHog: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_link_created</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_link_viewed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_agreed</code></li>
             </ul>
           </div>
         </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>계약 범위 확정 후 <strong>"클라이언트 범위 확인 링크 생성"</strong> 버튼 표시</li>
+          <li>버튼 클릭 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirm_token</code>(UUID v4) 생성 + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_token_expires_at</code>(created_at + 30일) 저장</li>
+          <li>링크 형식: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">https://[도메인]/confirm-scope/[scope_confirm_token]</code></li>
+          <li>PM이 링크 복사 → 클라이언트에게 직접 공유 (채널 자유)</li>
+          <li>확인 페이지 구성: 프로젝트명 / 계약 범위 항목 목록 / 하단 고정 문구 ("이 동의는 인지 확인을 목적으로 하며 법적 구속력 있는 서명이 아닙니다.") / AI 면책 고지</li>
+          <li>확인 페이지에 <strong>"범위 내용을 확인했습니다" 동의 버튼 1개만</strong> 표시 (반박/수정 버튼 없음)</li>
+          <li>동의 클릭 시: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code>(KST) + IP + UA DB 기록</li>
+          <li>동의 완료 후 페이지: "확인이 완료되었습니다. 담당 PM에게 전달됩니다." 메시지</li>
+          <li>PM 화면 확인 상태 3단계: <span class="tag">미열람</span> <span class="tag blue">열람 완료</span> <span class="tag green">동의 완료</span></li>
+          <li>동의 완료 시 PM에게 <strong>인앱 알림</strong> 표시 + <span class="tag yellow">클라이언트 미확인 범위</span> 경고 배지 제거</li>
+          <li>토큰 만료(30일) 후: "이 확인 링크는 만료되었습니다." 표시. <strong>만료 후 재생성 가능</strong> — 이전 토큰 즉시 무효화</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 기록 후 판정 결과·리포트 하단에 <strong>"본 판정은 [날짜] 클라이언트가 확인한 계약 범위를 기준으로 합니다."</strong> 자동 추가</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code>이 없는 경우 리포트 하단에 <strong>"이 프로젝트의 계약 범위는 클라이언트의 확인을 받지 않은 상태입니다."</strong> 고정 문구</li>
+          <li><span class="tag">Free 플랜</span>에서 클릭 시 → 업그레이드 유도 모달 (Starter 이상 기능)</li>
+        </ul>
       </div>
 
-      <div class="card mb18 accent-top accent-yellow">
+      <!-- F-04 -->
+      <div class="card mb18 accent-top accent-green">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
           <span class="tag green">F-04</span>
           <span style="font-size: 14px; font-weight: 700; color: var(--t1);">클라이언트 요청 입력 및 AI 범위 판정</span>
           <span class="tag yellow" style="margin-left: auto;">⭐ AHA 모멘트 직전</span>
         </div>
+
         <div class="detail-grid" style="margin-bottom: 12px;">
           <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
-            <ul class="blist">
-              <li>텍스트 2,000자 입력 (P1: 이미지 최대 3장 첨부)</li>
-              <li>결과 4단계: <span class="tag green">범위 내</span> <span class="tag orange">부분 초과</span> <span class="tag red">범위 초과</span> <span class="tag yellow">판단 필요</span></li>
-              <li><strong>부분 초과:</strong> 일부 항목만 초과인 경우 분리 표시.</li>
-              <li>"판단 필요" 시 PM 수동 판정 → DB 오버라이드 기록 저장</li>
-              <li>근거 문장 및 예상 추가 공수 참고치 표시</li>
-              <li>중복 요청 감지 시 모달 안내, 재판정 기능 제공</li>
-              <li>판정 취소(기록 안함) 가능 (단, Free 횟수 차감)</li>
-            </ul>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--green); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--green);">
+              PM으로서, 클라이언트의 추가 요청을 입력하면 AI가 30초 안에 계약 범위와 비교해서 판정해주길 원한다. 내가 직접 판단하지 않아도 된다.
+            </div>
           </div>
           <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트 (Fast Path)</div>
-            <ul class="blist">
-              <li>① 코사인 유사도 ≥ 0.92: 이전 결과 재사용</li>
-              <li>② 최대 유사도 ≤ 0.35: 범위 초과 반환</li>
-              <li>③ SHA-256 해시 매칭: 중복 캐시 활용</li>
-              <li>④ PM 오버라이드 유사도 ≥ 0.88: 기록 우선</li>
-              <li>Claude 호출 조건: 0.35 < 유사도 < 0.92 (애매/복합/신규)</li>
-              <li>타임아웃(30초) 시 1회 재시도, 연속 실패 시 수동 모드</li>
-            </ul>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">판정 결과 4단계</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+              <span class="tag green">범위 내</span>
+              <span class="tag orange">부분 초과</span>
+              <span class="tag red">범위 초과</span>
+              <span class="tag yellow">판단 필요</span>
+            </div>
+            <div style="font-size: 12px; color: var(--t3); background: var(--s2); border-radius: 6px; padding: 8px 10px; line-height: 1.65;">
+              <strong style="color: var(--orange);">부분 초과</strong> — 복합 요청 중 일부 항목만 초과. 초과 항목과 범위 내 항목을 구분 표시
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="card mb18 accent-top accent-yellow">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
-          <span class="tag green">F-05</span>
-          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">판정 결과 리포트 자동 생성</span>
-          <span class="tag yellow" style="margin-left: auto;">⭐ AHA 모멘트</span>
-        </div>
-        <div class="detail-grid" style="margin-bottom: 12px;">
-          <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
-            <ul class="blist">
-              <li>구성: 프로젝트명 / 일시 / 요약 / 판정 결과 / 근거 / 비용 안내 / 유효기간 / AI 면책 고지 / 법적 성격 안내</li>
-              <li><strong>편집 가능:</strong> 추가 비용 금액, 안내 문구, 유효기간(기본 14일)</li>
-              <li><strong>편집 불가:</strong> 판정 결과, 근거, 면책 고지 등</li>
-              <li>PM 직접 수정과 AI 재생성 이력 구분 기록</li>
-              <li>생성 실패 시 수동 작성 모드, F-10 동의 시 재생성 차단</li>
-            </ul>
-          </div>
-          <div>
-            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
-            <ul class="blist">
-              <li>Claude API 1회 호출. 한국어 <strong>중립적 시스템 어조 강제</strong></li>
-              <li>프롬프트 금지어("죄송합니다" 등 감정/사과) 필수 적용</li>
-              <li>PDF 변환: window.print() 우선 (P1 서버사이드 검토)</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>클라이언트 요청 내용 텍스트 입력 (최대 2,000자)</li>
+          <li>이미지 첨부 가능 — <span class="tag">P1</span>. 최대 3장, jpg/png/webp, 장당 5MB 이하. 이미지만 첨부 시 판정 가능</li>
+          <li>계약서 없는 프로젝트 + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 없는 경우 판정 시도 시: <strong>"이 프로젝트의 계약 범위는 클라이언트의 확인을 받지 않은 상태입니다. 판정을 계속 진행하시겠습니까?"</strong> 경고 모달 (차단 아님)</li>
+          <li>판정 결과 4단계 — <span class="tag green">범위 내</span> <span class="tag orange">부분 초과</span> <span class="tag red">범위 초과</span> <span class="tag yellow">판단 필요</span></li>
+          <li>"판단 필요" 후속 플로우: PM이 수동으로 최종 판정 선택 → DB에 오버라이드 기록 저장 → 이후 Fast Path 캐시 우선 적용</li>
+          <li>판정 근거 표시 — 계약서 어느 항목과 비교했는지 근거 문장 출력. <strong>이미지 기반 판정 시 "첨부 이미지 기반 판정" 명시</strong></li>
+          <li>범위 초과 / 부분 초과 판정 시 <strong>예상 추가 공수 참고치 표시</strong> — 계약 금액 기준 단순 산출, F-05 리포트 연결</li>
+          <li>판정 소요 시간 목표: <strong>30초 이내</strong> (스트리밍 응답)</li>
+          <li>재판정 기능: <strong>재판정도 판정 횟수에 포함</strong></li>
+          <li>중복 요청 감지 시: "동일한 요청이 이전에 [판정 결과]로 판정된 적 있습니다. 새로 판정하시겠습니까?" 확인 모달</li>
+          <li>판정 요청 제출 후 결과 저장 전 <strong>"이 판정을 기록하지 않음"</strong> 처리 가능 — Free 플랜에서 취소해도 횟수 차감</li>
+          <li><span class="tag">Free 플랜</span> 제한: <strong>월 판정 10회 (재판정 포함)</strong> — 초과 시 업그레이드 유도 모달</li>
+        </ul>
 
-      <div class="detail-grid mb18">
-        <div class="card accent-top accent-blue">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
-            <span class="tag blue">F-06</span>
-            <span style="font-size: 14px; font-weight: 700; color: var(--t1);">이메일 발송 / PDF</span>
-            <span class="tag blue" style="margin-left: auto;">P1</span>
-          </div>
-          <ul class="blist">
-            <li>클라이언트 이메일 자동 불러오기 + 1클릭 발송</li>
-            <li>본문 요약 + PDF 첨부 + F-10 링크 포함</li>
-            <li>미리보기 필수. 자동 발송 없음 (PM 수동 클릭)</li>
-            <li>발송 완료 시 <strong>편집 모드 잠금</strong></li>
-            <li>SendGrid API 사용 (Vercel 환경변수 관리)</li>
-          </ul>
-        </div>
-        <div class="card accent-top accent-purple">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
-            <span class="tag purple">F-10</span>
-            <span style="font-size: 14px; font-weight: 700; color: var(--t1);">클라이언트 확인 링크 (동의)</span>
-            <span class="tag blue" style="margin-left: auto;">P1 신규</span>
-          </div>
-          <ul class="blist">
-            <li>리포트 확정 후 `confirm_token` (UUID v4) 발급. 30일 유효</li>
-            <li>외부 공개용 `/confirm/[token]` 페이지 제공 (가입 불필요)</li>
-            <li><strong>"내용을 확인했습니다" 단일 버튼</strong>. 거절/협상 없음</li>
-            <li>동의 시 `confirmed_at`, IP, UA 기록 + PM 인앱 알림</li>
-            <li>법적 서명이 아닌 인지 확인용 (고정 문구 안내)</li>
-          </ul>
+        <!-- Fast Path 기술 노트 callout -->
+        <div class="callout yellow mt18" style="margin-bottom: 0;">
+          <div class="callout-title">⚡ 기술 노트 — Fast Path 로직 &amp; 에러 핸들링</div>
+          <p>
+            <strong>Fast Path ①</strong> 코사인 유사도 ≥ 0.92 → 이전 판정 결과 재사용 (범위 내 고정 반환 아님)<br>
+            <strong>Fast Path ②</strong> 최대 유사도 ≤ 0.35 → 범위 초과 반환. 단, 포괄적 계약서의 경우 오판 가능성 있음<br>
+            <strong>Fast Path ③</strong> scope_requests 캐시에서 동일 해시(SHA-256) 발견 → 확인 모달 후 결과 재사용 또는 새 판정<br>
+            <strong>Fast Path ④</strong> PM 오버라이드 패턴과 유사도 ≥ 0.88 → 기록 우선 적용<br>
+            <strong>Claude 호출 조건</strong> 0.35 &lt; 유사도 &lt; 0.92 — 목표: 전체 요청의 30~40% Fast Path 처리<br><br>
+            <strong>이미지 첨부 시</strong> Claude API vision 기능 활용 — OCR 파이프라인 불필요. Supabase Storage 저장, <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_requests.image_urls jsonb</code> 컬럼 추가 (P1)<br><br>
+            <strong>타임아웃(30초 초과):</strong> 재시도 1회 → 실패 시 수동 판정 모드 전환<br>
+            <strong>연속 실패(2회):</strong> 수동 판정 모드 자동 전환 + "AI 판정 일시 중단" 배너 표시<br>
+            <strong>Supabase 오류:</strong> 로컬 스토리지 임시 저장 후 복구 시 동기화<br>
+            <strong>브라우저 새로고침:</strong> <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">status</code> 컬럼(pending/completed/failed)으로 상태 복원
+          </p>
         </div>
       </div>
 
       <hr class="mb18">
 
+      <!-- ════════════════════════════════════
+           F-05 리포트 자동 생성
+      ════════════════════════════════════ -->
+
+      <!-- F-05 AHA 모멘트 강조 헤더 -->
+      <div style="background: linear-gradient(135deg, rgba(16,185,129,.12) 0%, rgba(79,128,255,.08) 100%); border: 1.5px solid rgba(16,185,129,.4); border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+        <div style="font-size: 28px; flex-shrink: 0;">⭐</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--green); letter-spacing: .4px;">AHA MOMENT — 이 기능이 Free → Paid 전환 트리거입니다</div>
+          <div style="font-size: 12px; color: var(--t3); margin-top: 3px;">처음 리포트를 생성하는 순간, PM은 "이 도구 없이는 못 살겠다"고 느낍니다</div>
+        </div>
+        <span class="tag green" style="margin-left: auto; font-size: 12px; padding: 4px 12px;">F-05</span>
+      </div>
+
+      <div class="card mb18 accent-top accent-green">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag green">F-05</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">판정 결과 리포트 자동 생성</span>
+          <div style="margin-left: auto; display: flex; gap: 6px; align-items: center;">
+            <span class="tag yellow">⭐ AHA 모멘트</span>
+            <span class="tag green">P0</span>
+          </div>
+        </div>
+
+        <div class="detail-grid" style="margin-bottom: 12px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--green); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--green);">
+              PM으로서, 판정 결과를 클라이언트에게 보낼 수 있는 공식 문서 형태로 자동 생성해주길 원한다. 내가 직접 문구를 쓰지 않고, 시스템 어조의 중립적 리포트를 받고 싶다.
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
+            <ul class="blist">
+              <li>판정 후 리포트 생성 — <strong>별도 Claude API 호출 1회</strong></li>
+              <li>리포트 언어: 한국어, <strong>중립적 시스템 어조 강제</strong></li>
+              <li>프롬프트 금지 표현: "죄송합니다", "유감입니다" 등 <strong>감정·사과 언어 일체 금지</strong></li>
+              <li>생성된 리포트 HTML/텍스트로 DB 저장</li>
+              <li>PDF 변환: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">window.print()</code> 우선. P1에서 서버사이드 전환 검토</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>리포트 생성 가능 판정 결과: <span class="tag green">범위 내</span> <span class="tag orange">부분 초과</span> <span class="tag red">범위 초과</span> <span class="tag yellow">판단 필요</span> 전체. 범위 내 리포트는 <strong>"이 요청은 계약 범위 내입니다"</strong> 형태로 생성</li>
+          <li>리포트 구성: 프로젝트명 / 요청 일시 / 요청 내용 요약 / 판정 결과 / 계약 근거 / 추가 비용 안내 문구 / 견적 유효기간 / AI 면책 고지 / 동의의 법적 성격 안내</li>
+          <li>리포트 하단 클라이언트 범위 확인 상태 문구 자동 추가 — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 있으면: <em>"본 판정은 [날짜] 클라이언트가 확인한 계약 범위를 기준으로 합니다."</em> / 없으면: <em>"이 프로젝트의 계약 범위는 클라이언트의 확인을 받지 않은 상태입니다."</em></li>
+          <li>추가 비용 금액: <strong>PM이 직접 입력</strong>. 계약 금액 및 F-04 예상 추가 공수 참고치를 옆에 표시해서 입력 보조</li>
+          <li>견적 유효기간: PM이 직접 입력 (기본값 14일)</li>
+          <li>리포트 <strong>버전 관리</strong>: 재생성 시 버전 번호 증가, 각 버전 열람 가능</li>
+          <li><strong>편집 가능 영역</strong>: 추가 비용 금액, 안내 문구, 견적 유효기간</li>
+          <li><strong>편집 불가 영역</strong> (고정): 판정 결과, 계약 근거, AI 면책 고지, 동의의 법적 성격 안내, 클라이언트 범위 확인 상태 문구</li>
+          <li>직접 수정(PM 타이핑)과 AI 재생성 구분하여 이력 기록</li>
+          <li>리포트 미리보기 — 클라이언트가 받게 될 형태로 렌더링</li>
+          <li>PDF 다운로드 버튼 (P0 MVP 구현)</li>
+          <li>리포트 생성 실패 시: "리포트 자동 생성에 실패했습니다. 수동으로 작성하시겠습니까?" 안내 + <strong>수동 작성 모드 제공</strong></li>
+          <li>클라이언트가 F-10 확인 링크로 열람 또는 동의한 경우 <strong>재생성 차단</strong> → 경고 모달</li>
+          <li>리포트 확정 후 <strong>"클라이언트 확인 링크 생성" 버튼 활성화</strong> (F-10 연결)</li>
+          <li><span class="tag">Free 플랜</span> 제한: <strong>월 리포트 3건</strong> — 초과 시 Starter 업그레이드 유도 모달</li>
+        </ul>
+      </div>
+
+      <!-- F-06 -->
+      <div class="card mb18 accent-top accent-blue">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag blue">F-06</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">이메일 발송 / PDF 다운로드</span>
+          <span class="tag" style="margin-left: auto;">P1 — Starter</span>
+        </div>
+
+        <div class="detail-grid" style="margin-bottom: 12px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--blue); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--blue);">
+              PM으로서, 생성된 리포트를 클라이언트 이메일로 직접 발송하거나 PDF로 다운로드해서 첨부 파일로 보내고 싶다.
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
+            <ul class="blist">
+              <li><strong>SendGrid API</strong> 사용 — API Key Vercel 환경변수 관리</li>
+              <li>PDF 변환: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">window.print()</code> 우선, P1에서 서버사이드 전환 검토</li>
+              <li>발송 이력: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">report_send_logs</code> 테이블 — F-08 타임라인 연동</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>클라이언트 이메일 주소: <strong>F-03에서 등록한 이메일 자동 불러오기</strong>. 수동 수정 가능</li>
+          <li>이메일 본문 구성: 리포트 요약 본문 + PDF 첨부 + F-10 확인 링크 포함 (링크 생성된 경우)</li>
+          <li>발신자 이름·이메일: PM 또는 에이전시명으로 설정 가능 (설정 페이지에서 지정)</li>
+          <li>발송 전 <strong>미리보기 확인 단계 필수</strong> (실수 방지)</li>
+          <li>발송 실패 시: 에러 메시지 표시 + 재시도 버튼. 발송 완료 상태로 변경되지 않음</li>
+          <li>동일 리포트 <strong>재발송 가능</strong>. 발송 일시 + 수신 이메일 매 건 DB 기록</li>
+          <li>PDF 다운로드 — 리포트 확정 후 버튼 활성화</li>
+          <li>PDF 파일명 자동 생성: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">[프로젝트명]_[클라이언트명]범위판정리포트[YYYYMMDD].pdf</code></li>
+          <li>발송 완료 후 리포트 상태 → <strong>"발송 완료"</strong>로 변경. 편집 모드 잠금 (PDF 다운로드는 가능)</li>
+          <li><strong>자동 발송 없음</strong> — PM 수동 클릭 필수</li>
+          <li>이메일 발송과 PDF 다운로드는 독립 동작. F-10 확인 링크와 병행 사용 가능</li>
+        </ul>
+      </div>
+
+      <!-- F-10 클라이언트 리포트 확인 링크 -->
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag yellow">F-10</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">클라이언트 리포트 확인 링크 &amp; 동의 기록 (사후 인지)</span>
+          <span class="tag" style="margin-left: auto;">P1 — Starter</span>
+        </div>
+
+        <!-- 배경 callout -->
+        <div style="background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.25); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 12px; color: var(--t3); line-height: 1.75;">
+          <strong style="color: var(--yellow);">📌 배경</strong> — F-03-S가 프로젝트 시작 전 <strong style="color: var(--t1);">"범위에 합의했다"는 사전 동의</strong>를 기록한다면, F-10은 추가 요청 발생 후 <strong style="color: var(--t1);">"범위를 초과했고 클라이언트도 인지했다"는 사후 인지</strong>를 기록한다. 두 기능이 함께 있을 때 완결된 증거 구조가 만들어진다.
+        </div>
+
+        <div class="detail-grid" style="margin-bottom: 12px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--yellow); margin-bottom: 8px;">사용자 스토리</div>
+            <div style="font-size: 13px; color: var(--t3); background: var(--s2); border-radius: 8px; padding: 10px 12px; line-height: 1.7; border-left: 3px solid var(--yellow);">
+              PM으로서, 리포트를 생성한 후 클라이언트가 해당 내용을 확인하고 동의했다는 타임스탬프를 시스템에 기록하고 싶다. 나중에 분쟁이 생겼을 때 "클라이언트가 이미 인지했다"는 근거를 갖고 싶다.
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">기술 노트</div>
+            <ul class="blist">
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm/[token]</code> — <strong>Public 라우트</strong>, RLS 예외 처리 필요</li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirm_token</code>: UUID v4 (122비트 엔트로피)</li>
+              <li>동의 기록 컬럼: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ip</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ua</code> — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">reports</code> 테이블에 직접 추가</li>
+              <li>열람 추적: 최초 접근 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">first_viewed_at</code> 기록 (동의와 별도)</li>
+              <li>확인 페이지 <strong>모바일 반응형 필수</strong></li>
+              <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">robots.txt</code>에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm/*</code> disallow 추가</li>
+              <li>PostHog: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_link_created</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_link_viewed</code> / <code style="font-size: 11px; background: var(--green); padding: 1px 5px; border-radius: 4px; color: #fff;">confirmation_agreed</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>리포트 확정 후 <strong>"클라이언트 확인 링크 생성"</strong> 버튼 표시</li>
+          <li>버튼 클릭 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirm_token</code>(UUID v4) 생성 + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">token_expires_at</code>(created_at + 30일) 저장</li>
+          <li>링크 형식: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">https://[도메인]/confirm/[confirm_token]</code></li>
+          <li>PM이 링크 복사 → 클라이언트에게 직접 공유 (채널 자유)</li>
+          <li>확인 페이지 구성: 프로젝트명 / 요청 내용 요약 / 판정 결과 / 계약 근거 / AI 면책 고지 / <em>"이 동의는 인지 확인을 목적으로 하며 법적 구속력 있는 서명이 아닙니다."</em> 고정 문구</li>
+          <li>확인 페이지에 <strong>"내용을 확인했습니다" 동의 버튼 1개만</strong> 표시 (거절/협상 버튼 없음)</li>
+          <li>동의 클릭 시: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code>(KST) + IP + UA DB 기록</li>
+          <li>동의 완료 후 페이지: "확인이 완료되었습니다. 담당 PM에게 전달됩니다." 메시지</li>
+          <li>PM 화면 확인 상태 3단계: <span class="tag">미열람</span> <span class="tag blue">열람 완료</span> <span class="tag green">동의 완료</span></li>
+          <li>동의 완료 시 PM에게 <strong>인앱 알림</strong> (이메일 알림은 P2)</li>
+          <li>토큰 만료(30일) 후: "이 확인 링크는 만료되었습니다." 표시. <strong>만료 후 재생성 가능</strong> — 이전 토큰 즉시 무효화</li>
+          <li><strong>이미 동의 완료된 리포트는 확인 링크 재생성 불가</strong> → 경고 모달</li>
+          <li><span class="tag">Free 플랜</span>에서 클릭 시 → 업그레이드 유도 모달 (Starter 이상 기능)</li>
+        </ul>
+      </div>
+
+      <hr class="mb18">
+
+      <!-- ════════════════════════════════════
+           영역 ③ 대시보드 & 분석
+      ════════════════════════════════════ -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
         <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(167,139,250,.15); border: 1.5px solid rgba(167,139,250,.4); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">📊</div>
         <div>
-          <div style="font-size: 15px; font-weight: 700; color: var(--t1);">영역 ③ — 대시보드 & 분석</div>
+          <div style="font-size: 15px; font-weight: 700; color: var(--t1);">영역 ③ — Dashboard &amp; Analytics</div>
+          <div style="font-size: 12px; color: var(--t3);">대시보드 및 손익 분석</div>
         </div>
-        <span class="tag purple" style="margin-left: auto;">P1</span>
+        <span class="tag purple" style="margin-left: auto;">P1 — Pro 업셀</span>
       </div>
 
-      <div class="detail-grid triple mb18">
-        <div class="card accent-top accent-purple">
-          <div class="tag purple mb10">F-07</div>
-          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 10px;">손익 누적 기록</div>
-          <ul class="blist">
-            <li>청구 상태 4단계(미결정/청구 완료/청구 포기/무상 진행)</li>
-            <li>추정 손실액 자동 계산 툴팁 제공</li>
-            <li>프로젝트 완료 시 최종 집계 요약 생성 (API 미호출)</li>
-          </ul>
+      <!-- F-07 -->
+      <div class="card mb18 accent-top accent-purple">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag purple">F-07</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">프로젝트별 손익 누적 기록</span>
+          <span class="tag" style="margin-left: auto;">P1</span>
         </div>
-        <div class="card accent-top accent-purple">
-          <div class="tag purple mb10">F-08</div>
-          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 10px;">히스토리 타임라인</div>
-          <ul class="blist">
-            <li>이력 시간순 나열, 타임라인에서 청구 상태 직접 변경</li>
-            <li>P1 첨부 이미지 썸네일 노출 및 원본 보기</li>
-            <li>결과/상태/기간별 필터 지원</li>
-          </ul>
-        </div>
-        <div class="card accent-top accent-purple">
-          <div class="tag purple mb10">F-09</div>
-          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 10px;">핵심 지표 요약 뷰</div>
-          <ul class="blist">
-            <li>5개 카드: 진행 프로젝트, 요청 수, 청구 성공, 방어 금액, 동의 수</li>
-            <li>위험 프로젝트 적자 가능성순 노출</li>
-            <li>기간(전체/월/3개월) 설정 기능</li>
-          </ul>
-        </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>프로젝트별 집계: 추가 요청 건수 / 범위 초과 건수 / 청구 완료 건수 / 청구 포기 건수 / 무상 진행 건수 / <strong>클라이언트 동의 완료 건수</strong></li>
+          <li>청구 상태값 정의: <span class="tag">미결정</span> <span class="tag green">청구 완료</span> <span class="tag">청구 포기(의도적)</span> <span class="tag orange">무상 진행</span></li>
+          <li>청구 성공 기준: PM이 수동으로 <strong>"청구 완료"</strong>로 상태 변경한 시점</li>
+          <li>추정 손실액 계산: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">(청구 포기 건수 + 무상 진행 건수) × 계약 금액 기준 평균 단가</code>. 계산 방식 툴팁으로 표시</li>
+          <li>손익 상태 시각화: <span class="tag green">흑자</span> <span class="tag yellow">주의</span> <span class="tag red">적자</span> 3단계 배지</li>
+          <li>프로젝트 완료 시 최종 손익 리포트 요약 생성 — 단순 집계 기반 (<strong>Claude API 호출 없음</strong>)</li>
+        </ul>
       </div>
-    </div>
 
-    <div id="page-flow" class="page">
-      <div class="page-title">4. 플로우 & 5. 우선순위</div>
-      <div class="page-desc">온보딩 10단계 플로우와 개발 우선순위(MoSCoW), 요금제 제한 정책을 정의합니다.</div>
+      <!-- F-08 -->
+      <div class="card mb18 accent-top accent-purple">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag purple">F-08</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">추가 요청 히스토리 타임라인</span>
+          <span class="tag" style="margin-left: auto;">P1</span>
+        </div>
 
-      <div class="h2-title">4. 온보딩 플로우 (10단계)</div>
-      <div class="card mb18 accent-top accent-green" style="padding: 0; overflow: hidden;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>표시 항목: 요청 일시 / 요청 내용 요약 / 판정 결과 / 리포트 발송 여부 / 청구 상태 / <strong>클라이언트 확인 상태</strong></li>
+          <li>이미지 첨부 요청의 경우 <strong>썸네일 표시</strong> — 클릭 시 원본 이미지 확인 (P1)</li>
+          <li>청구 상태 직접 변경: <span class="tag">미결정</span> → <span class="tag green">청구 완료</span> / <span class="tag">청구 포기</span> / <span class="tag orange">무상 진행</span> 선택</li>
+          <li>판정 결과별 필터: 전체 / <span class="tag green">범위 내</span> / <span class="tag orange">부분 초과</span> / <span class="tag red">범위 초과</span> / <span class="tag yellow">판단 필요</span></li>
+          <li>확인 상태별 필터: <span class="tag">미열람</span> / <span class="tag blue">열람 완료</span> / <span class="tag green">동의 완료</span></li>
+          <li>기간 필터: 전체 / 이번 달 / 최근 3개월 / 직접 설정</li>
+          <li>개별 요청 클릭 시 상세 판정 결과 및 리포트 확인</li>
+          <li>CSV 내보내기 — <span class="tag">P2</span> 기능, UI 준비만</li>
+        </ul>
+      </div>
+
+      <!-- F-09 -->
+      <div class="card mb18 accent-top accent-purple">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <span class="tag purple">F-09</span>
+          <span style="font-size: 14px; font-weight: 700; color: var(--t1);">핵심 지표 요약 뷰 (홈 대시보드)</span>
+          <span class="tag" style="margin-left: auto;">P1</span>
+        </div>
+
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t3); margin-bottom: 8px;">세부 요구사항</div>
+        <ul class="blist">
+          <li>기간 설정: <strong>전체 누계 / 이번 달 / 최근 3개월</strong> 선택 가능</li>
+          <li>상단 지표 카드 5개: 진행 중 프로젝트 수 / 추가 요청 건수 / 청구 완료 건수 / 방어 금액 / <strong>클라이언트 동의 완료 건수</strong></li>
+          <li>방어 금액 계산 기준: 청구 완료 건수 × 해당 건 실제 청구 금액 합계. <strong>툴팁으로 계산 방식 표시</strong></li>
+          <li>손익 위험 프로젝트 목록 (적자 가능성 높은 순)</li>
+          <li>최근 판정 이력 5건 빠른 확인</li>
+          <li>빈 상태 처리 — 프로젝트 0개: <strong>"첫 프로젝트 등록하기"</strong> CTA 중앙 표시 / 프로젝트 있지만 판정 이력 없음: <strong>"첫 번째 클라이언트 요청을 판정해보세요"</strong> 안내 + 판정 입력 바로가기 버튼</li>
+        </ul>
+      </div>
+
+      <!-- ── 전체 기능 요약 테이블 ── -->
+      <div class="sec-label mb14">📊 기능 요구사항 전체 요약</div>
+      <div class="card accent-top accent-green">
         <div style="overflow-x: auto;">
-          <table class="prd-table" style="min-width: 700px; margin: 0;">
+          <table class="prd-table" style="min-width: 580px;">
             <thead>
               <tr>
-                <th style="width: 15%;">단계</th>
-                <th style="width: 20%;">화면/상태</th>
-                <th style="width: 35%;">PM 액션 / 시스템 동작</th>
-                <th>PostHog 이벤트</th>
+                <th>ID</th>
+                <th>기능명</th>
+                <th>영역</th>
+                <th>우선순위</th>
+                <th>Claude API</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>① 가입 완료</strong></td>
+                <td><span class="tag blue">F-01</span></td>
+                <td><strong>이메일 / 소셜 로그인</strong></td>
+                <td>Auth</td>
+                <td><span class="tag green">P0</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag blue">F-02</span></td>
+                <td><strong>워크스페이스 격리 &amp; RLS</strong></td>
+                <td>Auth</td>
+                <td><span class="tag green">P0</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag green">F-03</span></td>
+                <td><strong>프로젝트 생성 &amp; 계약 범위 등록</strong></td>
+                <td>Core</td>
+                <td><span class="tag green">P0</span></td>
+                <td><span class="tag yellow">1회 (파싱)</span></td>
+              </tr>
+              <tr>
+                <td><span class="tag yellow">F-03-S</span></td>
+                <td><strong>클라이언트 범위 확인 링크 (사전 동의)</strong></td>
+                <td>Core</td>
+                <td><span class="tag">P1</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag green">F-04</span></td>
+                <td><strong>클라이언트 요청 입력 &amp; AI 범위 판정</strong></td>
+                <td>Core</td>
+                <td><span class="tag green">P0</span></td>
+                <td><span class="tag red">핵심 호출 (Fast Path 절감)</span></td>
+              </tr>
+              <tr style="background: rgba(16,185,129,.04);">
+                <td><span class="tag green">F-05</span></td>
+                <td><strong>리포트 자동 생성</strong> ⭐</td>
+                <td>Core</td>
+                <td><span class="tag green">P0</span></td>
+                <td><span class="tag yellow">1회 (생성)</span></td>
+              </tr>
+              <tr>
+                <td><span class="tag blue">F-06</span></td>
+                <td><strong>이메일 발송 / PDF 다운로드</strong></td>
+                <td>Core</td>
+                <td><span class="tag">P1</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag purple">F-07</span></td>
+                <td><strong>프로젝트별 손익 누적 기록</strong></td>
+                <td>Dashboard</td>
+                <td><span class="tag">P1</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag purple">F-08</span></td>
+                <td><strong>추가 요청 히스토리 타임라인</strong></td>
+                <td>Dashboard</td>
+                <td><span class="tag">P1</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag purple">F-09</span></td>
+                <td><strong>핵심 지표 요약 뷰 (홈 대시보드)</strong></td>
+                <td>Dashboard</td>
+                <td><span class="tag">P1</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+              <tr>
+                <td><span class="tag yellow">F-10</span></td>
+                <td><strong>클라이언트 리포트 확인 링크 (사후 인지)</strong></td>
+                <td>Core</td>
+                <td><span class="tag">P1</span></td>
+                <td style="color: var(--t3);">불필요</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top: 12px; font-size: 12px; color: var(--t3); display: flex; gap: 16px; flex-wrap: wrap;">
+          <span>⭐ = AHA 모멘트 직결 기능</span>
+          <span><span class="tag green">P0</span> = MVP 필수 배포</span>
+          <span><span class="tag">P1</span> = PMF 검증 후 추가</span>
+        </div>
+      </div>
+
+    </div><!-- /page-features -->
+
+
+    <!-- ══ TAB 3 — 우선순위 ══ -->
+    <div id="page-priority" class="page">
+      <div class="page-title">우선순위</div>
+      <div class="page-desc">온보딩 플로우, MoSCoW 우선순위 프레임워크, 플랜별 기능 제한을 정의합니다.</div>
+
+      <!-- ══ 섹션 4: 온보딩 플로우 ══ -->
+      <div class="sec-label mb14">🚶 섹션 4 — 온보딩 플로우</div>
+
+      <!-- AHA / 완료 기준 callout -->
+      <div class="detail-grid mb18">
+        <div class="callout green" style="margin-bottom: 0;">
+          <div class="callout-title">✅ 온보딩 완료 기준</div>
+          <p><strong>⑤단계</strong> — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">first_scope_judgment</code> 이벤트 발생 시점.<br>목표: 가입 후 첫 판정 완료율 <strong>&gt; 40%</strong></p>
+        </div>
+        <div class="callout yellow" style="margin-bottom: 0;">
+          <div class="callout-title">⭐ AHA 모멘트</div>
+          <p><strong>⑦단계</strong> — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">report_generated</code> 이벤트 발생 시점.<br>Free → Paid 전환 트리거.</p>
+        </div>
+      </div>
+
+      <!-- 온보딩 단계 테이블 -->
+      <div class="card mb18 accent-top accent-blue">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 660px;">
+            <thead>
+              <tr>
+                <th style="width: 7%;">단계</th>
+                <th style="width: 14%;">화면/상태</th>
+                <th style="width: 26%;">PM이 보는 것</th>
+                <th style="width: 22%;">시스템 동작</th>
+                <th style="width: 19%;">PostHog 이벤트</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>①</strong></td>
                 <td><span class="tag blue">Auth</span></td>
-                <td>이메일 인증 / organization 자동 생성</td>
-                <td>`user_signed_up`</td>
+                <td>"이메일 인증 완료" 확인 메시지</td>
+                <td>organization 자동 생성</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">user_signed_up</code></td>
               </tr>
               <tr>
-                <td><strong>② 빈 대시보드</strong></td>
+                <td><strong>②</strong></td>
                 <td><span class="tag">Empty State</span></td>
-                <td>"첫 프로젝트 만들기" CTA + 3단계 안내 표시</td>
-                <td>`dashboard_viewed_empty`</td>
+                <td>"첫 프로젝트 만들기" CTA + "계약 등록 → 요청 판정 → 리포트 생성" 3단계 안내</td>
+                <td>아무 데이터 없음</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">dashboard_viewed_empty</code></td>
               </tr>
               <tr>
-                <td><strong>③ 프로젝트 생성</strong></td>
+                <td><strong>③</strong></td>
                 <td><span class="tag green">Core</span></td>
-                <td>입력 폼 + 계약 범위 / Claude 파싱 / 임시저장</td>
-                <td>`project_created`</td>
+                <td>입력 폼 + 계약 범위 textarea + 임시저장 안내</td>
+                <td>Claude 파싱 1회 호출</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">project_created</code></td>
+              </tr>
+              <tr style="background: rgba(248,113,113,.04);">
+                <td><strong>③-예외</strong></td>
+                <td><span class="tag red">Core</span></td>
+                <td>"범위 항목 구성 실패" 안내 + 수동 입력 모드</td>
+                <td>파싱 실패 처리</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">scope_parse_failed</code></td>
               </tr>
               <tr>
-                <td><strong>④ 범위 확인</strong></td>
+                <td><strong>④</strong></td>
                 <td><span class="tag green">Core</span></td>
-                <td>AI 구조화 항목 확인 및 수정 / DB 저장</td>
-                <td>`scope_confirmed`</td>
+                <td>AI가 구조화한 항목 목록 미리보기 + 수정 가능</td>
+                <td>scope_definitions 저장</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">scope_confirmed</code></td>
+              </tr>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>④-S</strong></td>
+                <td><span class="tag yellow">P1 신규</span></td>
+                <td>"클라이언트 범위 확인 링크 생성" 버튼 (계약서 없는 경우 강조)</td>
+                <td>scope_confirm_token 생성</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">scope_confirmation_link_created</code></td>
+              </tr>
+              <tr>
+                <td><strong>⑤</strong></td>
+                <td><span class="tag green">Core</span></td>
+                <td>클라이언트 요청 입력 textarea (+ 이미지 첨부 P1)</td>
+                <td>Fast Path or Claude 판정</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px; color: var(--green); font-weight: 700;">first_scope_judgment</code></td>
+              </tr>
+              <tr>
+                <td><strong>⑥</strong></td>
+                <td><span class="tag green">Core</span></td>
+                <td>4단계 결과 + 근거 문장 + 예상 추가 공수 참고치</td>
+                <td>scope_requests 저장</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">judgment_result_viewed</code></td>
               </tr>
               <tr style="background: rgba(16,185,129,.05);">
-                <td><strong>⑤ 첫 판정 요청</strong></td>
-                <td><span class="tag green">Core</span></td>
-                <td>클라이언트 요청 입력 / Fast Path or Claude 판정</td>
-                <td><strong style="color: var(--green);">`first_scope_judgment`</strong><br><span style="font-size: 11px; color: var(--t3);">* 온보딩 완료 기준</span></td>
+                <td><strong>⑦</strong></td>
+                <td><span class="tag yellow">⭐ AHA</span></td>
+                <td>"리포트 생성" 버튼 클릭 → 초안 표시</td>
+                <td>Claude 리포트 호출 + PostHog</td>
+                <td><code style="font-size: 11px; background: rgba(16,185,129,.15); padding: 1px 4px; border-radius: 3px; color: var(--green); font-weight: 700;">report_generated</code></td>
               </tr>
               <tr>
-                <td><strong>⑥ 결과 확인</strong></td>
-                <td><span class="tag green">Core</span></td>
-                <td>4단계 결과 + 근거 문장 확인</td>
-                <td>`judgment_result_viewed`</td>
+                <td><strong>⑧</strong></td>
+                <td><span class="tag">PDF</span></td>
+                <td>"다운로드" 버튼</td>
+                <td>PDF 생성</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">pdf_downloaded</code></td>
               </tr>
-              <tr style="background: rgba(251,191,36,.08);">
-                <td><strong>⑦ 리포트 생성</strong></td>
-                <td><span class="tag yellow">AHA 모멘트</span></td>
-                <td>초안 생성 및 편집</td>
-                <td><strong style="color: var(--yellow);">`report_generated`</strong><br><span style="font-size: 11px; color: var(--t3);">* Free→Paid 트리거</span></td>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>⑨</strong></td>
+                <td><span class="tag yellow">P1 신규</span></td>
+                <td>"클라이언트 확인 링크 생성" 버튼 + 링크 복사</td>
+                <td>confirm_token 생성</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 4px; border-radius: 3px;">confirmation_link_created</code></td>
               </tr>
-              <tr>
-                <td><strong>⑧ PDF 다운로드</strong></td>
-                <td><span class="tag blue">PDF</span></td>
-                <td>PDF 변환 다운로드</td>
-                <td>`pdf_downloaded`</td>
-              </tr>
-              <tr>
-                <td><strong>⑨ 확인 링크 생성</strong></td>
-                <td><span class="tag purple">P1 신규</span></td>
-                <td>`confirm_token` 생성 및 링크 복사</td>
-                <td>`confirmation_link_created`</td>
-              </tr>
-              <tr>
-                <td><strong>⑩ 클라이언트 동의</strong></td>
-                <td><span class="tag purple">P1 신규</span></td>
-                <td>동의 배지 + 타임스탬프 기록</td>
-                <td>`confirmation_agreed`</td>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>⑩</strong></td>
+                <td><span class="tag yellow">P1 신규</span></td>
+                <td>PM 화면에 "동의 완료" 배지 + 인앱 알림</td>
+                <td>confirmed_at 타임스탬프 기록</td>
+                <td><code style="font-size: 11px; background: rgba(16,185,129,.15); padding: 1px 4px; border-radius: 3px; color: var(--green); font-weight: 700;">confirmation_agreed</code></td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="h2-title">5. 우선순위 (MoSCoW)</div>
-      <div class="detail-grid triple mb18">
-        <div class="card accent-top accent-green">
-          <div style="font-size: 16px; margin-bottom: 8px;">✅ <strong style="color: var(--green);">Must Have (P0)</strong></div>
-          <div style="font-size: 12px; color: var(--t3); margin-bottom: 10px;">MVP 배포 필수</div>
+      <!-- 이탈/빈 상태 정책 카드 -->
+      <div class="detail-grid mb18">
+        <div class="card accent-top accent-orange">
+          <div style="font-size: 13px; font-weight: 700; color: var(--orange); margin-bottom: 10px;">🔄 이탈 복귀 정책</div>
           <ul class="blist">
-            <li>F-01 이메일/소셜 로그인</li>
-            <li>F-02 워크스페이스 격리 & RLS</li>
-            <li>F-03 프로젝트 생성 & 계약 등록</li>
-            <li>F-04 AI 범위 판정</li>
-            <li>F-05 리포트 자동 생성</li>
+            <li><strong>③ 프로젝트 생성 중 이탈 시</strong> 임시저장 처리</li>
+            <li>다음 접속 시 <strong>"미완료 프로젝트 이어하기"</strong> 배너 표시</li>
           </ul>
         </div>
         <div class="card accent-top accent-blue">
-          <div style="font-size: 16px; margin-bottom: 8px;">🔵 <strong style="color: var(--blue);">Should Have (P1)</strong></div>
-          <div style="font-size: 12px; color: var(--t3); margin-bottom: 10px;">PMF 직후 필요</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 10px;">🪣 빈 상태 원칙</div>
           <ul class="blist">
-            <li>F-06 이메일 발송/PDF</li>
-            <li>F-07 손익 누적, F-08 타임라인, F-09 대시보드</li>
-            <li><strong>F-10 확인 링크 & 동의 기록</strong></li>
-            <li>F-04 이미지 첨부, F-03 파일 업로드</li>
-          </ul>
-        </div>
-        <div class="card accent-top accent-yellow">
-          <div style="font-size: 16px; margin-bottom: 8px;">🟡 <strong style="color: var(--yellow);">Could Have (P2)</strong></div>
-          <div style="font-size: 12px; color: var(--t3); margin-bottom: 10px;">Pro 차별화 / 개선</div>
-          <ul class="blist">
-            <li>팀원 계정 공유, 분석 리포트, 벤치마크, CSV</li>
-            <li>클라이언트 동의 이메일 알림</li>
-            <li>판정 취소 시 Free 플랜 횟수 미차감</li>
+            <li>프로젝트 0개 시 <strong>"첫 프로젝트 등록하기"</strong> CTA 중앙 표시</li>
+            <li><strong>"30초 만에 첫 판정 받기"</strong> 문구 노출</li>
           </ul>
         </div>
       </div>
 
-      <div class="h2-title">6. 플랜별 기능 제한</div>
-      <div class="card mb18 accent-top accent-blue" style="padding: 0; overflow: hidden;">
+      <hr class="mb18">
+
+      <!-- ══ 섹션 5: MoSCoW 우선순위 ══ -->
+      <div class="sec-label mb14">🎯 섹션 5 — MoSCoW 우선순위</div>
+
+      <div class="callout yellow mb18">
+        <div class="callout-title">🧭 우선순위 결정 원칙</div>
+        <p>모든 기능은 <strong>"이것 없이 MVP를 배포할 수 있는가?"</strong>라는 질문을 통과해야 Must Have가 된다. PMF 검증 전에는 <strong>최소한으로 만들고 빠르게 배우는 것</strong>이 원칙이다.</p>
+      </div>
+
+      <!-- Must Have -->
+      <div class="card mb18 accent-top accent-green">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--bd);">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(16,185,129,.15); border: 1.5px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">✅</div>
+          <div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--green);">Must Have</div>
+            <div style="font-size: 12px; color: var(--t3);">없으면 MVP 배포 불가 — P0 필수 구현</div>
+          </div>
+          <span class="tag green" style="margin-left: auto;">5개 기능</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px; text-align: center;">
+            <span class="tag blue" style="margin-bottom: 8px; display: block;">F-01</span>
+            <div style="font-size: 12px; font-weight: 600; color: var(--t1); line-height: 1.4;">이메일/<br>소셜 로그인</div>
+          </div>
+          <div style="background: var(--s2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px; text-align: center;">
+            <span class="tag blue" style="margin-bottom: 8px; display: block;">F-02</span>
+            <div style="font-size: 12px; font-weight: 600; color: var(--t1); line-height: 1.4;">워크스페이스<br>격리 &amp; RLS</div>
+          </div>
+          <div style="background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.25); border-radius: 8px; padding: 12px; text-align: center;">
+            <span class="tag green" style="margin-bottom: 8px; display: block;">F-03</span>
+            <div style="font-size: 12px; font-weight: 600; color: var(--t1); line-height: 1.4;">프로젝트 생성<br>&amp; 계약 등록</div>
+          </div>
+          <div style="background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.25); border-radius: 8px; padding: 12px; text-align: center;">
+            <span class="tag green" style="margin-bottom: 8px; display: block;">F-04</span>
+            <div style="font-size: 12px; font-weight: 600; color: var(--t1); line-height: 1.4;">AI 범위<br>판정</div>
+          </div>
+          <div style="background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.25); border-radius: 8px; padding: 12px; text-align: center;">
+            <span class="tag green" style="margin-bottom: 8px; display: block;">F-05</span>
+            <div style="font-size: 12px; font-weight: 600; color: var(--t1); line-height: 1.4;">리포트<br>자동 생성 ⭐</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Should / Could -->
+      <div class="detail-grid mb18">
+
+        <!-- Should Have -->
+        <div class="card accent-top accent-blue">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <div style="font-size: 16px;">🔵</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--blue);">Should Have</div>
+              <div style="font-size: 11px; color: var(--t3);">PMF 직후 필요 — P1</div>
+            </div>
+          </div>
+          <ul class="blist">
+            <li><span class="tag yellow">F-03-S</span> <strong>클라이언트 범위 확인 링크</strong></li>
+            <li><span class="tag">F-06</span> <strong>이메일 발송 / PDF</strong></li>
+            <li><span class="tag">F-07</span> <strong>손익 누적 기록</strong></li>
+            <li><span class="tag">F-08</span> <strong>히스토리 타임라인</strong></li>
+            <li><span class="tag">F-09</span> <strong>홈 대시보드</strong></li>
+            <li><span class="tag yellow">F-10</span> <strong>클라이언트 리포트 확인 링크 &amp; 동의 기록</strong></li>
+            <li><span class="tag">F-04</span> 이미지 첨부 기능</li>
+            <li><span class="tag">F-03</span> 계약서 파일 업로드(PDF/워드)</li>
+            <li><span class="tag">F-05</span> 서버사이드 PDF 생성</li>
+          </ul>
+        </div>
+
+        <!-- Could Have -->
+        <div class="card accent-top accent-yellow">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <div style="font-size: 16px;">🟡</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--yellow);">Could Have</div>
+              <div style="font-size: 11px; color: var(--t3);">Pro 플랜 차별화 — P2</div>
+            </div>
+          </div>
+          <ul class="blist">
+            <li>팀원 계정 공유 (멀티 유저)</li>
+            <li>손익 분석 종합 리포트</li>
+            <li>업계 단가 벤치마크 뷰</li>
+            <li>CSV 히스토리 내보내기</li>
+            <li>리포트 URL 공유 링크</li>
+            <li>클라이언트 동의 시 이메일 알림 (F-10 확장)</li>
+            <li>범위 확인 동의 시 이메일 알림 (F-03-S 확장)</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr class="mb18">
+
+      <!-- ══ 섹션 6: 플랜별 기능 제한 ══ -->
+      <div class="sec-label mb14">💳 섹션 6 — 플랜별 기능 제한</div>
+
+      <div class="card mb18 accent-top accent-purple">
         <div style="overflow-x: auto;">
-          <table class="prd-table" style="min-width: 600px; margin: 0;">
+          <table class="prd-table" style="min-width: 540px;">
             <thead>
               <tr>
                 <th>기능</th>
                 <th style="text-align: center;">Free</th>
-                <th style="text-align: center;">Starter (₩29,000/월)</th>
-                <th style="text-align: center;">Pro (₩89,000/월)</th>
+                <th style="text-align: center; color: var(--blue);">Starter<br><span style="font-size: 11px; font-weight: 400; color: var(--t3);">₩29,000/월</span></th>
+                <th style="text-align: center; color: var(--purple);">Pro<br><span style="font-size: 11px; font-weight: 400; color: var(--t3);">₩89,000/월</span></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>월 AI 판정 횟수</strong></td>
-                <td style="text-align: center;"><span class="tag yellow">10회 (재판정 포함)</span></td>
+                <td><strong>월 AI 판정 횟수</strong> <span style="font-size: 11px; color: var(--t3);">(재판정 포함)</span></td>
+                <td style="text-align: center;"><span class="tag yellow">10회</span></td>
                 <td style="text-align: center;"><span class="tag green">무제한</span></td>
                 <td style="text-align: center;"><span class="tag green">무제한</span></td>
               </tr>
@@ -1061,13 +1670,37 @@
                 <td style="text-align: center; color: var(--green);">○</td>
               </tr>
               <tr>
-                <td><strong>이메일 발송 / F-10 확인 링크 / 대시보드</strong></td>
+                <td><strong>이메일 리포트 발송</strong></td>
                 <td style="text-align: center; color: var(--red);">✕</td>
                 <td style="text-align: center; color: var(--green);">○</td>
                 <td style="text-align: center; color: var(--green);">○</td>
               </tr>
               <tr>
-                <td><strong>팀원 공유 / 벤치마크 / CSV / 동의 알림</strong></td>
+                <td><strong>손익 대시보드 / 히스토리 타임라인</strong></td>
+                <td style="text-align: center; color: var(--red);">✕</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+              </tr>
+              <tr>
+                <td><strong>클라이언트 범위 확인 링크</strong> <span class="tag yellow" style="font-size: 10px;">F-03-S</span></td>
+                <td style="text-align: center; color: var(--red);">✕</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+              </tr>
+              <tr>
+                <td><strong>클라이언트 리포트 확인 링크 &amp; 동의 기록</strong> <span class="tag yellow" style="font-size: 10px;">F-10</span></td>
+                <td style="text-align: center; color: var(--red);">✕</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+              </tr>
+              <tr>
+                <td><strong>팀원 공유 / 벤치마크 / CSV</strong></td>
+                <td style="text-align: center; color: var(--red);">✕</td>
+                <td style="text-align: center; color: var(--red);">✕</td>
+                <td style="text-align: center; color: var(--green);">○</td>
+              </tr>
+              <tr>
+                <td><strong>동의 이메일 알림</strong> <span style="font-size: 11px; color: var(--t3);">(P2)</span></td>
                 <td style="text-align: center; color: var(--red);">✕</td>
                 <td style="text-align: center; color: var(--red);">✕</td>
                 <td style="text-align: center; color: var(--green);">○</td>
@@ -1075,230 +1708,534 @@
             </tbody>
           </table>
         </div>
-        <div style="padding: 12px 14px; font-size: 12px; color: var(--t3); background: var(--s2);">
-          <strong>💡 업그레이드 유도 UX:</strong> Free 한도 도달 시 모달 표시. 소프트 게이트 방식으로 모달을 닫으면 기능 완전 차단. 기생성된 리포트 열람 및 다운로드는 허용.
+
+        <!-- 업그레이드 UX 안내 -->
+        <div style="margin-top: 14px; background: rgba(167,139,250,.07); border: 1px solid rgba(167,139,250,.25); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: var(--t3); line-height: 1.75;">
+          <strong style="color: var(--purple);">💡 업그레이드 유도 UX</strong> — Free 한도 도달 시 모달 표시. 모달을 닫으면 해당 기능 완전 차단 (<strong style="color: var(--t1);">소프트 게이트</strong>). 단, 이미 생성 완료된 리포트 조회·PDF 다운로드는 차단 제외.
         </div>
       </div>
-    </div>
 
+    </div><!-- /page-priority -->
+
+
+    <!-- ══ TAB 4 — 범위 정의 ══ -->
     <div id="page-scope" class="page">
-      <div class="page-title">7. 범위 정의 & 11. 운영 정책</div>
-      <div class="page-desc">포함/제외 범위와 운영 정책(결제, 다운그레이드, 에러 메시지 등)을 정의합니다.</div>
+      <div class="page-title">범위 정의</div>
+      <div class="page-desc">MVP에 포함되는 것과 제외되는 것을 명확히 정의합니다. Antigravity 빌드 프롬프트 작성 시 포함 여부 확인 체크리스트로 사용합니다.</div>
 
-      <div class="h2-title">7. 범위 정의 (In vs Out of Scope)</div>
+      <div class="callout orange mb18">
+        <div class="callout-title">🔲 섹션 7 — 범위 정의가 중요한 이유</div>
+        <p>무엇을 만들지 못지않게 <strong>무엇을 만들지 않는지</strong>를 명확히 해야 한다. 범위가 불명확하면 빌드 세션마다 "이것도 해야 하나?"라는 결정을 반복하게 되고, 결국 MVP가 늦어진다.</p>
+      </div>
+
+      <!-- In Scope vs Out of Scope -->
+      <div class="sec-label mb14">🗂 In Scope vs Out of Scope — MVP 포함/제외</div>
       <div class="vs-wrap mb18">
+
+        <!-- In Scope -->
         <div class="vs-card new">
           <div class="vs-label">✅ In Scope — MVP에 포함</div>
           <ul class="vs-items">
-            <li>인증, 워크스페이스 생성, RLS 데이터 보호</li>
-            <li>프로젝트 생성, 범위 등록 및 버전 관리</li>
-            <li>요청 입력, AI 범위 판정 (Fast Path 포함, 4단계 결과)</li>
-            <li>복합 요청 부분 초과 처리 및 근거 표시</li>
-            <li>청구 근거 리포트 생성 및 편집 가능/불가 제어</li>
-            <li>이력 DB 저장, 온보딩, 임시저장, 플랜 제한</li>
+            <li>이메일 + Google OAuth 로그인/가입/비밀번호 재설정</li>
+            <li>워크스페이스(organization) 자동 생성 및 멀티테넌트 격리</li>
+            <li>Supabase RLS 전 테이블 적용</li>
+            <li>프로젝트 생성 / 계약 범위 등록 / 파싱 / 버전 관리</li>
+            <li>요청 입력 → AI 범위 판정 (Fast Path 포함, 4단계 결과)</li>
+            <li>판정 근거 표시 + 복합 요청 부분 초과 처리</li>
+            <li>청구 근거 리포트 자동 생성 및 PM 편집 (편집 가능/불가 영역 구분)</li>
+            <li>판정 이력 DB 저장 및 조회</li>
+            <li>온보딩 플로우 + 빈 상태 UI + 임시저장</li>
+            <li>Free/Starter/Pro 플랜 제한 로직</li>
           </ul>
         </div>
+
         <div class="vs-center">↔</div>
+
+        <!-- Out of Scope -->
         <div class="vs-card old">
           <div class="vs-label">🚫 Out of Scope — MVP 제외</div>
           <ul class="vs-items">
-            <li>이미지 첨부, 파일 업로드 (P1)</li>
-            <li>이메일 발송, 대시보드, 확인 링크 (P1)</li>
-            <li>팀원 공유, 벤치마크, CSV 내보내기 (P2)</li>
-            <li>모바일 반응형 UI (v1.1 연기. 확인 링크만 예외)</li>
-            <li>클라이언트 포털, 협상 제안서 (영구 제외)</li>
-            <li>AI 계약서 작성, 청구/결제 연동 (영구 제외)</li>
+            <li>클라이언트 범위 확인 링크 <span style="font-size: 10px; color: var(--t3);">(P1 — F-03-S)</span></li>
+            <li>이미지 첨부 판정 <span style="font-size: 10px; color: var(--t3);">(P1)</span></li>
+            <li>계약서 파일 업로드 <span style="font-size: 10px; color: var(--t3);">(P1)</span></li>
+            <li>이메일 리포트 발송 <span style="font-size: 10px; color: var(--t3);">(P1)</span></li>
+            <li>손익 누적 대시보드 / 타임라인 <span style="font-size: 10px; color: var(--t3);">(P1)</span></li>
+            <li>클라이언트 리포트 확인 링크 &amp; 동의 기록 <span style="font-size: 10px; color: var(--t3);">(P1 — F-10)</span></li>
+            <li>서버사이드 PDF 생성 <span style="font-size: 10px; color: var(--t3);">(P1)</span></li>
+            <li>팀원 계정 공유 / 멀티 유저 <span style="font-size: 10px; color: var(--t3);">(P2)</span></li>
+            <li>업계 단가 벤치마크 / CSV <span style="font-size: 10px; color: var(--t3);">(P2)</span></li>
+            <li>모바일 / 태블릿 반응형 UI <span style="font-size: 10px; color: var(--t3);">(v1.1 연기. 확인 링크 페이지 예외)</span></li>
+            <li>클라이언트 포털 / 협상 제안서 <span style="font-size: 10px; color: var(--red);">(영구 제외)</span></li>
+            <li>AI 계약서 자동 생성 <span style="font-size: 10px; color: var(--red);">(영구 제외)</span></li>
+            <li>자동 청구서 발송 / 결제 연동 <span style="font-size: 10px; color: var(--red);">(영구 제외)</span></li>
+            <li>범용 PM 도구: 칸반/스프린트 <span style="font-size: 10px; color: var(--red);">(영구 제외)</span></li>
+            <li>프리랜서 특화 기능 <span style="font-size: 10px; color: var(--t3);">(P3 연기)</span></li>
           </ul>
+        </div>
+
+      </div>
+
+      <!-- 의도적 영구 제외 테이블 -->
+      <div class="sec-label mb14">🚫 의도적으로 영구 제외한 기능 — 제외 근거</div>
+      <div class="card accent-top accent-orange">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 500px;">
+            <thead>
+              <tr>
+                <th style="width: 28%;">제외 기능</th>
+                <th style="width: 14%;">분류</th>
+                <th>제외 근거</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>클라이언트 포털 / 협상 제안서</strong></td>
+                <td><span class="tag red">영구 제외</span></td>
+                <td>한국 비즈니스 문화에서 도구가 압박한다고 인식 → 관계 파괴 리스크. 내부 도구 원칙 위반.</td>
+              </tr>
+              <tr>
+                <td><strong>AI 계약서 자동 생성</strong></td>
+                <td><span class="tag red">영구 제외</span></td>
+                <td>법무 영역. AI 생성 계약서로 인한 법적 책임 리스크. 제품 신뢰 치명적 훼손 가능.</td>
+              </tr>
+              <tr>
+                <td><strong>자동 청구서 발송 / 결제 연동</strong></td>
+                <td><span class="tag red">영구 제외</span></td>
+                <td>청구는 PM의 최종 판단과 관계 맥락이 필요. 자동화 시 관계 손상 리스크 상승.</td>
+              </tr>
+              <tr>
+                <td><strong>범용 PM 도구</strong><br><span style="font-size: 11px;">칸반 / 스프린트 / 타임라인</span></td>
+                <td><span class="tag red">영구 제외</span></td>
+                <td>Jira·Notion과 경쟁 불필요. 핵심 포지셔닝(범위 판정) 희석. 개발 리소스 분산.</td>
+              </tr>
+              <tr>
+                <td><strong>모바일 / 태블릿 반응형</strong></td>
+                <td><span class="tag yellow">v1.1 연기</span></td>
+                <td>에이전시 PM의 핵심 사용 환경은 데스크톱. PMF 검증 전 플랫폼 확장은 리소스 낭비. <strong>단, 확인 링크 페이지는 모바일 대응 필수.</strong></td>
+              </tr>
+              <tr>
+                <td><strong>프리랜서 특화 기능</strong><br><span style="font-size: 11px;">계약서 없는 템플릿 등</span></td>
+                <td><span class="tag orange">P3 연기</span></td>
+                <td>에이전시 PMF 검증 후 세그먼트 확장. 별도 JTBD 검증 필요.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="h2-title">11. 운영 정책 요약</div>
+    </div><!-- /page-scope -->
+
+
+    <!-- ══ TAB 5 — 인수 기준 ══ -->
+    <div id="page-acceptance" class="page">
+      <div class="page-title">인수 기준</div>
+      <div class="page-desc">기능별 완료 기준(DoD)과 MVP 배포 전 Go/No-Go 체크리스트를 정의합니다.</div>
+
+      <div class="callout purple mb18">
+        <div class="callout-title">✅ 인수 기준(Acceptance Criteria)이란</div>
+        <p>각 기능이 <strong>"완료됐다"고 판단할 수 있는 최소 기준</strong>이다. 이 기준을 통과하지 못한 기능은 배포하지 않는다. Antigravity 빌드 세션 후 이 체크리스트를 직접 확인해 검증한다.</p>
+      </div>
+
+      <!-- ── 8-1. 기능별 DoD ── -->
+      <div class="sec-label mb14">☐ 8-1. 기능별 완료 기준 — Definition of Done</div>
+
+      <!-- 인증 & 공통 -->
+      <div class="card mb18 accent-top accent-blue">
+        <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px;">🔐 인증 &amp; 공통 정책</div>
+        <ul class="checklist">
+          <li>모든 DB 테이블 RLS <strong>ENABLED 상태</strong> 및 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at IS NULL</code> 조건 확인</li>
+          <li>계정 B 토큰으로 계정 A 데이터 접근 시도 → <strong>403 반환</strong> 확인</li>
+          <li>매월 1일 자정 <strong>사용량 초기화 스케줄러</strong> 동작 확인</li>
+          <li>프로젝트 삭제 → <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at</code> 기록 및 하위 데이터 동시 <strong>Soft delete</strong> 확인</li>
+          <li>설정 페이지 "계정 삭제" 버튼 및 <strong>30일 후 Hard delete 스케줄러</strong> 확인</li>
+        </ul>
+      </div>
+
+      <!-- F-03 -->
+      <div class="card mb18 accent-top accent-green">
+        <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">⚙️ F-03 — 프로젝트 생성 &amp; 계약 범위 등록</div>
+        <ul class="checklist">
+          <li>계약 종료일 / 계약 금액 유형 / 클라이언트 이메일 필드 저장 확인</li>
+          <li>파싱 실패 시 <strong>수동 입력 모드 전환</strong> 확인</li>
+          <li>PM이 수정한 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">parsed_items</code>가 판정 기준으로 사용되는지 확인</li>
+          <li>범위 수정 시 <strong>버전 증가</strong> 및 이전 판정 이력 이전 버전 기준 유지 확인</li>
+          <li>범위 수정 시 <strong>Fast Path 캐시 무효화</strong> 확인</li>
+          <li>범위 수정 후 기존 동의 기록 유지 및 <span class="tag orange">재확인 권장</span> 배지 표시 확인</li>
+          <li>계약 범위 입력 중 이탈 후 재접속 시 <strong>임시저장 복원</strong> 확인</li>
+        </ul>
+      </div>
+
+      <!-- F-03-S -->
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--yellow);">🔗 F-03-S — 클라이언트 범위 확인 링크</div>
+          <span class="tag" style="margin-left: auto;">P1</span>
+        </div>
+        <ul class="checklist">
+          <li>계약서 없는 경우 파싱 확정 후 범위 확인 링크 생성 권장 UI 및 <span class="tag yellow">클라이언트 미확인 범위</span> 경고 배지 표시 확인</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm-scope/[token]</code> 페이지 <strong>비인증 접근 가능</strong> 확인</li>
+          <li>최초 접근 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_first_viewed_at</code> 기록 확인</li>
+          <li>동의 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ip</code> + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ua</code> 기록 확인</li>
+          <li>동의 완료 후 경고 배지 제거 및 리포트 하단 문구 변경 확인</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 기록된 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definitions</code> <strong>삭제 불가</strong> 확인</li>
+          <li>만료 토큰 접근 시 안내 메시지 표시 확인</li>
+          <li>Free 플랜 클릭 → <strong>업그레이드 모달</strong> 확인</li>
+          <li>확인 페이지 <strong>모바일 렌더링</strong> 확인</li>
+          <li>PostHog 이벤트 3종 수신 확인: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_link_created</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_link_viewed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_agreed</code></li>
+        </ul>
+      </div>
+
+      <!-- AI 판정 -->
+      <div class="card mb18 accent-top accent-green">
+        <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">🤖 F-04 — AI 판정 &amp; Fast Path</div>
+        <ul class="checklist">
+          <li>Fast Path ①: 유사도 ≥ 0.92 → <strong>이전 판정 결과 재사용</strong> (범위 내 고정 반환 아님) 확인</li>
+          <li>Fast Path ③: 중복 요청 감지 시 <strong>확인 모달</strong> 표시 확인</li>
+          <li>복합 요청에서 <span class="tag orange">부분 초과</span> 결과 및 항목별 구분 표시 확인</li>
+          <li>재판정도 Free 플랜 <strong>판정 횟수에 포함</strong> 확인</li>
+          <li>계약서 없는 프로젝트 판정 시 <strong>경고 모달</strong> 표시 확인 (차단 아님)</li>
+          <li>타임아웃 시뮬레이션 → 재시도 1회 후 에러 메시지 표시 확인</li>
+          <li>"판단 필요" 케이스 → PM 수동 판정 선택 및 DB 저장 확인</li>
+        </ul>
+      </div>
+
+      <!-- F-05 -->
+      <div class="card mb18 accent-top accent-green">
+        <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">📄 F-05 — 리포트 자동 생성 ⭐</div>
+        <ul class="checklist">
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 유무에 따른 <strong>리포트 하단 문구 분기</strong> 표시 확인</li>
+          <li>편집 가능 영역과 <strong>편집 불가 영역 UI 구분</strong> 확인</li>
+          <li>직접 수정과 AI 재생성 <strong>이력 구분 기록</strong> 확인</li>
+          <li>리포트 생성 실패 시 <strong>수동 작성 모드 전환</strong> 확인</li>
+          <li>F-10 열람/동의 후 <strong>재생성 차단</strong> 및 경고 모달 확인</li>
+          <li>견적 유효기간 필드 저장 및 표시 확인</li>
+        </ul>
+      </div>
+
+      <!-- F-06, F-07, F-08, F-09 -->
       <div class="detail-grid mb18">
         <div class="card accent-top accent-blue">
-          <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px;">11-1 & 2. 사용량 & 소프트 게이트</div>
-          <ul class="blist">
-            <li><strong>초기화:</strong> 매월 1일 자정(KST) 스케줄러를 통해 초기화. (재판정도 횟수 차감)</li>
-            <li><strong>차단:</strong> 한도 초과 시 모달 제공, 닫으면 버튼 disabled 처리 (소프트 게이트).</li>
-          </ul>
-        </div>
-        <div class="card accent-top accent-red">
-          <div style="font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 12px;">11-3 & 6. 데이터 관리 (Soft Delete & 캐시)</div>
-          <ul class="blist">
-            <li><strong>Soft Delete:</strong> 삭제 시 `deleted_at` 기록. 30일 후 Hard delete. `confirmed_at`이 있는 리포트는 삭제 제외 (증거 보존).</li>
-            <li><strong>캐시 무효화:</strong> 계약 범위 수정 시 해당 Fast Path 캐시 무효화. 단, PM 오버라이드 캐시는 유지.</li>
+          <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px;">📧 F-06 — 이메일 발송 / PDF</div>
+          <ul class="checklist">
+            <li>F-03 등록 클라이언트 이메일 <strong>자동 불러오기</strong> 확인</li>
+            <li>발송 실패 시 에러 메시지 + 재시도 버튼. <strong>상태 변경 없음</strong> 확인</li>
+            <li><strong>PDF 파일명 규칙</strong> 적용 확인</li>
+            <li>발송 이력(일시 + 수신 이메일) <strong>DB 기록</strong> 확인</li>
           </ul>
         </div>
         <div class="card accent-top accent-purple">
-          <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">11-4 & 5. 리포트 수정 & 확인 링크</div>
-          <ul class="blist">
-            <li><strong>수정 제한:</strong> 발송 완료 시 `sent` 상태 변경 및 편집 잠금. 오버라이드 시 자동 재생성(발송된 건 제외).</li>
-            <li><strong>확인 링크:</strong> 30일 만료. 재생성 가능(이전 무효화). 열람/동의 시 수정 불가. 하단 AI 면책 고지 고정.</li>
-          </ul>
-        </div>
-        <div class="card accent-top accent-green">
-          <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">11-8. 결제 & 다운그레이드 (토스페이먼츠)</div>
-          <ul class="blist">
-            <li><strong>결제:</strong> 토스페이먼츠 정기결제. 해지 시 월말까지 유지 후 Free 전환.</li>
-            <li><strong>다운그레이드:</strong> 데이터 전체 유지(삭제 없음), 초과 데이터는 조회만 허용.</li>
+          <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">📊 F-07 — 손익 누적 기록</div>
+          <ul class="checklist">
+            <li>청구 상태 <strong>4단계 저장 및 집계</strong> 확인</li>
+            <li>추정 손실액 계산 방식 <strong>툴팁 표시</strong> 확인</li>
+            <li>최종 손익 리포트 생성이 <strong>단순 집계 방식</strong>인지 확인 (Claude API 미호출)</li>
           </ul>
         </div>
       </div>
 
-      <div class="detail-grid">
-        <div class="card accent-top accent-orange" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">11-9. 에러 메시지 문구</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr>
-                  <td><strong>API 타임아웃</strong></td>
-                  <td>"판정에 시간이 걸리고 있습니다. 잠시 후 다시 시도해주세요." <span class="tag yellow">토스트</span></td>
-                </tr>
-                <tr>
-                  <td><strong>연속 실패</strong></td>
-                  <td>"AI 판정이 일시적으로 중단되었습니다. 수동으로 판정 결과를 선택해주세요." <span class="tag red">배너</span></td>
-                </tr>
-                <tr>
-                  <td><strong>발송 후 수정</strong></td>
-                  <td>"이미 발송된 리포트는 수정할 수 없습니다." <span class="tag yellow">토스트</span></td>
-                </tr>
-                <tr>
-                  <td><strong>확인 링크 만료</strong></td>
-                  <td>"이 확인 링크는 만료되었습니다. 담당 PM에게 문의하세요."</td>
-                </tr>
-                <tr>
-                  <td><strong>동의 후 재생성</strong></td>
-                  <td>"클라이언트가 이미 동의 완료한 리포트입니다..." <span class="tag blue">모달</span></td>
-                </tr>
-                <tr>
-                  <td><strong>파싱 실패</strong></td>
-                  <td>"범위 항목을 자동으로 구성하지 못했습니다. 직접 입력하시겠습니까?"</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="detail-grid mb18">
+        <div class="card accent-top accent-purple">
+          <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">📋 F-08 — 히스토리 타임라인</div>
+          <ul class="checklist">
+            <li>청구 상태 <strong>타임라인에서 직접 변경</strong> 가능 확인</li>
+            <li>판정 결과 / 확인 상태 / 기간 <strong>필터 동작</strong> 확인</li>
+          </ul>
         </div>
-
-        <div class="card accent-top accent-blue">
-          <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px;">11-10. 판정 스트리밍 UX</div>
-          <ul class="blist">
-            <li><strong>Claude API 응답 중 순차 표시:</strong> "계약 범위를 분석하고 있습니다…" → "요청과 비교하고 있습니다…" → "결과를 정리하고 있습니다…"</li>
-            <li><strong>Fast Path 적중:</strong> 1초 이내 즉시 표시</li>
-            <li><strong>결과 표시:</strong> 색상 배지 + 근거 문장 페이드인 애니메이션</li>
-            <li><strong>30초 초과 시:</strong> "시간이 오래 걸리고 있습니다. 조금만 기다려주세요…"로 전환</li>
+        <div class="card accent-top accent-purple">
+          <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">🏠 F-09 — 홈 대시보드</div>
+          <ul class="checklist">
+            <li>기간 설정 전환 시 <strong>지표 변경</strong> 확인</li>
+            <li>프로젝트 있지만 판정 이력 없는 경우 <strong>빈 상태 UI</strong> 표시 확인</li>
           </ul>
         </div>
       </div>
 
-    </div>
-
-    <div id="page-db" class="page">
-      <div class="page-title">9. DB 스키마 & 10. 기술 스택</div>
-      <div class="page-desc">제품의 근간이 되는 데이터 모델과 사용 기술을 명세합니다.</div>
-
-      <div class="h2-title">9. DB 스키마</div>
-      
-      <div class="detail-grid mb18">
-        <div class="card accent-top accent-purple" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">organizations</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr><td>id (uuid PK)</td><td>name (text)</td></tr>
-                <tr><td>plan_type (enum)</td><td>plan_started_at (tz)</td></tr>
-                <tr><td>usage_judgment_count (int)</td><td>usage_report_count (int)</td></tr>
-                <tr><td>usage_reset_at (tz)</td><td>deleted_at (tz)</td></tr>
-              </tbody>
-            </table>
-          </div>
+      <!-- F-10 -->
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--yellow);">🔗 F-10 — 클라이언트 리포트 확인 링크 &amp; 동의 기록</div>
+          <span class="tag" style="margin-left: auto;">P1</span>
         </div>
-        <div class="card accent-top accent-green" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">projects</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr><td>id (uuid PK)</td><td>organization_id (FK)</td></tr>
-                <tr><td>name (text)</td><td>client_name (text)</td></tr>
-                <tr><td>client_email (text)</td><td>contract_amount (bigint)</td></tr>
-                <tr><td>contract_amount_type (enum)</td><td>status (enum)</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ul class="checklist">
+          <li>리포트 확정 후 <strong>확인 링크 생성 버튼 활성화</strong> 확인</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm/[token]</code> 페이지 <strong>비인증 접근 가능</strong> 확인</li>
+          <li>동의 버튼 클릭 시 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code> + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ip</code> + <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ua</code> 기록 확인</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">first_viewed_at</code> <strong>별도 기록</strong> 확인</li>
+          <li><span class="tag">미열람</span> / <span class="tag blue">열람 완료</span> / <span class="tag green">동의 완료</span> 배지 정확히 표시 확인</li>
+          <li>만료 토큰 접근 시 <strong>안내 메시지</strong> 표시 확인</li>
+          <li>동의 완료 후 재생성 시도 → <strong>경고 모달</strong> 확인</li>
+          <li>Free 플랜 클릭 → <strong>업그레이드 모달</strong> 확인</li>
+          <li>확인 페이지 <strong>모바일 렌더링</strong> 확인</li>
+          <li>법적 성격 안내 <strong>고정 문구</strong> 표시 확인</li>
+          <li>PostHog 이벤트 3종 수신 확인: <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_link_created</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_link_viewed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_agreed</code></li>
+        </ul>
       </div>
 
-      <div class="detail-grid mb18">
-        <div class="card accent-top accent-yellow" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">scope_definitions</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr><td>id (uuid PK)</td><td>project_id (FK)</td></tr>
-                <tr><td>raw_text (text)</td><td>parsed_items (jsonb)</td></tr>
-                <tr><td>version (int)</td><td>is_current (boolean)</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card accent-top accent-blue" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">scope_requests</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr><td>id (uuid PK)</td><td>scope_definition_version</td></tr>
-                <tr><td>request_text (text)</td><td>image_urls (jsonb, P1)</td></tr>
-                <tr><td>judgment_result (enum)</td><td>judgment_source (enum)</td></tr>
-                <tr><td>pm_override_result (enum)</td><td>billing_status (enum)</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <hr class="mb18">
+
+      <!-- ── 8-2. Go / No-Go 체크리스트 ── -->
+      <div class="sec-label mb14">🚀 8-2. MVP 배포 전 Go / No-Go 체크리스트</div>
 
       <div class="detail-grid mb18">
-        <div class="card accent-top accent-orange" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">reports</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr><td>id (uuid PK)</td><td>scope_request_id (FK)</td></tr>
-                <tr><td>content_html (text)</td><td>edit_type (enum)</td></tr>
-                <tr><td>status (draft/confirmed/sent)</td><td>sent_at (tz)</td></tr>
-                <tr><td>confirm_token (uuid)</td><td>token_expires_at (tz)</td></tr>
-                <tr><td>confirmed_at (tz)</td><td>client_ip / client_ua</td></tr>
-              </tbody>
-            </table>
-          </div>
+
+        <!-- Go 조건 -->
+        <div class="callout green" style="margin-bottom: 0;">
+          <div class="callout-title">✅ Go 조건 — 전부 통과해야 배포 가능</div>
+          <ul class="checklist" style="margin-top: 10px;">
+            <li>모든 P0 DoD 체크리스트 <strong>100% 통과</strong></li>
+            <li>가입 → 계약 등록 → 판정 → 리포트 생성 <strong>엔드투엔드 성공</strong></li>
+            <li>RLS 격리 QA 시나리오 전체 통과 (<strong>403 반환 포함</strong>)</li>
+            <li>온보딩 플로우 <strong>빈 상태 UI</strong> 및 임시저장 동작 확인</li>
+            <li><strong>Free 플랜 제한 로직</strong> 동작 확인</li>
+            <li>PostHog <strong>핵심 이벤트 및 퍼널</strong> 정상 수신 확인</li>
+            <li>Vercel <strong>프로덕션 환경</strong>에서 정상 작동 확인</li>
+          </ul>
         </div>
-        <div class="card accent-top accent-blue" style="padding: 0; overflow: hidden;">
-          <div style="padding: 14px 18px; border-bottom: 1px solid var(--bd); font-weight: 700; color: var(--t1); background: var(--s2);">report_send_logs</div>
-          <div style="overflow-x: auto;">
-            <table class="prd-table" style="min-width: 400px; margin: 0;">
-              <tbody>
-                <tr><td>id (uuid PK)</td><td>report_id (FK)</td></tr>
-                <tr><td>sent_to_email (text)</td><td>sent_at (tz)</td></tr>
-                <tr><td>status (success/failed)</td><td></td></tr>
-              </tbody>
-            </table>
-          </div>
+
+        <!-- No-Go 조건 -->
+        <div class="callout red" style="margin-bottom: 0;">
+          <div class="callout-title">🚫 No-Go 조건 — 하나라도 해당하면 배포 차단</div>
+          <ul class="checklist" style="margin-top: 10px;">
+            <li>타 테넌트 데이터 접근 가능한 <strong>버그 존재</strong></li>
+            <li>Claude API 키 클라이언트 노출, <strong>토스 시크릿 노출</strong></li>
+            <li>판정 결과 저장 실패 및 <strong>PDF 다운로드 미작동</strong></li>
+            <li><strong>Free 플랜 제한 미작동</strong></li>
+            <li>PostHog 트래킹 이벤트 누락 및 <strong>개인정보 포함 발송</strong></li>
+            <li>로그인 없이 보호 경로 <strong>접근 가능한 버그</strong></li>
+          </ul>
         </div>
+
       </div>
 
-      <div class="h2-title">10. 기술 스택</div>
-      <div class="card accent-top accent-purple" style="padding: 0; overflow: hidden;">
+    </div><!-- /page-acceptance -->
+
+
+    <!-- ══ TAB 6 — DB 스키마 ══ -->
+    <div id="page-policy" class="page">
+      <div class="page-title">DB 스키마</div>
+      <div class="page-desc">섹션 9 — Supabase PostgreSQL 테이블 설계. 모든 테이블에 RLS 적용 및 organization_id 기반 멀티테넌트 격리를 전제로 설계됩니다.</div>
+
+      <div class="callout blue mb18">
+        <div class="callout-title">📐 DB 설계 공통 원칙</div>
+        <p>
+          모든 테이블에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">organization_id UUID NOT NULL</code> 필수 · Supabase RLS <strong>ENABLE FORCE</strong> 전체 적용 · <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">WHERE organization_id = ?</code> 명시 이중화 · Soft delete(<code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at</code>) 기본 패턴 · <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code>이 기록된 행은 <strong>삭제 불가</strong> (증거 보존)
+        </p>
+      </div>
+
+      <!-- organizations -->
+      <div class="sec-label mb14">🏢 organizations</div>
+      <div class="card mb18 accent-top accent-blue">
         <div style="overflow-x: auto;">
-          <table class="prd-table" style="min-width: 600px; margin: 0;">
+          <table class="prd-table" style="min-width: 560px;">
+            <thead>
+              <tr><th style="width: 28%;">컬럼</th><th style="width: 22%;">타입</th><th>설명</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">id</code></td><td><span class="tag blue">uuid PK</span></td><td>워크스페이스 식별자</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">name</code></td><td>text</td><td>에이전시명</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">plan_type</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">free</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">starter</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pro</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">plan_started_at</code></td><td>timestamptz</td><td>현재 플랜 시작일</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">usage_judgment_count</code></td><td>int</td><td>당월 판정 사용 횟수 (재판정 포함)</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">usage_report_count</code></td><td>int</td><td>당월 리포트 사용 횟수</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">usage_reset_at</code></td><td>timestamptz</td><td>다음 초기화 예정일 (매월 1일 자정)</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">created_at</code></td><td>timestamptz</td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at</code></td><td>timestamptz</td><td><span class="tag orange">Soft delete용</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- projects -->
+      <div class="sec-label mb14">📁 projects</div>
+      <div class="card mb18 accent-top accent-green">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 560px;">
+            <thead>
+              <tr><th style="width: 28%;">컬럼</th><th style="width: 22%;">타입</th><th>설명</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">id</code></td><td><span class="tag blue">uuid PK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">organization_id</code></td><td><span class="tag red">uuid FK</span></td><td><strong>RLS 기준 컬럼</strong></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">name</code></td><td>text</td><td>프로젝트명</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_name</code></td><td>text</td><td>클라이언트명</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_email</code></td><td>text</td><td>클라이언트 이메일 (F-06 자동 불러오기용)</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">contract_start_date</code></td><td>date</td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">contract_end_date</code></td><td>date</td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">contract_amount</code></td><td>bigint</td><td>원(₩) 단위</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">contract_amount_type</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">fixed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">monthly</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">status</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">active</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">completed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">paused</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">created_at</code></td><td>timestamptz</td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at</code></td><td>timestamptz</td><td><span class="tag orange">Soft delete용</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- scope_definitions -->
+      <div class="sec-label mb14">📝 scope_definitions</div>
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 560px;">
+            <thead>
+              <tr><th style="width: 28%;">컬럼</th><th style="width: 22%;">타입</th><th>설명</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">id</code></td><td><span class="tag blue">uuid PK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">organization_id</code></td><td><span class="tag red">uuid FK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">project_id</code></td><td><span class="tag">uuid FK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">raw_text</code></td><td>text</td><td>원본 계약 범위 텍스트 (보존용)</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">parsed_items</code></td><td><span class="tag blue">jsonb</span></td><td>PM 확인·수정 후 최종 판정 기준</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">version</code></td><td>int</td><td>수정마다 증가</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">is_current</code></td><td>boolean</td><td>현재 유효 버전 여부</td></tr>
+              <tr style="background: rgba(251,191,36,.04);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirm_token</code></td><td>uuid</td><td>클라이언트 범위 확인용 토큰 (nullable)</td></tr>
+              <tr style="background: rgba(251,191,36,.04);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_token_expires_at</code></td><td>timestamptz</td><td>토큰 만료 시각 (created_at + 30일)</td></tr>
+              <tr style="background: rgba(251,191,36,.04);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_first_viewed_at</code></td><td>timestamptz</td><td>클라이언트 최초 열람 시각</td></tr>
+              <tr style="background: rgba(16,185,129,.05);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code></td><td>timestamptz</td><td><strong>클라이언트 범위 동의 완료 시각</strong> — 기록 후 삭제 불가</td></tr>
+              <tr style="background: rgba(16,185,129,.05);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ip</code></td><td>text</td><td>동의 시점 IP</td></tr>
+              <tr style="background: rgba(16,185,129,.05);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ua</code></td><td>text</td><td>동의 시점 User-Agent</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">updated_at</code></td><td>timestamptz</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top: 10px; font-size: 11px; color: var(--t3); display: flex; gap: 12px; flex-wrap: wrap;">
+          <span style="background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); border-radius: 4px; padding: 2px 8px;">🟡 노란 행 = F-03-S 토큰 관련</span>
+          <span style="background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.2); border-radius: 4px; padding: 2px 8px;">🟢 초록 행 = 사전 동의 기록 (삭제 불가)</span>
+        </div>
+      </div>
+
+      <!-- scope_requests -->
+      <div class="sec-label mb14">🔍 scope_requests</div>
+      <div class="card mb18 accent-top accent-green">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 560px;">
+            <thead>
+              <tr><th style="width: 28%;">컬럼</th><th style="width: 22%;">타입</th><th>설명</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">id</code></td><td><span class="tag blue">uuid PK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">project_id</code></td><td><span class="tag">uuid FK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definition_version</code></td><td>int</td><td>판정 당시 범위 버전</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">request_text</code></td><td>text</td><td>클라이언트 요청 내용</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">image_urls</code></td><td><span class="tag blue">jsonb</span></td><td>첨부 이미지 URL 목록 <span class="tag">P1</span></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">request_hash</code></td><td>text</td><td>SHA-256 (Fast Path 중복 체크)</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">judgment_result</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">in_scope</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">partial_out</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">out_of_scope</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">needs_review</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">judgment_source</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">fast_path</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">claude_api</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pm_override</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pm_override_result</code></td><td><span class="tag purple">enum</span></td><td>nullable</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">billing_status</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pending</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">billed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">waived</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">free_of_charge</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">status</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pending</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">completed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">failed</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">created_at</code></td><td>timestamptz</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- reports -->
+      <div class="sec-label mb14">📄 reports</div>
+      <div class="card mb18 accent-top accent-yellow">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 560px;">
+            <thead>
+              <tr><th style="width: 28%;">컬럼</th><th style="width: 22%;">타입</th><th>설명</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">id</code></td><td><span class="tag blue">uuid PK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">organization_id</code></td><td><span class="tag red">uuid FK</span></td><td><strong>RLS 기준</strong></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_request_id</code></td><td><span class="tag">uuid FK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">content_html</code></td><td>text</td><td>리포트 본문 HTML</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">version</code></td><td>int</td><td>재생성마다 증가</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">edit_type</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">ai_generated</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pm_edited</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">ai_regenerated</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">quote_valid_until</code></td><td>date</td><td>견적 유효기간</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">status</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">draft</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">sent</code></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">sent_at</code></td><td>timestamptz</td><td>발송 완료 시각</td></tr>
+              <tr style="background: rgba(251,191,36,.04);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirm_token</code></td><td>uuid</td><td>클라이언트 리포트 확인용 토큰 (nullable)</td></tr>
+              <tr style="background: rgba(251,191,36,.04);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">token_expires_at</code></td><td>timestamptz</td><td>토큰 만료 시각</td></tr>
+              <tr style="background: rgba(251,191,36,.04);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">first_viewed_at</code></td><td>timestamptz</td><td>클라이언트 최초 열람 시각</td></tr>
+              <tr style="background: rgba(16,185,129,.05);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code></td><td>timestamptz</td><td><strong>클라이언트 동의 완료 시각</strong> — 기록 후 삭제 불가</td></tr>
+              <tr style="background: rgba(16,185,129,.05);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ip</code></td><td>text</td><td>동의 시점 IP</td></tr>
+              <tr style="background: rgba(16,185,129,.05);"><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ua</code></td><td>text</td><td>동의 시점 User-Agent</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at</code></td><td>timestamptz</td><td><span class="tag orange">Soft delete용</span> (confirmed_at 있는 경우 제외)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top: 10px; font-size: 11px; color: var(--t3); display: flex; gap: 12px; flex-wrap: wrap;">
+          <span style="background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); border-radius: 4px; padding: 2px 8px;">🟡 노란 행 = F-10 토큰 관련</span>
+          <span style="background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.2); border-radius: 4px; padding: 2px 8px;">🟢 초록 행 = 사후 인지 기록 (삭제 불가)</span>
+        </div>
+      </div>
+
+      <!-- report_send_logs -->
+      <div class="sec-label mb14">📮 report_send_logs</div>
+      <div class="card mb18 accent-top accent-blue">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 460px;">
+            <thead>
+              <tr><th style="width: 28%;">컬럼</th><th style="width: 22%;">타입</th><th>설명</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">id</code></td><td><span class="tag blue">uuid PK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">report_id</code></td><td><span class="tag">uuid FK</span></td><td></td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">sent_to_email</code></td><td>text</td><td>수신 이메일 주소</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">sent_at</code></td><td>timestamptz</td><td>발송 일시</td></tr>
+              <tr><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">status</code></td><td><span class="tag purple">enum</span></td><td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">success</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">failed</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 테이블 관계도 -->
+      <div class="sec-label mb14">🔗 테이블 관계 요약</div>
+      <div class="card accent-top accent-purple">
+        <div style="font-size: 12px; color: var(--t3); line-height: 2.2; font-family: monospace;">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <span style="background: rgba(79,128,255,.12); border: 1px solid rgba(79,128,255,.3); color: var(--blue); border-radius: 6px; padding: 4px 10px; font-weight: 700;">organizations</span>
+            <span style="color: var(--t3);">1 : N</span>
+            <span style="background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); color: var(--green); border-radius: 6px; padding: 4px 10px; font-weight: 700;">projects</span>
+            <span style="color: var(--t3);">1 : N</span>
+            <span style="background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3); color: var(--yellow); border-radius: 6px; padding: 4px 10px; font-weight: 700;">scope_definitions</span>
+            <span style="color: var(--t3);">(version 관리)</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px;">
+            <span style="background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); color: var(--green); border-radius: 6px; padding: 4px 10px; font-weight: 700;">projects</span>
+            <span style="color: var(--t3);">1 : N</span>
+            <span style="background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); color: var(--green); border-radius: 6px; padding: 4px 10px; font-weight: 700;">scope_requests</span>
+            <span style="color: var(--t3);">1 : 1</span>
+            <span style="background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3); color: var(--yellow); border-radius: 6px; padding: 4px 10px; font-weight: 700;">reports</span>
+            <span style="color: var(--t3);">1 : N</span>
+            <span style="background: rgba(79,128,255,.12); border: 1px solid rgba(79,128,255,.3); color: var(--blue); border-radius: 6px; padding: 4px 10px; font-weight: 700;">report_send_logs</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-policy -->
+
+
+    <!-- ══ TAB 7 — 기술 스택 & 운영 정책 ══ -->
+    <div id="page-techstack" class="page">
+      <div class="page-title">기술 스택 &amp; 운영 정책</div>
+      <div class="page-desc">섹션 10 기술 스택, 섹션 11 운영 정책 전체를 정의합니다.</div>
+
+      <!-- ══ 섹션 10: 기술 스택 ══ -->
+      <div class="sec-label mb14">🛠 섹션 10 — 기술 스택</div>
+
+      <div class="callout yellow mb18">
+        <div class="callout-title">⚠️ 스택 변경 금지</div>
+        <p>모든 서버 로직은 <strong>Next.js API Routes 또는 Supabase Edge Functions</strong> 안에서 처리한다. Python / FastAPI / 별도 백엔드 서버 추가 불가.</p>
+      </div>
+
+      <div class="card mb18 accent-top accent-blue">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 540px;">
             <thead>
               <tr>
-                <th style="width: 25%;">스택</th>
-                <th style="width: 35%;">용도</th>
+                <th style="width: 22%;">스택</th>
+                <th style="width: 26%;">용도</th>
                 <th>제약</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Next.js 14 (App Router)</strong></td>
-                <td>UI + API Routes</td>
+                <td><strong>Next.js 14</strong><br><span style="font-size: 11px; color: var(--t3);">App Router</span></td>
+                <td>UI + API Routes (Claude 호출 포함)</td>
                 <td>Python/FastAPI 추가 불가</td>
               </tr>
               <tr>
@@ -1306,19 +2243,19 @@
                 <td>Auth + PostgreSQL + RLS + Storage</td>
                 <td>Service Role 키 서버사이드 전용</td>
               </tr>
-              <tr>
+              <tr style="background: rgba(167,139,250,.04);">
                 <td><strong>Claude API</strong></td>
-                <td>파싱 / 판정 / 리포트 / 이미지 판정(P1)</td>
-                <td>temp 0.2 고정, 키 서버사이드</td>
+                <td>범위 파싱 / 판정 / 리포트 생성 / 이미지 판정(P1)</td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">temperature 0.2</code> 고정, 키 서버사이드</td>
               </tr>
               <tr>
                 <td><strong>Vercel</strong></td>
-                <td>서버리스 배포 + Edge Functions</td>
+                <td>서버리스 배포 + Edge Functions + CI/CD</td>
                 <td>별도 서버 불가</td>
               </tr>
               <tr>
                 <td><strong>PostHog</strong></td>
-                <td>이벤트 트래킹 / 퍼널</td>
+                <td>이벤트 트래킹 / 퍼널 / 세션 리코딩</td>
                 <td>개인정보 미포함 이벤트만</td>
               </tr>
               <tr>
@@ -1335,151 +2272,358 @@
           </table>
         </div>
       </div>
-    </div>
 
-    <div id="page-acceptance" class="page">
-      <div class="page-title">8. 인수 기준 & 12. 지표 분석</div>
-      <div class="page-desc">기능 완료 기준, MVP 배포 필수 통과 항목, 그리고 온보딩 퍼널 정의를 포함합니다.</div>
+      <hr class="mb18">
 
-      <div class="h2-title">8. 인수 기준 (Definition of Done)</div>
+      <!-- ══ 섹션 11: 운영 정책 ══ -->
+      <div class="sec-label mb14">📜 섹션 11 — 운영 정책</div>
+
+      <!-- 11-1 사용량 초기화 -->
+      <div class="card mb18 accent-top accent-blue">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-1. 사용량 초기화 정책</div>
+        <ul class="blist">
+          <li>Free 플랜 월 사용량(판정 10회 / 리포트 3건)은 <strong>매월 1일 자정 KST 00:00 초기화</strong></li>
+          <li>판정 횟수는 <strong>재판정 포함</strong>하여 차감</li>
+          <li>초기화는 Supabase Edge Function cron 또는 <strong>Vercel Cron Jobs</strong>로 처리</li>
+          <li>유료 플랜 전환 시 사용량 카운터 <strong>즉시 리셋</strong></li>
+        </ul>
+      </div>
+
+      <!-- 11-2 소프트 게이트 -->
+      <div class="card mb18 accent-top accent-orange">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-2. 소프트 게이트 차단 정책</div>
+        <ul class="blist">
+          <li>Free 한도 초과 후 업그레이드 모달을 닫으면 → <strong>해당 기능 완전 차단</strong></li>
+          <li>모달을 닫아도 월말까지 차단 상태 유지 (<strong>기능 버튼 disabled + 툴팁</strong>)</li>
+          <li>이미 생성 완료된 리포트 조회·PDF 다운로드는 <strong>차단 제외</strong></li>
+          <li>판정 취소 후 "기록하지 않음" 처리해도 <strong>Free 플랜 횟수 차감</strong> (API 호출 비용 발생 시점 기준)</li>
+        </ul>
+      </div>
+
+      <!-- 11-3 소프트 딜리트 -->
+      <div class="card mb18 accent-top accent-red">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-3. 데이터 삭제 정책 — Soft Delete</div>
+        <ul class="blist">
+          <li>프로젝트 삭제 시 Soft delete — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at</code> 기록, 하위 데이터 동시 Soft delete</li>
+          <li>삭제 후 30일 이내 복구 가능 (UI P2), <strong>30일 경과 후 Hard delete 스케줄러</strong> 자동 실행</li>
+          <li>RLS 정책에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">deleted_at IS NULL</code> 조건 추가 필수</li>
+          <li><span class="tag red">불가</span> <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code>이 기록된 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definitions</code>는 Soft delete 불가 — 증거 보존</li>
+          <li><span class="tag red">불가</span> <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code>이 기록된 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">reports</code>는 Soft delete 불가 — 증거 보존</li>
+        </ul>
+      </div>
+
+      <!-- 11-4 ~ 11-7 2열 그리드 -->
       <div class="detail-grid mb18">
-        <div class="card accent-top accent-blue">
-          <div style="font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px;">인증 & 프로젝트</div>
-          <ul class="checklist">
-            <li>모든 DB 테이블 RLS <strong>ENABLED 상태</strong> 및 `deleted_at IS NULL` 조건 확인</li>
-            <li>계약 범위 수정 시 버전 증가 및 <strong>Fast Path 캐시 무효화</strong> 확인</li>
-            <li>이탈 후 재접속 시 임시저장 복원 확인</li>
-            <li>파싱 실패 시 수동 입력 모드 전환 확인</li>
+        <div class="card accent-top accent-yellow">
+          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-4. 리포트 수정 및 재생성</div>
+          <ul class="blist">
+            <li>이메일 발송 완료 시 상태 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">sent</code> + <strong>편집 모드 잠금</strong> (PDF 다운로드는 가능)</li>
+            <li>PM 오버라이드 시 리포트 자동 재생성 + 토스트 알림. 버전 번호 증가</li>
+            <li>이미 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">sent</code> 상태인 리포트 재생성 → <strong>경고 모달</strong></li>
+            <li>F-10 열람 또는 동의 완료 시 재생성 차단 → <strong>경고 모달</strong></li>
           </ul>
         </div>
-        <div class="card accent-top accent-green">
-          <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">AI 판정 & 리포트</div>
-          <ul class="checklist">
-            <li>Fast Path ①: 유사도 ≥ 0.92 시 이전 판정 결과 재사용 (고정 반환 아님)</li>
-            <li>복합 요청 부분 초과 시 항목별 구분 표시 확인</li>
-            <li>리포트 편집 시 직접 수정과 AI 재생성 이력 구분 확인</li>
-            <li>F-10 확인 링크 동의 후 재생성 차단 경고 모달 표시 확인</li>
-          </ul>
-        </div>
-        <div class="card accent-top accent-purple">
-          <div style="font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px;">F-10 클라이언트 확인 링크</div>
-          <ul class="checklist">
-            <li>`/confirm/[token]` 비인증 접근 허용 확인 (RLS 예외)</li>
-            <li>동의 완료 시 `confirmed_at`, `client_ip`, `client_ua` 기록 확인</li>
-            <li>만료 토큰 접근 시 안내 메시지 표시 확인</li>
-            <li>법적 성격 안내 고정 문구 표시 확인</li>
+        <div class="card accent-top accent-yellow">
+          <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-7. Fast Path 캐시 무효화</div>
+          <ul class="blist">
+            <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_definitions</code> 수정 시 → 해당 프로젝트 <strong>Fast Path 캐시 전체 자동 무효화</strong></li>
+            <li>PM 오버라이드 패턴 캐시는 범위 수정과 무관하게 <strong>유지</strong></li>
           </ul>
         </div>
       </div>
 
-      <div class="card mb18 accent-top accent-green">
-        <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">🚀 8-2. MVP 배포 전 Go / No-Go 체크리스트</div>
-        <div class="detail-grid mb0">
-          <div>
-            <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px;">✅ Go 조건</div>
-            <ul class="checklist">
-              <li>모든 P0 DoD 체크리스트 100% 통과</li>
-              <li>가입 → 계약 등록 → 판정 → 리포트 생성 엔드투엔드 성공</li>
-              <li>RLS 격리 QA 시나리오 전체 통과</li>
-              <li>온보딩 플로우 빈 상태 UI 및 임시저장 동작</li>
-              <li>Free 플랜 제한 로직 정상 동작</li>
-            </ul>
-          </div>
-          <div>
-            <div style="font-size: 12px; font-weight: 600; color: var(--red); margin-bottom: 8px;">🚫 No-Go 조건</div>
-            <ul class="checklist">
-              <li>타 테넌트 데이터 접근 가능한 버그 존재</li>
-              <li>Claude API 키 클라이언트 노출, 토스 시크릿 노출</li>
-              <li>판정 결과 저장 실패 및 PDF 다운로드 미작동</li>
-              <li>PostHog 트래킹 이벤트 누락 및 개인정보 포함 발송</li>
-              <li>로그인 없이 보호 경로 접근 가능한 버그</li>
-            </ul>
-          </div>
+      <!-- 11-5, 11-6 확인 링크 정책 2열 -->
+      <div class="detail-grid mb18">
+        <div class="card accent-top accent-yellow">
+          <div style="font-size: 13px; font-weight: 700; color: var(--yellow); margin-bottom: 12px;">11-5. 클라이언트 범위 확인 링크 정책 <span class="tag yellow">F-03-S</span></div>
+          <ul class="blist">
+            <li>토큰 만료: <strong>발급 후 30일</strong>. 만료 후 재발급 가능 — 이전 토큰 즉시 무효화</li>
+            <li>범위 수정 후 재생성 가능. <strong>이전 동의 기록 유지</strong></li>
+            <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed_at</code> 이후에도 범위 수정 가능. 단, <span class="tag orange">재확인 권장</span> 배지 표시</li>
+            <li>확인 페이지 하단 고정 문구: <em>"이 동의는 인지 확인을 목적으로 하며 법적 구속력 있는 서명이 아닙니다."</em></li>
+            <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">robots.txt</code>에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm-scope/*</code> disallow 추가</li>
+          </ul>
+        </div>
+        <div class="card accent-top accent-yellow">
+          <div style="font-size: 13px; font-weight: 700; color: var(--yellow); margin-bottom: 12px;">11-6. 클라이언트 리포트 확인 링크 정책 <span class="tag yellow">F-10</span></div>
+          <ul class="blist">
+            <li>토큰 만료: <strong>발급 후 30일</strong>. 만료 후 재발급 가능 — 이전 토큰 즉시 무효화</li>
+            <li><strong>동의 완료된 리포트는 확인 링크 재생성 불가</strong></li>
+            <li>동의 기록(<code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmed_at</code>, <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ip</code>, <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ua</code>) Soft delete 불가</li>
+            <li>확인 페이지 하단 고정 문구: <em>"이 동의는 인지 확인을 목적으로 하며 법적 구속력 있는 서명이 아닙니다."</em></li>
+            <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">robots.txt</code>에 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm/*</code> disallow 추가</li>
+          </ul>
         </div>
       </div>
 
-      <div class="h2-title">12. PostHog 퍼널 & 온보딩 완료 기준</div>
-      <div class="callout green mb14">
-        <div class="callout-title">🎯 온보딩 완료 기준: ⑤단계 — 첫 판정 요청 완료</div>
-        <p>`first_scope_judgment` 이벤트 발생 시점을 온보딩 완료로 정의. 목표: 가입 후 첫 판정 완료율 > 40%</p>
+      <!-- 11-8 면책/개인정보 -->
+      <div class="card mb18 accent-top accent-red">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-8. 면책 고지 &amp; 개인정보 처리</div>
+        <ul class="blist">
+          <li>리포트 하단 및 PDF에 <strong>AI 면책 고지 고정 문구 필수</strong> (수정 불가)</li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm/</code> 및 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">/confirm-scope/</code> 확인 페이지 하단에 동일 면책 고지 표시</li>
+          <li>설정 페이지 "계정 삭제" 버튼 필수. 탈퇴 시 즉시 차단 + <strong>30일 후 Hard delete</strong></li>
+          <li>PostHog 이벤트에 <strong>개인/계약 데이터 미포함</strong></li>
+          <li><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ip</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">client_ua</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ip</code> / <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_client_ua</code>는 <strong>내부 DB에만 저장, 외부 전송 금지</strong></li>
+        </ul>
       </div>
 
-      <div class="card mb18 accent-top accent-purple" style="padding: 0; overflow: hidden;">
+      <!-- 11-9 결제 정책 -->
+      <div class="card mb18 accent-top accent-purple">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-9. 결제 정책 (토스페이먼츠) &amp; 다운그레이드</div>
+        <ul class="blist">
+          <li>결제 주기: <strong>월간 구독</strong>, 토스페이먼츠 자동결제</li>
+          <li>결제 플로우: 업그레이드 모달 → 토스페이먼츠 위젯 → <strong>결제 승인 Webhook → plan_type 업데이트 &amp; 사용량 리셋</strong></li>
+          <li>구독 해지: 당월 말까지 유료 유지 → <strong>다음 달 1일 Free 전환</strong></li>
+          <li>다운그레이드: 기존 데이터 전체 유지. 초과 데이터는 <strong>조회만 가능, 신규 생성/편집 차단</strong>. UI 배너 표시</li>
+        </ul>
+      </div>
+
+      <!-- 11-10 에러 메시지 -->
+      <div class="card mb18 accent-top accent-orange">
+        <div style="font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 12px;">11-10. 에러 메시지 문구</div>
         <div style="overflow-x: auto;">
-          <table class="prd-table" style="min-width: 600px; margin: 0;">
+          <table class="prd-table" style="min-width: 500px;">
             <thead>
               <tr>
-                <th style="width: 10%;">단계</th>
-                <th style="width: 30%;">이벤트</th>
-                <th style="width: 20%;">목표 전환율</th>
+                <th style="width: 28%;">상황</th>
+                <th>문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>API 타임아웃</strong></td>
+                <td>"판정에 시간이 걸리고 있습니다. 잠시 후 다시 시도해주세요." <span class="tag">토스트</span></td>
+              </tr>
+              <tr>
+                <td><strong>연속 실패</strong></td>
+                <td>"AI 판정이 일시적으로 중단되었습니다. 수동으로 판정 결과를 선택해주세요." <span class="tag orange">배너</span></td>
+              </tr>
+              <tr>
+                <td><strong>한도 초과</strong></td>
+                <td>"이번 달 [기능명] [N]건을 모두 사용했습니다. Starter 플랜으로 업그레이드..." <span class="tag blue">모달</span></td>
+              </tr>
+              <tr>
+                <td><strong>발송 후 수정</strong></td>
+                <td>"이미 발송된 리포트는 수정할 수 없습니다." <span class="tag">토스트</span></td>
+              </tr>
+              <tr>
+                <td><strong>리포트 확인 링크 만료</strong></td>
+                <td>"이 확인 링크는 만료되었습니다. 담당 PM에게 문의하세요."</td>
+              </tr>
+              <tr>
+                <td><strong>범위 확인 링크 만료</strong></td>
+                <td>"이 확인 링크는 만료되었습니다. 담당 PM에게 문의하세요."</td>
+              </tr>
+              <tr>
+                <td><strong>동의 완료 후 재생성</strong></td>
+                <td>"클라이언트가 이미 동의 완료한 리포트입니다. 확인 링크를 재생성할 수 없습니다." <span class="tag blue">모달</span></td>
+              </tr>
+              <tr>
+                <td><strong>파싱 실패</strong></td>
+                <td>"범위 항목을 자동으로 구성하지 못했습니다. 직접 입력하시겠습니까?"</td>
+              </tr>
+              <tr>
+                <td><strong>리포트 생성 실패</strong></td>
+                <td>"리포트 자동 생성에 실패했습니다. 수동으로 작성하시겠습니까?"</td>
+              </tr>
+              <tr>
+                <td><strong>중복 요청 감지</strong></td>
+                <td>"동일한 요청이 이전에 [판정 결과]로 판정된 적 있습니다. 새로 판정하시겠습니까?" <span class="tag blue">모달</span></td>
+              </tr>
+              <tr>
+                <td><strong>계약서 없는 프로젝트 판정</strong></td>
+                <td>"이 프로젝트의 계약 범위는 클라이언트의 확인을 받지 않은 상태입니다. 판정을 계속 진행하시겠습니까?" <span class="tag blue">모달</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 11-11 판정 스트리밍 UX -->
+      <div class="card accent-top accent-green">
+        <div style="font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 12px;">11-11. 판정 스트리밍 UX</div>
+        <ul class="blist">
+          <li>Claude API 응답 중 단계별 텍스트 전환: <strong>"계약 범위를 분석하고 있습니다…"</strong> → <strong>"요청과 비교하고 있습니다…"</strong> → <strong>"결과를 정리하고 있습니다…"</strong></li>
+          <li>Fast Path 적중 시: <strong>1초 이내 즉시 결과 표시</strong></li>
+          <li>결과 애니메이션: <strong>색상 배지 + 근거 문장 페이드인</strong></li>
+          <li>30초 초과 시: <strong>"시간이 오래 걸리고 있습니다. 조금만 기다려주세요…"</strong>로 텍스트 전환</li>
+        </ul>
+      </div>
+
+    </div><!-- /page-techstack -->
+
+
+    <!-- ══ TAB 8 — PostHog 퍼널 ══ -->
+    <div id="page-posthog" class="page">
+      <div class="page-title">PostHog 퍼널 &amp; 온보딩 완료 기준</div>
+      <div class="page-desc">섹션 12 — 이벤트 퍼널 단계별 목표 전환율과 측정 기준, 온보딩 완료 기준 및 AHA 모멘트를 정의합니다.</div>
+
+      <!-- 온보딩 완료 vs AHA 모멘트 -->
+      <div class="detail-grid mb18">
+        <div class="callout green" style="margin-bottom: 0;">
+          <div class="callout-title">✅ 온보딩 완료 기준</div>
+          <p><strong>⑤단계</strong> — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">first_scope_judgment</code> 이벤트 발생 시점.<br>목표 전환율: <strong>&gt; 40%</strong><br>온보딩 완료 = 제품 진입 확인. AHA 모멘트와 별개.</p>
+        </div>
+        <div class="callout yellow" style="margin-bottom: 0;">
+          <div class="callout-title">⭐ AHA 모멘트</div>
+          <p><strong>⑦단계</strong> — <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">report_generated</code> 이벤트 발생 시점.<br>목표 전환율: <strong>&gt; 25%</strong><br>Free → Paid 전환 트리거.</p>
+        </div>
+      </div>
+
+      <!-- 퍼널 테이블 -->
+      <div class="sec-label mb14">📊 이벤트 퍼널 단계</div>
+      <div class="card mb18 accent-top accent-blue">
+        <div style="overflow-x: auto;">
+          <table class="prd-table" style="min-width: 600px;">
+            <thead>
+              <tr>
+                <th style="width: 6%;">단계</th>
+                <th style="width: 32%;">이벤트</th>
+                <th style="width: 16%;">목표 전환율</th>
                 <th>측정 기준</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>1</td>
-                <td><span class="tag">user_signed_up</span></td>
+                <td><strong>1</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">user_signed_up</code></td>
                 <td><span class="tag blue">기준점 (100%)</span></td>
                 <td>이메일 인증 완료</td>
               </tr>
               <tr>
-                <td>2</td>
-                <td><span class="tag">dashboard_viewed_empty</span></td>
-                <td>측정</td>
+                <td><strong>2</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">dashboard_viewed_empty</code></td>
+                <td style="color: var(--t3);">측정</td>
                 <td>빈 대시보드 진입</td>
               </tr>
               <tr>
-                <td>3</td>
-                <td><span class="tag">project_created</span></td>
+                <td><strong>3</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">project_created</code></td>
                 <td><span class="tag green">&gt; 70%</span></td>
                 <td>가입 후 24시간 이내</td>
               </tr>
               <tr>
-                <td>4</td>
-                <td><span class="tag">scope_confirmed</span></td>
-                <td>측정</td>
+                <td><strong>4</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmed</code></td>
+                <td style="color: var(--t3);">측정</td>
                 <td>범위 항목 확인 완료</td>
               </tr>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>4-S</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_agreed</code></td>
+                <td style="color: var(--t3);">측정 시작</td>
+                <td>P1. 클라이언트 범위 사전 동의율</td>
+              </tr>
               <tr style="background: rgba(16,185,129,.05);">
-                <td>5</td>
-                <td><span class="tag green">first_scope_judgment</span></td>
-                <td><strong style="color: var(--green);">&gt; 40%</strong></td>
-                <td>온보딩 완료 기준</td>
+                <td><strong>5</strong></td>
+                <td><code style="font-size: 11px; background: rgba(16,185,129,.15); padding: 1px 5px; border-radius: 4px; color: var(--green); font-weight: 700;">first_scope_judgment</code></td>
+                <td><span class="tag green">&gt; 40%</span></td>
+                <td><strong>온보딩 완료 기준</strong></td>
               </tr>
               <tr>
-                <td>6</td>
-                <td><span class="tag">judgment_result_viewed</span></td>
-                <td>측정</td>
+                <td><strong>6</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">judgment_result_viewed</code></td>
+                <td style="color: var(--t3);">측정</td>
                 <td>판정 결과 확인</td>
               </tr>
-              <tr>
-                <td>7</td>
-                <td><span class="tag yellow">report_generated</span></td>
-                <td><strong style="color: var(--yellow);">&gt; 25%</strong></td>
-                <td>AHA 모멘트 (Free→Paid 트리거)</td>
+              <tr style="background: rgba(251,191,36,.05);">
+                <td><strong>7</strong></td>
+                <td><code style="font-size: 11px; background: rgba(251,191,36,.15); padding: 1px 5px; border-radius: 4px; color: var(--yellow); font-weight: 700;">report_generated</code></td>
+                <td><span class="tag yellow">&gt; 25%</span></td>
+                <td><strong>⭐ AHA 모멘트</strong></td>
               </tr>
               <tr>
-                <td>8</td>
-                <td><span class="tag">pdf_downloaded</span></td>
-                <td><span class="tag purple">&gt; 15%</span></td>
+                <td><strong>8</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">pdf_downloaded</code></td>
+                <td><span class="tag">&gt; 15%</span></td>
                 <td>실사용 의도 확인</td>
               </tr>
-              <tr>
-                <td>-</td>
-                <td>결제 완료</td>
-                <td>목표 5%</td>
-                <td>Free→Paid 전환율</td>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>9</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_link_created</code></td>
+                <td style="color: var(--t3);">측정 시작</td>
+                <td>P1 릴리즈 후 측정</td>
+              </tr>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>10</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_link_viewed</code></td>
+                <td style="color: var(--t3);">측정 시작</td>
+                <td>클라이언트 열람률</td>
+              </tr>
+              <tr style="background: rgba(251,191,36,.04);">
+                <td><strong>11</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_agreed</code></td>
+                <td style="color: var(--t3);">측정 시작</td>
+                <td>클라이언트 동의율</td>
+              </tr>
+              <tr style="background: rgba(79,128,255,.04);">
+                <td><strong>—</strong></td>
+                <td><code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">upgrade_modal_shown → 결제 완료</code></td>
+                <td><span class="tag blue">목표 5%</span></td>
+                <td>Free → Paid 전환율</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div style="padding: 12px 14px; font-size: 12px; color: var(--t3); background: var(--s2);">
-          💡 퍼널 이탈 구간이 목표치 미달이면 해당 단계 UX 개선 집중. `upgrade_modal_shown` → 결제 완료 전환율은 별도 추적 (목표 5%).
+      </div>
+
+      <!-- 운영 인사이트 callout -->
+      <div class="callout blue mb18">
+        <div class="callout-title">📌 퍼널 운영 인사이트</div>
+        <p>
+          <strong>퍼널 이탈 구간이 목표치 미달이면</strong> 해당 단계 UX 개선 집중.<br><br>
+          <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_parse_failed</code> 발생률이 높으면 <strong>F-03 파싱 프롬프트 개선 우선.</strong><br><br>
+          <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">scope_confirmation_agreed</code>(F-03-S)와 <code style="font-size: 11px; background: var(--s2); padding: 1px 5px; border-radius: 4px;">confirmation_agreed</code>(F-10)가 <strong>함께 발생한 프로젝트 비율</strong>을 별도 추적 — 완결된 증거 구조 활용률 지표.
+        </p>
+      </div>
+
+      <!-- 관련 문서 링크 -->
+      <div class="card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="font-size: 14px; font-weight: 700; color: var(--t1); margin-bottom: 4px;">관련 기획 문서 바로가기</div>
+          <div style="font-size: 12px; color: var(--t3);">이 PRD의 근거가 되는 상위 문서들입니다.</div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a href="lean-canvas.html"
+            style="display: inline-flex; align-items: center; gap: 7px; background: var(--blue); color: #fff; text-decoration: none; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(79,128,255,.3); transition: all .2s;"
+            onmouseover="this.style.background='#3a6bea'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--blue)'; this.style.transform='translateY(0)'">
+            🗂 린캔버스
+          </a>
+          <a href="user-research.html"
+            style="display: inline-flex; align-items: center; gap: 7px; background: var(--green); color: #fff; text-decoration: none; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(16,185,129,.3); transition: all .2s;"
+            onmouseover="this.style.background='#0da271'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--green)'; this.style.transform='translateY(0)'">
+            🔍 사용자 리서치
+          </a>
+          <a href="product-vision.html"
+            style="display: inline-flex; align-items: center; gap: 7px; background: var(--purple); color: #fff; text-decoration: none; border-radius: 20px; padding: 9px 18px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(167,139,250,.3); transition: all .2s;"
+            onmouseover="this.style.background='#9370e8'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='var(--purple)'; this.style.transform='translateY(0)'">
+            🎯 제품 비전
+          </a>
         </div>
       </div>
 
-    </div>
+    </div><!-- /page-posthog -->
+
+
   </main>
+
+  <!-- ╔══ FOOTER ══╗ -->
+  <footer style="border-top: 1px solid var(--bd); padding: 20px 0; background: var(--s1); transition: background 0.2s; margin-top: 0;">
+    <div class="inner-wrap" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+      <div style="font-size: 12px; color: var(--t3); line-height: 1.8;">
+        <strong style="color: var(--blue);">Scope Manager</strong> PRD v2.0
+        &nbsp;|&nbsp; 빌더: <strong style="color: var(--t1);">Jey (김제이)</strong>
+        &nbsp;|&nbsp; GitHub: <a href="https://github.com/kkh851211/scope-managermvp" style="color: var(--blue); text-decoration: none; font-weight: 600;">kkh851211/scope-managermvp</a>
+      </div>
+      <div style="font-size: 11px; color: var(--t3);">
+        최종 업데이트: 2025
+      </div>
+    </div>
+  </footer>
 
   <script>
     function showTab(id, btn) {
@@ -1494,5 +2638,6 @@
       document.getElementById('toggleBtn').textContent = isLight ? '🌙 다크' : '☀️ 라이트';
     }
   </script>
+
 </body>
 </html>
