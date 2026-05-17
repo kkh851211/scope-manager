@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scope Manager 서비스 정책서 v1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --bg-2: #161b27;
+    --bg-3: #1d2435;
+    --border: #2a3347;
+    --border-light: #3a4560;
+    --text-primary: #e8edf5;
+    --text-secondary: #8a9bb8;
+    --text-muted: #556070;
+    --accent: #3d7eff;
+    --accent-dim: #1a3a7a;
+    --accent-glow: rgba(61, 126, 255, 0.12);
+    --green: #2ecc8a;
+    --green-dim: #0d3d29;
+    --amber: #f5a623;
+    --amber-dim: #3d2a0a;
+    --red: #ff5a5a;
+    --red-dim: #3d1515;
+    --serif: 'Noto Serif KR', serif;
+    --sans: 'Noto Sans KR', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* ── 커버 ── */
+  .cover {
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+    padding: 72px 80px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -80px;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(61,126,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cover-tag::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .cover-title {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  .cover-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .meta-value {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* ── 레이아웃 ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 220px);
+  }
+
+  /* ── 사이드바 ── */
+  .sidebar {
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: fit-content;
+  }
+  .sidebar-section {
+    padding: 0 20px;
+    margin-bottom: 8px;
+  }
+  .sidebar-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 12px 16px 6px;
+    display: block;
+  }
+  .sidebar-link {
+    display: block;
+    padding: 7px 16px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-3);
+  }
+  .sidebar-link.active {
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .sidebar-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-right: 6px;
+  }
+
+  /* ── 메인 콘텐츠 ── */
+  .main {
+    padding: 48px 64px;
+    max-width: 860px;
+  }
+
+  /* ── 섹션 ── */
+  .section {
+    margin-bottom: 64px;
+    scroll-margin-top: 32px;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ── 서브섹션 ── */
+  .subsection {
+    margin-bottom: 36px;
+  }
+  .subsection-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .subsection-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* ── 텍스트 ── */
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-size: 13.5px;
+  }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 정책 블록 ── */
+  .policy-block {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+  }
+  .policy-block p { margin-bottom: 0; }
+
+  /* ── 정책 리스트 ── */
+  .policy-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .policy-list li {
+    display: flex;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .policy-list li::before {
+    content: '—';
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── 테이블 ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  th {
+    background: var(--bg-3);
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg-3); }
+
+  /* ── 배지 ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .badge-blue { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(61,126,255,0.25); }
+  .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(46,204,138,0.25); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+  .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,90,90,0.25); }
+
+  /* ── 알림/콜아웃 ── */
+  .callout {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .callout-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .callout-body { color: var(--text-secondary); }
+  .callout-body strong { font-weight: 600; }
+  .callout-info { background: var(--accent-glow); border: 1px solid rgba(61,126,255,0.2); }
+  .callout-warn { background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.2); }
+  .callout-danger { background: var(--red-dim); border: 1px solid rgba(255,90,90,0.2); }
+  .callout-success { background: var(--green-dim); border: 1px solid rgba(46,204,138,0.2); }
+
+  /* ── 코드 인라인 ── */
+  code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* ── 구분선 ── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+
+  /* ── 정의 그리드 ── */
+  .def-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .def-term {
+    background: var(--bg-3);
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+  }
+  .def-desc {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+  .def-term:last-of-type,
+  .def-desc:last-of-type { border-bottom: none; }
+
+  /* ── 플랜 카드 ── */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .plan-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .plan-card.highlight {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .plan-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .plan-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+  .plan-price span {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+  .plan-limit {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .plan-limit-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* ── 푸터 ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    background: var(--bg-2);
+  }
+</style>
+</head>
+<body>
+
+<!-- 커버 -->
+<div class="cover">
+  <div class="cover-tag">Internal Document</div>
+  <div class="cover-title">스코프 매니저<br>서비스 정책서</div>
+  <div class="cover-subtitle">Scope Manager Service Policy Document</div>
+  <div class="cover-meta">
+    <div class="meta-item">
+      <span class="meta-label">Version</span>
+      <span class="meta-value">v1.0</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Based on PRD</span>
+      <span class="meta-value">v2.1</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">작성일</span>
+      <span class="meta-value">2025년 — MVP 런칭 직전</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">대상</span>
+      <span class="meta-value">내부 운영 기준 / 투자자 / 파트너</span>
+    </div>
+  </div>
+</div>
+
+<!-- 레이아웃 -->
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <nav class="sidebar">
+    <span class="sidebar-label">Contents</span>
+    <a class="sidebar-link" href="#s1"><span class="sidebar-num">01</span>문서 목적 및 범위</a>
+    <a class="sidebar-link" href="#s2"><span class="sidebar-num">02</span>용어 정의</a>
+    <a class="sidebar-link" href="#s3"><span class="sidebar-num">03</span>계정 및 조직 정책</a>
+    <a class="sidebar-link" href="#s4"><span class="sidebar-num">04</span>플랜 및 사용량 정책</a>
+    <a class="sidebar-link" href="#s5"><span class="sidebar-num">05</span>AI 판정 정책</a>
+    <a class="sidebar-link" href="#s6"><span class="sidebar-num">06</span>클라이언트 확인 정책</a>
+    <a class="sidebar-link" href="#s7"><span class="sidebar-num">07</span>데이터 보관 및 보안 정책</a>
+    <a class="sidebar-link" href="#s8"><span class="sidebar-num">08</span>결제 및 환불 정책</a>
+    <a class="sidebar-link" href="#s9"><span class="sidebar-num">09</span>면책 및 법적 한계</a>
+    <a class="sidebar-link" href="#s10"><span class="sidebar-num">10</span>정책 변경 원칙</a>
+  </nav>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <!-- S1 -->
+    <section class="section" id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">문서 목적 및 범위</h2>
+      </div>
+      <p>이 문서는 Scope Manager(스코프 매니저) 서비스의 운영 기준, 기능 정책, 데이터 처리 원칙, 결제 규칙을 명문화한 내부 정책서다. PRD v2.1에서 기술된 기능 요구사항을 보완하며, PRD가 "무엇을 만드는가"를 정의한다면 이 문서는 "어떤 규칙으로 작동하는가"를 정의한다.</p>
+      <p>본 정책서의 적용 대상은 Scope Manager 서비스를 사용하는 모든 에이전시 조직(Organization)과 PM 사용자이며, 서비스 운영자(Jey / 개발 주체)의 내부 의사결정 기준으로도 활용된다.</p>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <div class="callout-body"><strong>적용 우선순위:</strong> 이 정책서의 내용과 PRD가 충돌하는 경우, 이 정책서가 최신 기준으로 우선 적용된다. 단, 기술 구현 세부사항은 PRD의 기술 노트를 따른다.</div>
+      </div>
+    </section>
+
+    <!-- S2 -->
+    <section class="section" id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">용어 정의</h2>
+      </div>
+      <div class="def-grid">
+        <div class="def-term">Organization</div>
+        <div class="def-desc">하나의 에이전시 단위로 생성되는 워크스페이스. 가입 시 자동 생성되며, 모든 데이터는 Organization 단위로 격리된다.</div>
+        <div class="def-term">PM 사용자</div>
+        <div class="def-desc">Scope Manager에 가입하여 프로젝트를 관리하고 AI 판정을 실행하는 에이전시 내부 사용자. 클라이언트와 구분된다.</div>
+        <div class="def-term">클라이언트</div>
+        <div class="def-desc">에이전시의 발주 고객. Scope Manager에 가입하지 않으며, 확인 링크(UUID 토큰)를 통해 특정 페이지에만 접근한다.</div>
+        <div class="def-term">계약 범위</div>
+        <div class="def-desc">PM이 프로젝트에 등록한 계약서 내용. AI 판정의 기준이 되며, PM이 수정·확정한 parsed_items가 실제 판정 기준으로 사용된다.</div>
+        <div class="def-term">사전 동의</div>
+        <div class="def-desc">프로젝트 시작 전 클라이언트가 계약 범위를 확인하고 동의한 기록 (F-03-S). 법적 서명이 아닌 인지 확인 수준.</div>
+        <div class="def-term">사후 인지</div>
+        <div class="def-desc">추가 요청 판정 후 클라이언트가 리포트 내용을 확인하고 동의한 기록 (F-10). 분쟁 대비 증거 기록 목적.</div>
+        <div class="def-term">Fast Path</div>
+        <div class="def-desc">코사인 유사도 기반의 사전 판정 로직. Claude API 호출 없이 결과를 반환하여 비용을 절감하는 내부 최적화 메커니즘.</div>
+        <div class="def-term">소프트 게이트</div>
+        <div class="def-desc">플랜 한도 초과 시 업그레이드 모달을 표시하고, 모달을 닫으면 해당 기능을 차단하는 UX 패턴.</div>
+      </div>
+    </section>
+
+    <!-- S3 -->
+    <section class="section" id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">계정 및 조직 정책</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">3-1. 가입 및 워크스페이스 생성</div>
+        <ul class="policy-list">
+          <li>가입 수단은 이메일+패스워드 및 Google OAuth 두 가지로 제한한다.</li>
+          <li>이메일 가입 시 이메일 인증 완료 후 서비스 이용이 가능하다.</li>
+          <li>가입 완료 시 Organization(워크스페이스)이 자동으로 1개 생성된다. 1인 1 Organization을 원칙으로 하며, 복수 Organization 생성은 지원하지 않는다.</li>
+          <li>가입 즉시 Free 플랜이 적용된다. 별도 카드 등록 없이 사용 가능하다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">3-2. 역할 및 권한</div>
+        <p>MVP 단계에서는 단일 사용자(Admin) 체제로 운영된다. 팀원 초대 및 멀티 유저 기능은 Pro 플랜 P2 단계에서 지원 예정이다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>역할</th><th>권한 범위</th><th>지원 시점</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Admin (단독)</td><td>전체 기능 접근, 플랜 관리, 결제, 데이터 삭제</td><td>MVP</td></tr>
+              <tr><td>Member</td><td>프로젝트 생성, 판정, 리포트 생성 (결제·삭제 제외)</td><td>Pro P2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">3-3. 계정 삭제 및 탈퇴</div>
+        <ul class="policy-list">
+          <li>PM 사용자는 설정 페이지에서 언제든지 계정 삭제를 요청할 수 있다.</li>
+          <li>삭제 요청 즉시 로그인이 차단된다. 모든 데이터는 Soft delete 처리된다.</li>
+          <li>삭제 요청일로부터 30일 이내에는 복구 요청이 가능하다 (P2 UI 예정. 현재는 운영자 직접 처리).</li>
+          <li>30일 경과 후 모든 데이터가 Hard delete된다. 단, <code>scope_confirmed_at</code> 또는 <code>confirmed_at</code>이 기록된 행은 삭제 불가 — 증거 보존 원칙 우선 적용.</li>
+          <li>유료 구독 중 탈퇴 시 당월 말까지 유료 기능 유지 후 자동 종료된다. 잔여 기간 환불은 제공하지 않는다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S4 -->
+    <section class="section" id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">플랜 및 사용량 정책</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">4-1. 플랜 구성</div>
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">Free</div>
+            <div class="plan-price">₩0 <span>/ 월</span></div>
+            <div class="plan-limit"><span class="plan-limit-num">10</span>회 AI 판정</div>
+            <div class="plan-limit"><span class="plan-limit-num">3</span>건 리포트 생성</div>
+            <div class="plan-limit"><span class="plan-limit-num">5</span>회 AI 파싱</div>
+            <div class="plan-limit"><span class="plan-limit-num">∞</span>프로젝트 수</div>
+          </div>
+          <div class="plan-card highlight">
+            <div class="plan-name">Starter</div>
+            <div class="plan-price">₩29,000 <span>/ 월</span></div>
+            <div class="plan-limit"><span class="plan-limit-num">100</span>회 AI 판정</div>
+            <div class="plan-limit"><span class="plan-limit-num">30</span>건 리포트 생성</div>
+            <div class="plan-limit"><span class="plan-limit-num">20</span>회 AI 파싱</div>
+            <div class="plan-limit"><span class="plan-limit-num">∞</span>프로젝트 수</div>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Pro</div>
+            <div class="plan-price">₩89,000 <span>/ 월</span></div>
+            <div class="plan-limit"><span class="plan-limit-num">∞</span>AI 판정</div>
+            <div class="plan-limit"><span class="plan-limit-num">∞</span>리포트 생성</div>
+            <div class="plan-limit"><span class="plan-limit-num">∞</span>AI 파싱</div>
+            <div class="plan-limit"><span class="plan-limit-num">∞</span>프로젝트 수</div>
+          </div>
+        </div>
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠</span>
+          <div class="callout-body">Pro 플랜은 현재 출시 예정 상태이며, 해당 기능(팀원 공유, 벤치마크, CSV 등)은 추후 공개된다. 현재 Starter까지 가입 가능.</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">4-2. 사용량 카운트 기준</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>항목</th><th>카운트 기준</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>AI 판정 횟수</td><td>판정 요청 제출 시점 (결과 저장 여부 무관)</td><td>재판정 포함 차감. "기록하지 않음" 처리해도 차감.</td></tr>
+              <tr><td>리포트 생성 건수</td><td>리포트 최초 생성 시점</td><td>재생성은 버전만 증가, 건수는 최초 1회만 차감.</td></tr>
+              <tr><td>AI 파싱 횟수</td><td>파싱 API 호출 성공 시점</td><td>파싱 실패 시 차감 없음. 수동 입력은 차감 없음.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">4-3. 사용량 초기화 정책</div>
+        <ul class="policy-list">
+          <li>월 사용량은 매월 1일 자정 KST 00:00에 초기화된다.</li>
+          <li>유료 플랜 전환(Free → Starter, Starter → Pro) 시 사용량 카운터가 즉시 리셋된다.</li>
+          <li>다운그레이드(Pro → Starter, Starter → Free) 시 사용량은 유지되며, 새 플랜 한도 기준으로 다음 달 1일부터 적용된다.</li>
+          <li>초기화는 Supabase Edge Function cron 또는 Vercel Cron Jobs로 자동 처리된다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">4-4. 한도 초과 시 동작 (소프트 게이트)</div>
+        <ul class="policy-list">
+          <li>한도 초과 시 업그레이드 유도 모달이 표시된다. 모달을 닫으면 해당 기능이 월말까지 완전 차단된다.</li>
+          <li>이미 생성 완료된 리포트 조회 및 PDF 다운로드는 한도 초과와 무관하게 항상 허용된다.</li>
+          <li>AI 파싱 한도 초과 시에도 수동 범위 입력 모드는 항상 제한 없이 사용 가능하다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">4-5. 다운그레이드 시 데이터 처리</div>
+        <ul class="policy-list">
+          <li>다운그레이드 후에도 기존 데이터(프로젝트, 판정 이력, 리포트)는 전부 유지된다.</li>
+          <li>새 플랜 한도를 초과하는 신규 생성/편집은 차단된다.</li>
+          <li>UI 상단에 "플랜이 변경되었습니다" 배너를 표시한다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S5 -->
+    <section class="section" id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">AI 판정 정책</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">5-1. 판정 결과의 정의</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>결과값</th><th>의미</th><th>후속 처리</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="badge badge-green">범위 내</span></td><td>계약 범위에 포함된 요청</td><td>리포트 생성 가능 ("범위 내" 형태)</td></tr>
+              <tr><td><span class="badge badge-amber">부분 초과</span></td><td>복합 요청 중 일부 항목만 초과</td><td>초과/범위 내 항목 구분 표시</td></tr>
+              <tr><td><span class="badge badge-red">범위 초과</span></td><td>계약 범위를 벗어난 요청</td><td>청구 근거 리포트 자동 생성</td></tr>
+              <tr><td><span class="badge badge-blue">판단 필요</span></td><td>AI가 판정하기 어려운 경우</td><td>PM 수동 판정 → DB 오버라이드 기록</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">5-2. Fast Path 분기 정책</div>
+        <p>Fast Path는 Claude API 호출 비용을 절감하기 위한 내부 최적화 로직이다. 전체 요청의 30~40% Fast Path 처리를 목표로 한다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>경로</th><th>조건</th><th>동작</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Fast Path A</td><td>코사인 유사도 ≥ 0.92</td><td>이전 판정 결과 재사용 (범위 내 고정 반환 아님)</td></tr>
+              <tr><td>Fast Path B</td><td>최대 유사도 ≤ 0.35</td><td>범위 초과 반환. 단, 포괄적 계약서 오판 가능성 있음.</td></tr>
+              <tr><td>Fast Path C</td><td>동일 요청 해시(SHA-256) 감지</td><td>PM에게 확인 모달 → 결과 재사용 또는 새 판정</td></tr>
+              <tr><td>Fast Path D</td><td>PM 오버라이드 패턴과 유사도 ≥ 0.88</td><td>오버라이드 기록 우선 적용</td></tr>
+              <tr><td>Claude API 호출</td><td>0.35 &lt; 유사도 &lt; 0.92</td><td>실제 Claude API 범위 판정 실행</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="policy-list">
+          <li>계약 범위(scope_definitions) 수정 시 해당 프로젝트의 Fast Path 캐시가 전체 자동 무효화된다.</li>
+          <li>PM 오버라이드 패턴 캐시는 범위 수정과 무관하게 유지된다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">5-3. AI 판정 결과의 법적 성격</div>
+        <div class="callout callout-danger">
+          <span class="callout-icon">!</span>
+          <div class="callout-body"><strong>면책 고지 (변경 불가 고정 문구):</strong> Scope Manager의 AI 판정 결과는 참고 목적으로만 제공되며, 법적 효력을 가지지 않습니다. 최종 판단 및 클라이언트 커뮤니케이션의 책임은 PM에게 있습니다.</div>
+        </div>
+        <ul class="policy-list">
+          <li>AI 판정 결과는 PM의 의사결정을 보조하는 참고 자료이며, 법적 구속력이 없다.</li>
+          <li>PM은 AI 판정 결과를 오버라이드할 수 있으며, 오버라이드 기록은 DB에 별도 저장된다.</li>
+          <li>판정 근거 문장은 PM이 어떤 계약 항목과 비교되었는지 확인할 수 있도록 출력된다.</li>
+          <li>AI 면책 고지는 리포트, PDF, 클라이언트 확인 페이지 모두에 고정 표시되며 편집할 수 없다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">5-4. 판정 실패 및 타임아웃 처리</div>
+        <ul class="policy-list">
+          <li>판정 요청 30초 초과(타임아웃) 시 재시도 1회를 자동 실행한다.</li>
+          <li>재시도까지 실패(연속 2회 실패) 시 수동 판정 모드로 자동 전환되며, "AI 판정 일시 중단" 배너가 표시된다.</li>
+          <li>판정 결과 저장 전 Supabase 오류 발생 시 로컬스토리지에 임시 저장 후 복구 시 동기화한다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">5-5. 리포트 생성 및 수정 정책</div>
+        <ul class="policy-list">
+          <li>리포트는 중립적 시스템 어조로 생성된다. "죄송합니다", "유감입니다" 등 감정·사과 표현은 프롬프트 수준에서 금지된다.</li>
+          <li>편집 가능 영역: 추가 비용 금액, 안내 문구, 견적 유효기간.</li>
+          <li>편집 불가 영역(고정): 판정 결과, 계약 근거, AI 면책 고지, 동의의 법적 성격 안내, 클라이언트 범위 확인 상태 문구.</li>
+          <li>이메일 발송 완료(sent 상태) 후 편집 모드 잠금. PDF 다운로드는 발송 후에도 가능.</li>
+          <li>F-10 클라이언트 열람 또는 동의 완료 시 리포트 재생성이 차단된다.</li>
+          <li>재생성 시 버전 번호가 증가하며, 각 버전은 독립적으로 열람 가능하다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S6 -->
+    <section class="section" id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">클라이언트 확인 정책</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">6-1. 두 가지 확인의 구분</div>
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ</span>
+          <div class="callout-body">F-03-S(사전 동의)와 F-10(사후 인지)은 목적이 다른 별개의 확인이다. 두 가지가 함께 있을 때 "범위에 합의했고 → 그 범위를 초과했으며 → 클라이언트도 인지했다"는 완결된 증거 구조가 만들어진다.</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>구분</th><th>F-03-S 계약 범위 확인 (사전 동의)</th><th>F-10 리포트 확인 (사후 인지)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>시점</td><td>프로젝트 시작 전</td><td>추가 요청 판정 후</td></tr>
+              <tr><td>목적</td><td>"이 범위로 계약합니다" 인지 확인</td><td>"이 요청은 범위 초과입니다" 인지 확인</td></tr>
+              <tr><td>URL</td><td>/confirm-scope/[token]</td><td>/confirm/[token]</td></tr>
+              <tr><td>기록 컬럼</td><td>scope_confirmed_at</td><td>confirmed_at</td></tr>
+              <tr><td>플랜</td><td>Starter 이상</td><td>Starter 이상</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">6-2. 확인 링크 발급 및 유효 정책</div>
+        <ul class="policy-list">
+          <li>확인 링크는 UUID v4 토큰(122비트 엔트로피) 기반으로 발급된다. 클라이언트는 별도 가입 없이 접근 가능하다.</li>
+          <li>토큰 유효 기간: 발급일로부터 30일. 만료 후 "이 확인 링크는 만료되었습니다." 안내 표시.</li>
+          <li>만료 후 재발급 가능하며, 재발급 시 이전 토큰은 즉시 무효화된다.</li>
+          <li>링크 전달 채널은 PM이 자유롭게 선택한다 (카카오톡, 이메일 등). 시스템이 클라이언트에게 자동 발송하지 않는다.</li>
+          <li>확인 페이지는 robots.txt에 disallow 처리되어 검색 엔진에 노출되지 않는다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">6-3. 확인 기록의 불변성</div>
+        <div class="callout callout-danger">
+          <span class="callout-icon">!</span>
+          <div class="callout-body"><strong>핵심 원칙:</strong> <code>scope_confirmed_at</code> 또는 <code>confirmed_at</code>이 기록된 행은 어떠한 경우에도 삭제할 수 없다. 이는 분쟁 대비 증거 보존을 위한 시스템 수준의 강제 규칙이다.</div>
+        </div>
+        <ul class="policy-list">
+          <li>동의 완료 후에도 PM은 계약 범위를 수정할 수 있다. 단, 범위 수정 시 "범위 수정됨 — 클라이언트 재확인 권장" 경고 배지가 표시된다.</li>
+          <li>동의 완료된 리포트(F-10)는 확인 링크 재생성이 불가하다.</li>
+          <li>기록되는 정보: 동의 완료 시각(KST), 클라이언트 IP, 클라이언트 User-Agent. 이 정보는 내부 DB에만 저장되며 외부로 전송되지 않는다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">6-4. 확인의 법적 성격</div>
+        <ul class="policy-list">
+          <li>클라이언트 확인(동의 버튼 클릭)은 법적 구속력 있는 전자서명이 아닌, 내용 인지 확인 수준이다.</li>
+          <li>확인 페이지에는 다음 고정 문구가 반드시 표시된다: <em>"위 항목은 범위 확인을 목적으로 하며, 본 동의는 기존 계약을 대체하지 않습니다."</em></li>
+          <li>동의 페이지에는 거절, 협상, 수정 요청 버튼을 제공하지 않는다. 확인 버튼 1개만 존재한다.</li>
+          <li>내부 도구 원칙: Scope Manager는 PM의 내부 관리 도구이며, 클라이언트와 직접 협상하거나 압박하는 기능을 제공하지 않는다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">6-5. 클라이언트 확인 상태 표시</div>
+        <p>PM 화면에서 확인 상태는 3단계로 표시된다: <span class="badge badge-blue">미열람</span> → <span class="badge badge-amber">열람 완료</span> → <span class="badge badge-green">동의 완료</span></p>
+        <ul class="policy-list">
+          <li>최초 접근 시 열람 완료 시각이 별도 기록된다 (동의와 독립적 추적).</li>
+          <li>동의 완료 시 PM에게 인앱 알림이 표시된다. 이메일 알림은 P2 단계에서 지원.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S7 -->
+    <section class="section" id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2 class="section-title">데이터 보관 및 보안 정책</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">7-1. 멀티테넌트 격리 원칙</div>
+        <ul class="policy-list">
+          <li>모든 DB 테이블에 <code>organization_id UUID NOT NULL</code>이 필수 적용된다.</li>
+          <li>Supabase RLS(Row Level Security)가 모든 테이블에 ENABLE FORCE 상태로 적용된다.</li>
+          <li>API Route 레벨에서도 <code>WHERE organization_id = ?</code> 조건을 명시하여 이중 격리를 보장한다.</li>
+          <li>클라이언트 확인 페이지(/confirm-scope/[token], /confirm/[token])는 RLS 예외 처리되며, 토큰 자체가 인증 수단으로 작동한다.</li>
+          <li>타 Organization 데이터 접근 시도 시 403 반환을 인수 기준으로 QA 검증한다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">7-2. 데이터 삭제 정책 (Soft Delete)</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>대상</th><th>삭제 방식</th><th>예외</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>프로젝트 삭제</td><td>Soft delete (deleted_at 기록), 하위 데이터 동시 Soft delete</td><td>scope_confirmed_at 기록된 scope_definitions 제외</td></tr>
+              <tr><td>리포트 삭제</td><td>Soft delete</td><td>confirmed_at 기록된 reports 제외</td></tr>
+              <tr><td>계정 삭제 후 30일</td><td>Hard delete 스케줄러 자동 실행</td><td>증거 기록(confirmed_at류) 제외</td></tr>
+              <tr><td>30일 이내</td><td>복구 가능 (P2 UI, 현재 운영자 직접)</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">7-3. 민감 데이터 처리 원칙</div>
+        <ul class="policy-list">
+          <li>Claude API 키, Toss Payments 시크릿 키, Supabase Service Role 키는 서버사이드 전용으로만 사용된다. 클라이언트 코드에 절대 노출되지 않는다.</li>
+          <li>클라이언트 IP 및 User-Agent는 내부 DB에만 저장되며, PostHog 등 외부 서비스로 전송되지 않는다.</li>
+          <li>PostHog 이벤트에는 개인정보 및 계약 세부 데이터가 포함되지 않는다.</li>
+          <li>Claude API 프롬프트 구성 시 해당 Organization 데이터만 컨텍스트로 주입된다. 타 Organization 데이터가 AI 응답에 영향을 미치지 않는다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">7-4. 데이터 보관 기간</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>데이터 종류</th><th>보관 기간</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>프로젝트 / 판정 이력 / 리포트</td><td>계정 활성 기간 전체 + 계정 삭제 후 30일</td></tr>
+              <tr><td>scope_confirmed_at 기록 행</td><td>영구 보존 (삭제 불가)</td></tr>
+              <tr><td>confirmed_at 기록 행</td><td>영구 보존 (삭제 불가)</td></tr>
+              <tr><td>발송 이력 (report_send_logs)</td><td>계정 삭제 후 30일</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- S8 -->
+    <section class="section" id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2 class="section-title">결제 및 환불 정책</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">8-1. 결제 수단 및 주기</div>
+        <ul class="policy-list">
+          <li>결제 수단: Toss Payments 정기결제 (카드 자동결제).</li>
+          <li>결제 주기: 월간 구독, 매월 가입일 기준 자동 갱신.</li>
+          <li>결제 플로우: 업그레이드 모달 → Toss Payments 위젯 → 결제 승인 Webhook → plan_type 업데이트 및 사용량 리셋.</li>
+          <li>Toss Payments 연동은 사업자등록 완료 후 활성화된다. 그 이전에는 유료 플랜 가입이 비활성화 상태로 유지된다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">8-2. 구독 해지 및 플랜 전환</div>
+        <ul class="policy-list">
+          <li>구독 해지 요청 시 당월 말까지 유료 기능을 유지한 후, 다음 달 1일부터 Free 플랜으로 전환된다.</li>
+          <li>플랜 업그레이드 시 즉시 적용되며 사용량 카운터가 리셋된다.</li>
+          <li>플랜 다운그레이드 시 다음 결제일부터 적용되며, 남은 기간은 상위 플랜 기준으로 유지된다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">8-3. 환불 정책</div>
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠</span>
+          <div class="callout-body">SaaS 서비스 특성상 결제 완료된 구독 기간에 대한 부분 환불은 원칙적으로 제공하지 않는다. 단, 서비스 장애 등 운영자 귀책 사유가 명확한 경우 개별 협의를 통해 처리할 수 있다.</div>
+        </div>
+        <ul class="policy-list">
+          <li>결제 당월 미사용 상태에서 7일 이내 환불 요청 시 전액 환불 처리한다 (운영 초기 정책, 향후 변경 가능).</li>
+          <li>환불 요청 채널: 서비스 내 문의 기능 또는 운영자 직접 연락.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S9 -->
+    <section class="section" id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2 class="section-title">면책 및 법적 한계</h2>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">9-1. 서비스 제공 범위의 한계</div>
+        <ul class="policy-list">
+          <li>Scope Manager는 PM의 내부 의사결정 보조 도구이며, 법률 서비스를 제공하지 않는다.</li>
+          <li>계약서의 법적 유효성, 완결성, 해석은 시스템이 검증하지 않는다. PM이 입력한 텍스트를 판정 기준으로 사용할 뿐이다.</li>
+          <li>AI 판정 결과, 생성된 리포트, 클라이언트 확인 기록이 법적 분쟁에서의 효력을 보장하지 않는다.</li>
+          <li>시스템이 생성한 리포트를 클라이언트에게 전달할지, 어떤 채널로 전달할지, Scope Manager 사용 여부를 공개할지 모두 PM의 재량이다.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">9-2. 내부 도구 원칙 (영구 제외 기능)</div>
+        <p>아래 기능은 한국 비즈니스 문화에서의 관계 리스크 및 법적 책임 문제로 영구 제외된다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>제외 기능</th><th>제외 근거</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>클라이언트 포털 / 협상 제안서</td><td>도구가 직접 압박 → 한국 비즈니스 관계 파괴 리스크. 내부 도구 원칙 위반.</td></tr>
+              <tr><td>AI 계약서 자동 생성</td><td>법무 영역. AI 생성 계약서 법적 책임 리스크.</td></tr>
+              <tr><td>자동 청구서 발송 / 결제 연동</td><td>청구는 PM의 최종 판단과 관계 맥락이 필요. 자동화 시 관계 손상 리스크.</td></tr>
+              <tr><td>자동 클라이언트 알림 발송</td><td>카카오톡이 주 채널인 한국 비즈니스 환경에서 이메일 자동 발송은 채널 불일치. 도구 노출 리스크.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">9-3. 서비스 안정성 면책</div>
+        <ul class="policy-list">
+          <li>Supabase, Vercel, Claude API, Toss Payments 등 제3자 서비스 장애로 인한 Scope Manager 서비스 중단에 대해 운영자의 책임이 제한된다.</li>
+          <li>Claude API 오판정으로 인한 비즈니스 손해에 대해 Scope Manager는 책임을 지지 않는다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- S10 -->
+    <section class="section" id="s10">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2 class="section-title">정책 변경 원칙</h2>
+      </div>
+      <ul class="policy-list">
+        <li>이 정책서는 PRD 버전 업데이트 또는 주요 기능 변경 시 함께 개정된다.</li>
+        <li>플랜 가격, 사용량 한도, 환불 정책 변경 시 기존 유료 사용자에게 변경 30일 전 사전 고지한다 (인앱 알림 또는 이메일).</li>
+        <li>데이터 삭제 정책, 증거 보존 원칙 (<code>scope_confirmed_at</code>, <code>confirmed_at</code> 불변성)은 서비스 존속 기간 동안 변경하지 않는 것을 원칙으로 한다.</li>
+        <li>영구 제외 기능 목록은 제품 철학의 핵심이며, 비즈니스 전략적 판단에 의해서만 변경 가능하다.</li>
+      </ul>
+      <hr>
+      <div class="policy-block">
+        <p style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em;">
+          이 문서는 Scope Manager PRD v2.1을 기반으로 작성된 내부 서비스 정책서입니다. 외부 공개 시 이용약관 및 개인정보처리방침 문서로 별도 변환이 필요합니다.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 푸터 -->
+<footer class="footer">
+  <span>Scope Manager Service Policy v1.0</span>
+  <span>Based on PRD v2.1 · Internal Document</span>
+</footer>
+
+</body>
+</html>
